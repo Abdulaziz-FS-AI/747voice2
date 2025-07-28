@@ -214,7 +214,7 @@ collectLeadData({
     template: PromptTemplate,
     customization: AssistantCustomization
   ): void {
-    const providedFields: Record<string, string> = {
+    const providedFields = {
       AGENT_NAME: customization.agentName,
       COMPANY_NAME: customization.companyName
     }

@@ -1,6 +1,8 @@
 'use client';
 
-import { Database } from '@/types/database-simplified';
+import { createClientSupabaseClient } from '@/lib/supabase';
+import { Database } from '@/types/database';
+import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 
 type Tables = Database['public']['Tables'];
 
@@ -13,11 +15,13 @@ export type RealtimeEvent<T = any> = {
   schema: string;
 };
 
-// Mock realtime subscription manager for standalone version
+// Realtime subscription manager
 export class RealtimeManager {
+  private supabase = createClientSupabaseClient();
+  private channels = new Map<string, RealtimeChannel>();
   private listeners = new Map<string, Set<(event: RealtimeEvent) => void>>();
 
-  // Mock subscription for standalone version
+  // Subscribe to table changes for a specific team
   subscribeToTeamData(
     teamId: string,
     tables: string[],
@@ -25,16 +29,46 @@ export class RealtimeManager {
   ): () => void {
     const channelName = `team_${teamId}`;
     
-    // Store callback for mock purposes
-    if (!this.listeners.has(channelName)) {
+    // Create channel if it doesn't exist
+    if (!this.channels.has(channelName)) {
+      const channel = this.supabase.channel(channelName);
+      
+      // Subscribe to each table
+      tables.forEach(table => {
+        channel.on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: table,
+            filter: `team_id=eq.${teamId}`,
+          },
+          (payload: RealtimePostgresChangesPayload<any>) => {
+            const event: RealtimeEvent = {
+              eventType: payload.eventType,
+              new: payload.new,
+              old: payload.old,
+              table: payload.table,
+              schema: payload.schema,
+            };
+            
+            // Notify all listeners for this channel
+            const channelListeners = this.listeners.get(channelName);
+            if (channelListeners) {
+              channelListeners.forEach(listener => listener(event));
+            }
+          }
+        );
+      });
+      
+      channel.subscribe();
+      this.channels.set(channelName, channel);
       this.listeners.set(channelName, new Set());
     }
     
+    // Add callback to listeners
     const channelListeners = this.listeners.get(channelName)!;
     channelListeners.add(callback);
-    
-    // Mock: Log subscription for debugging
-    console.log(`📡 Mock realtime subscription: ${channelName} for tables:`, tables);
     
     // Return unsubscribe function
     return () => {
@@ -42,12 +76,17 @@ export class RealtimeManager {
       
       // Remove channel if no more listeners
       if (channelListeners.size === 0) {
-        this.listeners.delete(channelName);
+        const channel = this.channels.get(channelName);
+        if (channel) {
+          this.supabase.removeChannel(channel);
+          this.channels.delete(channelName);
+          this.listeners.delete(channelName);
+        }
       }
     };
   }
 
-  // Mock subscription to specific resource changes
+  // Subscribe to specific resource changes
   subscribeToResource(
     resourceType: 'call' | 'lead' | 'assistant',
     resourceId: string,
@@ -55,60 +94,131 @@ export class RealtimeManager {
   ): () => void {
     const channelName = `${resourceType}_${resourceId}`;
     
-    if (!this.listeners.has(channelName)) {
+    if (!this.channels.has(channelName)) {
+      const channel = this.supabase.channel(channelName);
+      
+      const tableName = resourceType === 'assistant' ? 'assistants' : 
+                       resourceType === 'call' ? 'calls' : 'leads';
+      
+      channel.on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: tableName,
+          filter: `id=eq.${resourceId}`,
+        },
+        (payload: RealtimePostgresChangesPayload<any>) => {
+          const event: RealtimeEvent = {
+            eventType: payload.eventType,
+            new: payload.new,
+            old: payload.old,
+            table: payload.table,
+            schema: payload.schema,
+          };
+          
+          const channelListeners = this.listeners.get(channelName);
+          if (channelListeners) {
+            channelListeners.forEach(listener => listener(event));
+          }
+        }
+      );
+      
+      channel.subscribe();
+      this.channels.set(channelName, channel);
       this.listeners.set(channelName, new Set());
     }
     
     const channelListeners = this.listeners.get(channelName)!;
     channelListeners.add(callback);
     
-    // Mock: Log subscription for debugging
-    console.log(`📡 Mock resource subscription: ${channelName}`);
-    
     return () => {
       channelListeners.delete(callback);
       
       if (channelListeners.size === 0) {
-        this.listeners.delete(channelName);
+        const channel = this.channels.get(channelName);
+        if (channel) {
+          this.supabase.removeChannel(channel);
+          this.channels.delete(channelName);
+          this.listeners.delete(channelName);
+        }
       }
     };
   }
 
-  // Mock subscription to user-specific notifications
+  // Subscribe to user-specific notifications
   subscribeToUserNotifications(
     userId: string,
     callback: (event: RealtimeEvent) => void
   ): () => void {
     const channelName = `user_notifications_${userId}`;
     
-    if (!this.listeners.has(channelName)) {
+    if (!this.channels.has(channelName)) {
+      const channel = this.supabase.channel(channelName);
+      
+      // Subscribe to multiple tables that might affect the user
+      const userTables = ['calls', 'leads', 'assistants', 'lead_interactions'];
+      
+      userTables.forEach(table => {
+        channel.on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: table,
+            filter: `user_id=eq.${userId}`,
+          },
+          (payload: RealtimePostgresChangesPayload<any>) => {
+            const event: RealtimeEvent = {
+              eventType: payload.eventType,
+              new: payload.new,
+              old: payload.old,
+              table: payload.table,
+              schema: payload.schema,
+            };
+            
+            const channelListeners = this.listeners.get(channelName);
+            if (channelListeners) {
+              channelListeners.forEach(listener => listener(event));
+            }
+          }
+        );
+      });
+      
+      channel.subscribe();
+      this.channels.set(channelName, channel);
       this.listeners.set(channelName, new Set());
     }
     
     const channelListeners = this.listeners.get(channelName)!;
     channelListeners.add(callback);
     
-    // Mock: Log subscription for debugging
-    console.log(`📡 Mock user notifications subscription: ${channelName}`);
-    
     return () => {
       channelListeners.delete(callback);
       
       if (channelListeners.size === 0) {
-        this.listeners.delete(channelName);
+        const channel = this.channels.get(channelName);
+        if (channel) {
+          this.supabase.removeChannel(channel);
+          this.channels.delete(channelName);
+          this.listeners.delete(channelName);
+        }
       }
     };
   }
 
-  // Cleanup all subscriptions (mock version)
+  // Cleanup all subscriptions
   cleanup(): void {
+    this.channels.forEach(channel => {
+      this.supabase.removeChannel(channel);
+    });
+    this.channels.clear();
     this.listeners.clear();
-    console.log('📡 Mock cleanup: All realtime subscriptions cleared');
   }
 
-  // Get active channel count (mock version)
+  // Get active channel count
   getActiveChannelCount(): number {
-    return this.listeners.size;
+    return this.channels.size;
   }
 }
 

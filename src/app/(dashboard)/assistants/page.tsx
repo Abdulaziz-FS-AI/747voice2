@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useAuth } from '@/lib/auth-context'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -80,13 +81,20 @@ function AssistantsSkeleton() {
 }
 
 export default function AssistantsPage() {
-  const user = { id: "mock-user", email: "user@example.com" };
+  const { user, loading } = useAuth()
   const [assistants, setAssistants] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    fetchAssistants()
-  }, [])
+    if (!loading && !user) {
+      window.location.href = '/auth/signin'
+      return
+    }
+
+    if (user) {
+      fetchAssistants()
+    }
+  }, [user, loading])
 
   const fetchAssistants = async () => {
     try {
@@ -102,7 +110,7 @@ export default function AssistantsPage() {
     }
   }
 
-  if (isLoading) {
+  if (loading || isLoading) {
     return <AssistantsSkeleton />
   }
 

@@ -21,7 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import type { Database } from '@/types/database-simplified'
+import type { Database } from '@/types/database'
 
 type Assistant = Database['public']['Tables']['assistants']['Row']
 
@@ -65,10 +65,12 @@ export function AssistantCard({
               {assistant.name}
             </h3>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <Phone className="h-3 w-3" />
-                Voice Assistant
-              </span>
+              {assistant.agent_name && (
+                <span className="flex items-center gap-1">
+                  <Phone className="h-3 w-3" />
+                  {assistant.agent_name}
+                </span>
+              )}
               {assistant.company_name && (
                 <span className="flex items-center gap-1">
                   <Building className="h-3 w-3" />
@@ -109,9 +111,11 @@ export function AssistantCard({
             <Badge variant={assistant.is_active ? "default" : "secondary"}>
               {assistant.is_active ? "Active" : "Inactive"}
             </Badge>
-            <Badge variant="outline" className="capitalize">
-              {assistant.personality}
-            </Badge>
+            {assistant.tone && (
+              <Badge variant="outline" className="capitalize">
+                {assistant.tone}
+              </Badge>
+            )}
           </div>
           <Switch
             checked={assistant.is_active}

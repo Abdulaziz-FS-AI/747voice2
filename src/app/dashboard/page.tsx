@@ -9,7 +9,7 @@ import { AssistantCard } from '@/components/dashboard/assistant-card'
 import { StatsCard } from '@/components/dashboard/stats-card'
 import { DashboardLayout } from '@/components/dashboard/layout'
 import { Skeleton } from '@/components/ui/skeleton'
-import type { Database } from '@/types/database-simplified'
+import type { Database } from '@/types/database'
 
 type Assistant = Database['public']['Tables']['assistants']['Row']
 
@@ -50,8 +50,8 @@ export default function DashboardPage() {
       const statsRes = await fetch('/api/dashboard/stats')
       const statsData = await statsRes.json()
       
-      if (statsData.success && statsData.data) {
-        setStats(prev => ({ ...prev, ...statsData.data }))
+      if (statsData.success) {
+        setStats(statsData.data)
       }
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error)

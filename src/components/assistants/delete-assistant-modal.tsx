@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { AlertTriangle, Loader2, Trash2 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
-import type { Database } from '@/types/database-simplified'
+import type { Database } from '@/types/database'
 
 type Assistant = Database['public']['Tables']['assistants']['Row']
 
@@ -98,6 +98,9 @@ export function DeleteAssistantModal({
               </Badge>
             </div>
             <div className="text-sm text-muted-foreground">
+              {assistant.agent_name && (
+                <div>Agent: {assistant.agent_name}</div>
+              )}
               <div>Company: {assistant.company_name}</div>
               {assistant.vapi_assistant_id && (
                 <div>Vapi ID: {assistant.vapi_assistant_id.slice(0, 8)}...</div>
