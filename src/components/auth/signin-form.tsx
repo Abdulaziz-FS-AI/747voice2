@@ -31,8 +31,8 @@ export default function SignInForm() {
         const redirectTo = redirectedFrom || '/dashboard';
         router.push(redirectTo);
       }
-    } catch (err: any) {
-      setError('An unexpected error occurred');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
     } finally {
       setLoading(false);
     }
@@ -49,8 +49,8 @@ export default function SignInForm() {
         setError(error.message);
       }
       // Note: Redirect will be handled by OAuth flow
-    } catch (err: any) {
-      setError('An unexpected error occurred');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
     } finally {
       setLoading(false);
     }
@@ -79,7 +79,7 @@ export default function SignInForm() {
             Sign in to Voice Matrix
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link
               href="/auth/signup"
               className="font-medium text-blue-600 hover:text-blue-500"

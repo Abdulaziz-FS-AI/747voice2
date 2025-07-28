@@ -1,4 +1,36 @@
 import { VapiError } from '@/lib/errors';
+import crypto from 'crypto';
+
+// VAPI API Types
+interface VapiMessage {
+  role: string;
+  content: string;
+}
+
+interface VapiFunction {
+  name: string;
+  description?: string;
+  parameters?: Record<string, unknown>;
+}
+
+interface VapiModel {
+  provider: string;
+  model: string;
+  messages?: VapiMessage[];
+  functions?: VapiFunction[];
+  maxTokens?: number;
+  temperature?: number;
+}
+
+interface VapiVoice {
+  provider: string;
+  voiceId: string;
+}
+
+interface VapiTranscriber {
+  provider: string;
+  model?: string;
+}
 
 // Vapi API configuration
 const VAPI_BASE_URL = process.env.VAPI_BASE_URL || 'https://api.vapi.ai';
@@ -74,7 +106,7 @@ class VapiClient {
         role: string;
         content: string;
       }>;
-      functions?: any[];
+      functions?: VapiFunction[];
       maxTokens?: number;
       temperature?: number;
     };
@@ -155,7 +187,7 @@ class VapiClient {
       temperature?: number;
     };
   }>) {
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
 
     if (assistantData.name) updateData.name = assistantData.name;
     if (assistantData.systemPrompt) updateData.systemMessage = assistantData.systemPrompt;
@@ -189,7 +221,7 @@ class VapiClient {
   }
 
   async buyPhoneNumber(areaCode?: string) {
-    const body: any = {};
+    const body: Record<string, string> = {};
     if (areaCode) body.areaCode = areaCode;
 
     return this.request('/phone-number/buy', {
@@ -241,7 +273,6 @@ class VapiClient {
     }
 
     try {
-      const crypto = require('crypto');
       const expectedSignature = crypto
         .createHmac('sha256', secret)
         .update(payload)
@@ -269,7 +300,7 @@ export async function createVapiAssistant(assistantData: {
   voiceId?: string;
   language?: string;
   maxDurationSeconds?: number;
-  functions?: any[];
+  functions?: VapiFunction[];
 }) {
   if (!vapiClient) {
     console.warn('Vapi client not configured, skipping assistant creation');
@@ -278,7 +309,7 @@ export async function createVapiAssistant(assistantData: {
 
   try {
     // Prepare model configuration with functions
-    const modelConfig = {
+    const modelConfig: VapiModel = {
       provider: 'openai',
       model: 'gpt-4',
       messages: [
@@ -295,7 +326,7 @@ export async function createVapiAssistant(assistantData: {
     };
 
     // Voice configuration
-    const voiceConfig = {
+    const voiceConfig: VapiVoice = {
       provider: '11labs',
       voiceId: assistantData.voiceId || 'pNInz6obpgDQGcFmaJgB',
     };
@@ -340,7 +371,7 @@ export async function updateVapiAssistant(
   }
 
   try {
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
 
     if (assistantData.name) updateData.name = assistantData.name;
     if (assistantData.systemPrompt) updateData.systemPrompt = assistantData.systemPrompt;

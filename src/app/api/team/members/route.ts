@@ -174,7 +174,7 @@ export async function POST(request: NextRequest) {
           role: validatedData.role,
           team_id: profile.team_id,
         },
-        ip_address: request.ip,
+        ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
         user_agent: request.headers.get('user-agent'),
       });
 
@@ -202,7 +202,7 @@ export async function POST(request: NextRequest) {
           role: validatedData.role,
           team_id: profile.team_id,
         },
-        ip_address: request.ip,
+        ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
         user_agent: request.headers.get('user-agent'),
       });
 

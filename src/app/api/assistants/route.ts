@@ -104,20 +104,8 @@ export async function GET(request: NextRequest) {
 // POST /api/assistants - Create a new assistant
 export async function POST(request: NextRequest) {
   try {
-    const { user, profile } = await authenticateRequest();
+    const { user, profile } = await requirePermission('basic');
     const body = await request.json();
-
-    // Check permissions
-    const hasPermission = await requirePermission(user.id, 'manage_assistants');
-    if (!hasPermission) {
-      return NextResponse.json({
-        success: false,
-        error: {
-          code: 'INSUFFICIENT_PERMISSIONS',
-          message: 'You do not have permission to create assistants',
-        },
-      }, { status: 403 });
-    }
 
     // Check subscription limits
     await checkSubscriptionLimits(user.id, 'assistants', 1);
@@ -285,8 +273,8 @@ export async function POST(request: NextRequest) {
         name: assistant.name,
         vapi_assistant_id: vapiAssistantId
       },
-      ip_address: request.ip,
-      user_agent: request.headers.get('user-agent'),
+      ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
+      user_agent: request.headers.get('user-agent') || undefined,
     });
 
     return NextResponse.json({

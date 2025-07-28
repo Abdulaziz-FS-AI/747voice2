@@ -339,7 +339,7 @@ export function CreateAssistantForm() {
             <CardContent className="space-y-4">
               {fields.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
-                  No questions added yet. Click "Add Question" to get started.
+                  No questions added yet. Click &ldquo;Add Question&rdquo; to get started.
                 </div>
               ) : (
                 <div className="space-y-4">

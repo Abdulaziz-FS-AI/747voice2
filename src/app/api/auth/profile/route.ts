@@ -10,7 +10,7 @@ const UpdateProfileSchema = z.object({
   last_name: z.string().min(1).max(100).optional(),
   company_name: z.string().max(255).optional(),
   phone: z.string().max(20).optional(),
-  preferences: z.record(z.any()).optional(),
+  preferences: z.record(z.string(), z.unknown()).optional(),
 });
 
 // GET /api/auth/profile - Get current user profile
@@ -81,8 +81,8 @@ export async function PUT(request: NextRequest) {
       resource_id: user.id,
       old_values: oldValues,
       new_values: validatedData,
-      ip_address: request.ip,
-      user_agent: request.headers.get('user-agent'),
+      ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
+      user_agent: request.headers.get('user-agent') || undefined,
     });
 
     return NextResponse.json({
@@ -109,8 +109,8 @@ export async function DELETE(request: NextRequest) {
       resource_type: 'profile',
       resource_id: user.id,
       old_values: profile,
-      ip_address: request.ip,
-      user_agent: request.headers.get('user-agent'),
+      ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
+      user_agent: request.headers.get('user-agent') || undefined,
     });
 
     // Delete the user from auth.users (this will cascade delete the profile)

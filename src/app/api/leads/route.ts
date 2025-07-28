@@ -277,7 +277,7 @@ export async function POST(request: NextRequest) {
       resource_type: 'lead',
       resource_id: lead.id,
       new_values: validatedData,
-      ip_address: request.ip,
+      ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
       user_agent: request.headers.get('user-agent'),
     });
 

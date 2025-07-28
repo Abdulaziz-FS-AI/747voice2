@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
         phone: validatedData.phone || profile.phone,
         onboarding_completed: true,
         preferences: {
-          ...profile.preferences,
+          ...(profile.preferences as Record<string, unknown> || {}),
           industry: validatedData.industry,
           team_size: validatedData.team_size,
           use_case: validatedData.use_case,
@@ -104,8 +104,8 @@ export async function POST(request: NextRequest) {
         team_slug: validatedData.team_slug,
         onboarding_data: validatedData,
       },
-      ip_address: request.ip,
-      user_agent: request.headers.get('user-agent'),
+      ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
+      user_agent: request.headers.get('user-agent') || undefined,
     });
 
     return NextResponse.json({

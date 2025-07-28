@@ -299,7 +299,7 @@ export async function POST(request: NextRequest) {
         customer_name: validatedData.customer_name,
         vapi_call_id: vapiCallId,
       },
-      ip_address: request.ip,
+      ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
       user_agent: request.headers.get('user-agent'),
     });
 

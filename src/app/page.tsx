@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+// import { useState } from 'react' // Removed unused import
 import Link from 'next/link'
 import { ArrowRight, Play, Check, Star, MessageSquare, Phone, BarChart3, Users, Shield, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -8,7 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 
 export default function HomePage() {
-  const [playingDemo, setPlayingDemo] = useState<string | null>(null)
+  // Demo functionality can be added later
+  // const [playingDemo, setPlayingDemo] = useState<string | null>(null)
 
   const features = [
     {
@@ -126,7 +127,7 @@ export default function HomePage() {
                 variant="outline" 
                 size="lg" 
                 className="text-lg px-8 py-4"
-                onClick={() => setPlayingDemo('hero')}
+                onClick={() => {/* Demo functionality to be implemented */}}
               >
                 <Play className="mr-2 h-5 w-5" />
                 Watch Demo
@@ -243,7 +244,7 @@ export default function HomePage() {
                     ))}
                   </div>
                   <p className="text-gray-600 mb-6 italic">
-                    "{testimonial.content}"
+                    &ldquo;{testimonial.content}&rdquo;
                   </p>
                   <div>
                     <div className="font-semibold text-gray-900">{testimonial.name}</div>

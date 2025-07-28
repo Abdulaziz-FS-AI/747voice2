@@ -6,9 +6,10 @@ import { createServiceRoleClient } from '@/lib/supabase';
 // GET /api/calls/[callId]/transcript - Get call transcript
 export async function GET(
   request: NextRequest,
-  { params }: { params: { callId: string } }
+  context: { params: Promise<{ callId: string }> }
 ) {
   try {
+    const params = await context.params;
     const { user, profile } = await authenticateRequest();
     const { callId } = params;
     const { searchParams } = new URL(request.url);

@@ -25,9 +25,10 @@ const UpdateLeadSchema = z.object({
 // GET /api/leads/[leadId] - Get specific lead details
 export async function GET(
   request: NextRequest,
-  { params }: { params: { leadId: string } }
+  context: { params: Promise<{ leadId: string }> }
 ) {
   try {
+    const params = await context.params;
     const { user, profile } = await authenticateRequest();
     const { leadId } = params;
 
@@ -126,9 +127,10 @@ export async function GET(
 // PUT /api/leads/[leadId] - Update lead
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { leadId: string } }
+  context: { params: Promise<{ leadId: string }> }
 ) {
   try {
+    const params = await context.params;
     const { user, profile } = await authenticateRequest();
     const { leadId } = params;
     const body = await request.json();
@@ -250,7 +252,7 @@ export async function PUT(
         lead_type: currentLead.lead_type,
       },
       new_values: validatedData,
-      ip_address: request.ip,
+      ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
       user_agent: request.headers.get('user-agent'),
     });
 
@@ -267,9 +269,10 @@ export async function PUT(
 // DELETE /api/leads/[leadId] - Delete lead
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { leadId: string } }
+  context: { params: Promise<{ leadId: string }> }
 ) {
   try {
+    const params = await context.params;
     const { user, profile } = await authenticateRequest();
     const { leadId } = params;
 
@@ -318,7 +321,7 @@ export async function DELETE(
       resource_type: 'lead',
       resource_id: leadId,
       old_values: lead,
-      ip_address: request.ip,
+      ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
       user_agent: request.headers.get('user-agent'),
     });
 

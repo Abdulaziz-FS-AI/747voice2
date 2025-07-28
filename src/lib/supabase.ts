@@ -1,6 +1,6 @@
 import { createBrowserClient, createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
-import { Database } from '@/types/database';
+import type { Database } from '@/types/database';
 
 // Client-side Supabase client
 export function createClientSupabaseClient() {
@@ -26,7 +26,7 @@ export async function createServerSupabaseClient() {
         set(name: string, value: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value, ...options });
-          } catch (error) {
+          } catch {
             // The `set` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing
             // user sessions.
@@ -35,7 +35,7 @@ export async function createServerSupabaseClient() {
         remove(name: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value: '', ...options });
-          } catch (error) {
+          } catch {
             // The `delete` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing
             // user sessions.
@@ -61,7 +61,7 @@ export function createServiceRoleClient() {
 }
 
 // Route handler client for API routes
-export function createRouteHandlerClient(cookieStore: any) {
+export function createRouteHandlerClient(cookieStore: { get: (name: string) => { value: string } | undefined; set: (options: { name: string; value: string } & CookieOptions) => void }) {
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

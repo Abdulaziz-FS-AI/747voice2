@@ -156,7 +156,7 @@ export async function PUT(request: NextRequest) {
       resource_id: profile.team_id,
       old_values: oldTeam,
       new_values: validatedData,
-      ip_address: request.ip,
+      ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
       user_agent: request.headers.get('user-agent'),
     });
 
@@ -211,7 +211,7 @@ export async function DELETE(request: NextRequest) {
       resource_type: 'team',
       resource_id: profile.team_id,
       old_values: team,
-      ip_address: request.ip,
+      ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
       user_agent: request.headers.get('user-agent'),
     });
 

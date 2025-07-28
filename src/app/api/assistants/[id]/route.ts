@@ -6,9 +6,10 @@ import { vapiClient } from '@/lib/vapi'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params
     const { user } = await authenticateRequest()
     const supabase = createServiceRoleClient()
 
@@ -37,21 +38,13 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { user } = await authenticateRequest()
+    const params = await context.params
+    const { user } = await requirePermission()
     const body = await request.json()
     const supabase = createServiceRoleClient()
-
-    // Check permissions
-    const hasPermission = await requirePermission(user.id, 'manage_assistants')
-    if (!hasPermission) {
-      return NextResponse.json({
-        success: false,
-        error: { code: 'INSUFFICIENT_PERMISSIONS', message: 'You do not have permission to update assistants' }
-      }, { status: 403 })
-    }
 
     // Verify ownership
     const { data: existing } = await supabase
@@ -104,20 +97,12 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { user } = await authenticateRequest()
+    const params = await context.params
+    const { user } = await requirePermission()
     const supabase = createServiceRoleClient()
-
-    // Check permissions
-    const hasPermission = await requirePermission(user.id, 'manage_assistants')
-    if (!hasPermission) {
-      return NextResponse.json({
-        success: false,
-        error: { code: 'INSUFFICIENT_PERMISSIONS', message: 'You do not have permission to delete assistants' }
-      }, { status: 403 })
-    }
 
     // Get assistant details
     const { data: assistant } = await supabase
@@ -135,7 +120,7 @@ export async function DELETE(
     }
 
     // Delete from Vapi if exists
-    if (assistant.vapi_assistant_id) {
+    if (assistant.vapi_assistant_id && vapiClient) {
       try {
         await vapiClient.deleteAssistant(assistant.vapi_assistant_id)
       } catch (vapiError) {

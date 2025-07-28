@@ -7,9 +7,10 @@ import { vapiClient } from '@/lib/vapi';
 // GET /api/calls/[callId] - Get specific call details
 export async function GET(
   request: NextRequest,
-  { params }: { params: { callId: string } }
+  context: { params: Promise<{ callId: string }> }
 ) {
   try {
+    const params = await context.params;
     const { user, profile } = await authenticateRequest();
     const { callId } = params;
 
@@ -105,9 +106,10 @@ export async function GET(
 // PUT /api/calls/[callId] - Update call (mainly for adding notes or changing status)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { callId: string } }
+  context: { params: Promise<{ callId: string }> }
 ) {
   try {
+    const params = await context.params;
     const { user, profile } = await authenticateRequest();
     const { callId } = params;
     const body = await request.json();
@@ -214,7 +216,7 @@ export async function PUT(
         caller_name: currentCall.caller_name,
       },
       new_values: updates,
-      ip_address: request.ip,
+      ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
       user_agent: request.headers.get('user-agent'),
     });
 
@@ -231,9 +233,10 @@ export async function PUT(
 // DELETE /api/calls/[callId] - Delete call (admin only, soft delete)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { callId: string } }
+  context: { params: Promise<{ callId: string }> }
 ) {
   try {
+    const params = await context.params;
     const { user, profile } = await authenticateRequest();
     const { callId } = params;
 
@@ -293,7 +296,7 @@ export async function DELETE(
       resource_type: 'call',
       resource_id: callId,
       old_values: call,
-      ip_address: request.ip,
+      ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
       user_agent: request.headers.get('user-agent'),
     });
 

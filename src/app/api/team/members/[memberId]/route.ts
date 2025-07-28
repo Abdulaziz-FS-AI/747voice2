@@ -14,9 +14,10 @@ const UpdateMemberSchema = z.object({
 // GET /api/team/members/[memberId] - Get specific team member
 export async function GET(
   request: NextRequest,
-  { params }: { params: { memberId: string } }
+  context: { params: Promise<{ memberId: string }> }
 ) {
   try {
+    const params = await context.params;
     const { user, profile } = await authenticateRequest();
     const { memberId } = params;
 
@@ -70,9 +71,10 @@ export async function GET(
 // PUT /api/team/members/[memberId] - Update team member
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { memberId: string } }
+  context: { params: Promise<{ memberId: string }> }
 ) {
   try {
+    const params = await context.params;
     const { user, profile } = await authenticateRequest();
     const { memberId } = params;
     const body = await request.json();
@@ -180,7 +182,7 @@ export async function PUT(
         last_name: currentMember.last_name,
       },
       new_values: validatedData,
-      ip_address: request.ip,
+      ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
       user_agent: request.headers.get('user-agent'),
     });
 
@@ -197,9 +199,10 @@ export async function PUT(
 // DELETE /api/team/members/[memberId] - Remove team member
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { memberId: string } }
+  context: { params: Promise<{ memberId: string }> }
 ) {
   try {
+    const params = await context.params;
     const { user, profile } = await authenticateRequest();
     const { memberId } = params;
 
@@ -296,7 +299,7 @@ export async function DELETE(
       resource_type: 'team_member',
       resource_id: memberId,
       old_values: memberToRemove,
-      ip_address: request.ip,
+      ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
       user_agent: request.headers.get('user-agent'),
     });
 

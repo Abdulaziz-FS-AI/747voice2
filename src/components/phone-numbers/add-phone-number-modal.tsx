@@ -290,7 +290,7 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
                   <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
-                      <strong>Twilio Setup:</strong> You'll need your Twilio credentials. 
+                      <strong>Twilio Setup:</strong> You&apos;ll need your Twilio credentials. 
                       Find these on your Twilio Console dashboard.
                     </AlertDescription>
                   </Alert>
@@ -350,7 +350,7 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">
-                      <span className="text-muted-foreground">Don't assign yet</span>
+                      <span className="text-muted-foreground">Don&apos;t assign yet</span>
                     </SelectItem>
                     {assistants.map((assistant) => (
                       <SelectItem key={assistant.id} value={assistant.id}>

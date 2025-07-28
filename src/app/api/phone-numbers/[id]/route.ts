@@ -17,9 +17,10 @@ const updatePhoneNumberSchema = z.object({
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params;
     const { user } = await authenticateRequest()
     const supabase = createServiceRoleClient()
 
@@ -65,9 +66,10 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params;
     const { user } = await authenticateRequest()
     const body = await request.json()
 
@@ -179,9 +181,10 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params;
     const { user } = await authenticateRequest()
     const supabase = createServiceRoleClient()
 

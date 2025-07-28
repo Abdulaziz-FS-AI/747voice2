@@ -18,9 +18,10 @@ const UpdateInteractionSchema = CreateInteractionSchema.partial();
 // GET /api/leads/[leadId]/interactions - Get lead interactions
 export async function GET(
   request: NextRequest,
-  { params }: { params: { leadId: string } }
+  context: { params: Promise<{ leadId: string }> }
 ) {
   try {
+    const params = await context.params;
     const { user, profile } = await authenticateRequest();
     const { leadId } = params;
     const { searchParams } = new URL(request.url);
@@ -124,9 +125,10 @@ export async function GET(
 // POST /api/leads/[leadId]/interactions - Create a new interaction
 export async function POST(
   request: NextRequest,
-  { params }: { params: { leadId: string } }
+  context: { params: Promise<{ leadId: string }> }
 ) {
   try {
+    const params = await context.params;
     const { user, profile } = await authenticateRequest();
     const { leadId } = params;
     const body = await request.json();
@@ -218,7 +220,7 @@ export async function POST(
         interaction_type: validatedData.interaction_type,
         content: validatedData.content,
       },
-      ip_address: request.ip,
+      ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
       user_agent: request.headers.get('user-agent'),
     });
 

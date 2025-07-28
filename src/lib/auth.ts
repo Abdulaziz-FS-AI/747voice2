@@ -1,6 +1,8 @@
 import { createRouteHandlerClient, createServiceRoleClient } from '@/lib/supabase';
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import type { Database } from '@/types/database';
+import type { User } from '@supabase/supabase-js';
 
 // =============================================
 // CUSTOM ERROR CLASSES
@@ -10,7 +12,7 @@ export class AuthError extends Error {
   constructor(
     message: string,
     public statusCode: number = 401,
-    public details?: any
+    public details?: Record<string, unknown>
   ) {
     super(message);
     this.name = 'AuthError';
@@ -21,7 +23,7 @@ export class SubscriptionError extends Error {
   constructor(
     message: string,
     public statusCode: number = 403,
-    public details?: any
+    public details?: Record<string, unknown>
   ) {
     super(message);
     this.name = 'SubscriptionError';
@@ -34,8 +36,8 @@ export class SubscriptionError extends Error {
 
 // Request authentication for API routes
 export async function authenticateRequest(): Promise<{
-  user: any;
-  profile: any;
+  user: User;
+  profile: Database['public']['Tables']['profiles']['Row'];
 }> {
   try {
     const cookieStore = cookies();
@@ -75,7 +77,7 @@ export async function isPremiumUser(userId: string): Promise<boolean> {
     
     const { data: profile } = await supabase
       .from('profiles')
-      .select('is_premium, subscription_status')
+      .select('subscription_status, team_id')
       .eq('id', userId)
       .single();
 
@@ -83,7 +85,23 @@ export async function isPremiumUser(userId: string): Promise<boolean> {
       return false;
     }
 
-    return profile.is_premium && profile.subscription_status === 'active';
+    // Check if user has active subscription
+    if (profile.subscription_status === 'active') {
+      return true;
+    }
+
+    // Check team subscription if user belongs to a team
+    if (profile.team_id) {
+      const { data: team } = await supabase
+        .from('teams')
+        .select('plan_type')
+        .eq('id', profile.team_id)
+        .single();
+      
+      return team?.plan_type !== 'starter';
+    }
+
+    return false;
   } catch (error) {
     console.error('Premium check failed:', error);
     return false;
@@ -99,15 +117,47 @@ export async function checkSubscriptionLimits(
   try {
     const supabase = createServiceRoleClient();
     
-    // Get user's profile and limits
+    // Get user's profile and team information
     const { data: profile } = await supabase
       .from('profiles')
-      .select('max_assistants, max_minutes, max_phone_numbers, is_premium')
+      .select('team_id, subscription_status')
       .eq('id', userId)
       .single();
 
     if (!profile) {
       throw new SubscriptionError('User profile not found', 404);
+    }
+
+    // Get limits from team or use default limits
+    let limits = {
+      max_assistants: 1,
+      max_minutes: 60,
+      max_phone_numbers: 1,
+      isPremium: false
+    };
+
+    if (profile.team_id) {
+      const { data: team } = await supabase
+        .from('teams')
+        .select('max_assistants, max_minutes, plan_type')
+        .eq('id', profile.team_id)
+        .single();
+      
+      if (team) {
+        limits = {
+          max_assistants: team.max_assistants,
+          max_minutes: team.max_minutes,
+          max_phone_numbers: team.plan_type === 'starter' ? 1 : 5,
+          isPremium: team.plan_type !== 'starter'
+        };
+      }
+    } else if (profile.subscription_status === 'active') {
+      limits = {
+        max_assistants: 10,
+        max_minutes: 1000,
+        max_phone_numbers: 5,
+        isPremium: true
+      };
     }
 
     // Check resource-specific limits
@@ -119,16 +169,16 @@ export async function checkSubscriptionLimits(
           .eq('user_id', userId)
           .eq('is_active', true);
 
-        if ((assistantCount || 0) + increment > profile.max_assistants) {
+        if ((assistantCount || 0) + increment > limits.max_assistants) {
           throw new SubscriptionError(
-            profile.is_premium 
-              ? `Assistant limit reached (${profile.max_assistants}).`
+            limits.isPremium 
+              ? `Assistant limit reached (${limits.max_assistants}).`
               : 'Assistant limit exceeded. Upgrade to premium for more assistants.',
             403,
             { 
               current: assistantCount, 
-              limit: profile.max_assistants,
-              isPremium: profile.is_premium
+              limit: limits.max_assistants,
+              isPremium: limits.isPremium
             }
           );
         }
@@ -141,16 +191,16 @@ export async function checkSubscriptionLimits(
           .eq('user_id', userId)
           .eq('is_active', true);
 
-        if ((phoneCount || 0) + increment > profile.max_phone_numbers) {
+        if ((phoneCount || 0) + increment > limits.max_phone_numbers) {
           throw new SubscriptionError(
-            profile.is_premium 
-              ? `Phone number limit reached (${profile.max_phone_numbers}).`
+            limits.isPremium 
+              ? `Phone number limit reached (${limits.max_phone_numbers}).`
               : 'Phone number limit exceeded. Upgrade to premium for more numbers.',
             403,
             { 
               current: phoneCount, 
-              limit: profile.max_phone_numbers,
-              isPremium: profile.is_premium
+              limit: limits.max_phone_numbers,
+              isPremium: limits.isPremium
             }
           );
         }
@@ -172,16 +222,16 @@ export async function checkSubscriptionLimits(
           (callsData?.reduce((sum, call) => sum + (call.duration || 0), 0) || 0) / 60
         );
 
-        if (totalMinutes + Math.ceil(increment / 60) > profile.max_minutes) {
+        if (totalMinutes + Math.ceil(increment / 60) > limits.max_minutes) {
           throw new SubscriptionError(
-            profile.is_premium 
-              ? `Monthly minute limit reached (${profile.max_minutes}).`
+            limits.isPremium 
+              ? `Monthly minute limit reached (${limits.max_minutes}).`
               : 'Monthly minute limit exceeded. Upgrade to premium for more minutes.',
             403,
             { 
               current: totalMinutes, 
-              limit: profile.max_minutes,
-              isPremium: profile.is_premium
+              limit: limits.max_minutes,
+              isPremium: limits.isPremium
             }
           );
         }
@@ -203,7 +253,7 @@ export function generateRequestId(): string {
 // Permission checking for single-user system
 export async function requirePermission(
   permission: string = 'basic'
-): Promise<{ user: any; profile: any }> {
+): Promise<{ user: User; profile: Database['public']['Tables']['profiles']['Row'] }> {
   try {
     const { user, profile } = await authenticateRequest();
     
@@ -231,8 +281,8 @@ export async function logAuditEvent(event: {
   action: string;
   resource_type: string;
   resource_id?: string;
-  old_values?: any;
-  new_values?: any;
+  old_values?: Record<string, unknown>;
+  new_values?: Record<string, unknown>;
   ip_address?: string;
   user_agent?: string;
 }): Promise<void> {
