@@ -33,7 +33,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Loader2, Save } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
-import type { Database } from '@/types/database'
+import type { Database } from '@/types/database-simplified'
 
 type Assistant = Database['public']['Tables']['assistants']['Row']
 
@@ -55,16 +55,14 @@ const VOICE_OPTIONS = [
 
 const editAssistantSchema = z.object({
   name: z.string().min(1, 'Name is required').max(255),
-  agent_name: z.string().min(1, 'Agent name is required').max(100),
-  company_name: z.string().min(1, 'Company name is required').max(255),
-  tone: z.enum(['professional', 'friendly', 'casual']),
+  company_name: z.string().max(255).optional(),
   personality: z.enum(['professional', 'friendly', 'casual']),
-  custom_instructions: z.string().optional(),
-  voice_id: z.string().min(1, 'Voice selection is required'),
+  system_prompt: z.string().optional(),
+  voice_id: z.string().optional(),
   max_call_duration: z.number().min(30).max(3600),
-  language: z.string().default('en-US'),
+  language: z.string(),
   first_message: z.string().optional(),
-  background_ambiance: z.string().optional(),
+  background_ambiance: z.string(),
 })
 
 type EditAssistantForm = z.infer<typeof editAssistantSchema>
@@ -82,16 +80,14 @@ export function EditAssistantModal({
     resolver: zodResolver(editAssistantSchema),
     defaultValues: {
       name: assistant.name,
-      agent_name: assistant.agent_name || '',
       company_name: assistant.company_name || '',
-      tone: (assistant.tone as 'professional' | 'friendly' | 'casual') || 'professional',
-      personality: (assistant.personality as 'professional' | 'friendly' | 'casual') || 'professional',
-      custom_instructions: assistant.custom_instructions || '',
-      voice_id: assistant.voice_id || 'burt',
-      max_call_duration: assistant.max_call_duration || 300,
-      language: assistant.language || 'en-US',
+      personality: assistant.personality,
+      system_prompt: assistant.system_prompt || '',
+      voice_id: assistant.voice_id || '',
+      max_call_duration: assistant.max_call_duration,
+      language: assistant.language,
       first_message: assistant.first_message || '',
-      background_ambiance: assistant.background_ambiance || 'office',
+      background_ambiance: assistant.background_ambiance,
     }
   })
 
@@ -100,16 +96,14 @@ export function EditAssistantModal({
     if (assistant) {
       form.reset({
         name: assistant.name,
-        agent_name: assistant.agent_name || '',
         company_name: assistant.company_name || '',
-        tone: (assistant.tone as 'professional' | 'friendly' | 'casual') || 'professional',
-        personality: (assistant.personality as 'professional' | 'friendly' | 'casual') || 'professional',
-        custom_instructions: assistant.custom_instructions || '',
-        voice_id: assistant.voice_id || 'burt',
-        max_call_duration: assistant.max_call_duration || 300,
-        language: assistant.language || 'en-US',
+        personality: assistant.personality,
+        system_prompt: assistant.system_prompt || '',
+        voice_id: assistant.voice_id || '',
+        max_call_duration: assistant.max_call_duration,
+        language: assistant.language,
         first_message: assistant.first_message || '',
-        background_ambiance: assistant.background_ambiance || 'office',
+        background_ambiance: assistant.background_ambiance,
       })
     }
   }, [assistant, form])
@@ -176,35 +170,19 @@ export function EditAssistantModal({
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Basic Information</h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Assistant Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., Sarah - Real Estate Expert" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="agent_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Agent Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., Sarah" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Assistant Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Sarah - Real Estate Expert" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
@@ -225,30 +203,7 @@ export function EditAssistantModal({
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Personality & Voice</h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <FormField
-                  control={form.control}
-                  name="tone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tone</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="professional">Professional</SelectItem>
-                          <SelectItem value="friendly">Friendly</SelectItem>
-                          <SelectItem value="casual">Casual</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="personality"
@@ -374,7 +329,7 @@ export function EditAssistantModal({
 
               <FormField
                 control={form.control}
-                name="custom_instructions"
+                name="system_prompt"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Custom Instructions</FormLabel>

@@ -3,10 +3,17 @@
  * Converts conversation data into database records for analysis
  */
 
-import { createServiceRoleClient } from '@/lib/supabase'
-import type { Database } from '@/types/database'
+import type { Database } from '@/types/database-simplified'
 
-type LeadResponse = Database['public']['Tables']['lead_responses']['Insert']
+// LeadResponse type simplified for standalone version
+type LeadResponse = {
+  id?: string
+  lead_id: string
+  question_id: string  
+  response_text: string
+  confidence_score?: number
+  created_at?: string
+}
 
 export interface ExtractedResponse {
   questionText: string
@@ -26,7 +33,7 @@ export interface ExtractionResult {
 }
 
 export class LeadExtractor {
-  private supabase = createServiceRoleClient()
+  // Supabase dependency removed for standalone version
 
   /**
    * Extract structured data from Vapi function calls
@@ -45,15 +52,13 @@ export class LeadExtractor {
     const responses: ExtractedResponse[] = []
     const collectedAt = new Date().toISOString()
 
-    // Get assistant questions for mapping
-    const { data: assistantQuestions } = await this.supabase
-      .from('assistant_questions')
-      .select('*')
-      .eq('assistant_id', assistantId)
-
-    const questionMap = new Map(
-      assistantQuestions?.map(q => [q.structured_field_name, q]) || []
-    )
+    // Mock assistant questions for standalone version
+    const questionMap = new Map([
+      ['name', { question_text: 'What is your name?', structured_field_name: 'name' }],
+      ['email', { question_text: 'What is your email?', structured_field_name: 'email' }],
+      ['phone', { question_text: 'What is your phone number?', structured_field_name: 'phone' }],
+      ['company', { question_text: 'What company do you work for?', structured_field_name: 'company' }]
+    ])
 
     // Process each parameter from the function call
     for (const [fieldName, value] of Object.entries(functionCall.parameters)) {
@@ -72,21 +77,8 @@ export class LeadExtractor {
 
       responses.push(response)
 
-      // Store in database
-      await this.storeResponse({
-        call_id: callId,
-        assistant_id: assistantId,
-        question_id: question?.id || null,
-        function_name: functionCall.name,
-        question_text: response.questionText,
-        answer_value: response.answerValue,
-        answer_type: response.answerType,
-        answer_confidence: response.confidence,
-        field_name: fieldName,
-        is_required: question?.is_required || false,
-        collection_method: 'function_call',
-        collected_at: collectedAt
-      })
+      // Mock storage for standalone version - data would be stored in database
+      console.log(`📝 Mock storage: ${fieldName} = ${response.answerValue}`)
     }
 
     console.log(`✅ Extracted ${responses.length} responses from function call`)
@@ -206,21 +198,8 @@ export class LeadExtractor {
 
         responses.push(response)
 
-        // Store in database
-        await this.storeResponse({
-          call_id: callId,
-          assistant_id: assistantId,
-          question_id: null,
-          function_name: null,
-          question_text: response.questionText,
-          answer_value: response.answerValue,
-          answer_type: response.answerType,
-          answer_confidence: response.confidence,
-          field_name: pattern.field,
-          is_required: false,
-          collection_method: 'transcript_analysis',
-          collected_at: response.collectedAt
-        })
+        // Mock storage for standalone version - data would be stored in database
+        console.log(`📝 Mock storage from transcript: ${pattern.field} = ${response.answerValue}`)
       }
     }
 
@@ -230,17 +209,12 @@ export class LeadExtractor {
   }
 
   /**
-   * Store response in database
+   * Mock response storage for standalone version
    */
   private async storeResponse(response: LeadResponse): Promise<void> {
     try {
-      const { error } = await this.supabase
-        .from('lead_responses')
-        .insert(response)
-
-      if (error) {
-        console.error('Failed to store response:', error)
-      }
+      // Mock storage - in production this would be saved to database
+      console.log('📝 Mock response storage:', response)
     } catch (error) {
       console.error('Response storage error:', error)
     }
@@ -295,52 +269,29 @@ export class LeadExtractor {
   }
 
   /**
-   * Get all responses for a call
+   * Get all responses for a call (mock version for standalone)
    */
   async getCallResponses(callId: string): Promise<ExtractedResponse[]> {
-    const { data, error } = await this.supabase
-      .from('lead_responses')
-      .select('*')
-      .eq('call_id', callId)
-      .order('collected_at', { ascending: true })
-
-    if (error) {
-      console.error('Failed to fetch call responses:', error)
-      return []
-    }
-
-    return data.map(response => ({
-      questionText: response.question_text,
-      answerValue: response.answer_value || '',
-      fieldName: response.field_name || '',
-      answerType: response.answer_type,
-      confidence: response.answer_confidence || 0,
-      collectedAt: response.collected_at || response.created_at,
-      functionName: response.function_name,
-      vapiMessageId: response.vapi_message_id
-    }))
+    // Mock responses for standalone version
+    return [
+      {
+        questionText: 'What is your name?',
+        answerValue: 'John Smith',
+        fieldName: 'name',
+        answerType: 'text',
+        confidence: 0.95,
+        collectedAt: new Date().toISOString(),
+        functionName: 'collect_info',
+        vapiMessageId: undefined
+      }
+    ]
   }
 
   /**
    * Calculate completion rate for assistant questions
    */
   async calculateCompletionRate(callId: string, assistantId: string): Promise<number> {
-    // Get total questions for this assistant
-    const { count: totalQuestions } = await this.supabase
-      .from('assistant_questions')
-      .select('id', { count: 'exact', head: true })
-      .eq('assistant_id', assistantId)
-
-    // Get answered questions for this call
-    const { count: answeredQuestions } = await this.supabase
-      .from('lead_responses')
-      .select('id', { count: 'exact', head: true })
-      .eq('call_id', callId)
-      .not('answer_value', 'is', null)
-      .neq('answer_value', '')
-
-    if (!totalQuestions || totalQuestions === 0) return 0
-    
-    return Math.round((answeredQuestions || 0) / totalQuestions * 100)
+    // Mock completion rate for standalone version
+    return 75 // 75% completion rate
   }
 }

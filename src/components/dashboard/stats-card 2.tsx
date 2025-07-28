@@ -40,7 +40,7 @@ export function StatsCard({
         ) : (
           <>
             <div className="text-2xl font-bold">
-              {(value || 0).toLocaleString()}
+              {value.toLocaleString()}
             </div>
             {description && (
               <p className="text-xs text-muted-foreground">

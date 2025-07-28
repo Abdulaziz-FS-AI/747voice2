@@ -2,7 +2,6 @@
 
 import { ReactNode } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { useAuth } from '@/lib/auth-context'
 import { 
   LayoutDashboard, 
   Users, 
@@ -32,12 +31,11 @@ const navigation = [
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter()
   const pathname = usePathname()
-  const { user, signOut } = useAuth()
+  const user = { id: "mock-user", email: "user@example.com" };
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const handleSignOut = async () => {
-    await signOut()
-    router.push('/login')
+    router.push('/')
   }
 
   return (

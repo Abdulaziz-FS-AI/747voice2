@@ -28,7 +28,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from '@/hooks/use-toast'
-import type { Database } from '@/types/database'
+import type { Database } from '@/types/database-simplified'
 
 type PhoneNumber = Database['public']['Tables']['phone_numbers']['Row']
 type Assistant = Database['public']['Tables']['assistants']['Row']
@@ -357,7 +357,7 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
                         <div>
                           <div className="font-medium">{assistant.name}</div>
                           <div className="text-xs text-muted-foreground">
-                            {assistant.agent_name} • {assistant.company_name}
+                            {assistant.company_name || 'Voice Assistant'}
                           </div>
                         </div>
                       </SelectItem>

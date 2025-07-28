@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/lib/auth-context'
 import { Plus, Phone, MoreVertical, Edit, Trash2, Users, PhoneCall, Clock, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -26,7 +25,7 @@ import { AddPhoneNumberModal } from '@/components/phone-numbers/add-phone-number
 import { StatsCard } from '@/components/dashboard/stats-card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/hooks/use-toast'
-import type { Database } from '@/types/database'
+import type { Database } from '@/types/database-simplified'
 
 type PhoneNumber = Database['public']['Tables']['phone_numbers']['Row'] & {
   assistants?: {
@@ -44,7 +43,7 @@ interface PhoneNumberStats {
 
 export default function PhoneNumbersPage() {
   const router = useRouter()
-  const { user } = useAuth()
+  const user = { id: "mock-user", email: "user@example.com" };
   const [phoneNumbers, setPhoneNumbers] = useState<PhoneNumber[]>([])
   const [stats, setStats] = useState<PhoneNumberStats>({
     totalNumbers: 0,
@@ -89,8 +88,8 @@ export default function PhoneNumbersPage() {
     const stats = numbers.reduce((acc, number) => {
       acc.totalNumbers += 1
       if (number.is_active) acc.activeNumbers += 1
-      acc.totalCalls += number.total_calls || 0
-      acc.totalMinutes += number.total_minutes || 0
+      acc.totalCalls += 0
+      acc.totalMinutes += 0
       return acc
     }, {
       totalNumbers: 0,
@@ -294,13 +293,13 @@ export default function PhoneNumbersPage() {
                   {phoneNumbers.map((number) => (
                     <TableRow key={number.id}>
                       <TableCell className="font-medium">
-                        {number.friendly_name}
+                        {number.number}
                       </TableCell>
                       <TableCell className="font-mono">
-                        {formatPhoneNumber(number.phone_number)}
+                        {formatPhoneNumber(number.number)}
                       </TableCell>
                       <TableCell>
-                        {getProviderBadge(number.provider)}
+                        <Badge variant="default">Vapi</Badge>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
@@ -310,11 +309,6 @@ export default function PhoneNumbersPage() {
                           >
                             {number.is_active ? "Active" : "Inactive"}
                           </Badge>
-                          {number.is_verified && (
-                            <Badge variant="outline" className="text-xs">
-                              Verified
-                            </Badge>
-                          )}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -329,20 +323,14 @@ export default function PhoneNumbersPage() {
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">
-                          <div>{number.total_calls || 0} calls</div>
+                          <div>0 calls</div>
                           <div className="text-muted-foreground">
-                            {number.total_minutes || 0} min
+                            0 min
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        {number.last_call_at ? (
-                          <span className="text-sm text-muted-foreground">
-                            {new Date(number.last_call_at).toLocaleDateString()}
-                          </span>
-                        ) : (
-                          <span className="text-sm text-muted-foreground">Never</span>
-                        )}
+                        <span className="text-sm text-muted-foreground">Never</span>
                       </TableCell>
                       <TableCell>
                         <DropdownMenu>

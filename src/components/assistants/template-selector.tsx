@@ -5,8 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Building2, CheckCircle2, FileText, Loader2 } from 'lucide-react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import type { Database } from '@/types/database'
+import type { Database } from '@/types/database-simplified'
 
 interface Template {
   id: string
@@ -25,7 +24,7 @@ export function TemplateSelector({ onSelectTemplate, onSkip }: TemplateSelectorP
   const [templates, setTemplates] = useState<Template[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
-  const supabase = createClientComponentClient<Database>()
+  // Mock templates - no database connection needed
 
   useEffect(() => {
     loadTemplates()
@@ -33,34 +32,25 @@ export function TemplateSelector({ onSelectTemplate, onSkip }: TemplateSelectorP
 
   const loadTemplates = async () => {
     try {
-      // Get templates
-      const { data: templatesData, error: templatesError } = await supabase
-        .from('prompt_templates')
-        .select('*')
-        .eq('is_active', true)
-
-      if (templatesError) throw templatesError
-
-      // Get template questions count
-      const { data: questionsData, error: questionsError } = await supabase
-        .from('template_questions')
-        .select('template_id')
-
-      if (questionsError) throw questionsError
-
-      // Count questions per template
-      const questionCounts = questionsData.reduce((acc, q) => {
-        acc[q.template_id] = (acc[q.template_id] || 0) + 1
-        return acc
-      }, {} as Record<string, number>)
-
-      // Combine data
-      const templatesWithCounts = templatesData.map(t => ({
-        ...t,
-        question_count: questionCounts[t.id] || 0
-      }))
-
-      setTemplates(templatesWithCounts)
+      // Mock template data
+      const mockTemplates = [
+        {
+          id: '1',
+          name: 'Real Estate Agent',
+          description: 'Professional real estate assistant template',
+          industry: 'Real Estate',
+          question_count: 5
+        },
+        {
+          id: '2', 
+          name: 'Customer Service',
+          description: 'General customer service template',
+          industry: 'Service',
+          question_count: 3
+        }
+      ]
+      
+      setTemplates(mockTemplates)
     } catch (error) {
       console.error('Error loading templates:', error)
     } finally {
@@ -71,19 +61,13 @@ export function TemplateSelector({ onSelectTemplate, onSkip }: TemplateSelectorP
   const handleSelectTemplate = async (templateId: string) => {
     setSelectedTemplate(templateId)
     
-    // Load template questions
-    const { data: questions, error } = await supabase
-      .from('template_questions')
-      .select('*')
-      .eq('template_id', templateId)
-      .order('display_order')
-
-    if (error) {
-      console.error('Error loading template questions:', error)
-      return
+    // Mock selection - in real app would load template data
+    const selectedTemplate = templates.find(t => t.id === templateId)
+    if (selectedTemplate) {
+      // Mock questions data
+      const mockQuestions: any[] = []
+      onSelectTemplate(templateId, mockQuestions)
     }
-
-    onSelectTemplate(templateId, questions || [])
   }
 
   if (loading) {

@@ -3,7 +3,6 @@
  * Professional-grade event processing with error handling and database operations
  */
 
-import { createServiceRoleClient } from '@/lib/supabase'
 import { CallAnalyzer } from '@/lib/call-analyzer'
 import { LeadExtractor } from '@/lib/lead-extractor'
 import {
@@ -18,7 +17,7 @@ import {
   type WebhookProcessingResult,
   WebhookProcessingError
 } from '@/types/vapi-webhooks'
-import type { Database } from '@/types/database'
+import type { Database } from '@/types/database-simplified'
 
 // Type definitions for better type safety
 type DatabaseCall = Database['public']['Tables']['calls']['Row']
@@ -36,15 +35,11 @@ type VapiMessage = {
   [key: string]: unknown
 }
 
-type Supabase = ReturnType<typeof createServiceRoleClient>
-
 export class WebhookProcessor {
-  private supabase: Supabase
   private callAnalyzer: CallAnalyzer
   private leadExtractor: LeadExtractor
 
   constructor() {
-    this.supabase = createServiceRoleClient()
     this.callAnalyzer = new CallAnalyzer()
     this.leadExtractor = new LeadExtractor()
   }

@@ -3,7 +3,6 @@
  * Uses OpenAI GPT-4 to analyze conversations and extract business intelligence
  */
 
-import { createServiceRoleClient } from '@/lib/supabase'
 import type { CallAnalysisResult } from '@/types/vapi-webhooks'
 import type { ExtractedResponse } from './lead-extractor'
 
@@ -26,7 +25,6 @@ export interface ScoringFactors {
 }
 
 export class CallAnalyzer {
-  private supabase = createServiceRoleClient()
   private openaiApiKey = process.env.OPENAI_API_KEY
 
   /**

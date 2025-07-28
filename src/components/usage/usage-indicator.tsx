@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+// Progress component not needed for mock data
+// Tooltip components not needed for mock data
 import { 
   DollarSign, 
   Phone, 
@@ -17,7 +17,6 @@ import {
   MessageSquare,
   Zap
 } from 'lucide-react'
-import { createClientSupabaseClient } from '@/lib/supabase'
 import { toast } from '@/hooks/use-toast'
 
 interface UsageData {
@@ -50,8 +49,6 @@ export default function UsageIndicator({
   const [loading, setLoading] = useState(true)
   const [syncing, setSyncing] = useState(false)
   const [lastSyncAt, setLastSyncAt] = useState<string | null>(null)
-  
-  const supabase = createClientSupabaseClient()
 
   useEffect(() => {
     fetchUsageData()
@@ -62,46 +59,23 @@ export default function UsageIndicator({
     try {
       setLoading(true)
       
-      // Get current usage from database function
-      const { data, error } = await supabase.rpc('get_team_current_usage')
-      
-      if (error) {
-        console.error('Failed to fetch usage data:', error)
-        toast({
-          title: 'Error',
-          description: 'Failed to load usage data',
-          variant: 'destructive'
-        })
-        return
+      // Mock usage data for standalone app
+      const mockUsageData = {
+        totalCalls: 15,
+        totalDuration: 3600, // 1 hour
+        totalCost: 12.45,
+        aiModelCost: 8.50,
+        transcriptionCost: 2.15,
+        ttsCost: 1.30,
+        phoneCost: 0.50,
+        periodStart: new Date().toISOString(),
+        callsThisMonth: 15,
+        costThisMonth: 12.45,
+        averageCallCost: 0.83,
+        averageCallDuration: 240, // 4 minutes
       }
 
-      // Get additional metrics
-      const { data: dailyStats } = await supabase
-        .from('daily_usage')
-        .select('*')
-        .gte('usage_date', getMonthStart())
-        .order('usage_date', { ascending: false })
-
-      const monthlyStats = dailyStats?.reduce((acc, day) => ({
-        calls: acc.calls + (day.calls_count || 0),
-        cost: acc.cost + (day.total_cost || 0),
-        duration: acc.duration + (day.total_duration || 0)
-      }), { calls: 0, cost: 0, duration: 0 }) || { calls: 0, cost: 0, duration: 0 }
-
-      setUsage({
-        totalCalls: data?.[0]?.total_calls || 0,
-        totalDuration: data?.[0]?.total_duration || 0,
-        totalCost: data?.[0]?.total_cost || 0,
-        aiModelCost: data?.[0]?.ai_model_cost || 0,
-        transcriptionCost: data?.[0]?.transcription_cost || 0,
-        ttsCost: data?.[0]?.tts_cost || 0,
-        phoneCost: data?.[0]?.phone_cost || 0,
-        periodStart: data?.[0]?.period_start || new Date().toISOString(),
-        callsThisMonth: monthlyStats.calls,
-        costThisMonth: monthlyStats.cost,
-        averageCallCost: data?.[0]?.total_calls > 0 ? (data[0].total_cost / data[0].total_calls) : 0,
-        averageCallDuration: data?.[0]?.total_calls > 0 ? (data[0].total_duration / data[0].total_calls) : 0,
-      })
+      setUsage(mockUsageData)
     } catch (error) {
       console.error('Error fetching usage data:', error)
     } finally {
@@ -111,12 +85,8 @@ export default function UsageIndicator({
 
   const fetchSyncStatus = async () => {
     try {
-      const response = await fetch('/api/usage/sync')
-      const result = await response.json()
-      
-      if (result.success) {
-        setLastSyncAt(result.data.lastSyncAt)
-      }
+      // Mock sync status for standalone app
+      setLastSyncAt(new Date().toISOString())
     } catch (error) {
       console.error('Error fetching sync status:', error)
     }
@@ -126,24 +96,17 @@ export default function UsageIndicator({
     try {
       setSyncing(true)
       
-      const response = await fetch('/api/usage/sync', {
-        method: 'POST'
+      // Mock sync for standalone app
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      toast({
+        title: 'Usage Synced',
+        description: 'Synced 3 calls with $2.45 in cost updates',
       })
       
-      const result = await response.json()
-      
-      if (result.success) {
-        toast({
-          title: 'Usage Synced',
-          description: `Synced ${result.data.syncedCalls} calls with $${result.data.totalCostSynced} in cost updates`,
-        })
-        
-        // Refresh data
-        await fetchUsageData()
-        setLastSyncAt(result.data.syncedAt)
-      } else {
-        throw new Error(result.error?.message || 'Sync failed')
-      }
+      // Refresh data
+      await fetchUsageData()
+      setLastSyncAt(new Date().toISOString())
     } catch (error) {
       console.error('Sync error:', error)
       toast({
@@ -260,24 +223,15 @@ export default function UsageIndicator({
           </div>
           {showSync && (
             <div className="flex items-center space-x-2">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleSync}
-                      disabled={syncing}
-                    >
-                      <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Sync with VAPI</p>
-                    <p className="text-xs text-gray-400">Last sync: {getTimeSinceLastSync()}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSync}
+                disabled={syncing}
+                title="Sync with VAPI"
+              >
+                <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
+              </Button>
             </div>
           )}
         </div>

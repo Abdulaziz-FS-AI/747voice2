@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { useAuth } from '@/lib/auth-context'
 import { ArrowLeft, Phone, Building, Clock, Globe, Edit, Power } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -10,16 +9,14 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { DashboardLayout } from '@/components/dashboard/layout'
 import { Skeleton } from '@/components/ui/skeleton'
-import type { Database } from '@/types/database'
+import type { Database } from '@/types/database-simplified'
 
-type Assistant = Database['public']['Tables']['assistants']['Row'] & {
-  assistant_questions: Database['public']['Tables']['assistant_questions']['Row'][]
-}
+type Assistant = Database['public']['Tables']['assistants']['Row']
 
 export default function AssistantDetailsPage() {
   const params = useParams()
   const router = useRouter()
-  const { user } = useAuth()
+  const user = { id: "mock-user", email: "user@example.com" };
   const [assistant, setAssistant] = useState<Assistant | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -144,7 +141,6 @@ export default function AssistantDetailsPage() {
           <TabsList>
             <TabsTrigger value="details">Details</TabsTrigger>
             <TabsTrigger value="prompts">Prompts</TabsTrigger>
-            <TabsTrigger value="questions">Questions</TabsTrigger>
           </TabsList>
 
           <TabsContent value="details" className="space-y-4">
@@ -158,7 +154,7 @@ export default function AssistantDetailsPage() {
                     <div className="flex items-center gap-2 text-sm">
                       <Phone className="h-4 w-4 text-muted-foreground" />
                       <span className="text-muted-foreground">Agent Name:</span>
-                      <span className="font-medium">{assistant.agent_name || 'Not set'}</span>
+                      <span className="font-medium">{assistant.name}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Building className="h-4 w-4 text-muted-foreground" />
@@ -170,7 +166,7 @@ export default function AssistantDetailsPage() {
                     <div className="flex items-center gap-2 text-sm">
                       <span className="text-muted-foreground">Tone:</span>
                       <Badge variant="outline" className="capitalize">
-                        {assistant.tone || assistant.personality}
+                        {assistant.personality}
                       </Badge>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
@@ -179,11 +175,11 @@ export default function AssistantDetailsPage() {
                     </div>
                   </div>
                 </div>
-                {assistant.custom_instructions && (
+                {assistant.system_prompt && (
                   <div className="pt-4 border-t">
                     <h4 className="text-sm font-medium mb-2">Custom Instructions</h4>
                     <p className="text-sm text-muted-foreground">
-                      {assistant.custom_instructions}
+                      {assistant.system_prompt}
                     </p>
                   </div>
                 )}
@@ -201,7 +197,7 @@ export default function AssistantDetailsPage() {
               </CardHeader>
               <CardContent>
                 <pre className="text-sm whitespace-pre-wrap bg-muted p-4 rounded-lg">
-                  {assistant.system_prompt || assistant.generated_system_prompt || 'No system prompt configured'}
+                  {assistant.system_prompt || 'No system prompt configured'}
                 </pre>
               </CardContent>
             </Card>
@@ -220,49 +216,6 @@ export default function AssistantDetailsPage() {
             )}
           </TabsContent>
 
-          <TabsContent value="questions" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Structured Questions</CardTitle>
-                <CardDescription>
-                  Questions your assistant asks to collect information
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {assistant.assistant_questions.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-8">
-                    No questions configured
-                  </p>
-                ) : (
-                  <div className="space-y-4">
-                    {assistant.assistant_questions
-                      .sort((a, b) => a.display_order - b.display_order)
-                      .map((question, index) => (
-                        <div key={question.id} className="border rounded-lg p-4">
-                          <div className="flex items-start justify-between mb-2">
-                            <h4 className="font-medium">
-                              {index + 1}. {question.question_text}
-                            </h4>
-                            {question.is_required && (
-                              <Badge variant="secondary" className="text-xs">
-                                Required
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="space-y-1 text-sm text-muted-foreground">
-                            <p>{question.answer_description}</p>
-                            <div className="flex gap-4 text-xs">
-                              <span>Field: <code>{question.structured_field_name}</code></span>
-                              <span>Type: {question.field_type}</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
         </Tabs>
       </div>
     </DashboardLayout>

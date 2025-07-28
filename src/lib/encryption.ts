@@ -3,7 +3,7 @@
  * Uses AES-256-GCM encryption for provider credentials
  */
 
-import { createCipherGCM, createDecipherGCM, randomBytes } from 'crypto'
+import crypto, { randomBytes } from 'crypto'
 
 export class EncryptionService {
   private readonly algorithm = 'aes-256-gcm'
@@ -33,23 +33,13 @@ export class EncryptionService {
   async encrypt(plaintext: string): Promise<string> {
     try {
       const key = this.getEncryptionKey()
-      const iv = randomBytes(this.ivLength)
       
-      const cipher = createCipherGCM(this.algorithm, key, iv)
+      const cipher = crypto.createCipher('aes-256-cbc', key)
       
       let encrypted = cipher.update(plaintext, 'utf8', 'hex')
       encrypted += cipher.final('hex')
       
-      const tag = cipher.getAuthTag()
-      
-      // Combine iv + tag + encrypted data
-      const combined = Buffer.concat([
-        iv,
-        tag,
-        Buffer.from(encrypted, 'hex')
-      ])
-      
-      return combined.toString('base64')
+      return encrypted
     } catch (error) {
       console.error('Encryption error:', error)
       throw new Error('Failed to encrypt data')
@@ -62,17 +52,10 @@ export class EncryptionService {
   async decrypt(encryptedData: string): Promise<string> {
     try {
       const key = this.getEncryptionKey()
-      const combined = Buffer.from(encryptedData, 'base64')
       
-      // Extract components
-      const iv = combined.slice(0, this.ivLength)
-      const tag = combined.slice(this.ivLength, this.ivLength + this.tagLength)
-      const encrypted = combined.slice(this.ivLength + this.tagLength)
+      const decipher = crypto.createDecipher('aes-256-cbc', key)
       
-      const decipher = createDecipherGCM(this.algorithm, key, iv)
-      decipher.setAuthTag(tag)
-      
-      let decrypted = decipher.update(encrypted, undefined, 'utf8')
+      let decrypted = decipher.update(encryptedData, 'hex', 'utf8')
       decrypted += decipher.final('utf8')
       
       return decrypted

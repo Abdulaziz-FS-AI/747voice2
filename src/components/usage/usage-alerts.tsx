@@ -13,7 +13,7 @@ import {
   Clock,
   Info
 } from 'lucide-react'
-import { createClientSupabaseClient } from '@/lib/supabase'
+// Removed Supabase dependency - using mock data
 import { toast } from '@/hooks/use-toast'
 
 interface UsageAlert {
@@ -36,7 +36,7 @@ export default function UsageAlerts({ className = '', compact = false }: UsageAl
   const [alerts, setAlerts] = useState<UsageAlert[]>([])
   const [loading, setLoading] = useState(true)
   
-  const supabase = createClientSupabaseClient()
+  // Mock data - no Supabase needed
 
   useEffect(() => {
     fetchAlerts()
@@ -46,19 +46,10 @@ export default function UsageAlerts({ className = '', compact = false }: UsageAl
     try {
       setLoading(true)
       
-      const { data, error } = await supabase
-        .from('usage_alerts')
-        .select('*')
-        .eq('is_resolved', false)
-        .order('created_at', { ascending: false })
-        .limit(10)
+      // Mock alerts data - empty for standalone app
+      const data: UsageAlert[] = []
 
-      if (error) {
-        console.error('Failed to fetch usage alerts:', error)
-        return
-      }
-
-      setAlerts(data || [])
+      setAlerts(data)
     } catch (error) {
       console.error('Error fetching usage alerts:', error)
     } finally {
@@ -68,17 +59,8 @@ export default function UsageAlerts({ className = '', compact = false }: UsageAl
 
   const handleResolveAlert = async (alertId: string) => {
     try {
-      const { error } = await supabase
-        .from('usage_alerts')
-        .update({ 
-          is_resolved: true, 
-          resolved_at: new Date().toISOString() 
-        })
-        .eq('id', alertId)
-
-      if (error) {
-        throw error
-      }
+      // Mock resolve - just remove from local state
+      setAlerts(prev => prev.filter(alert => alert.id !== alertId))
 
       // Remove from local state
       setAlerts(alerts.filter(alert => alert.id !== alertId))
@@ -148,7 +130,7 @@ export default function UsageAlerts({ className = '', compact = false }: UsageAl
     
     if (percentageOver >= 0.5) return 'destructive' // 50% over threshold
     if (percentageOver >= 0.2) return 'default' // 20% over threshold
-    return 'secondary'
+    return 'default'
   }
 
   const getAlertBadgeText = (alert: UsageAlert) => {

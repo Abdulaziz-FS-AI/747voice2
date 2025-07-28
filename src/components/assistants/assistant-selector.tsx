@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Loader2 } from 'lucide-react'
-import type { Database } from '@/types/database'
+import type { Database } from '@/types/database-simplified'
 
 type Assistant = Database['public']['Tables']['assistants']['Row']
 
@@ -95,7 +95,7 @@ export function AssistantSelector({
                 <div className="flex flex-col items-start">
                   <span className="font-medium">{assistant.name}</span>
                   <span className="text-xs text-muted-foreground">
-                    {assistant.agent_name} • {assistant.company_name}
+                    {assistant.company_name || 'Voice Assistant'}
                   </span>
                 </div>
                 <div className="flex items-center gap-1 ml-2">
