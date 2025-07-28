@@ -200,6 +200,31 @@ export function generateRequestId(): string {
   return `req_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
 }
 
+// Permission checking for single-user system
+export async function requirePermission(
+  permission: string = 'basic'
+): Promise<{ user: any; profile: any }> {
+  try {
+    const { user, profile } = await authenticateRequest();
+    
+    // In single-user system, all authenticated users have basic permissions
+    // Premium permissions require subscription check
+    if (permission === 'premium') {
+      const isPremium = await isPremiumUser(user.id);
+      if (!isPremium) {
+        throw new SubscriptionError('Premium subscription required', 403);
+      }
+    }
+    
+    return { user, profile };
+  } catch (error) {
+    if (error instanceof AuthError || error instanceof SubscriptionError) {
+      throw error;
+    }
+    throw new AuthError('Permission check failed', 500);
+  }
+}
+
 // Audit logging
 export async function logAuditEvent(event: {
   user_id: string;
