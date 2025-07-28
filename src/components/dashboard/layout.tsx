@@ -2,6 +2,7 @@
 
 import { ReactNode } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
+import { useAuth } from '@/lib/auth-context'
 import { 
   LayoutDashboard, 
   Users, 
