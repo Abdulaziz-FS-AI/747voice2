@@ -1,32 +1,12 @@
-import { Suspense } from 'react'
+'use client'
+
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Plus, Phone, Bot, Clock, Users } from 'lucide-react'
-import { getServerSession } from 'next-auth'
-import { createServerClient } from '@/lib/supabase'
-import { redirect } from 'next/navigation'
-
-async function getAssistants() {
-  const session = await getServerSession()
-  if (!session) {
-    redirect('/login')
-  }
-
-  const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/assistants`, {
-    headers: {
-      'Authorization': `Bearer ${session.access_token}`,
-    },
-    cache: 'no-store',
-  })
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch assistants')
-  }
-
-  return response.json()
-}
+import { useAuth } from '@/lib/auth-context'
 
 function AssistantCard({ assistant }: { assistant: any }) {
   return (
@@ -66,10 +46,10 @@ function AssistantCard({ assistant }: { assistant: any }) {
       </CardContent>
       <CardFooter className="flex gap-2">
         <Button asChild size="sm" variant="outline">
-          <Link href={`/assistants/${assistant.id}`}>View Details</Link>
+          <Link href={`/dashboard/assistants/${assistant.id}`}>View Details</Link>
         </Button>
         <Button asChild size="sm">
-          <Link href={`/assistants/${assistant.id}/edit`}>Edit</Link>
+          <Link href={`/dashboard/assistants/${assistant.id}/edit`}>Edit</Link>
         </Button>
       </CardFooter>
     </Card>
@@ -100,7 +80,40 @@ function AssistantsSkeleton() {
   )
 }
 
-export default async function AssistantsPage() {
+export default function AssistantsPage() {
+  const { user, loading } = useAuth()
+  const [assistants, setAssistants] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    if (!loading && !user) {
+      window.location.href = '/auth/signin'
+      return
+    }
+
+    if (user) {
+      fetchAssistants()
+    }
+  }, [user, loading])
+
+  const fetchAssistants = async () => {
+    try {
+      const response = await fetch('/api/assistants')
+      if (response.ok) {
+        const data = await response.json()
+        setAssistants(data.data || [])
+      }
+    } catch (error) {
+      console.error('Error fetching assistants:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  if (loading || isLoading) {
+    return <AssistantsSkeleton />
+  }
+
   return (
     <div className="container mx-auto p-6 space-y-8">
       <div className="flex items-center justify-between">
@@ -111,49 +124,36 @@ export default async function AssistantsPage() {
           </p>
         </div>
         <Button asChild>
-          <Link href="/assistants/new">
+          <Link href="/dashboard/assistants/new">
             <Plus className="mr-2 h-4 w-4" />
             Create Assistant
           </Link>
         </Button>
       </div>
 
-      <Suspense fallback={<AssistantsSkeleton />}>
-        <AssistantsList />
-      </Suspense>
-    </div>
-  )
-}
-
-async function AssistantsList() {
-  const data = await getAssistants()
-  const assistants = data.data || []
-
-  if (assistants.length === 0) {
-    return (
-      <Card>
-        <CardContent className="flex flex-col items-center justify-center py-12">
-          <Bot className="h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No assistants yet</h3>
-          <p className="text-muted-foreground text-center mb-6">
-            Create your first AI assistant to start handling calls
-          </p>
-          <Button asChild>
-            <Link href="/assistants/new">
-              <Plus className="mr-2 h-4 w-4" />
-              Create Your First Assistant
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {assistants.map((assistant: any) => (
-        <AssistantCard key={assistant.id} assistant={assistant} />
-      ))}
+      {assistants.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <Bot className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No assistants yet</h3>
+            <p className="text-muted-foreground text-center mb-6">
+              Create your first AI assistant to start handling calls
+            </p>
+            <Button asChild>
+              <Link href="/dashboard/assistants/new">
+                <Plus className="mr-2 h-4 w-4" />
+                Create Your First Assistant
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {assistants.map((assistant: any) => (
+            <AssistantCard key={assistant.id} assistant={assistant} />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

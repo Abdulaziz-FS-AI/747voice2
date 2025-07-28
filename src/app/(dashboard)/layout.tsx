@@ -1,6 +1,8 @@
+'use client'
+
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
-import { getServerSession } from 'next-auth'
+import { useEffect } from 'react'
+import { useAuth } from '@/lib/auth-context'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { 
@@ -22,40 +24,55 @@ const sidebarNavItems = [
   },
   {
     title: 'Assistants',
-    href: '/assistants',
+    href: '/dashboard/assistants',
     icon: Bot
   },
   {
     title: 'Calls',
-    href: '/calls',
+    href: '/dashboard/calls',
     icon: Phone
   },
   {
     title: 'Leads',
-    href: '/leads',
+    href: '/dashboard/leads',
     icon: Users
   },
   {
     title: 'Analytics',
-    href: '/analytics',
+    href: '/dashboard/analytics',
     icon: BarChart3
   },
   {
     title: 'Settings',
-    href: '/settings',
+    href: '/dashboard/settings',
     icon: Settings
   }
 ]
 
-export default async function DashboardLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const session = await getServerSession()
+  const { user, loading, signOut } = useAuth()
   
-  if (!session) {
-    redirect('/login')
+  useEffect(() => {
+    if (!loading && !user) {
+      window.location.href = '/auth/signin'
+    }
+  }, [user, loading])
+
+  const handleSignOut = async () => {
+    await signOut()
+    window.location.href = '/auth/signin'
+  }
+
+  if (loading) {
+    return <div>Loading...</div>
+  }
+
+  if (!user) {
+    return null
   }
 
   return (
@@ -87,7 +104,11 @@ export default async function DashboardLayout({
             </div>
           </ScrollArea>
           <div className="border-t p-4">
-            <Button variant="ghost" className="w-full justify-start">
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start"
+              onClick={handleSignOut}
+            >
               <LogOut className="mr-2 h-4 w-4" />
               Log out
             </Button>
