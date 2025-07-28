@@ -4,7 +4,7 @@
  */
 
 import { createServiceRoleClient } from '@/lib/supabase'
-import type { Database } from '@/types/database'
+import type { Database } from '@/types/database-simplified'
 
 type LeadResponse = Database['public']['Tables']['lead_responses']['Insert']
 
@@ -45,15 +45,8 @@ export class LeadExtractor {
     const responses: ExtractedResponse[] = []
     const collectedAt = new Date().toISOString()
 
-    // Get assistant questions for mapping
-    const { data: assistantQuestions } = await this.supabase
-      .from('assistant_questions')
-      .select('*')
-      .eq('assistant_id', assistantId)
-
-    const questionMap = new Map(
-      assistantQuestions?.map(q => [q.structured_field_name, q]) || []
-    )
+    // Simplified: no assistant_questions table in standalone version
+    const questionMap = new Map()
 
     // Process each parameter from the function call
     for (const [fieldName, value] of Object.entries(functionCall.parameters)) {
@@ -76,14 +69,14 @@ export class LeadExtractor {
       await this.storeResponse({
         call_id: callId,
         assistant_id: assistantId,
-        question_id: question?.id || null,
+        question_id: null,
         function_name: functionCall.name,
         question_text: response.questionText,
         answer_value: response.answerValue,
         answer_type: response.answerType,
         answer_confidence: response.confidence,
         field_name: fieldName,
-        is_required: question?.is_required || false,
+        is_required: false,
         collection_method: 'function_call',
         collected_at: collectedAt
       })
@@ -325,13 +318,7 @@ export class LeadExtractor {
    * Calculate completion rate for assistant questions
    */
   async calculateCompletionRate(callId: string, assistantId: string): Promise<number> {
-    // Get total questions for this assistant
-    const { count: totalQuestions } = await this.supabase
-      .from('assistant_questions')
-      .select('id', { count: 'exact', head: true })
-      .eq('assistant_id', assistantId)
-
-    // Get answered questions for this call
+    // Simplified: calculate based on responses collected
     const { count: answeredQuestions } = await this.supabase
       .from('lead_responses')
       .select('id', { count: 'exact', head: true })
@@ -339,8 +326,9 @@ export class LeadExtractor {
       .not('answer_value', 'is', null)
       .neq('answer_value', '')
 
-    if (!totalQuestions || totalQuestions === 0) return 0
+    // Assume 10 standard questions for completion rate calculation
+    const standardQuestions = 10
     
-    return Math.round((answeredQuestions || 0) / totalQuestions * 100)
+    return Math.round(Math.min(100, (answeredQuestions || 0) / standardQuestions * 100))
   }
 }

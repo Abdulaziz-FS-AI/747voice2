@@ -18,7 +18,7 @@ import {
   type WebhookProcessingResult,
   WebhookProcessingError
 } from '@/types/vapi-webhooks'
-import type { Database } from '@/types/database'
+import type { Database } from '@/types/database-simplified'
 
 // Type definitions for better type safety
 type DatabaseCall = Database['public']['Tables']['calls']['Row']

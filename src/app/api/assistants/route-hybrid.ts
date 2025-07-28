@@ -19,7 +19,7 @@ import type { AssistantCustomization } from '@/lib/prompt-builder'
 
 export async function POST(request: NextRequest) {
   try {
-    const { user, profile } = await requirePermission('basic')
+    const { user, profile } = await requirePermission()
     const body = await request.json()
 
     await checkSubscriptionLimits(user.id, 'assistants', 1)

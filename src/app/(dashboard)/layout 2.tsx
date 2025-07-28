@@ -1,6 +1,4 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
-import { getServerSession } from 'next-auth'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { 
@@ -10,7 +8,6 @@ import {
   Users, 
   BarChart3, 
   Settings, 
-  LogOut,
   Menu
 } from 'lucide-react'
 
@@ -47,16 +44,11 @@ const sidebarNavItems = [
   }
 ]
 
-export default async function DashboardLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const session = await getServerSession()
-  
-  if (!session) {
-    redirect('/login')
-  }
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -86,12 +78,6 @@ export default async function DashboardLayout({
               ))}
             </div>
           </ScrollArea>
-          <div className="border-t p-4">
-            <Button variant="ghost" className="w-full justify-start">
-              <LogOut className="mr-2 h-4 w-4" />
-              Log out
-            </Button>
-          </div>
         </div>
       </aside>
 

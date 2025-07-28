@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { 
   DollarSign, 
   Phone, 
@@ -260,24 +258,15 @@ export default function UsageIndicator({
           </div>
           {showSync && (
             <div className="flex items-center space-x-2">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleSync}
-                      disabled={syncing}
-                    >
-                      <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Sync with VAPI</p>
-                    <p className="text-xs text-gray-400">Last sync: {getTimeSinceLastSync()}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSync}
+                disabled={syncing}
+                title={`Sync with VAPI - Last sync: ${getTimeSinceLastSync()}`}
+              >
+                <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
+              </Button>
             </div>
           )}
         </div>

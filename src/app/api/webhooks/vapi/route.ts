@@ -87,7 +87,8 @@ async function handleCallEnd(supabase: ReturnType<typeof createServiceRoleClient
       .update({
         status: call.status,
         ended_at: call.endedAt ? new Date(call.endedAt).toISOString() : new Date().toISOString(),
-        duration: call.duration || 0,
+        duration: call.endedAt && call.startedAt ? 
+          Math.floor((new Date(call.endedAt).getTime() - new Date(call.startedAt).getTime()) / 1000) : 0,
         cost: call.cost || 0,
         updated_at: new Date().toISOString(),
       })
@@ -115,7 +116,8 @@ async function handleCallEnd(supabase: ReturnType<typeof createServiceRoleClient
         direction: 'inbound',
         started_at: call.startedAt ? new Date(call.startedAt).toISOString() : new Date().toISOString(),
         ended_at: call.endedAt ? new Date(call.endedAt).toISOString() : new Date().toISOString(),
-        duration: call.duration || 0,
+        duration: call.endedAt && call.startedAt ? 
+          Math.floor((new Date(call.endedAt).getTime() - new Date(call.startedAt).getTime()) / 1000) : 0,
         cost: call.cost || 0,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),

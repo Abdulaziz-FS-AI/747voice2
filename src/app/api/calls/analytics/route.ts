@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get leads data if requested
-    let leads = [];
+    let leads: any[] = [];
     if (includeLeads && calls && calls.length > 0) {
       const callIds = calls.map(call => call.id);
       const { data: leadsData } = await supabase
@@ -165,7 +165,7 @@ export async function GET(request: NextRequest) {
 
     // Assistant performance breakdown
     const assistantStats = calls?.reduce((acc, call) => {
-      const assistantName = call.assistant?.name || 'Unknown';
+      const assistantName = (call.assistant as any)?.name || 'Unknown';
       
       if (!acc[assistantName]) {
         acc[assistantName] = {
@@ -192,7 +192,7 @@ export async function GET(request: NextRequest) {
     leads.forEach(lead => {
       const call = calls?.find(c => c.id === lead.call_id);
       if (call && call.assistant) {
-        const assistantName = call.assistant.name;
+        const assistantName = (call.assistant as any)?.name;
         if (assistantStats[assistantName]) {
           assistantStats[assistantName].leads_generated++;
         }

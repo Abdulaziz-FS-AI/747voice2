@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
     // Check if user already exists
     const { data: existingUser } = await supabase
       .from('profiles')
-      .select('id, team_id')
+      .select('id, team_id, first_name, last_name')
       .eq('email', validatedData.email)
       .single();
 

@@ -261,10 +261,10 @@ export async function POST(request: NextRequest) {
     if (validatedData.provider === 'twilio' && isVerified) {
       try {
         await validator.setupTwilioWebhook(
-          providerConfig.account_sid,
-          await encryption.decrypt(providerConfig.auth_token_encrypted),
+          (providerConfig as any).account_sid,
+          await encryption.decrypt((providerConfig as any).auth_token_encrypted),
           validatedData.phone_number,
-          providerConfig.webhook_url
+          (providerConfig as any).webhook_url
         )
       } catch (error) {
         console.error('Failed to setup Twilio webhook:', error)
@@ -290,7 +290,7 @@ export async function POST(request: NextRequest) {
         error: {
           code: 'VALIDATION_ERROR',
           message: 'Invalid input data',
-          details: error.errors
+          details: (error as any).errors
         }
       }, { status: 400 })
     }

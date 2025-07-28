@@ -198,7 +198,7 @@ export async function PUT(
     }
 
     // Update last_contact_at if status is being changed to 'contacted'
-    const updates = { ...validatedData };
+    const updates: any = { ...validatedData };
     if (validatedData.status === 'contacted' && currentLead.status !== 'contacted') {
       updates.last_contact_at = new Date().toISOString();
     }

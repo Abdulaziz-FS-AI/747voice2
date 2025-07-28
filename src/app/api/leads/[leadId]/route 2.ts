@@ -196,7 +196,7 @@ export async function PUT(
     }
 
     // Update last_contact_at if status is being changed to 'contacted'
-    const updates = { ...validatedData };
+    const updates: any = { ...validatedData };
     if (validatedData.status === 'contacted' && currentLead.status !== 'contacted') {
       updates.last_contact_at = new Date().toISOString();
     }
@@ -250,7 +250,7 @@ export async function PUT(
         lead_type: currentLead.lead_type,
       },
       new_values: validatedData,
-      ip_address: request.ip,
+      ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
       user_agent: request.headers.get('user-agent'),
     });
 
@@ -318,7 +318,7 @@ export async function DELETE(
       resource_type: 'lead',
       resource_id: leadId,
       old_values: lead,
-      ip_address: request.ip,
+      ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
       user_agent: request.headers.get('user-agent'),
     });
 

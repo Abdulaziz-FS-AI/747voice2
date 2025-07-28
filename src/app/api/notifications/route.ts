@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
 
 // Generate notifications based on user data
 async function generateUserNotifications(userId: string, supabase: any) {
-  const notifications = [];
+  const notifications: any[] = [];
   const now = new Date();
   const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
@@ -247,7 +247,7 @@ async function generateUserNotifications(userId: string, supabase: any) {
 
     const { data: assistants } = await assistantsQuery;
 
-    const unconfiguredAssistants = assistants?.filter(a => !a.vapi_assistant_id) || [];
+    const unconfiguredAssistants = assistants?.filter((a: any) => !a.vapi_assistant_id) || [];
     
     if (unconfiguredAssistants.length > 0) {
       notifications.push({

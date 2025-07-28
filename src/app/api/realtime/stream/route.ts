@@ -152,7 +152,7 @@ async function getRealtimeStatus(userId: string, teamId: string | null) {
         total_leads: totalTodayLeads || 0,
         qualified_leads: qualifiedTodayLeads,
         success_rate: totalTodayCalls ? (completedTodayCalls / totalTodayCalls) * 100 : 0,
-        conversion_rate: totalTodayCalls ? (totalTodayLeads / totalTodayCalls) * 100 : 0,
+        conversion_rate: totalTodayCalls && totalTodayLeads ? (totalTodayLeads / totalTodayCalls) * 100 : 0,
       },
       overdue_follow_ups: overdueFollowUps || 0,
       timestamp: new Date().toISOString(),

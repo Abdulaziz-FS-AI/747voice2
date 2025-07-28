@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateRequest, requirePermission, logAuditEvent } from '@/lib/auth';
 import { handleAPIError } from '@/lib/errors';
 import { createServiceRoleClient } from '@/lib/supabase';
 import { vapiClient } from '@/lib/vapi';

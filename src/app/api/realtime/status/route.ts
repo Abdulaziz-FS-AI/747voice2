@@ -131,7 +131,7 @@ export async function GET(request: NextRequest) {
         follow_ups: includeDetails ? overdueFollowUps : undefined,
       },
       today_stats: todayStats,
-      alerts: generateAlerts(activeCalls, overdueFollowUps, todayStats),
+      alerts: generateAlerts(activeCalls || [], overdueFollowUps || [], todayStats),
     };
 
     return NextResponse.json({
