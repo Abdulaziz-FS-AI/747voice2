@@ -1,0 +1,43 @@
+{
+  "name": "Test Voice Matrix Assistant",
+  "model": {
+    "provider": "openai",
+    "model": "gpt-3.5-turbo",
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Alex, a professional real estate assistant working for Voice Matrix Realty. Help potential clients with their real estate needs and gather their name, phone number, and property interests. Use the collectLeadData function to save information."
+      }
+    ],
+    "functions": [
+      {
+        "name": "collectLeadData",
+        "description": "Save lead information collected during the conversation",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "full_name": {
+              "type": "string",
+              "description": "The caller complete name"
+            },
+            "phone_number": {
+              "type": "string", 
+              "description": "The caller phone number"
+            },
+            "property_type": {
+              "type": "string",
+              "description": "Type of property they want"
+            }
+          },
+          "required": ["full_name"]
+        }
+      }
+    ]
+  },
+  "voice": {
+    "provider": "11labs",
+    "voiceId": "pNInz6obpgDQGcFmaJgB"
+  },
+  "firstMessage": "Hello! Thank you for calling Voice Matrix Realty. This is Alex, your AI assistant. How can I help you today?",
+  "maxDurationSeconds": 300
+}
