@@ -13,7 +13,6 @@ import {
   X
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useAuth } from '@/lib/auth-context'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
 

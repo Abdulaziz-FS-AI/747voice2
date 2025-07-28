@@ -9,7 +9,6 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { DashboardLayout } from '@/components/dashboard/layout'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useAuth } from '@/lib/auth-context'
 import type { Database } from '@/types/database'
 
 type Assistant = Database['public']['Tables']['assistants']['Row'] & {

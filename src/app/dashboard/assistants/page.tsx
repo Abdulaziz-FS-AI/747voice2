@@ -24,7 +24,6 @@ import {
 import { DashboardLayout } from '@/components/dashboard/layout'
 import { EditAssistantModal } from '@/components/assistants/edit-assistant-modal'
 import { DeleteAssistantModal } from '@/components/assistants/delete-assistant-modal'
-import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/hooks/use-toast'
 import type { Database } from '@/types/database'
 

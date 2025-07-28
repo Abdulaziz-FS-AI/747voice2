@@ -23,7 +23,6 @@ import {
 import { DashboardLayout } from '@/components/dashboard/layout'
 import { AddPhoneNumberModal } from '@/components/phone-numbers/add-phone-number-modal'
 import { StatsCard } from '@/components/dashboard/stats-card'
-import { useAuth } from '@/lib/auth-context'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/hooks/use-toast'
 import type { Database } from '@/types/database'

@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Plus, Phone, Bot, Clock, Users } from 'lucide-react'
-import { useAuth } from '@/lib/auth-context'
 
 function AssistantCard({ assistant }: { assistant: any }) {
   return (

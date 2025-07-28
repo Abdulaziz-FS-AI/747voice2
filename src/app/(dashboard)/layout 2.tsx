@@ -1,6 +1,6 @@
-'use client'
-
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { getServerSession } from 'next-auth'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { 
@@ -9,7 +9,8 @@ import {
   Phone, 
   Users, 
   BarChart3, 
-  Settings,
+  Settings, 
+  LogOut,
   Menu
 } from 'lucide-react'
 
@@ -21,36 +22,41 @@ const sidebarNavItems = [
   },
   {
     title: 'Assistants',
-    href: '/dashboard/assistants',
+    href: '/assistants',
     icon: Bot
   },
   {
     title: 'Calls',
-    href: '/dashboard/calls',
+    href: '/calls',
     icon: Phone
   },
   {
     title: 'Leads',
-    href: '/dashboard/leads',
+    href: '/leads',
     icon: Users
   },
   {
     title: 'Analytics',
-    href: '/dashboard/analytics',
+    href: '/analytics',
     icon: BarChart3
   },
   {
     title: 'Settings',
-    href: '/dashboard/settings',
+    href: '/settings',
     icon: Settings
   }
 ]
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const session = await getServerSession()
+  
+  if (!session) {
+    redirect('/login')
+  }
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -81,13 +87,9 @@ export default function DashboardLayout({
             </div>
           </ScrollArea>
           <div className="border-t p-4">
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start"
-              onClick={() => window.location.href = '/'}
-            >
-              <Home className="mr-2 h-4 w-4" />
-              Back to Home
+            <Button variant="ghost" className="w-full justify-start">
+              <LogOut className="mr-2 h-4 w-4" />
+              Log out
             </Button>
           </div>
         </div>

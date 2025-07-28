@@ -17,11 +17,6 @@ export interface Database {
           last_name: string | null
           company_name: string | null
           phone: string | null
-          subscription_id: string | null
-          subscription_status: 'trial' | 'active' | 'past_due' | 'cancelled' | 'expired'
-          subscription_current_period_end: string | null
-          is_premium: boolean
-          trial_ends_at: string | null
           onboarding_completed: boolean
           max_assistants: number
           max_minutes: number
@@ -37,11 +32,6 @@ export interface Database {
           last_name?: string | null
           company_name?: string | null
           phone?: string | null
-          subscription_id?: string | null
-          subscription_status?: 'trial' | 'active' | 'past_due' | 'cancelled' | 'expired'
-          subscription_current_period_end?: string | null
-          is_premium?: boolean
-          trial_ends_at?: string | null
           onboarding_completed?: boolean
           max_assistants?: number
           max_minutes?: number
@@ -57,11 +47,6 @@ export interface Database {
           last_name?: string | null
           company_name?: string | null
           phone?: string | null
-          subscription_id?: string | null
-          subscription_status?: 'trial' | 'active' | 'past_due' | 'cancelled' | 'expired'
-          subscription_current_period_end?: string | null
-          is_premium?: boolean
-          trial_ends_at?: string | null
           onboarding_completed?: boolean
           max_assistants?: number
           max_minutes?: number
@@ -444,7 +429,6 @@ export interface Database {
       }
     }
     Enums: {
-      subscription_status: 'trial' | 'active' | 'past_due' | 'cancelled' | 'expired'
       personality_type: 'professional' | 'friendly' | 'casual'
       call_status: 'initiated' | 'ringing' | 'answered' | 'completed' | 'failed' | 'busy' | 'no_answer'
       call_direction: 'inbound' | 'outbound'
