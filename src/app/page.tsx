@@ -87,11 +87,8 @@ export default function HomePage() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Link href="/auth/signin">
-                <Button variant="ghost">Sign In</Button>
-              </Link>
-              <Link href="/pricing">
-                <Button>Get Started</Button>
+              <Link href="/dashboard">
+                <Button>Go to Dashboard</Button>
               </Link>
             </div>
           </div>
@@ -117,9 +114,9 @@ export default function HomePage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-              <Link href="/pricing">
+              <Link href="/dashboard">
                 <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-4">
-                  Start Free Trial
+                  Go to Dashboard
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
@@ -268,15 +265,10 @@ export default function HomePage() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/pricing">
+            <Link href="/dashboard">
               <Button size="lg" variant="secondary" className="text-lg px-8 py-4">
-                Start Free Trial
+                Go to Dashboard
                 <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-            <Link href="/auth/signin">
-              <Button size="lg" variant="outline" className="text-lg px-8 py-4 text-white border-white hover:bg-white hover:text-blue-600">
-                Sign In
               </Button>
             </Link>
           </div>

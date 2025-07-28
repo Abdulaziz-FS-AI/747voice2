@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import { AssistantCard } from '@/components/dashboard/assistant-card'
 import { StatsCard } from '@/components/dashboard/stats-card'
 import { DashboardLayout } from '@/components/dashboard/layout'
-import { useAuth } from '@/lib/auth-context'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Database } from '@/types/database'
 
@@ -23,7 +22,6 @@ interface DashboardStats {
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { user } = useAuth()
   const [assistants, setAssistants] = useState<Assistant[]>([])
   const [stats, setStats] = useState<DashboardStats>({
     totalAssistants: 0,
@@ -34,13 +32,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!user) {
-      router.push('/login')
-      return
-    }
-
     fetchDashboardData()
-  }, [user])
+  }, [])
 
   const fetchDashboardData = async () => {
     try {

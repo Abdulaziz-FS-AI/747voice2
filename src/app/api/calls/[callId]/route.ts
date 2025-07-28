@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateRequest, requirePermission, logAuditEvent } from '@/lib/auth';
 import { handleAPIError } from '@/lib/errors';
 import { createServiceRoleClient } from '@/lib/supabase';
 import { vapiClient } from '@/lib/vapi';
@@ -11,25 +10,12 @@ export async function GET(
 ) {
   try {
     const params = await context.params;
-    const { user, profile } = await authenticateRequest();
     const { callId } = params;
-
-    // Check permissions
-    const hasPermission = await requirePermission(user.id, 'view_calls');
-    if (!hasPermission) {
-      return NextResponse.json({
-        success: false,
-        error: {
-          code: 'INSUFFICIENT_PERMISSIONS',
-          message: 'You do not have permission to view calls',
-        },
-      }, { status: 403 });
-    }
 
     const supabase = createServiceRoleClient();
 
     // Get call with access control
-    let query = supabase
+    const query = supabase
       .from('calls')
       .select(`
         *,
@@ -70,12 +56,7 @@ export async function GET(
       `)
       .eq('id', callId);
 
-    // Apply team/user filter
-    if (profile.team_id) {
-      query = query.eq('team_id', profile.team_id);
-    } else {
-      query = query.eq('user_id', user.id);
-    }
+    // Skip user filtering for direct access
 
     const { data: call, error } = await query.single();
 
