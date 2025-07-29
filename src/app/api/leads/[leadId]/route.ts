@@ -173,7 +173,7 @@ export async function PUT(
         .from('leads')
         .select('id')
         .eq('phone', validatedData.phone)
-        .eq('team_id', profile.team_id || user.id)
+        .eq('user_id', user.id)
         .neq('id', leadId)
         .single();
 
@@ -282,16 +282,11 @@ export async function DELETE(
     const supabase = createServiceRoleClient();
 
     // Get lead for access control and audit log
-    let query = supabase
+    const query = supabase
       .from('leads')
       .select('*')
-      .eq('id', leadId);
-
-    if (profile.team_id) {
-      query = query.eq('team_id', profile.team_id);
-    } else {
-      query = query.eq('user_id', user.id);
-    }
+      .eq('id', leadId)
+      .eq('user_id', user.id);
 
     const { data: lead, error: fetchError } = await query.single();
 

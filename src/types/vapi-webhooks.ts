@@ -80,7 +80,7 @@ export const callEndEventSchema = baseWebhookSchema.extend({
     summary: z.string().optional(),
     analysis: z.object({
       summary: z.string().optional(),
-      structuredData: z.record(z.any()).optional(),
+      structuredData: z.record(z.string(), z.any()).optional(),
       successEvaluation: z.string().optional(),
     }).optional(),
   }),
@@ -95,14 +95,14 @@ export const functionCallEventSchema = baseWebhookSchema.extend({
   assistantId: z.string(),
   functionCall: z.object({
     name: z.string(),
-    parameters: z.record(z.any()),
+    parameters: z.record(z.string(), z.any()),
     result: z.any().optional(),
   }),
   message: z.object({
     type: z.enum(['function-call', 'function-result']),
     functionCall: z.object({
       name: z.string(),
-      parameters: z.record(z.any()),
+      parameters: z.record(z.string(), z.any()),
     }).optional(),
     result: z.any().optional(),
     time: z.number(),

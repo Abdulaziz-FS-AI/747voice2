@@ -50,12 +50,8 @@ export async function GET(request: NextRequest) {
       .gte('created_at', startDate)
       .lte('created_at', endDate);
 
-    // Apply team filter
-    if (profile.team_id) {
-      leadQuery = leadQuery.eq('team_id', profile.team_id);
-    } else {
-      leadQuery = leadQuery.eq('user_id', user.id);
-    }
+    // Apply user filter (single-user architecture)
+    leadQuery = leadQuery.eq('user_id', user.id);
 
     const { data: leads, error } = await leadQuery;
 

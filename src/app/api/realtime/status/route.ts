@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const supabase = createServiceRoleClient();
 
     // Get current active calls
-    let activeCallsQuery = supabase
+    const activeCallsQuery = supabase
       .from('calls')
       .select(`
         id,
@@ -25,36 +25,26 @@ export async function GET(request: NextRequest) {
           name
         )
       `)
-      .in('status', ['initiated', 'ringing', 'answered']);
-
-    if (profile.team_id) {
-      activeCallsQuery = activeCallsQuery.eq('team_id', profile.team_id);
-    } else {
-      activeCallsQuery = activeCallsQuery.eq('user_id', user.id);
-    }
+      .in('status', ['initiated', 'ringing', 'answered'])
+      .eq('user_id', user.id);
 
     const { data: activeCalls } = await activeCallsQuery;
 
     // Get recent leads (last 24 hours)
     const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     
-    let recentLeadsQuery = supabase
+    const recentLeadsQuery = supabase
       .from('leads')
       .select('id, first_name, last_name, score, status, created_at')
-      .gte('created_at', last24Hours);
-
-    if (profile.team_id) {
-      recentLeadsQuery = recentLeadsQuery.eq('team_id', profile.team_id);
-    } else {
-      recentLeadsQuery = recentLeadsQuery.eq('user_id', user.id);
-    }
+      .gte('created_at', last24Hours)
+      .eq('user_id', user.id);
 
     const { data: recentLeads } = await recentLeadsQuery
       .order('created_at', { ascending: false })
       .limit(10);
 
     // Get overdue follow-ups
-    let overdueQuery = supabase
+    const overdueQuery = supabase
       .from('leads')
       .select(`
         id,
@@ -65,13 +55,8 @@ export async function GET(request: NextRequest) {
       `)
       .lt('next_follow_up_at', new Date().toISOString())
       .neq('status', 'converted')
-      .neq('status', 'lost');
-
-    if (profile.team_id) {
-      overdueQuery = overdueQuery.eq('team_id', profile.team_id);
-    } else {
-      overdueQuery = overdueQuery.eq('user_id', user.id);
-    }
+      .neq('status', 'lost')
+      .eq('user_id', user.id);
 
     const { data: overdueFollowUps } = await overdueQuery
       .order('next_follow_up_at', { ascending: true })
@@ -80,29 +65,19 @@ export async function GET(request: NextRequest) {
     // Get today's statistics
     const today = new Date().toISOString().split('T')[0];
     
-    let todayCallsQuery = supabase
+    const todayCallsQuery = supabase
       .from('calls')
       .select('id, status, duration, cost')
-      .gte('created_at', today);
-
-    if (profile.team_id) {
-      todayCallsQuery = todayCallsQuery.eq('team_id', profile.team_id);
-    } else {
-      todayCallsQuery = todayCallsQuery.eq('user_id', user.id);
-    }
+      .gte('created_at', today)
+      .eq('user_id', user.id);
 
     const { data: todayCalls } = await todayCallsQuery;
 
-    let todayLeadsQuery = supabase
+    const todayLeadsQuery = supabase
       .from('leads')
       .select('id, score, status')
-      .gte('created_at', today);
-
-    if (profile.team_id) {
-      todayLeadsQuery = todayLeadsQuery.eq('team_id', profile.team_id);
-    } else {
-      todayLeadsQuery = todayLeadsQuery.eq('user_id', user.id);
-    }
+      .gte('created_at', today)
+      .eq('user_id', user.id);
 
     const { data: todayLeads } = await todayLeadsQuery;
 

@@ -189,7 +189,7 @@ export async function POST(request: NextRequest) {
     if (validatedData.call_id) {
       let callQuery = supabase
         .from('calls')
-        .select('id, user_id, team_id')
+        .select('id, user_id')
         .eq('id', validatedData.call_id);
 
       callQuery = callQuery.eq('user_id', user.id);

@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
         // Set up periodic status updates
         const statusInterval = setInterval(async () => {
           try {
-            const statusData = await getRealtimeStatus(user.id, profile.team_id);
+            const statusData = await getRealtimeStatus(user.id, null);
             const message = `data: ${JSON.stringify({
               type: 'status_update',
               data: statusData,

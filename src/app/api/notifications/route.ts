@@ -126,11 +126,7 @@ async function generateUserNotifications(userId: string, supabase: any) {
       .neq('status', 'converted')
       .neq('status', 'lost');
 
-    if (profile.team_id) {
-      overdueQuery = overdueQuery.eq('team_id', profile.team_id);
-    } else {
-      overdueQuery = overdueQuery.eq('user_id', userId);
-    }
+    overdueQuery = overdueQuery.eq('user_id', userId);
 
     const { data: overdueLeads } = await overdueQuery.limit(5);
 
@@ -154,11 +150,7 @@ async function generateUserNotifications(userId: string, supabase: any) {
       .eq('status', 'failed')
       .gte('created_at', last24Hours.toISOString());
 
-    if (profile.team_id) {
-      failedCallsQuery = failedCallsQuery.eq('team_id', profile.team_id);
-    } else {
-      failedCallsQuery = failedCallsQuery.eq('user_id', userId);
-    }
+    failedCallsQuery = failedCallsQuery.eq('user_id', userId);
 
     const { data: failedCalls } = await failedCallsQuery.limit(3);
 
@@ -182,11 +174,7 @@ async function generateUserNotifications(userId: string, supabase: any) {
       .gte('score', 85)
       .gte('created_at', last24Hours.toISOString());
 
-    if (profile.team_id) {
-      highScoreLeadsQuery = highScoreLeadsQuery.eq('team_id', profile.team_id);
-    } else {
-      highScoreLeadsQuery = highScoreLeadsQuery.eq('user_id', userId);
-    }
+    highScoreLeadsQuery = highScoreLeadsQuery.eq('user_id', userId);
 
     const { data: highScoreLeads } = await highScoreLeadsQuery.limit(3);
 
@@ -239,11 +227,7 @@ async function generateUserNotifications(userId: string, supabase: any) {
       .select('id, name, vapi_assistant_id, is_active')
       .eq('is_active', true);
 
-    if (profile.team_id) {
-      assistantsQuery = assistantsQuery.eq('team_id', profile.team_id);
-    } else {
-      assistantsQuery = assistantsQuery.eq('user_id', userId);
-    }
+    assistantsQuery = assistantsQuery.eq('user_id', userId);
 
     const { data: assistants } = await assistantsQuery;
 

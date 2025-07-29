@@ -1,47 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { authenticateRequest } from '@/lib/auth'
 import { createServiceRoleClient } from '@/lib/supabase'
 import { handleAPIError } from '@/lib/errors'
 
 // GET /api/usage/current - Get current period usage data
 export async function GET(request: NextRequest) {
   try {
+    const { user } = await authenticateRequest()
     const supabase = createServiceRoleClient()
-    
-    // Get user from request
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return NextResponse.json({
-        success: false,
-        error: {
-          code: 'AUTH_REQUIRED',
-          message: 'Authentication required'
-        }
-      }, { status: 401 })
-    }
 
-    // Get user's team
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('team_id')
-      .eq('id', user.id)
-      .single()
+    // Get current month's start date
+    const now = new Date()
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
 
-    if (profileError || !profile.team_id) {
-      return NextResponse.json({
-        success: false,
-        error: {
-          code: 'TEAM_NOT_FOUND',
-          message: 'User team not found'
-        }
-      }, { status: 404 })
-    }
+    // Get all calls for the current user this month
+    const { data: calls, error: callsError } = await supabase
+      .from('calls')
+      .select('id, duration, cost, status, created_at')
+      .eq('user_id', user.id)
+      .gte('created_at', monthStart)
 
-    // Get current usage data using database function
-    const { data: usageData, error: usageError } = await supabase
-      .rpc('get_team_current_usage', { team_uuid: profile.team_id })
-
-    if (usageError) {
-      console.error('Failed to get usage data:', usageError)
+    if (callsError) {
+      console.error('Failed to get calls data:', callsError)
       return NextResponse.json({
         success: false,
         error: {
@@ -51,109 +31,87 @@ export async function GET(request: NextRequest) {
       }, { status: 500 })
     }
 
-    const usage = usageData?.[0] || {
-      total_calls: 0,
-      total_duration: 0,
-      total_cost: 0,
-      ai_model_cost: 0,
-      transcription_cost: 0,
-      tts_cost: 0,
-      phone_cost: 0,
-      period_start: new Date().toISOString()
-    }
+    // Calculate current month usage
+    const totalCalls = calls?.length || 0
+    const totalDuration = calls?.reduce((sum, call) => sum + (call.duration || 0), 0) || 0
+    const totalCost = calls?.reduce((sum, call) => sum + (call.cost || 0), 0) || 0
+    const completedCalls = calls?.filter(call => call.status === 'completed').length || 0
 
-    // Get recent daily usage for trend analysis
-    const { data: dailyUsage } = await supabase
-      .from('daily_usage')
-      .select('usage_date, total_cost, calls_count, total_duration')
-      .eq('team_id', profile.team_id)
-      .gte('usage_date', getDateDaysAgo(30))
-      .order('usage_date', { ascending: false })
-      .limit(30)
-
-    // Get team settings for cost alerts
-    const { data: team } = await supabase
-      .from('teams')
-      .select('cost_alert_threshold, current_period_calls, current_period_cost')
-      .eq('id', profile.team_id)
+    // Get user profile for limits
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('max_assistants, max_minutes, max_phone_numbers')
+      .eq('id', user.id)
       .single()
 
-    // Calculate additional metrics
-    const averageCallCost = usage.total_calls > 0 ? usage.total_cost / usage.total_calls : 0
-    const averageCallDuration = usage.total_calls > 0 ? usage.total_duration / usage.total_calls : 0
-    
-    // Calculate monthly trend
-    const thisMonthData = dailyUsage?.filter(day => 
-      new Date(day.usage_date).getMonth() === new Date().getMonth()
-    ) || []
-    
-    const monthlyStats = thisMonthData.reduce((acc, day) => ({
-      calls: acc.calls + (day.calls_count || 0),
-      cost: acc.cost + (day.total_cost || 0),
-      duration: acc.duration + (day.total_duration || 0)
-    }), { calls: 0, cost: 0, duration: 0 })
+    // Get current resource counts
+    const { data: assistants } = await supabase
+      .from('assistants')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
 
-    // Calculate daily average for the last 7 days
-    const last7Days = dailyUsage?.slice(0, 7) || []
-    const weeklyAverage = last7Days.length > 0 ? {
-      dailyCost: last7Days.reduce((sum, day) => sum + (day.total_cost || 0), 0) / last7Days.length,
-      dailyCalls: last7Days.reduce((sum, day) => sum + (day.calls_count || 0), 0) / last7Days.length
-    } : { dailyCost: 0, dailyCalls: 0 }
+    const { data: phoneNumbers } = await supabase
+      .from('phone_numbers')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
 
-    // Check if approaching cost threshold
-    const costThreshold = team?.cost_alert_threshold || 100
-    const isApproachingThreshold = usage.total_cost >= costThreshold * 0.8
-    const hasExceededThreshold = usage.total_cost >= costThreshold
+    // Calculate metrics
+    const averageCallCost = totalCalls > 0 ? totalCost / totalCalls : 0
+    const averageCallDuration = totalCalls > 0 ? totalDuration / totalCalls : 0
+    const totalMinutes = Math.round(totalDuration / 60)
+
+    // Get last 30 days for trend analysis
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+    
+    const { data: recentCalls } = await supabase
+      .from('calls')
+      .select('created_at, cost, duration')
+      .eq('user_id', user.id)
+      .gte('created_at', thirtyDaysAgo.toISOString())
+      .order('created_at', { ascending: false })
+
+    // Group by day for trend analysis
+    const dailyTrend = groupCallsByDay(recentCalls || [])
 
     return NextResponse.json({
       success: true,
       data: {
         // Current period totals
-        totalCalls: usage.total_calls,
-        totalDuration: usage.total_duration,
-        totalCost: usage.total_cost,
+        totalCalls,
+        totalDuration,
+        totalCost,
+        completedCalls,
+        totalMinutes,
         
-        // Cost breakdown
-        costBreakdown: {
-          aiModel: usage.ai_model_cost,
-          transcription: usage.transcription_cost,
-          textToSpeech: usage.tts_cost,
-          phone: usage.phone_cost
+        // Resource usage
+        usage: {
+          assistants: assistants?.length || 0,
+          phoneNumbers: phoneNumbers?.length || 0,
+          minutes: totalMinutes
+        },
+        
+        // Limits from profile
+        limits: {
+          maxAssistants: profile?.max_assistants || 10,
+          maxPhoneNumbers: profile?.max_phone_numbers || 5,
+          maxMinutes: profile?.max_minutes || 1000
         },
         
         // Period info
-        periodStart: usage.period_start,
+        periodStart: monthStart,
         
         // Averages
         averages: {
-          costPerCall: averageCallCost,
-          durationPerCall: averageCallDuration,
-          dailyCost: weeklyAverage.dailyCost,
-          dailyCalls: weeklyAverage.dailyCalls
-        },
-        
-        // Monthly comparison
-        monthlyStats: {
-          calls: monthlyStats.calls,
-          cost: monthlyStats.cost,
-          duration: monthlyStats.duration
-        },
-        
-        // Alert info
-        alerts: {
-          costThreshold,
-          isApproachingThreshold,
-          hasExceededThreshold,
-          thresholdPercentage: Math.round((usage.total_cost / costThreshold) * 100)
+          costPerCall: Math.round(averageCallCost * 100) / 100,
+          durationPerCall: Math.round(averageCallDuration),
+          minutesPerCall: Math.round(averageCallDuration / 60 * 100) / 100
         },
         
         // Trend data (last 30 days)
-        dailyTrend: dailyUsage?.map(day => ({
-          date: day.usage_date,
-          cost: day.total_cost || 0,
-          calls: day.calls_count || 0,
-          duration: day.total_duration || 0
-        })) || []
+        dailyTrend
       }
     })
 
@@ -163,8 +121,18 @@ export async function GET(request: NextRequest) {
   }
 }
 
-function getDateDaysAgo(days: number): string {
-  const date = new Date()
-  date.setDate(date.getDate() - days)
-  return date.toISOString().split('T')[0]
+function groupCallsByDay(calls: any[]): any[] {
+  const groups: Record<string, { date: string; calls: number; cost: number; duration: number }> = {}
+  
+  calls.forEach(call => {
+    const date = new Date(call.created_at).toISOString().split('T')[0]
+    if (!groups[date]) {
+      groups[date] = { date, calls: 0, cost: 0, duration: 0 }
+    }
+    groups[date].calls += 1
+    groups[date].cost += call.cost || 0
+    groups[date].duration += call.duration || 0
+  })
+  
+  return Object.values(groups).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 }

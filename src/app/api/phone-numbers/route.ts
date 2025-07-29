@@ -221,7 +221,7 @@ export async function POST(request: NextRequest) {
     // Create phone number record
     const phoneNumberData = {
       user_id: user.id,
-      team_id: profile.team_id,
+      // team_id removed for single-user architecture
       friendly_name: validatedData.friendly_name,
       phone_number: validatedData.phone_number,
       provider: validatedData.provider,
