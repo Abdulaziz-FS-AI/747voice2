@@ -2,9 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { z } from 'zod'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -15,20 +13,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { AlertCircle, Loader2 } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 
-// Form validation schema - updated to match API
-const assistantFormSchema = z.object({
-  name: z.string().min(1, 'Assistant name is required').max(255),
-  company_name: z.string().optional(),
-  personality: z.enum(['professional', 'friendly', 'casual']),
-  system_prompt: z.string().optional(),
-  voice_id: z.string(),
-  max_call_duration: z.number().min(30).max(3600),
-  language: z.string(),
-  first_message: z.string().optional(),
-  background_ambiance: z.string().default('office')
-})
-
-type AssistantFormData = z.infer<typeof assistantFormSchema>
+// Form data interface
+interface AssistantFormData {
+  name: string
+  company_name?: string
+  personality: 'professional' | 'friendly' | 'casual'
+  system_prompt?: string
+  voice_id: string
+  max_call_duration: number
+  language: string
+  first_message?: string
+  background_ambiance: string
+}
 
 // ElevenLabs Voice options - Premium English voices
 const voiceOptions = [
@@ -90,11 +86,11 @@ export function CreateAssistantForm() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
 
-  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<AssistantFormData>({
     defaultValues: {
       name: '',
       company_name: '',
-      personality: 'professional',
+      personality: 'professional' as const,
       system_prompt: '',
       voice_id: 'pNInz6obpgDQGcFmaJgB', // Rachel - Professional default
       max_call_duration: 300,
@@ -107,7 +103,8 @@ export function CreateAssistantForm() {
   // Watch form values for preview
   const formValues = watch()
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: AssistantFormData) => {
+    console.log('Form submitted with data:', data)
     setIsLoading(true)
     
     try {
@@ -142,16 +139,19 @@ export function CreateAssistantForm() {
       const result = await response.json()
       console.log('API Response:', result)
 
-      if (!response.ok) {
+      // Check if assistant was created (even if VAPI failed)
+      if (result.success || (result.error?.assistantId)) {
+        toast({
+          title: 'Assistant Created!',
+          description: 'Your assistant has been created successfully and saved to the database.',
+        })
+        // Wait a moment for the toast to show, then redirect
+        setTimeout(() => {
+          router.push('/dashboard/assistants')
+        }, 1000)
+      } else {
         throw new Error(result.error?.message || 'Failed to create assistant')
       }
-
-      toast({
-        title: 'Success!',
-        description: 'Your assistant has been created successfully.',
-      })
-
-      router.push(`/dashboard/assistants/${result.data.id}`)
     } catch (error) {
       console.error('Error creating assistant:', error)
       toast({
@@ -181,12 +181,12 @@ export function CreateAssistantForm() {
               <Input
                 id="name"
                 placeholder="e.g., Sarah - Real Estate Assistant"
-                {...register('name')}
+                {...register('name', { required: 'Assistant name is required' })}
               />
               {errors.name && (
                 <p className="text-sm text-red-600 flex items-center gap-1">
                   <AlertCircle className="h-3 w-3" />
-                  {errors.name.message}
+                  {errors.name.message || 'This field is required'}
                 </p>
               )}
             </div>
@@ -326,7 +326,12 @@ export function CreateAssistantForm() {
                 type="number"
                 min="30"
                 max="3600"
-                {...register('max_call_duration', { valueAsNumber: true })}
+                {...register('max_call_duration', { 
+                  valueAsNumber: true,
+                  required: 'Max call duration is required',
+                  min: { value: 30, message: 'Minimum duration is 30 seconds' },
+                  max: { value: 3600, message: 'Maximum duration is 3600 seconds' }
+                })}
               />
               {errors.max_call_duration && (
                 <p className="text-sm text-red-600 flex items-center gap-1">
