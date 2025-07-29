@@ -63,12 +63,8 @@ export async function GET(request: NextRequest) {
         )
       `, { count: 'exact' });
 
-    // Filter by team
-    if (profile.team_id) {
-      query = query.eq('team_id', profile.team_id);
-    } else {
-      query = query.eq('user_id', user.id);
-    }
+    // Filter by user (single-user architecture)
+    query = query.eq('user_id', user.id);
 
     // Apply filters
     if (status) {
@@ -148,11 +144,7 @@ export async function POST(request: NextRequest) {
       .eq('id', validatedData.assistant_id)
       .eq('is_active', true);
 
-    if (profile.team_id) {
-      assistantQuery = assistantQuery.eq('team_id', profile.team_id);
-    } else {
-      assistantQuery = assistantQuery.eq('user_id', user.id);
-    }
+    assistantQuery = assistantQuery.eq('user_id', user.id);
 
     const { data: assistant, error: assistantError } = await assistantQuery.single();
 
@@ -181,7 +173,7 @@ export async function POST(request: NextRequest) {
     const { data: phoneNumber } = await supabase
       .from('phone_numbers')
       .select('*')
-      .eq('team_id', profile.team_id || user.id)
+      .eq('user_id', user.id)
       .eq('is_active', true)
       .limit(1)
       .single();
@@ -203,7 +195,7 @@ export async function POST(request: NextRequest) {
         assistant_id: assistant.id,
         phone_number_id: phoneNumber.id,
         user_id: user.id,
-        team_id: profile.team_id,
+        // team_id removed for single-user architecture
         caller_number: validatedData.phone_number,
         caller_name: validatedData.customer_name,
         status: 'initiated',

@@ -4,28 +4,19 @@ import { handleAPIError } from '@/lib/errors';
 import { createServiceRoleClient } from '@/lib/supabase';
 import { createVapiAssistant } from '@/lib/vapi';
 import { z } from 'zod';
-import { PromptBuilder, buildVapiFunctions } from '@/lib/prompt-builder';
-import type { AssistantCustomization, QuestionData } from '@/lib/prompt-builder';
+// Removed prompt-builder imports for simplified schema
 
-// Validation schema for creating assistants
+// Validation schema for creating assistants (simplified)
 const CreateAssistantSchema = z.object({
   name: z.string().min(1).max(255),
-  agentName: z.string().min(1).max(100),
-  companyName: z.string().min(1).max(255),
-  tone: z.enum(['professional', 'friendly', 'casual']),
-  customInstructions: z.string().optional(),
-  voiceId: z.string().max(100),
-  maxCallDuration: z.number().min(30).max(3600).default(300),
+  company_name: z.string().optional(),
+  personality: z.enum(['professional', 'friendly', 'casual']).default('professional'),
+  system_prompt: z.string().optional(),
+  voice_id: z.string().optional(),
+  max_call_duration: z.number().min(30).max(3600).default(300),
   language: z.string().max(10).default('en-US'),
-  templateId: z.string().uuid().optional(),
-  questions: z.array(z.object({
-    questionText: z.string().min(1),
-    answerDescription: z.string(),
-    structuredFieldName: z.string(),
-    fieldType: z.enum(['string', 'number', 'boolean']),
-    isRequired: z.boolean(),
-    displayOrder: z.number()
-  })).default([])
+  first_message: z.string().optional(),
+  background_ambiance: z.string().default('office')
 });
 
 // Validation schema for updating assistants
@@ -115,72 +106,29 @@ export async function POST(request: NextRequest) {
 
     const supabase = createServiceRoleClient();
 
-    // Get prompt template
-    let promptTemplate;
-    if (validatedData.templateId) {
-      const { data: template } = await supabase
-        .from('prompt_templates')
-        .select('*')
-        .eq('id', validatedData.templateId)
-        .eq('is_active', true)
-        .single();
-      
-      promptTemplate = template;
-    } else {
-      // Use default real estate template
-      const { data: template } = await supabase
-        .from('prompt_templates')
-        .select('*')
-        .eq('industry', 'real_estate')
-        .eq('is_active', true)
-        .single();
-      
-      promptTemplate = template;
-    }
+    // Generate system prompt (simplified - no templates needed)
+    const systemPrompt = validatedData.system_prompt || 
+      `You are a ${validatedData.personality} AI assistant for ${validatedData.company_name || 'the company'}. ` +
+      `Help customers with their inquiries in a ${validatedData.personality} manner.`;
+    
+    const firstMessage = validatedData.first_message || 
+      `Hello! I'm here to help you. How can I assist you today?`;
 
-    if (!promptTemplate) {
-      return NextResponse.json({
-        success: false,
-        error: {
-          code: 'TEMPLATE_NOT_FOUND',
-          message: 'Template not found',
-        },
-      }, { status: 400 });
-    }
-
-    // Build system prompt using PromptBuilder
-    const customization: AssistantCustomization = {
-      agentName: validatedData.agentName,
-      companyName: validatedData.companyName,
-      tone: validatedData.tone,
-      customInstructions: validatedData.customInstructions,
-      questions: validatedData.questions
-    };
-
-    const systemPrompt = PromptBuilder.buildSystemPrompt(promptTemplate, customization);
-    const firstMessage = PromptBuilder.buildFirstMessage(promptTemplate, customization);
-
-    // Create assistant
+    // Create assistant (using simplified schema)
     const { data: assistant, error } = await supabase
       .from('assistants')
       .insert({
         user_id: user.id,
-        prompt_template_id: promptTemplate.id,
         name: validatedData.name,
-        agent_name: validatedData.agentName,
-        company_name: validatedData.companyName,
-        tone: validatedData.tone,
-        custom_instructions: validatedData.customInstructions,
-        generated_system_prompt: systemPrompt,
+        personality: validatedData.personality,
+        company_name: validatedData.company_name,
         system_prompt: systemPrompt,
         first_message: firstMessage,
-        voice_id: validatedData.voiceId,
-        max_call_duration: validatedData.maxCallDuration,
+        voice_id: validatedData.voice_id,
+        max_call_duration: validatedData.max_call_duration,
         language: validatedData.language,
-        personality: 'professional', // Default
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        background_ambiance: validatedData.background_ambiance,
+        is_active: true
       })
       .select(`
         *,
@@ -197,41 +145,18 @@ export async function POST(request: NextRequest) {
       throw error;
     }
 
-    // Save custom questions if any
-    if (validatedData.questions.length > 0) {
-      const questionsToInsert = validatedData.questions.map(q => ({
-        assistant_id: assistant.id,
-        question_text: q.questionText,
-        answer_description: q.answerDescription,
-        structured_field_name: q.structuredFieldName,
-        field_type: q.fieldType,
-        is_required: q.isRequired,
-        display_order: q.displayOrder
-      }));
-
-      const { error: questionsError } = await supabase
-        .from('assistant_questions')
-        .insert(questionsToInsert);
-
-      if (questionsError) {
-        console.error('Error saving questions:', questionsError);
-      }
-    }
+    // Questions functionality removed for simplified schema
 
     // Create assistant in Vapi
     let vapiAssistantId = null;
     try {
-      // Build Vapi functions from questions
-      const vapiFunctions = buildVapiFunctions(validatedData.questions);
-      
       vapiAssistantId = await createVapiAssistant({
         name: validatedData.name,
         systemPrompt: systemPrompt,
         firstMessage: firstMessage,
-        voiceId: validatedData.voiceId,
+        voiceId: validatedData.voice_id,
         language: validatedData.language,
-        maxDurationSeconds: validatedData.maxCallDuration,
-        functions: vapiFunctions,
+        maxDurationSeconds: validatedData.max_call_duration,
       });
 
       // Update the assistant with the Vapi ID

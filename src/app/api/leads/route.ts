@@ -90,12 +90,8 @@ export async function GET(request: NextRequest) {
         )
       `, { count: 'exact' });
 
-    // Filter by team
-    if (profile.team_id) {
-      query = query.eq('team_id', profile.team_id);
-    } else {
-      query = query.eq('user_id', user.id);
-    }
+    // Filter by user (single-user architecture)
+    query = query.eq('user_id', user.id);
 
     // Apply filters
     if (search) {
@@ -196,11 +192,7 @@ export async function POST(request: NextRequest) {
         .select('id, user_id, team_id')
         .eq('id', validatedData.call_id);
 
-      if (profile.team_id) {
-        callQuery = callQuery.eq('team_id', profile.team_id);
-      } else {
-        callQuery = callQuery.eq('user_id', user.id);
-      }
+      callQuery = callQuery.eq('user_id', user.id);
 
       const { data: call, error: callError } = await callQuery.single();
 
@@ -220,7 +212,7 @@ export async function POST(request: NextRequest) {
       .from('leads')
       .select('id')
       .eq('phone', validatedData.phone)
-      .eq('team_id', profile.team_id || user.id)
+      .eq('user_id', user.id)
       .single();
 
     if (existingLead) {
@@ -240,7 +232,6 @@ export async function POST(request: NextRequest) {
       .insert({
         ...validatedData,
         user_id: user.id,
-        team_id: profile.team_id,
         status: 'new',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),

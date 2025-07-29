@@ -1,16 +1,26 @@
 // Mock auth functions for non-authenticated mode
 
 export class AuthError extends Error {
-  constructor(message: string) {
+  public statusCode: number
+  public details?: Record<string, unknown>
+  
+  constructor(message: string, statusCode = 401, details?: Record<string, unknown>) {
     super(message)
     this.name = 'AuthError'
+    this.statusCode = statusCode
+    this.details = details
   }
 }
 
 export class SubscriptionError extends Error {
-  constructor(message: string) {
+  public statusCode: number
+  public details?: Record<string, unknown>
+  
+  constructor(message: string, statusCode = 402, details?: Record<string, unknown>) {
     super(message)
     this.name = 'SubscriptionError'
+    this.statusCode = statusCode
+    this.details = details
   }
 }
 
@@ -19,8 +29,7 @@ export async function authenticateRequest() {
     user: { id: 'mock-user-id', email: 'user@example.com' },
     profile: { 
       id: 'mock-user-id', 
-      onboarding_completed: true,
-      team_id: 'mock-team-id'
+      onboarding_completed: true
     }
   }
 }
@@ -28,11 +37,11 @@ export async function authenticateRequest() {
 // Overloaded function signatures
 export async function requirePermission(): Promise<{
   user: { id: string; email: string };
-  profile: { id: string; onboarding_completed: boolean; team_id: string };
+  profile: { id: string; onboarding_completed: boolean };
 }>;
 export async function requirePermission(permission: string): Promise<{
   user: { id: string; email: string };
-  profile: { id: string; onboarding_completed: boolean; team_id: string };
+  profile: { id: string; onboarding_completed: boolean };
 }>;
 export async function requirePermission(userId: string, permission: string): Promise<boolean>;
 export async function requirePermission(userIdOrPermission?: string, permission?: string): Promise<any> {
@@ -45,8 +54,7 @@ export async function requirePermission(userIdOrPermission?: string, permission?
     user: { id: 'mock-user-id', email: 'user@example.com' },
     profile: { 
       id: 'mock-user-id', 
-      onboarding_completed: true,
-      team_id: 'mock-team-id'
+      onboarding_completed: true
     }
   }
 }

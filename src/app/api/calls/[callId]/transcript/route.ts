@@ -33,16 +33,11 @@ export async function GET(
     const supabase = createServiceRoleClient();
 
     // Verify call access
-    let callQuery = supabase
+    const callQuery = supabase
       .from('calls')
       .select('id, caller_number, duration, created_at')
-      .eq('id', callId);
-
-    if (profile.team_id) {
-      callQuery = callQuery.eq('team_id', profile.team_id);
-    } else {
-      callQuery = callQuery.eq('user_id', user.id);
-    }
+      .eq('id', callId)
+      .eq('user_id', user.id);
 
     const { data: call, error: callError } = await callQuery.single();
 

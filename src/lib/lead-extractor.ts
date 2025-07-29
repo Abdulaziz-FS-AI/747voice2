@@ -6,7 +6,7 @@
 import { createServiceRoleClient } from '@/lib/supabase'
 import type { Database } from '@/types/database-simplified'
 
-type LeadResponse = Database['public']['Tables']['lead_responses']['Insert']
+type LeadInteraction = Database['public']['Tables']['lead_interactions']['Insert']
 
 export interface ExtractedResponse {
   questionText: string
@@ -65,20 +65,20 @@ export class LeadExtractor {
 
       responses.push(response)
 
-      // Store in database
+      // Store in database (map to lead_interactions structure)
       await this.storeResponse({
-        call_id: callId,
-        assistant_id: assistantId,
-        question_id: null,
-        function_name: functionCall.name,
-        question_text: response.questionText,
-        answer_value: response.answerValue,
-        answer_type: response.answerType,
-        answer_confidence: response.confidence,
-        field_name: fieldName,
-        is_required: false,
-        collection_method: 'function_call',
-        collected_at: collectedAt
+        lead_id: callId, // Using call_id as lead_id for now
+        user_id: assistantId, // Using assistant_id as user_id for now  
+        interaction_type: 'function_call',
+        content: JSON.stringify({
+          function_name: functionCall.name,
+          question_text: response.questionText,
+          answer_value: response.answerValue,
+          answer_type: response.answerType,
+          answer_confidence: response.confidence,
+          field_name: fieldName,
+          collected_at: collectedAt
+        })
       })
     }
 
@@ -199,20 +199,19 @@ export class LeadExtractor {
 
         responses.push(response)
 
-        // Store in database
+        // Store in database (map to lead_interactions structure)
         await this.storeResponse({
-          call_id: callId,
-          assistant_id: assistantId,
-          question_id: null,
-          function_name: null,
-          question_text: response.questionText,
-          answer_value: response.answerValue,
-          answer_type: response.answerType,
-          answer_confidence: response.confidence,
-          field_name: pattern.field,
-          is_required: false,
-          collection_method: 'transcript_analysis',
-          collected_at: response.collectedAt
+          lead_id: callId, // Using call_id as lead_id for now
+          user_id: assistantId, // Using assistant_id as user_id for now
+          interaction_type: 'transcript_analysis',
+          content: JSON.stringify({
+            question_text: response.questionText,
+            answer_value: response.answerValue,
+            answer_type: response.answerType,
+            answer_confidence: response.confidence,
+            field_name: pattern.field,
+            collected_at: response.collectedAt
+          })
         })
       }
     }
@@ -225,10 +224,10 @@ export class LeadExtractor {
   /**
    * Store response in database
    */
-  private async storeResponse(response: LeadResponse): Promise<void> {
+  private async storeResponse(response: LeadInteraction): Promise<void> {
     try {
       const { error } = await this.supabase
-        .from('lead_responses')
+        .from('lead_interactions')
         .insert(response)
 
       if (error) {

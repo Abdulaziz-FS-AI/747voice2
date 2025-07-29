@@ -13,7 +13,7 @@ export function createClientSupabaseClient() {
 // Server-side Supabase client for Server Components
 export async function createServerSupabaseClient() {
   const { cookies } = await import('next/headers');
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

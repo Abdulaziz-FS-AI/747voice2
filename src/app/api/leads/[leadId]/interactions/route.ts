@@ -51,11 +51,7 @@ export async function GET(
       .select('id, first_name, last_name')
       .eq('id', leadId);
 
-    if (profile.team_id) {
-      leadQuery = leadQuery.eq('team_id', profile.team_id);
-    } else {
-      leadQuery = leadQuery.eq('user_id', user.id);
-    }
+    leadQuery = leadQuery.eq('user_id', user.id);
 
     const { data: lead, error: leadError } = await leadQuery.single();
 
@@ -156,11 +152,7 @@ export async function POST(
       .select('*')
       .eq('id', leadId);
 
-    if (profile.team_id) {
-      leadQuery = leadQuery.eq('team_id', profile.team_id);
-    } else {
-      leadQuery = leadQuery.eq('user_id', user.id);
-    }
+    leadQuery = leadQuery.eq('user_id', user.id);
 
     const { data: lead, error: leadError } = await leadQuery.single();
 

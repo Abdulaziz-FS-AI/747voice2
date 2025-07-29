@@ -26,7 +26,7 @@ import { DashboardLayout } from '@/components/dashboard/layout'
 import { EditAssistantModal } from '@/components/assistants/edit-assistant-modal'
 import { DeleteAssistantModal } from '@/components/assistants/delete-assistant-modal'
 import { useToast } from '@/hooks/use-toast'
-import type { Database } from '@/types/database'
+import type { Database } from '@/types/database-simplified'
 
 type Assistant = Database['public']['Tables']['assistants']['Row']
 
@@ -92,8 +92,7 @@ export default function AssistantsPage() {
     if (searchQuery) {
       filtered = filtered.filter(assistant =>
         assistant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        assistant.company_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        assistant.agent_name?.toLowerCase().includes(searchQuery.toLowerCase())
+        assistant.company_name?.toLowerCase().includes(searchQuery.toLowerCase())
       )
     }
 
@@ -267,7 +266,7 @@ export default function AssistantsPage() {
                     <div className="space-y-1 flex-1">
                       <CardTitle className="text-lg">{assistant.name}</CardTitle>
                       <p className="text-sm text-muted-foreground">
-                        {assistant.agent_name || assistant.company_name}
+                        {assistant.company_name || 'No company'}
                       </p>
                     </div>
                     <DropdownMenu>

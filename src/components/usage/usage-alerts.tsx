@@ -148,7 +148,7 @@ export default function UsageAlerts({ className = '', compact = false }: UsageAl
     
     if (percentageOver >= 0.5) return 'destructive' // 50% over threshold
     if (percentageOver >= 0.2) return 'default' // 20% over threshold
-    return 'secondary'
+    return 'default'
   }
 
   const getAlertBadgeText = (alert: UsageAlert) => {

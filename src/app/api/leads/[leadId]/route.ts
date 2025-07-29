@@ -86,12 +86,8 @@ export async function GET(
       `)
       .eq('id', leadId);
 
-    // Apply team/user filter
-    if (profile.team_id) {
-      query = query.eq('team_id', profile.team_id);
-    } else {
-      query = query.eq('user_id', user.id);
-    }
+    // Apply user filter (single-user architecture)
+    query = query.eq('user_id', user.id);
 
     const { data: lead, error } = await query.single();
 
@@ -153,16 +149,11 @@ export async function PUT(
     const supabase = createServiceRoleClient();
 
     // Get current lead data for access control and audit log
-    let query = supabase
+    const query = supabase
       .from('leads')
       .select('*')
-      .eq('id', leadId);
-
-    if (profile.team_id) {
-      query = query.eq('team_id', profile.team_id);
-    } else {
-      query = query.eq('user_id', user.id);
-    }
+      .eq('id', leadId)
+      .eq('user_id', user.id);
 
     const { data: currentLead, error: fetchError } = await query.single();
 

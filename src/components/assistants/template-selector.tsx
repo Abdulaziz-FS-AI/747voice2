@@ -5,8 +5,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Building2, CheckCircle2, FileText, Loader2 } from 'lucide-react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import type { Database } from '@/types/database'
+import { createClientSupabaseClient } from '@/lib/supabase'
+import type { Database } from '@/types/database-simplified'
 
 interface Template {
   id: string
@@ -25,7 +25,7 @@ export function TemplateSelector({ onSelectTemplate, onSkip }: TemplateSelectorP
   const [templates, setTemplates] = useState<Template[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
-  const supabase = createClientComponentClient<Database>()
+  const supabase = createClientSupabaseClient()
 
   useEffect(() => {
     loadTemplates()

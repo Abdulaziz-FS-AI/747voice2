@@ -111,16 +111,11 @@ export async function PUT(
     const supabase = createServiceRoleClient();
 
     // Get current call data for access control and audit log
-    let query = supabase
+    const query = supabase
       .from('calls')
       .select('*')
-      .eq('id', callId);
-
-    if (profile.team_id) {
-      query = query.eq('team_id', profile.team_id);
-    } else {
-      query = query.eq('user_id', user.id);
-    }
+      .eq('id', callId)
+      .eq('user_id', user.id);
 
     const { data: currentCall, error: fetchError } = await query.single();
 
@@ -237,16 +232,11 @@ export async function DELETE(
     const supabase = createServiceRoleClient();
 
     // Get call for access control and audit log
-    let query = supabase
+    const query = supabase
       .from('calls')
       .select('*')
-      .eq('id', callId);
-
-    if (profile.team_id) {
-      query = query.eq('team_id', profile.team_id);
-    } else {
-      query = query.eq('user_id', user.id);
-    }
+      .eq('id', callId)
+      .eq('user_id', user.id);
 
     const { data: call, error: fetchError } = await query.single();
 

@@ -60,7 +60,7 @@ export class WebhookProcessor {
       // Find assistant in our database
       const { data: assistant, error: assistantError } = await this.supabase
         .from('assistants')
-        .select('id, user_id, team_id, name')
+        .select('id, user_id, name')
         .eq('vapi_assistant_id', event.call.assistantId)
         .single()
 
@@ -78,9 +78,8 @@ export class WebhookProcessor {
         assistant_id: assistant.id,
         phone_number_id: event.call.phoneNumberId || null,
         user_id: assistant.user_id,
-        team_id: assistant.team_id,
-        caller_number: event.call.customer?.number || 'unknown',
-        caller_name: event.call.customer?.name || null,
+        caller_number: event.call.customerId || 'unknown',
+        caller_name: null, // customer name not available in simplified schema
         status: 'initiated' as const,
         direction: event.call.type === 'outboundPhoneCall' ? 'outbound' as const : 'inbound' as const,
         started_at: event.call.startedAt,
@@ -132,7 +131,7 @@ export class WebhookProcessor {
       // Find existing call record
       const { data: call, error: callError } = await this.supabase
         .from('calls')
-        .select('*, assistants(id, user_id, team_id, name)')
+        .select('*, assistants(id, user_id, name)')
         .eq('vapi_call_id', event.call.id)
         .single()
 
@@ -169,7 +168,7 @@ export class WebhookProcessor {
         .eq('id', call.id)
 
       // Store detailed cost breakdown
-      await this.storeCostBreakdown(call.id, call.assistants.team_id, event.call)
+      await this.storeCostBreakdown(call.id, null, event.call)
 
       // Store transcript if available
       if (event.call.transcript) {
@@ -213,8 +212,18 @@ export class WebhookProcessor {
       }
 
       // Create lead if qualified
-      if (analysis.qualification_status === 'qualified' || analysis.qualification_status === 'hot_lead') {
-        await this.createLeadFromAnalysis(call.id, analysis, responses)
+      if (analysis.qualificationStatus === 'qualified' || analysis.qualificationStatus === 'hot_lead') {
+        const analysisForLead = {
+          lead_score: analysis.leadScore,
+          primary_intent: analysis.intent.primary,
+          ai_summary: `Lead Quality: ${analysis.leadQuality}, Sentiment: ${analysis.sentiment.label}, Topics: ${analysis.topics.keyTopics.join(', ')}`
+        }
+        const responsesForLead = responses.map(r => ({
+          field_name: r.fieldName,
+          answer_value: r.answerValue,
+          ...r
+        }))
+        await this.createLeadFromAnalysis(call.id, analysisForLead, responsesForLead)
       }
 
       // Mark call as analysis completed
@@ -223,7 +232,7 @@ export class WebhookProcessor {
       //   .update({ analysis_completed: true }) // Field may not exist in schema
       //   .eq('id', call.id)
 
-      console.log(`✅ Call analysis completed: Score ${analysis.lead_score}, Status: ${analysis.qualification_status}`)
+      console.log(`✅ Call analysis completed: Score ${analysis.leadScore}, Status: ${analysis.qualificationStatus}`)
       
       return {
         success: true,
@@ -231,8 +240,8 @@ export class WebhookProcessor {
         callId: call.id,
         processedAt: new Date().toISOString(),
         data: {
-          leadScore: analysis.lead_score,
-          qualificationStatus: analysis.qualification_status,
+          leadScore: analysis.leadScore,
+          qualificationStatus: analysis.qualificationStatus,
           responsesCollected: responses.length
         }
       }
@@ -451,7 +460,7 @@ export class WebhookProcessor {
     return messages.map((msg, index) => ({
       role: msg.role || 'unknown',
       text: msg.content || '',
-      timestamp: msg.time || new Date().toISOString(),
+      timestamp: typeof msg.time === 'string' ? msg.time : new Date().toISOString(),
       sequence: index
     }))
   }
@@ -566,21 +575,21 @@ export class WebhookProcessor {
             acc.phone = response.answer_value
             break
           case 'property_type':
-            acc.property_type = [response.answer_value]
+            acc.property_type = [response.answer_value || '']
             break
           case 'budget':
           case 'budget_min':
-            acc.budget_min = parseFloat(response.answer_value) || null
+            acc.budget_min = parseFloat(response.answer_value || '0') || null
             break
           case 'budget_max':
-            acc.budget_max = parseFloat(response.answer_value) || null
+            acc.budget_max = parseFloat(response.answer_value || '0') || null
             break
           case 'timeline':
             acc.timeline = response.answer_value
             break
           case 'location':
           case 'preferred_location':
-            acc.preferred_locations = [response.answer_value]
+            acc.preferred_locations = [response.answer_value || '']
             break
         }
         return acc
@@ -599,7 +608,7 @@ export class WebhookProcessor {
       // Get call details
       const { data: call } = await this.supabase
         .from('calls')
-        .select('user_id, team_id, caller_number')
+        .select('user_id, caller_number')
         .eq('id', callId)
         .single()
 
@@ -609,7 +618,7 @@ export class WebhookProcessor {
         call_id: callId,
         // analysis_id: analysis.id, // Field may not exist in schema
         user_id: call.user_id,
-        team_id: call.team_id,
+        // team_id removed for single-user architecture
         first_name: contactInfo.first_name || null,
         last_name: contactInfo.last_name || null,
         email: contactInfo.email || null,
