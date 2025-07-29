@@ -39,15 +39,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('assistants')
-      .select(`
-        *,
-        user:profiles!assistants_user_id_fkey(
-          id,
-          first_name,
-          last_name,
-          email
-        )
-      `, { count: 'exact' });
+      .select('*', { count: 'exact' });
 
     // Filter by user (single-user architecture)
     query = query.eq('user_id', user.id);
@@ -130,15 +122,7 @@ export async function POST(request: NextRequest) {
         background_ambiance: validatedData.background_ambiance,
         is_active: true
       })
-      .select(`
-        *,
-        user:profiles!assistants_user_id_fkey(
-          id,
-          first_name,
-          last_name,
-          email
-        )
-      `)
+      .select('*')
       .single();
 
     if (error) {

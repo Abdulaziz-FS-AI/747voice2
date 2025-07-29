@@ -26,9 +26,9 @@ export class SubscriptionError extends Error {
 
 export async function authenticateRequest() {
   return {
-    user: { id: 'mock-user-id', email: 'user@example.com' },
+    user: { id: '00000000-0000-0000-0000-000000000001', email: 'user@example.com' },
     profile: { 
-      id: 'mock-user-id', 
+      id: '00000000-0000-0000-0000-000000000001', 
       onboarding_completed: true
     }
   }
@@ -51,9 +51,9 @@ export async function requirePermission(userIdOrPermission?: string, permission?
   }
   // New API: return user object when called with 0 or 1 parameters
   return {
-    user: { id: 'mock-user-id', email: 'user@example.com' },
+    user: { id: '00000000-0000-0000-0000-000000000001', email: 'user@example.com' },
     profile: { 
-      id: 'mock-user-id', 
+      id: '00000000-0000-0000-0000-000000000001', 
       onboarding_completed: true
     }
   }
