@@ -1,15 +1,34 @@
 'use client'
 
-// import { useState } from 'react' // Removed unused import
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowRight, Play, Check, Star, MessageSquare, Phone, BarChart3, Users, Shield, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { useAuth } from '@/lib/auth-context'
 
 export default function HomePage() {
-  // Demo functionality can be added later
-  // const [playingDemo, setPlayingDemo] = useState<string | null>(null)
+  const { user, loading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.push('/dashboard')
+    }
+  }, [user, loading, router])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-blue-600 mb-4">Voice Matrix</h1>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+        </div>
+      </div>
+    )
+  }
 
   const features = [
     {
@@ -87,9 +106,20 @@ export default function HomePage() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Link href="/dashboard">
-                <Button>Go to Dashboard</Button>
-              </Link>
+              {user ? (
+                <Link href="/dashboard">
+                  <Button>Go to Dashboard</Button>
+                </Link>
+              ) : (
+                <>
+                  <Link href="/login">
+                    <Button variant="outline">Sign In</Button>
+                  </Link>
+                  <Link href="/signup">
+                    <Button>Get Started</Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -114,12 +144,21 @@ export default function HomePage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-              <Link href="/dashboard">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-4">
-                  Go to Dashboard
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
+              {user ? (
+                <Link href="/dashboard">
+                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-4">
+                    Go to Dashboard
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+              ) : (
+                <Link href="/signup">
+                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-4">
+                    Get Started Free
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+              )}
               <Button 
                 variant="outline" 
                 size="lg" 
@@ -265,12 +304,21 @@ export default function HomePage() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/dashboard">
-              <Button size="lg" variant="secondary" className="text-lg px-8 py-4">
-                Go to Dashboard
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
+            {user ? (
+              <Link href="/dashboard">
+                <Button size="lg" variant="secondary" className="text-lg px-8 py-4">
+                  Go to Dashboard
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/signup">
+                <Button size="lg" variant="secondary" className="text-lg px-8 py-4">
+                  Start Free Trial
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+            )}
           </div>
 
           <p className="text-blue-200 mt-6 text-sm">

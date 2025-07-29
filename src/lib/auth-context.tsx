@@ -1,14 +1,57 @@
 'use client'
 
-// Simple mock auth context for non-authenticated mode
-export function useAuth() {
-  return {
-    user: { id: '00000000-0000-0000-0000-000000000001', email: 'user@example.com' },
-    loading: false,
-    signOut: () => Promise.resolve()
-  }
+import { createContext, useContext, useEffect, useState } from 'react'
+import { createClientSupabaseClient } from '@/lib/supabase'
+import { User } from '@supabase/supabase-js'
+
+interface AuthContextType {
+  user: User | null
+  loading: boolean
+  signOut: () => Promise<void>
 }
 
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const supabase = createClientSupabaseClient()
+
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [supabase.auth])
+
+  const signOut = async () => {
+    await supabase.auth.signOut()
+  }
+
+  const value = {
+    user,
+    loading,
+    signOut,
+  }
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext)
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+  return context
 }

@@ -1,4 +1,4 @@
-// Mock auth functions for non-authenticated mode
+import { createServerSupabaseClient } from '@/lib/supabase'
 
 export class AuthError extends Error {
   public statusCode: number
@@ -25,45 +25,86 @@ export class SubscriptionError extends Error {
 }
 
 export async function authenticateRequest() {
+  const supabase = await createServerSupabaseClient()
+  
+  const { data: { user }, error } = await supabase.auth.getUser()
+  
+  if (error || !user) {
+    throw new AuthError('Authentication required', 401)
+  }
+
+  // Get user profile from profiles table
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single()
+
+  if (profileError && profileError.code !== 'PGRST116') {
+    // If profile doesn't exist, create it
+    const { data: newProfile, error: createError } = await supabase
+      .from('profiles')
+      .insert({
+        id: user.id,
+        email: user.email!,
+        onboarding_completed: false
+      })
+      .select()
+      .single()
+
+    if (createError) {
+      throw new AuthError('Failed to create user profile', 500)
+    }
+
+    return {
+      user,
+      profile: newProfile
+    }
+  }
+
   return {
-    user: { id: '00000000-0000-0000-0000-000000000001', email: 'user@example.com' },
-    profile: { 
-      id: '00000000-0000-0000-0000-000000000001', 
-      onboarding_completed: true
+    user,
+    profile: profile || { 
+      id: user.id, 
+      email: user.email,
+      onboarding_completed: false 
     }
   }
 }
 
 // Overloaded function signatures
 export async function requirePermission(): Promise<{
-  user: { id: string; email: string };
-  profile: { id: string; onboarding_completed: boolean };
+  user: any;
+  profile: any;
 }>;
 export async function requirePermission(permission: string): Promise<{
-  user: { id: string; email: string };
-  profile: { id: string; onboarding_completed: boolean };
+  user: any;
+  profile: any;
 }>;
 export async function requirePermission(userId: string, permission: string): Promise<boolean>;
 export async function requirePermission(userIdOrPermission?: string, permission?: string): Promise<any> {
   if (userIdOrPermission && permission) {
     // Old API: return boolean when called with 2 parameters
+    // For now, just return true - implement proper permission checking later
     return true
   }
+  
   // New API: return user object when called with 0 or 1 parameters
-  return {
-    user: { id: '00000000-0000-0000-0000-000000000001', email: 'user@example.com' },
-    profile: { 
-      id: '00000000-0000-0000-0000-000000000001', 
-      onboarding_completed: true
-    }
-  }
+  return await authenticateRequest()
 }
 
 export async function checkSubscriptionLimits(userId: string, resource: string, count?: number) {
-  return true // Allow all operations in non-auth mode
+  // For now, allow all operations - implement proper subscription limits later
+  return true
 }
 
 export async function logAuditEvent(params: any) {
-  // Mock audit logging
-  console.log('Audit event:', params)
+  const supabase = await createServerSupabaseClient()
+  
+  try {
+    // Create audit_logs table entry if you have one, otherwise just log
+    console.log('Audit event:', params)
+  } catch (error) {
+    console.error('Failed to log audit event:', error)
+  }
 }
