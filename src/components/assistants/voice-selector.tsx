@@ -136,28 +136,28 @@ export function VoiceSelector({ selectedVoice, onVoiceSelect, className }: Voice
           <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform group-hover:text-orange-400 ${isOpen ? 'rotate-180' : ''}`} />
         </div>
 
-        {/* Dropdown Content - Optimized Height */}
+        {/* Dropdown Content - Voice Matrix Design System */}
         {isOpen && (
-          <Card className="absolute top-full left-0 right-0 mt-2 z-50 max-h-80 overflow-hidden bg-gray-900 border border-gray-700 shadow-2xl rounded-lg">
+          <Card className="vm-dropdown absolute top-full left-0 right-0 mt-2 z-50 max-h-80 overflow-hidden vm-animate-scale">
             {/* Search */}
-            <div className="p-3 border-b border-gray-700/50 bg-gray-800/30">
+            <div className="p-3" style={{ borderBottom: '1px solid var(--vm-border-subtle)', backgroundColor: 'var(--vm-surface-elevated)' }}>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" style={{ color: 'var(--vm-gray-400)' }} />
                 <Input
                   placeholder="Search voice..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 text-sm h-8 bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-orange-400 focus:ring-1 focus:ring-orange-400/20"
+                  className="vm-input pl-9 text-sm h-8"
                 />
               </div>
             </div>
 
             {/* Voice List - Scrollable */}
-            <div className="max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-orange-500/20 scrollbar-track-transparent">
+            <div className="max-h-60 overflow-y-auto scrollbar-thin">
               {filteredVoices.map(renderVoiceOption)}
               
               {filteredVoices.length === 0 && (
-                <div className="p-6 text-center text-gray-400 text-sm">
+                <div className="p-6 text-center vm-text-muted text-sm">
                   No voices found matching "{searchQuery}"
                 </div>
               )}
@@ -166,27 +166,42 @@ export function VoiceSelector({ selectedVoice, onVoiceSelect, className }: Voice
         )}
       </div>
 
-      {/* Selected Voice Details - Improved Layout */}
+      {/* Selected Voice Details - Voice Matrix Design System */}
       {selectedVoiceData && (
-        <div className="mt-4 p-4 bg-gradient-to-br from-gray-800/80 to-gray-800/60 rounded-lg border border-gray-700/50">
+        <div className="mt-4 p-4 vm-animate-in" style={{ 
+          background: 'var(--vm-gradient-surface)', 
+          border: '1px solid var(--vm-border-subtle)',
+          borderRadius: 'var(--vm-border-radius-lg)'
+        }}>
           {/* Header */}
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-sm">
+              <div className="w-9 h-9 rounded-full flex items-center justify-center shadow-sm" style={{ 
+                background: 'var(--vm-gradient-brand)' 
+              }}>
                 <span className="text-white text-sm font-medium">
                   {selectedVoiceData.gender === 'Male' ? '👨' : '👩'}
                 </span>
               </div>
               <div>
-                <h4 className="font-semibold text-white text-sm leading-tight">{selectedVoiceData.name}</h4>
-                <p className="text-xs text-gray-400">{selectedVoiceData.age} year old • {selectedVoiceData.gender} • {selectedVoiceData.accent}</p>
+                <h4 className="vm-heading font-semibold text-sm leading-tight" style={{ color: 'var(--vm-pure)' }}>
+                  {selectedVoiceData.name}
+                </h4>
+                <p className="text-xs vm-text-muted">
+                  {selectedVoiceData.age} year old • {selectedVoiceData.gender} • {selectedVoiceData.accent}
+                </p>
               </div>
             </div>
             
             <Button
               variant="outline"
               size="sm"
-              className="h-8 px-3 text-xs bg-gray-700/80 border-gray-600 text-gray-300 hover:bg-orange-500/10 hover:border-orange-400 hover:text-orange-300 transition-all duration-200"
+              className="vm-button-ghost h-8 px-3 text-xs transition-all duration-200"
+              style={{
+                backgroundColor: 'var(--vm-surface-elevated)',
+                borderColor: 'var(--vm-border-subtle)',
+                color: 'var(--vm-gray-300)'
+              }}
               onClick={() => console.log('Play voice preview:', selectedVoiceData.id)}
             >
               <Volume2 className="w-3 h-3 mr-1.5" />
@@ -195,17 +210,17 @@ export function VoiceSelector({ selectedVoice, onVoiceSelect, className }: Voice
           </div>
           
           {/* Description */}
-          <p className="text-xs text-gray-300 mb-3 leading-relaxed">{selectedVoiceData.description}</p>
+          <p className="text-xs vm-text-secondary mb-3 leading-relaxed">{selectedVoiceData.description}</p>
           
           {/* Characteristics */}
           <div className="flex flex-wrap gap-1.5">
             {selectedVoiceData.characteristics.map(char => (
-              <Badge key={char} className="text-xs px-2 py-1 bg-gray-700/60 text-gray-300 border-gray-600/50 hover:bg-orange-500/10 hover:border-orange-500/30 transition-colors">
+              <Badge key={char} className="vm-badge text-xs px-2 py-1 transition-colors">
                 {char}
               </Badge>
             ))}
             {selectedVoiceData.personality.map(trait => (
-              <Badge key={trait} className="text-xs px-2 py-1 bg-orange-500/10 text-orange-300 border-orange-500/30">
+              <Badge key={trait} className="vm-badge vm-badge-violet text-xs px-2 py-1">
                 {trait}
               </Badge>
             ))}

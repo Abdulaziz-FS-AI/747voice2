@@ -139,34 +139,35 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-6 bg-black min-h-screen">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-        {/* Professional Grid Layout */}
+    <div className="vm-container min-h-screen" style={{ background: 'var(--vm-void)' }}>
+      <form onSubmit={handleSubmit(onSubmit)} className="vm-section-sm">
+        {/* Voice Matrix Professional Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
           {/* Basic Information */}
           <div className="space-y-6">
             <Card className="vm-card h-fit">
               <CardHeader className="pb-4">
-                <CardTitle className="text-sm font-semibold text-orange-400 flex items-center gap-2">
-                  <span className="h-2 w-2 bg-orange-400 rounded-full"></span>
+                <CardTitle className="vm-heading text-sm font-semibold flex items-center gap-2" style={{ color: 'var(--vm-orange-primary)' }}>
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: 'var(--vm-orange-primary)' }}></span>
                   Basic Information
                 </CardTitle>
+                <p className="vm-text-muted text-xs mt-1">Set up your assistant's identity and basic information</p>
               </CardHeader>
               <CardContent className="space-y-5">
                 <div>
                   <Input
                     placeholder="Assistant Name *"
                     {...register('name', { required: 'Assistant name is required' })}
-                    className="bg-gray-900 border-gray-700 text-white placeholder-gray-400 text-sm focus:border-orange-400 focus:ring-orange-400 h-11"
+                    className="vm-input"
                   />
                   {errors.name && (
-                    <p className="text-xs text-red-400 mt-2">{errors.name.message}</p>
+                    <p className="text-xs mt-2" style={{ color: 'var(--vm-error)' }}>{errors.name.message}</p>
                   )}
                 </div>
                 <Input
                   placeholder="Company Name"
                   {...register('company_name')}
-                  className="bg-gray-900 border-gray-700 text-white placeholder-gray-400 text-sm focus:border-orange-400 focus:ring-orange-400 h-11"
+                  className="vm-input"
                 />
               </CardContent>
             </Card>
@@ -176,11 +177,11 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
           <div className="space-y-6">
             <Card className="vm-card h-fit">
               <CardHeader className="pb-4">
-                <CardTitle className="text-sm font-semibold text-blue-400 flex items-center gap-2">
-                  <span className="h-2 w-2 bg-blue-400 rounded-full"></span>
+                <CardTitle className="vm-heading text-sm font-semibold flex items-center gap-2" style={{ color: 'var(--vm-cyan)' }}>
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: 'var(--vm-cyan)' }}></span>
                   AI Model
                 </CardTitle>
-                <p className="text-xs text-gray-400 mt-1">Choose the AI model that best fits your needs</p>
+                <p className="vm-text-muted text-xs mt-1">Choose the AI model that best fits your needs</p>
               </CardHeader>
               <CardContent>
                 <ModelSelector
@@ -195,11 +196,11 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
           <div className="space-y-6">
             <Card className="vm-card h-fit">
               <CardHeader className="pb-4">
-                <CardTitle className="text-sm font-semibold text-green-400 flex items-center gap-2">
-                  <span className="h-2 w-2 bg-green-400 rounded-full"></span>
+                <CardTitle className="vm-heading text-sm font-semibold flex items-center gap-2" style={{ color: 'var(--vm-emerald)' }}>
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: 'var(--vm-emerald)' }}></span>
                   Voice
                 </CardTitle>
-                <p className="text-xs text-gray-400 mt-1">Select the perfect voice for your assistant</p>
+                <p className="vm-text-muted text-xs mt-1">Select the perfect voice for your assistant</p>
               </CardHeader>
               <CardContent>
                 <VoiceSelector
@@ -214,11 +215,11 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
           <div className="space-y-6">
             <Card className="vm-card h-fit">
               <CardHeader className="pb-4">
-                <CardTitle className="text-sm font-semibold text-purple-400 flex items-center gap-2">
-                  <span className="h-2 w-2 bg-purple-400 rounded-full"></span>
+                <CardTitle className="vm-heading text-sm font-semibold flex items-center gap-2" style={{ color: 'var(--vm-violet)' }}>
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: 'var(--vm-violet)' }}></span>
                   Personality
                 </CardTitle>
-                <p className="text-xs text-gray-400 mt-1">Define your assistant's personality traits</p>
+                <p className="vm-text-muted text-xs mt-1">Define your assistant's personality traits</p>
               </CardHeader>
               <CardContent>
                 <PersonalitySelector
@@ -234,21 +235,21 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
           <div className="lg:col-span-2 space-y-6">
             <Card className="vm-card h-fit">
               <CardHeader className="pb-4">
-                <CardTitle className="text-sm font-semibold text-yellow-400 flex items-center gap-2">
-                  <span className="h-2 w-2 bg-yellow-400 rounded-full"></span>
+                <CardTitle className="vm-heading text-sm font-semibold flex items-center gap-2" style={{ color: 'var(--vm-warning)' }}>
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: 'var(--vm-warning)' }}></span>
                   First Message
                 </CardTitle>
-                <p className="text-xs text-gray-400 mt-1">What your assistant says when answering calls</p>
+                <p className="vm-text-muted text-xs mt-1">What your assistant says when answering calls</p>
               </CardHeader>
               <CardContent>
                 <Textarea
                   placeholder="Hello! How can I help you today?"
                   {...register('first_message', { required: 'First message is required' })}
                   rows={3}
-                  className="bg-gray-900 border-gray-700 text-white placeholder-gray-400 text-sm focus:border-orange-400 focus:ring-orange-400 resize-none min-h-[80px]"
+                  className="vm-textarea"
                 />
                 {errors.first_message && (
-                  <p className="text-xs text-red-400 mt-2">{errors.first_message.message}</p>
+                  <p className="text-xs mt-2" style={{ color: 'var(--vm-error)' }}>{errors.first_message.message}</p>
                 )}
               </CardContent>
             </Card>
@@ -258,11 +259,11 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
           <div className="space-y-6">
             <Card className="vm-card h-fit">
               <CardHeader className="pb-4">
-                <CardTitle className="text-sm font-semibold text-cyan-400 flex items-center gap-2">
-                  <span className="h-2 w-2 bg-cyan-400 rounded-full"></span>
+                <CardTitle className="vm-heading text-sm font-semibold flex items-center gap-2" style={{ color: 'var(--vm-info)' }}>
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: 'var(--vm-info)' }}></span>
                   Call Settings
                 </CardTitle>
-                <p className="text-xs text-gray-400 mt-1">Configure how calls are handled</p>
+                <p className="vm-text-muted text-xs mt-1">Configure how calls are handled</p>
               </CardHeader>
               <CardContent className="space-y-5">
                 <div className="flex items-center space-x-3">
@@ -272,15 +273,15 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
                     onCheckedChange={(checked) => 
                       setValue('first_message_mode', checked ? 'assistant-speaks-first' : 'user-speaks-first')
                     }
-                    className="border-gray-600 text-orange-400 focus:ring-orange-400"
+                    className="vm-focus-ring"
                   />
-                  <Label htmlFor="assistant_speaks_first" className="text-sm cursor-pointer text-gray-200">
+                  <Label htmlFor="assistant_speaks_first" className="text-sm cursor-pointer" style={{ color: 'var(--vm-gray-100)' }}>
                     Assistant speaks first
                   </Label>
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="text-sm text-gray-200">Duration: {Math.floor(formValues.max_call_duration / 60)}:{(formValues.max_call_duration % 60).toString().padStart(2, '0')}</Label>
+                  <Label className="text-sm" style={{ color: 'var(--vm-gray-100)' }}>Duration: {Math.floor(formValues.max_call_duration / 60)}:{(formValues.max_call_duration % 60).toString().padStart(2, '0')}</Label>
                   <Slider
                     value={[formValues.max_call_duration]}
                     onValueChange={([value]) => setValue('max_call_duration', value)}
@@ -292,7 +293,7 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
                 </div>
 
                 <Select value={formValues.background_sound} onValueChange={(value) => setValue('background_sound', value as 'off' | 'office')}>
-                  <SelectTrigger className="text-sm h-11 bg-gray-900 border-gray-700 text-white focus:border-orange-400 focus:ring-orange-400">
+                  <SelectTrigger className="vm-input text-sm h-11">
                     <SelectValue placeholder="Background Sound" />
                   </SelectTrigger>
                   <SelectContent>
@@ -311,11 +312,11 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
           <div className="lg:col-span-2 space-y-6">
             <Card className="vm-card h-fit">
               <CardHeader className="pb-4">
-                <CardTitle className="text-sm font-semibold text-pink-400 flex items-center gap-2">
-                  <span className="h-2 w-2 bg-pink-400 rounded-full"></span>
+                <CardTitle className="vm-heading text-sm font-semibold flex items-center gap-2" style={{ color: 'var(--vm-violet-light)' }}>
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: 'var(--vm-violet-light)' }}></span>
                   Structured Questions
                 </CardTitle>
-                <p className="text-xs text-gray-400 mt-1">Define questions to extract specific data from conversations</p>
+                <p className="vm-text-muted text-xs mt-1">Define questions to extract specific data from conversations</p>
               </CardHeader>
               <CardContent>
                 <StructuredQuestions
@@ -330,11 +331,11 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
           <div className="space-y-6">
             <Card className="vm-card h-fit">
               <CardHeader className="pb-4">
-                <CardTitle className="text-sm font-semibold text-indigo-400 flex items-center gap-2">
-                  <span className="h-2 w-2 bg-indigo-400 rounded-full"></span>
+                <CardTitle className="vm-heading text-sm font-semibold flex items-center gap-2" style={{ color: 'var(--vm-orange-light)' }}>
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: 'var(--vm-orange-light)' }}></span>
                   Performance Evaluation
                 </CardTitle>
-                <p className="text-xs text-gray-400 mt-1">Set up evaluation criteria for calls</p>
+                <p className="vm-text-muted text-xs mt-1">Set up evaluation criteria for calls</p>
               </CardHeader>
               <CardContent>
                 <EvaluationSelector
@@ -347,20 +348,19 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
         </div>
 
         {/* Submit Buttons */}
-        <div className="flex justify-end gap-4 pt-8 border-t border-gray-800/50">
+        <div className="flex justify-end gap-4 pt-8" style={{ borderTop: '1px solid var(--vm-border-subtle)' }}>
           <Button
             type="button"
-            variant="outline"
             onClick={onCancel || (() => router.back())}
             disabled={isLoading}
-            className="bg-gray-800/80 border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white hover:border-gray-500 transition-all duration-200 px-6 h-11"
+            className="vm-button-secondary px-6"
           >
             Cancel
           </Button>
           <Button 
             type="submit" 
             disabled={isLoading} 
-            className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold px-8 h-11 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-200 disabled:opacity-50"
+            className="vm-button-primary px-8 disabled:opacity-50"
           >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isLoading ? 'Creating...' : 'Create Assistant'}
