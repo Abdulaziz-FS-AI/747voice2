@@ -46,13 +46,12 @@ export default function DashboardPage() {
         setStats(prev => ({ ...prev, totalAssistants: assistantsData.data?.length || 0 }))
       }
 
-      // Fetch stats
-      const statsRes = await fetch('/api/dashboard/stats')
-      const statsData = await statsRes.json()
-      
-      if (statsData.success) {
-        setStats(statsData.data)
-      }
+      // TODO: Fetch stats when analytics backend is rebuilt
+      // const statsRes = await fetch('/api/dashboard/stats')
+      // const statsData = await statsRes.json()
+      // if (statsData.success) {
+      //   setStats(statsData.data)
+      // }
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error)
     } finally {
