@@ -15,6 +15,45 @@ export class VapiError extends Error {
   }
 }
 
+// Standard API error classes
+export class ValidationError extends Error {
+  constructor(message: string, public details?: Record<string, unknown>) {
+    super(message);
+    this.name = 'ValidationError';
+  }
+}
+
+export class NotFoundError extends Error {
+  constructor(message: string, public details?: Record<string, unknown>) {
+    super(message);
+    this.name = 'NotFoundError';
+  }
+}
+
+export class ConflictError extends Error {
+  constructor(message: string, public details?: Record<string, unknown>) {
+    super(message);
+    this.name = 'ConflictError';
+  }
+}
+
+export class RateLimitError extends Error {
+  constructor(message: string, public details?: Record<string, unknown>) {
+    super(message);
+    this.name = 'RateLimitError';
+  }
+}
+
+export class ServiceUnavailableError extends Error {
+  constructor(message: string, public details?: Record<string, unknown>) {
+    super(message);
+    this.name = 'ServiceUnavailableError';
+  }
+}
+
+// Alias for backwards compatibility
+export const VAPIError = VapiError;
+
 // API error handling
 export function handleAPIError(error: unknown): NextResponse {
   console.error('API Error:', error);
@@ -59,6 +98,76 @@ export function handleAPIError(error: unknown): NextResponse {
         }
       },
       { status: error.statusCode || 500 }
+    );
+  }
+
+  if (error instanceof ValidationError) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: error.message,
+          details: error.details
+        }
+      },
+      { status: 400 }
+    );
+  }
+
+  if (error instanceof NotFoundError) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: error.message,
+          details: error.details
+        }
+      },
+      { status: 404 }
+    );
+  }
+
+  if (error instanceof ConflictError) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          code: 'CONFLICT',
+          message: error.message,
+          details: error.details
+        }
+      },
+      { status: 409 }
+    );
+  }
+
+  if (error instanceof RateLimitError) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          code: 'RATE_LIMIT',
+          message: error.message,
+          details: error.details
+        }
+      },
+      { status: 429 }
+    );
+  }
+
+  if (error instanceof ServiceUnavailableError) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          code: 'SERVICE_UNAVAILABLE',
+          message: error.message,
+          details: error.details
+        }
+      },
+      { status: 503 }
     );
   }
 
