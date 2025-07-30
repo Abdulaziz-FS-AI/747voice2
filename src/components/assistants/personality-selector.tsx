@@ -46,6 +46,7 @@ export function PersonalitySelector({
             return (
               <Button
                 key={trait.id}
+                type="button"
                 variant={selected ? "default" : "outline"}
                 size="sm"
                 className={`
@@ -77,6 +78,7 @@ export function PersonalitySelector({
           <span>{selectedTraits.length}/{maxSelections} traits selected</span>
           {selectedTraits.length > 0 && (
             <Button
+              type="button"
               variant="ghost"
               size="sm"
               className="h-6 px-2 text-xs text-gray-500 hover:text-gray-700"

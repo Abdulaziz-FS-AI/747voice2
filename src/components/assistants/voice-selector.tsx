@@ -69,6 +69,7 @@ export function VoiceSelector({ selectedVoice, onVoiceSelect, className }: Voice
           
           {/* Inline Play Button */}
           <Button
+            type="button"
             variant="ghost"
             size="sm"
             className="flex-shrink-0 w-6 h-6 p-0 text-gray-400 hover:text-orange-400 hover:bg-orange-500/10 rounded transition-colors"
@@ -194,6 +195,7 @@ export function VoiceSelector({ selectedVoice, onVoiceSelect, className }: Voice
             </div>
             
             <Button
+              type="button"
               variant="outline"
               size="sm"
               className="vm-button-ghost h-8 px-3 text-xs transition-all duration-200"

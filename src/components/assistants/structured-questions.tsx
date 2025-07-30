@@ -95,6 +95,7 @@ export function StructuredQuestions({ questions, onQuestionsChange, className }:
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
+                    type="button"
                     variant="outline"
                     size="sm"
                     onClick={() => setExpandedQuestion(
@@ -104,6 +105,7 @@ export function StructuredQuestions({ questions, onQuestionsChange, className }:
                     {expandedQuestion === question.id ? 'Collapse' : 'Edit'}
                   </Button>
                   <Button
+                    type="button"
                     variant="outline"
                     size="icon"
                     onClick={() => removeQuestion(question.id)}
