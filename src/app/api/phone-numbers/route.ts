@@ -3,22 +3,16 @@ import { z } from 'zod'
 import { authenticateRequest, requirePermission } from '@/lib/auth'
 import { handleAPIError } from '@/lib/errors'
 import { createServiceRoleClient } from '@/lib/supabase'
-import { PhoneNumberValidator } from '@/lib/phone-number-validator'
-import { EncryptionService } from '@/lib/encryption'
+import { PhoneNumberService } from '@/lib/services/phone-number.service'
 import type { Database } from '@/types/database'
 
-// Validation schemas
+// Validation schemas - Twilio only
 const createPhoneNumberSchema = z.object({
-  friendly_name: z.string().min(1).max(255),
-  phone_number: z.string().regex(/^\+[1-9]\d{1,14}$/, 'Invalid E.164 phone number format'),
-  provider: z.enum(['testing', 'twilio', 'vapi']),
-  assigned_assistant_id: z.string().uuid().optional().nullable(),
-  notes: z.string().optional().nullable(),
-  provider_config: z.object({
-    account_sid: z.string().optional(),
-    auth_token: z.string().optional(),
-    webhook_url: z.string().url().optional(),
-  }).optional().default({})
+  phoneNumber: z.string().regex(/^\+[1-9]\d{1,14}$/, 'Invalid E.164 phone number format'),
+  friendlyName: z.string().min(1).max(255),
+  twilioAccountSid: z.string().regex(/^AC[a-fA-f0-9]{32}$/, 'Invalid Twilio Account SID format'),
+  twilioAuthToken: z.string().min(32, 'Twilio Auth Token is required'),
+  assistantId: z.string().uuid().optional().nullable()
 })
 
 const updatePhoneNumberSchema = z.object({
@@ -78,11 +72,11 @@ export async function GET(request: NextRequest) {
 
 /**
  * POST /api/phone-numbers
- * Create a new phone number
+ * Create a new phone number using Twilio credentials
  */
 export async function POST(request: NextRequest) {
   try {
-    const { user, profile } = await authenticateRequest()
+    const { user } = await authenticateRequest()
     const body = await request.json()
 
     // Validate permissions

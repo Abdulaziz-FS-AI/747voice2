@@ -33,23 +33,16 @@ import type { Database } from '@/types/database'
 type PhoneNumber = Database['public']['Tables']['phone_numbers']['Row']
 type Assistant = Database['public']['Tables']['assistants']['Row']
 
-// Form validation schema
+// Form validation schema - Twilio only
 const phoneNumberSchema = z.object({
   friendlyName: z.string().min(1, 'Friendly name is required').max(255),
   phoneNumber: z.string().regex(/^\+[1-9]\d{1,14}$/, 'Invalid phone number format (use E.164 format like +15551234567)'),
-  provider: z.enum(['testing', 'twilio']),
   assignedAssistantId: z.string().optional(),
   notes: z.string().optional(),
   
-  // Twilio-specific fields
-  twilioAccountSid: z.string().optional(),
-  twilioAuthToken: z.string().optional(),
-})
-
-// Conditional validation for Twilio
-const twilioPhoneNumberSchema = phoneNumberSchema.extend({
+  // Required Twilio credentials
   twilioAccountSid: z.string().regex(/^AC[a-fA-f0-9]{32}$/, 'Invalid Twilio Account SID format'),
-  twilioAuthToken: z.string().min(32, 'Invalid Twilio Auth Token'),
+  twilioAuthToken: z.string().min(32, 'Twilio Auth Token is required'),
 })
 
 type PhoneNumberFormData = z.infer<typeof phoneNumberSchema>
@@ -65,14 +58,12 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
   const [showAuthToken, setShowAuthToken] = useState(false)
   const [assistants, setAssistants] = useState<Assistant[]>([])
   const [currentStep, setCurrentStep] = useState<'details' | 'config' | 'assign'>('details')
-  const [selectedProvider, setSelectedProvider] = useState<'testing' | 'twilio'>('testing')
 
   const form = useForm<PhoneNumberFormData>({
-    resolver: zodResolver(selectedProvider === 'twilio' ? twilioPhoneNumberSchema : phoneNumberSchema),
+    resolver: zodResolver(phoneNumberSchema),
     defaultValues: {
       friendlyName: '',
       phoneNumber: '',
-      provider: 'testing',
       assignedAssistantId: '',
       notes: '',
       twilioAccountSid: '',
@@ -81,20 +72,14 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
   })
 
   const { register, handleSubmit, watch, setValue, formState: { errors }, reset } = form
-  const watchedProvider = watch('provider')
 
   useEffect(() => {
     if (open) {
       fetchAssistants()
       reset()
       setCurrentStep('details')
-      setSelectedProvider('testing')
     }
   }, [open, reset])
-
-  useEffect(() => {
-    setSelectedProvider(watchedProvider as 'testing' | 'twilio')
-  }, [watchedProvider])
 
   const fetchAssistants = async () => {
     try {
@@ -112,18 +97,13 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
     setIsLoading(true)
     
     try {
-      // Prepare the payload
+      // Prepare the payload for Twilio-only setup
       const payload = {
-        friendly_name: data.friendlyName,
-        phone_number: data.phoneNumber,
-        provider: data.provider,
-        assigned_assistant_id: data.assignedAssistantId || null,
-        notes: data.notes || null,
-        provider_config: data.provider === 'twilio' ? {
-          account_sid: data.twilioAccountSid,
-          auth_token: data.twilioAuthToken,
-          webhook_url: `${window.location.origin}/api/webhooks/twilio`
-        } : {}
+        phoneNumber: data.phoneNumber,
+        friendlyName: data.friendlyName,
+        twilioAccountSid: data.twilioAccountSid,
+        twilioAuthToken: data.twilioAuthToken,
+        assistantId: data.assignedAssistantId || null
       }
 
       const response = await fetch('/api/phone-numbers', {
@@ -239,61 +219,25 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="provider">Provider *</Label>
-                <Select onValueChange={(value) => setValue('provider', value as any)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select provider" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="testing">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary">Testing</Badge>
-                        <span>Testing Mode (No external provider)</span>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="twilio">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="default">Twilio</Badge>
-                        <span>Twilio (Production calls)</span>
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Twilio Required:</strong> You must provide your own Twilio credentials to add phone numbers for real calls.
+                </AlertDescription>
+              </Alert>
 
-              {selectedProvider === 'testing' && (
+            </TabsContent>
+
+            {/* Step 2: Twilio Configuration */}
+            <TabsContent value="config" className="space-y-4 mt-6">
+              <div className="space-y-4">
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    <strong>Testing Mode:</strong> This number will be used for testing only. 
-                    You can test calls through the Vapi web interface without external provider setup.
+                    <strong>Twilio Setup:</strong> You&apos;ll need your Twilio credentials. 
+                    Find these on your Twilio Console dashboard.
                   </AlertDescription>
                 </Alert>
-              )}
-            </TabsContent>
-
-            {/* Step 2: Provider Configuration */}
-            <TabsContent value="config" className="space-y-4 mt-6">
-              {selectedProvider === 'testing' ? (
-                <div className="text-center py-8">
-                  <CheckCircle className="mx-auto h-12 w-12 text-green-500 mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Testing Mode Selected</h3>
-                  <p className="text-muted-foreground">
-                    No additional configuration needed for testing mode.
-                    You can proceed to assign this number to an assistant.
-                  </p>
-                </div>
-              ) : (
-                // Twilio Configuration
-                <div className="space-y-4">
-                  <Alert>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                      <strong>Twilio Setup:</strong> You&apos;ll need your Twilio credentials. 
-                      Find these on your Twilio Console dashboard.
-                    </AlertDescription>
-                  </Alert>
 
                   <div className="space-y-2">
                     <Label htmlFor="twilioAccountSid">Twilio Account SID *</Label>
@@ -336,8 +280,7 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
                       Found next to your Account SID. Treat this like a password.
                     </p>
                   </div>
-                </div>
-              )}
+              </div>
             </TabsContent>
 
             {/* Step 3: Assistant Assignment */}

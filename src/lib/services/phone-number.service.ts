@@ -16,9 +16,8 @@ import { z } from 'zod'
 const PhoneNumberSchema = z.object({
   phoneNumber: z.string().regex(/^\+[1-9]\d{1,14}$/, 'Invalid phone number format'),
   friendlyName: z.string().min(1).max(100, 'Friendly name must be 1-100 characters'),
-  provider: z.enum(['twilio', 'byo-phone-number']).optional(),
-  twilioAccountSid: z.string().optional(),
-  twilioAuthToken: z.string().optional(),
+  twilioAccountSid: z.string().min(1, 'Twilio Account SID is required'),
+  twilioAuthToken: z.string().min(1, 'Twilio Auth Token is required'),
   assistantId: z.string().uuid().nullable().optional()
 })
 
@@ -48,9 +47,8 @@ export interface PhoneNumberData {
 export interface CreatePhoneNumberRequest {
   phoneNumber: string
   friendlyName: string
-  provider?: 'twilio' | 'byo-phone-number'
-  twilioAccountSid?: string
-  twilioAuthToken?: string
+  twilioAccountSid: string
+  twilioAuthToken: string
   assistantId?: string | null
 }
 
@@ -115,8 +113,6 @@ export class PhoneNumberService {
         }
       }
       
-      let vapiPhone
-      
       // Common server configuration for Make.com webhook
       const serverConfig = {
         url: process.env.MAKE_WEBHOOK_URL!,
@@ -126,46 +122,26 @@ export class PhoneNumberService {
         }
       }
       
-      // Different handling for Twilio vs BYO phone numbers
-      if (request.provider === 'twilio' && request.twilioAccountSid && request.twilioAuthToken) {
-        // Create Twilio phone number
-        const vapiPayload = {
-          provider: 'twilio' as const,
-          number: validatedData.phoneNumber,
-          twilioAccountSid: request.twilioAccountSid,
-          twilioAuthToken: request.twilioAuthToken,
-          name: validatedData.friendlyName,
-          assistantId: vapiAssistantId,
-          server: serverConfig,
-          numberE164CheckEnabled: true
-        }
-        
-        this.logger.info('Creating Twilio phone number', {
-          correlationId,
-          provider: 'twilio',
-          hasAccountSid: !!request.twilioAccountSid
-        })
-        
-        vapiPhone = await this.vapiService.createPhoneNumber(vapiPayload)
-      } else {
-        // Create BYO phone number
-        const vapiPayload = {
-          provider: 'byo-phone-number' as const,
-          number: validatedData.phoneNumber,
-          name: validatedData.friendlyName,
-          credentialId: process.env.VAPI_TWILIO_CREDENTIAL_ID!,
-          assistantId: vapiAssistantId,
-          server: serverConfig,
-          numberE164CheckEnabled: true
-        }
-        
-        this.logger.info('Creating BYO phone number', {
-          correlationId,
-          provider: 'byo-phone-number'
-        })
-        
-        vapiPhone = await this.vapiService.createPhoneNumber(vapiPayload)
+      // Create Twilio phone number with user-provided credentials
+      const vapiPayload = {
+        provider: 'twilio' as const,
+        number: validatedData.phoneNumber,
+        twilioAccountSid: validatedData.twilioAccountSid,
+        twilioAuthToken: validatedData.twilioAuthToken,
+        name: validatedData.friendlyName,
+        assistantId: vapiAssistantId,
+        server: serverConfig,
+        numberE164CheckEnabled: true
       }
+      
+      this.logger.info('Creating Twilio phone number with user credentials', {
+        correlationId,
+        provider: 'twilio',
+        accountSid: validatedData.twilioAccountSid.slice(0, 8) + '...', // Mask for security
+        phoneNumber: validatedData.phoneNumber.replace(/\d(?=\d{4})/g, '*')
+      })
+      
+      const vapiPhone = await this.vapiService.createPhoneNumber(vapiPayload)
 
       // Begin database transaction
       const { data: dbPhone, error: dbError } = await supabase
@@ -174,8 +150,11 @@ export class PhoneNumberService {
           user_id: userId,
           phone_number: validatedData.phoneNumber,
           friendly_name: validatedData.friendlyName,
+          provider: 'twilio',
           vapi_phone_id: vapiPhone.id,
           vapi_credential_id: vapiPhone.credentialId,
+          twilio_account_sid: validatedData.twilioAccountSid,
+          twilio_auth_token: validatedData.twilioAuthToken, // Store encrypted in production
           webhook_url: webhookUrl,
           assigned_assistant_id: request.assistantId || null,
           is_active: true
