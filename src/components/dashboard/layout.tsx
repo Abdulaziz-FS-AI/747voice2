@@ -11,7 +11,10 @@ import {
   Settings,
   LogOut,
   Menu,
-  X
+  X,
+  Mic,
+  Zap,
+  Activity
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -22,11 +25,11 @@ interface DashboardLayoutProps {
 }
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Assistants', href: '/dashboard/assistants', icon: Users },
-  { name: 'Phone Numbers', href: '/dashboard/phone-numbers', icon: Phone },
-  { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
-  { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, description: 'Overview & Analytics' },
+  { name: 'AI Assistants', href: '/dashboard/assistants', icon: Mic, description: 'Voice AI Management' },
+  { name: 'Phone Numbers', href: '/dashboard/phone-numbers', icon: Phone, description: 'Twilio Integration' },
+  { name: 'Analytics', href: '/dashboard/analytics', icon: Activity, description: 'Performance Insights' },
+  { name: 'Settings', href: '/dashboard/settings', icon: Settings, description: 'Configuration' },
 ]
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
@@ -41,105 +44,187 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ background: 'var(--vm-background)' }}>
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          className="fixed inset-0 z-40 lg:hidden"
+          style={{ background: 'rgba(0, 0, 0, 0.8)' }}
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar */}
+      {/* Revolutionary Sidebar */}
       <div className={cn(
-        "fixed inset-y-0 z-50 flex w-72 flex-col bg-card border-r transition-transform lg:translate-x-0",
+        "fixed inset-y-0 z-50 flex w-80 flex-col transition-transform lg:translate-x-0",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
-      )}>
-        {/* Logo */}
-        <div className="flex h-16 items-center gap-2 px-6 border-b">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <Phone className="h-5 w-5 text-primary-foreground" />
+      )} style={{ 
+        background: 'var(--vm-gradient-surface)',
+        borderRight: '1px solid var(--vm-border)'
+      }}>
+        
+        {/* Premium Logo Section */}
+        <div className="flex h-20 items-center justify-between px-6" style={{ borderBottom: '1px solid var(--vm-border)' }}>
+          <div className="flex items-center gap-3">
+            {/* Voice Matrix Logo */}
+            <div className="relative">
+              <div 
+                className="h-12 w-12 rounded-full flex items-center justify-center vm-glow"
+                style={{ background: 'var(--vm-gradient-primary)' }}
+              >
+                <Mic className="h-7 w-7" style={{ color: 'var(--vm-background)' }} />
+              </div>
+              <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full flex items-center justify-center"
+                   style={{ background: 'var(--vm-accent)' }}>
+                <Zap className="h-2.5 w-2.5" style={{ color: 'var(--vm-background)' }} />
+              </div>
             </div>
-            <span className="text-xl font-semibold">Voice Matrix</span>
+            <div>
+              <h1 className="vm-heading text-2xl tracking-wide">Voice Matrix</h1>
+              <p className="vm-text-muted text-xs font-medium">AI Intelligence Platform</p>
+            </div>
           </div>
           <Button
             variant="ghost"
             size="icon"
-            className="ml-auto lg:hidden"
+            className="lg:hidden hover:bg-white/10"
             onClick={() => setSidebarOpen(false)}
           >
-            <X className="h-5 w-5" />
+            <X className="h-5 w-5" style={{ color: 'var(--vm-text-primary)' }} />
           </Button>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 space-y-1 px-3 py-4">
+        {/* Enhanced Navigation */}
+        <nav className="flex-1 px-4 py-6 space-y-2">
           {navigation.map((item) => {
             const isActive = pathname === item.href || 
               (item.href !== '/dashboard' && pathname.startsWith(item.href))
             
             return (
-              <Button
-                key={item.name}
-                variant={isActive ? "secondary" : "ghost"}
-                className={cn(
-                  "w-full justify-start",
-                  isActive && "bg-secondary"
-                )}
-                onClick={() => {
-                  router.push(item.href)
-                  setSidebarOpen(false)
-                }}
-              >
-                <item.icon className="mr-3 h-5 w-5" />
-                {item.name}
-              </Button>
+              <div key={item.name} className="relative">
+                <button
+                  className={cn(
+                    "w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left transition-all duration-300 group",
+                    isActive 
+                      ? "vm-glow text-white" 
+                      : "hover:bg-white/5 hover:transform hover:scale-[1.02]"
+                  )}
+                  style={{
+                    background: isActive ? 'var(--vm-gradient-primary)' : 'transparent',
+                    border: isActive ? 'none' : '1px solid transparent',
+                  }}
+                  onClick={() => {
+                    router.push(item.href)
+                    setSidebarOpen(false)
+                  }}
+                >
+                  <div className={cn(
+                    "flex items-center justify-center w-10 h-10 rounded-lg transition-all",
+                    isActive ? "bg-white/20" : "bg-white/10 group-hover:bg-white/15"
+                  )}>
+                    <item.icon className={cn(
+                      "h-5 w-5 transition-all",
+                      isActive ? "text-white" : "text-[var(--vm-primary)] group-hover:scale-110"
+                    )} />
+                  </div>
+                  <div className="flex-1">
+                    <div className={cn(
+                      "font-semibold text-sm",
+                      isActive ? "text-white" : "text-[var(--vm-text-primary)]"
+                    )}>
+                      {item.name}
+                    </div>
+                    <div className={cn(
+                      "text-xs",
+                      isActive ? "text-white/80" : "text-[var(--vm-text-secondary)]"
+                    )}>
+                      {item.description}
+                    </div>
+                  </div>
+                  {isActive && (
+                    <div className="w-2 h-2 rounded-full bg-white/60 animate-pulse" />
+                  )}
+                </button>
+              </div>
             )
           })}
         </nav>
 
-        {/* User section */}
-        <div className="border-t p-4">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-              <span className="text-sm font-medium">
-                {user?.email?.[0]?.toUpperCase() || 'U'}
-              </span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{user?.email}</p>
-              <p className="text-xs text-muted-foreground">Free Plan</p>
+        {/* Premium User Section */}
+        <div className="p-4" style={{ borderTop: '1px solid var(--vm-border)' }}>
+          <div className="vm-card p-4 mb-3">
+            <div className="flex items-center gap-3 mb-3">
+              <div 
+                className="h-12 w-12 rounded-full flex items-center justify-center vm-glow relative"
+                style={{ background: 'var(--vm-gradient-primary)' }}
+              >
+                <span className="text-lg font-bold" style={{ color: 'var(--vm-background)' }}>
+                  {user?.email?.[0]?.toUpperCase() || 'U'}
+                </span>
+                <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full"
+                     style={{ background: 'var(--vm-success)' }}>
+                  <div className="w-2 h-2 rounded-full bg-white m-1" />
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-sm truncate" style={{ color: 'var(--vm-text-primary)' }}>
+                  {user?.email}
+                </p>
+                <div className="flex items-center gap-2">
+                  <div className="px-2 py-0.5 rounded-full text-xs font-medium"
+                       style={{ 
+                         background: 'var(--vm-gradient-primary)', 
+                         color: 'var(--vm-background)' 
+                       }}>
+                    Pro Plan
+                  </div>
+                  <Activity className="h-3 w-3" style={{ color: 'var(--vm-success)' }} />
+                </div>
+              </div>
             </div>
           </div>
-          <Button 
-            variant="outline" 
-            className="w-full" 
+          
+          <button 
+            className="vm-button-primary w-full flex items-center justify-center gap-2 hover:transform hover:scale-105"
             onClick={handleSignOut}
           >
-            <LogOut className="mr-2 h-4 w-4" />
-            Sign Out
-          </Button>
+            <LogOut className="h-4 w-4" />
+            <span className="font-semibold">Sign Out</span>
+          </button>
         </div>
       </div>
 
-      {/* Main content */}
-      <div className="lg:pl-72">
-        {/* Top bar */}
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-6">
+      {/* Revolutionary Main Content */}
+      <div className="lg:pl-80">
+        {/* Futuristic Top Bar */}
+        <header 
+          className="sticky top-0 z-30 flex h-16 items-center gap-4 px-6 backdrop-blur-xl"
+          style={{ 
+            background: 'rgba(10, 10, 11, 0.95)',
+            borderBottom: '1px solid var(--vm-border)'
+          }}
+        >
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden"
+            className="lg:hidden hover:bg-white/10"
             onClick={() => setSidebarOpen(true)}
           >
-            <Menu className="h-5 w-5" />
+            <Menu className="h-5 w-5" style={{ color: 'var(--vm-text-primary)' }} />
           </Button>
+          
+          {/* Breadcrumb indicator */}
+          <div className="flex items-center gap-2 ml-auto">
+            <div className="h-2 w-2 rounded-full animate-pulse" style={{ background: 'var(--vm-success)' }} />
+            <span className="text-sm font-medium vm-text-muted">System Online</span>
+          </div>
         </header>
 
-        {/* Page content */}
-        <main className="p-6">
-          {children}
+        {/* Enhanced Page Content */}
+        <main className="p-6" style={{ background: 'var(--vm-background)' }}>
+          <div className="max-w-7xl mx-auto">
+            {children}
+          </div>
         </main>
       </div>
     </div>

@@ -1,26 +1,169 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Voice Matrix Brand Colors - Matching Logo */
+  --vm-primary: #F5A623;      /* Golden from logo */
+  --vm-primary-light: #FFB84D;
+  --vm-primary-dark: #E09415;
+  
+  --vm-background: #0A0A0B;    /* Deep black */
+  --vm-surface: #1A1A1B;      /* Card backgrounds */
+  --vm-surface-elevated: #2A2A2B; /* Elevated elements */
+  --vm-surface-hover: #353536; /* Hover states */
+  
+  --vm-text-primary: #FFFFFF;  /* High contrast white */
+  --vm-text-secondary: #A0A0A0; /* Muted text */
+  --vm-text-tertiary: #6B6B6B;  /* Subtle text */
+  
+  --vm-accent: #00D4FF;        /* Tech blue accent */
+  --vm-success: #00FF88;       /* Success green */
+  --vm-warning: #FF6B00;       /* Warning orange */
+  --vm-error: #FF3366;         /* Error red */
+  
+  --vm-border: rgba(245, 166, 35, 0.2); /* Golden border */
+  --vm-border-hover: rgba(245, 166, 35, 0.4);
+  
+  /* Gradients */
+  --vm-gradient-primary: linear-gradient(135deg, #F5A623 0%, #E09415 100%);
+  --vm-gradient-surface: linear-gradient(135deg, #1A1A1B 0%, #2A2A2B 100%);
+  --vm-gradient-glow: linear-gradient(135deg, rgba(245, 166, 35, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
+  
+  /* Shadows */
+  --vm-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.5);
+  --vm-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
+  --vm-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.7);
+  --vm-shadow-glow: 0 0 20px rgba(245, 166, 35, 0.3);
+  
+  /* Fonts */
+  --vm-font-display: 'Orbitron', monospace;
+  --vm-font-body: 'Inter', sans-serif;
+  --vm-font-mono: 'JetBrains Mono', monospace;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--vm-background);
+  --color-foreground: var(--vm-text-primary);
+  --color-primary: var(--vm-primary);
+  --color-secondary: var(--vm-surface);
+  --color-accent: var(--vm-accent);
+  --color-muted: var(--vm-text-secondary);
+  --font-sans: var(--vm-font-body);
+  --font-mono: var(--vm-font-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--vm-background);
+  color: var(--vm-text-primary);
+  font-family: var(--vm-font-body);
+  font-weight: 400;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+/* Voice Matrix Professional Styling */
+.vm-card {
+  background: var(--vm-gradient-surface);
+  border: 1px solid var(--vm-border);
+  border-radius: 12px;
+  box-shadow: var(--vm-shadow-md);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.vm-card:hover {
+  border-color: var(--vm-border-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--vm-shadow-lg);
+}
+
+.vm-button-primary {
+  background: var(--vm-gradient-primary);
+  color: var(--vm-background);
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--vm-shadow-sm);
+}
+
+.vm-button-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--vm-shadow-glow);
+}
+
+.vm-input {
+  background: var(--vm-surface);
+  border: 1px solid var(--vm-border);
+  border-radius: 8px;
+  color: var(--vm-text-primary);
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.vm-input:focus {
+  outline: none;
+  border-color: var(--vm-primary);
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.1);
+}
+
+.vm-input::placeholder {
+  color: var(--vm-text-tertiary);
+  font-weight: 400;
+}
+
+.vm-heading {
+  font-family: var(--vm-font-display);
+  font-weight: 700;
+  color: var(--vm-text-primary);
+}
+
+.vm-text-muted {
+  color: var(--vm-text-secondary);
+}
+
+.vm-border {
+  border-color: var(--vm-border);
+}
+
+.vm-glow {
+  box-shadow: var(--vm-shadow-glow);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--vm-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--vm-primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--vm-primary-light);
+}
+
+/* Selection Styling */
+::selection {
+  background: var(--vm-primary);
+  color: var(--vm-background);
 }

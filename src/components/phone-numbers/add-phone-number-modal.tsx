@@ -152,13 +152,12 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
   const canProceedToConfig = () => {
     const friendlyName = watch('friendlyName')
     const phoneNumber = watch('phoneNumber')
-    const provider = watch('provider')
     
-    return friendlyName && phoneNumber && provider
+    return friendlyName && phoneNumber
   }
 
   const canProceedToAssign = () => {
-    if (selectedProvider === 'testing') return true
+    // For Twilio, need credentials
     
     const accountSid = watch('twilioAccountSid')
     const authToken = watch('twilioAuthToken')
