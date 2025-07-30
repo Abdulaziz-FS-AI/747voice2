@@ -53,20 +53,20 @@ export function EvaluationSelector({ selectedRubric, onRubricChange, className }
             )}
           </SelectValue>
         </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="none">
-            <div className="flex items-center gap-2">
-              <span>❌</span>
-              <span>No Evaluation</span>
+        <SelectContent className="bg-gray-900 border-gray-700">
+          <SelectItem value="none" className="text-white hover:bg-gray-800 focus:bg-gray-800">
+            <div className="flex items-center gap-3 py-1">
+              <span className="text-base flex-shrink-0">❌</span>
+              <span className="font-medium text-sm">No Evaluation</span>
             </div>
           </SelectItem>
           {EVALUATION_RUBRICS.map((rubric) => (
-            <SelectItem key={rubric.value} value={rubric.value}>
-              <div className="flex items-center gap-2">
-                <span>{getRubricIcon(rubric.value)}</span>
-                <div className="flex flex-col">
-                  <span>{rubric.label}</span>
-                  <span className="text-xs text-muted-foreground">{rubric.description}</span>
+            <SelectItem key={rubric.value} value={rubric.value} className="text-white hover:bg-gray-800 focus:bg-gray-800">
+              <div className="flex items-start gap-3 py-2">
+                <span className="text-base flex-shrink-0 mt-0.5">{getRubricIcon(rubric.value)}</span>
+                <div className="flex flex-col gap-1 min-w-0">
+                  <span className="font-semibold text-sm text-white leading-tight">{rubric.label}</span>
+                  <span className="text-xs text-gray-400 leading-relaxed line-clamp-2">{rubric.description}</span>
                 </div>
               </div>
             </SelectItem>

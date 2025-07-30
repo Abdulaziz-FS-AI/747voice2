@@ -39,15 +39,15 @@ export function ModelSelector({ selectedModel, onModelSelect, className }: Model
       <div className="space-y-2">
         <Label htmlFor="model-select">AI Model *</Label>
         <Select value={selectedModel} onValueChange={onModelSelect}>
-          <SelectTrigger className="vm-input">
+          <SelectTrigger className="bg-gray-900 border-gray-700 text-white placeholder-gray-400 text-sm focus:border-orange-400 focus:ring-orange-400">
             <SelectValue placeholder="Select a model" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-gray-900 border-gray-700">
             {modelOptions.map((model) => (
-              <SelectItem key={model.id} value={model.id}>
-                <div>
-                  <div className="font-medium">{model.label}</div>
-                  <div className="text-xs text-muted-foreground">{model.description}</div>
+              <SelectItem key={model.id} value={model.id} className="text-white hover:bg-gray-800 focus:bg-gray-800">
+                <div className="py-2">
+                  <div className="font-semibold text-sm text-white leading-tight">{model.label}</div>
+                  <div className="text-xs text-gray-400 leading-relaxed mt-1">{model.description}</div>
                 </div>
               </SelectItem>
             ))}
