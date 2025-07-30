@@ -121,6 +121,7 @@ class VapiClient {
     analysisPlan?: any;
     serverUrl?: string;
     serverUrlSecret?: string;
+    serverMessages?: string[];
     endCallMessage?: string;
     recordingEnabled?: boolean;
     fillersEnabled?: boolean;
@@ -163,6 +164,9 @@ class VapiClient {
       ...(assistantData.serverUrl && {
         serverUrl: assistantData.serverUrl,
         serverUrlSecret: assistantData.serverUrlSecret || '',
+        ...(assistantData.serverMessages && {
+          serverMessages: assistantData.serverMessages,
+        }),
       }),
       ...(assistantData.endCallMessage && {
         endCallMessage: assistantData.endCallMessage,
@@ -428,8 +432,9 @@ export async function createVapiAssistant(assistantData: {
       maxDurationSeconds: assistantData.maxDurationSeconds || 300,
       backgroundSound: assistantData.backgroundSound || 'office',
       analysisPlan: analysisPlan,
-      serverUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://747voice-tau.vercel.app'}/api/webhooks/vapi`,
-      serverUrlSecret: process.env.VAPI_WEBHOOK_SECRET || 'd64785c3a91b6ba5c6a7b5fab7ee5ea1df2857f0e9cf62efda8f58179811d5de',
+      serverUrl: 'https://hook.eu2.make.com/m3olq7ealo40xevpjdar7573j2cst9uk',
+      serverUrlSecret: 'k8sP2hGfD8jL5vZbN4pRqWcVfHjG5dEmP7sTzXyA1bC3eF6gHjKl',
+      serverMessages: ['end-of-call-report'],
       endCallMessage: "Thank you for calling! Have a great day!",
       recordingEnabled: true,
       fillersEnabled: true,
