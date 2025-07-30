@@ -62,8 +62,8 @@ async function handleCallEnd(supabase: ReturnType<typeof createServiceRoleClient
 
   // Find the assistant in our database
   const { data: assistant } = await supabase
-    .from('assistants')
-    .select('id, user_id')
+    .from('user_assistants')
+    .select('id')
     .eq('vapi_assistant_id', call.assistantId)
     .single();
 
@@ -109,18 +109,14 @@ async function handleCallEnd(supabase: ReturnType<typeof createServiceRoleClient
         vapi_call_id: call.id,
         assistant_id: assistant.id,
         phone_number_id: event.phoneNumberId || null,
-        user_id: assistant.user_id,
         caller_number: 'unknown',
-        caller_name: null,
-        status: call.status,
-        direction: 'inbound',
+        call_status: call.status,
         started_at: call.startedAt ? new Date(call.startedAt).toISOString() : new Date().toISOString(),
         ended_at: call.endedAt ? new Date(call.endedAt).toISOString() : new Date().toISOString(),
-        duration: call.endedAt && call.startedAt ? 
+        duration_seconds: call.endedAt && call.startedAt ? 
           Math.floor((new Date(call.endedAt).getTime() - new Date(call.startedAt).getTime()) / 1000) : 0,
-        cost: call.cost || 0,
+        cost_cents: Math.round((call.cost || 0) * 100),
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
       })
       .select('*')
       .single();
