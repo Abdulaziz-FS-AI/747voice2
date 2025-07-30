@@ -36,6 +36,11 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
+  // Allow auth callback route without authentication
+  if (request.nextUrl.pathname === '/auth/callback') {
+    return response
+  }
+
   // Protect dashboard routes
   if (request.nextUrl.pathname.startsWith('/dashboard')) {
     if (!user) {

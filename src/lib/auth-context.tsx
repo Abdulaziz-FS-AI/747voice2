@@ -29,8 +29,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state change:', event, session?.user?.email)
       setUser(session?.user ?? null)
       setLoading(false)
+      
+      // Handle successful sign in
+      if (event === 'SIGNED_IN' && session?.user) {
+        // Only redirect if we're on the auth callback page
+        if (window.location.pathname === '/auth/callback') {
+          window.location.href = '/dashboard'
+        }
+      }
     })
 
     return () => subscription.unsubscribe()
@@ -44,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/dashboard`
+        redirectTo: `${window.location.origin}/auth/callback`
       }
     })
     

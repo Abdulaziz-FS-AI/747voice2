@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowRight, Play, Check, Star, MessageSquare, Phone, BarChart3, Users, Shield, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -9,15 +9,25 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/lib/auth-context'
 
-export default function HomePage() {
+function HomeContent() {
   const { user, loading } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     if (!loading && user) {
+      console.log('User authenticated, redirecting to dashboard:', user.email)
       router.push('/dashboard')
     }
   }, [user, loading, router])
+
+  useEffect(() => {
+    // Check for error messages in URL params
+    const error = searchParams.get('error')
+    if (error) {
+      console.error('Auth error from URL:', error)
+    }
+  }, [searchParams])
 
   if (loading) {
     return (
@@ -372,5 +382,20 @@ export default function HomePage() {
         </div>
       </footer>
     </div>
+  )
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-blue-600 mb-4">Voice Matrix</h1>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+        </div>
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
   )
 }

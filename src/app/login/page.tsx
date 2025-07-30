@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClientSupabaseClient } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth-context'
@@ -12,15 +12,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { AlertCircle, Loader2, Mic, Zap, Mail } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 
-export default function LoginPage() {
+function LoginContent() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClientSupabaseClient()
   const { signInWithGoogle } = useAuth()
+
+  useEffect(() => {
+    // Check for error messages in URL params
+    const urlError = searchParams.get('error')
+    if (urlError) {
+      setError(decodeURIComponent(urlError))
+    }
+  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -203,5 +212,30 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center" 
+           style={{ background: 'var(--vm-background)' }}>
+        <div className="text-center">
+          <div className="relative">
+            <div 
+              className="h-16 w-16 rounded-full flex items-center justify-center vm-glow mx-auto mb-4"
+              style={{ background: 'var(--vm-gradient-primary)' }}
+            >
+              <div className="h-6 w-6 border-2 border-t-transparent rounded-full animate-spin"
+                   style={{ borderColor: 'var(--vm-background)', borderTopColor: 'transparent' }} />
+            </div>
+          </div>
+          <h2 className="vm-heading text-xl font-semibold mb-2">Loading...</h2>
+          <p className="vm-text-muted">Preparing sign in page.</p>
+        </div>
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   )
 }
