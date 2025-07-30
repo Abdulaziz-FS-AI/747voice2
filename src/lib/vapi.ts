@@ -313,7 +313,6 @@ export async function createVapiAssistant(assistantData: {
   firstMessage?: string;
   firstMessageMode?: 'assistant-speaks-first' | 'user-speaks-first';
   voiceId?: string;
-  language?: string;
   maxDurationSeconds?: number;
   backgroundSound?: 'off' | 'office';
   structuredQuestions?: Array<{
@@ -359,7 +358,7 @@ export async function createVapiAssistant(assistantData: {
     // Transcriber configuration
     const transcriberConfig: VapiTranscriber = {
       provider: 'assembly-ai',
-      language: assistantData.language?.substring(0, 2) || 'en',
+      language: 'en',
     };
 
     // Create analysis plan for structured data and evaluation
@@ -443,7 +442,6 @@ export async function updateVapiAssistant(
     systemPrompt: string;
     firstMessage: string;
     voiceId: string;
-    language: string;
   }>
 ) {
   if (!vapiClient) {

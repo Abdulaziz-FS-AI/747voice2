@@ -2,41 +2,41 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
 
 :root {
-  /* Voice Matrix Brand Colors - Matching Logo */
-  --vm-primary: #F5A623;      /* Golden from logo */
-  --vm-primary-light: #FFB84D;
-  --vm-primary-dark: #E09415;
+  /* Voice Matrix Brand Colors - Calming & Professional */
+  --vm-primary: #5B9BD5;      /* Soft blue */
+  --vm-primary-light: #7BB3E0;
+  --vm-primary-dark: #4A8BC2;
   
-  --vm-background: #0A0A0B;    /* Deep black */
-  --vm-surface: #1A1A1B;      /* Card backgrounds */
-  --vm-surface-elevated: #2A2A2B; /* Elevated elements */
-  --vm-surface-hover: #353536; /* Hover states */
+  --vm-background: #FAFBFC;    /* Very light gray */
+  --vm-surface: #FFFFFF;      /* Pure white cards */
+  --vm-surface-elevated: #F8F9FA; /* Slightly elevated */
+  --vm-surface-hover: #F1F3F5; /* Subtle hover */
   
-  --vm-text-primary: #FFFFFF;  /* High contrast white */
-  --vm-text-secondary: #A0A0A0; /* Muted text */
-  --vm-text-tertiary: #6B6B6B;  /* Subtle text */
+  --vm-text-primary: #2D3748;  /* Dark gray text */
+  --vm-text-secondary: #718096; /* Medium gray */
+  --vm-text-tertiary: #A0AEC0;  /* Light gray */
   
-  --vm-accent: #00D4FF;        /* Tech blue accent */
-  --vm-success: #00FF88;       /* Success green */
-  --vm-warning: #FF6B00;       /* Warning orange */
-  --vm-error: #FF3366;         /* Error red */
+  --vm-accent: #48BB78;        /* Soft green accent */
+  --vm-success: #38A169;       /* Success green */
+  --vm-warning: #ED8936;       /* Warning orange */
+  --vm-error: #E53E3E;         /* Error red */
   
-  --vm-border: rgba(245, 166, 35, 0.2); /* Golden border */
-  --vm-border-hover: rgba(245, 166, 35, 0.4);
+  --vm-border: rgba(91, 155, 213, 0.15); /* Soft blue border */
+  --vm-border-hover: rgba(91, 155, 213, 0.25);
   
   /* Gradients */
-  --vm-gradient-primary: linear-gradient(135deg, #F5A623 0%, #E09415 100%);
-  --vm-gradient-surface: linear-gradient(135deg, #1A1A1B 0%, #2A2A2B 100%);
-  --vm-gradient-glow: linear-gradient(135deg, rgba(245, 166, 35, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
+  --vm-gradient-primary: linear-gradient(135deg, #5B9BD5 0%, #4A8BC2 100%);
+  --vm-gradient-surface: linear-gradient(135deg, #FFFFFF 0%, #F8F9FA 100%);
+  --vm-gradient-glow: linear-gradient(135deg, rgba(91, 155, 213, 0.05) 0%, rgba(72, 187, 120, 0.05) 100%);
   
   /* Shadows */
-  --vm-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.5);
-  --vm-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
-  --vm-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.7);
-  --vm-shadow-glow: 0 0 20px rgba(245, 166, 35, 0.3);
+  --vm-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+  --vm-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --vm-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --vm-shadow-glow: 0 0 20px rgba(91, 155, 213, 0.15);
   
   /* Fonts */
-  --vm-font-display: 'Orbitron', monospace;
+  --vm-font-display: 'Inter', sans-serif;
   --vm-font-body: 'Inter', sans-serif;
   --vm-font-mono: 'JetBrains Mono', monospace;
 }
@@ -88,7 +88,7 @@ body {
 
 .vm-button-primary {
   background: var(--vm-gradient-primary);
-  color: var(--vm-background);
+  color: white;
   font-weight: 600;
   border: none;
   border-radius: 8px;
@@ -118,7 +118,7 @@ body {
 .vm-input:focus {
   outline: none;
   border-color: var(--vm-primary);
-  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.1);
+  box-shadow: 0 0 0 3px rgba(91, 155, 213, 0.1);
 }
 
 .vm-input::placeholder {
@@ -165,5 +165,5 @@ body {
 /* Selection Styling */
 ::selection {
   background: var(--vm-primary);
-  color: var(--vm-background);
+  color: white;
 }

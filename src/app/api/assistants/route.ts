@@ -26,7 +26,6 @@ const CreateAssistantSchema = z.object({
   model_id: z.string().optional().default('gpt-4.1-mini-2025-04-14'),
   voice_id: z.string().optional().default('Elliot'),
   max_call_duration: z.number().min(30).max(600).default(300), // Max 10 minutes
-  language: z.string().max(10).default('en-US'),
   first_message: z.string().min(1, 'First message is required'),
   first_message_mode: z.enum(['assistant-speaks-first', 'user-speaks-first']).default('assistant-speaks-first'),
   background_sound: z.enum(['off', 'office']).default('office'),
@@ -143,7 +142,6 @@ export async function POST(request: NextRequest) {
         first_message_mode: validatedData.first_message_mode,
         voice_id: validatedData.voice_id,
         max_call_duration: validatedData.max_call_duration,
-        language: validatedData.language,
         background_sound: validatedData.background_sound,
         structured_questions: validatedData.structured_questions,
         evaluation_rubric: validatedData.evaluation_rubric,
@@ -168,7 +166,6 @@ export async function POST(request: NextRequest) {
         firstMessage: firstMessage,
         firstMessageMode: validatedData.first_message_mode,
         voiceId: validatedData.voice_id,
-        language: validatedData.language,
         maxDurationSeconds: validatedData.max_call_duration,
         backgroundSound: validatedData.background_sound,
         structuredQuestions: validatedData.structured_questions,
