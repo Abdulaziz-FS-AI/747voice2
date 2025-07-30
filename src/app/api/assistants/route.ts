@@ -34,10 +34,10 @@ const CreateAssistantSchema = z.object({
     'NumericScale', 'DescriptiveScale', 'Checklist', 'Matrix', 
     'PercentageScale', 'LikertScale', 'AutomaticRubric', 'PassFail'
   ]).optional().nullable(),
-  // Template support
-  template_id: z.string().optional(),
-  agent_name: z.string().optional(),
-  tone: z.string().optional()
+  // Template support (commented out until database has these columns)
+  // template_id: z.string().optional(),
+  // agent_name: z.string().optional(),
+  // tone: z.string().optional()
 });
 
 // Validation schema for updating assistants
@@ -212,10 +212,10 @@ export async function POST(request: NextRequest) {
       background_sound: validatedData.background_sound,
       structured_questions: validatedData.structured_questions,
       evaluation_rubric: validatedData.evaluation_rubric,
-      template_id: validatedData.template_id,
-      agent_name: validatedData.agent_name,
-      tone: validatedData.tone,
-      generated_system_prompt: systemPrompt, // Store the final merged prompt
+      // template_id: validatedData.template_id,
+      // agent_name: validatedData.agent_name,
+      // tone: validatedData.tone,
+      // generated_system_prompt: systemPrompt, // Store the final merged prompt
       is_active: true
     };
     console.log('[Assistant API] Insert data:', JSON.stringify(insertData, null, 2));
