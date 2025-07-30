@@ -108,14 +108,21 @@ export async function GET(request: NextRequest) {
 // POST /api/assistants - Create a new assistant
 export async function POST(request: NextRequest) {
   try {
+    console.log('[Assistant API] Starting POST request');
+    
     const { user, profile } = await requirePermission('basic');
+    console.log('[Assistant API] User authenticated:', user.id);
+    
     const body = await request.json();
+    console.log('[Assistant API] Request body received:', JSON.stringify(body, null, 2));
 
     // Check subscription limits
     await checkSubscriptionLimits(user.id, 'assistants', 1);
+    console.log('[Assistant API] Subscription limits checked');
 
     // Validate input
     const validatedData = CreateAssistantSchema.parse(body);
+    console.log('[Assistant API] Data validated successfully');
 
     const supabase = createServiceRoleClient();
 
@@ -189,35 +196,48 @@ export async function POST(request: NextRequest) {
     }
 
     // Create assistant (using simplified schema)
+    console.log('[Assistant API] Preparing database insert');
+    const insertData = {
+      user_id: user.id,
+      name: validatedData.name,
+      personality: validatedData.personality,
+      personality_traits: validatedData.personality_traits,
+      company_name: validatedData.company_name,
+      model_id: validatedData.model_id,
+      system_prompt: systemPrompt,
+      first_message: firstMessage,
+      first_message_mode: validatedData.first_message_mode,
+      voice_id: validatedData.voice_id,
+      max_call_duration: validatedData.max_call_duration,
+      background_sound: validatedData.background_sound,
+      structured_questions: validatedData.structured_questions,
+      evaluation_rubric: validatedData.evaluation_rubric,
+      template_id: validatedData.template_id,
+      agent_name: validatedData.agent_name,
+      tone: validatedData.tone,
+      generated_system_prompt: systemPrompt, // Store the final merged prompt
+      is_active: true
+    };
+    console.log('[Assistant API] Insert data:', JSON.stringify(insertData, null, 2));
+    
     const { data: assistant, error } = await supabase
       .from('assistants')
-      .insert({
-        user_id: user.id,
-        name: validatedData.name,
-        personality: validatedData.personality,
-        personality_traits: validatedData.personality_traits,
-        company_name: validatedData.company_name,
-        model_id: validatedData.model_id,
-        system_prompt: systemPrompt,
-        first_message: firstMessage,
-        first_message_mode: validatedData.first_message_mode,
-        voice_id: validatedData.voice_id,
-        max_call_duration: validatedData.max_call_duration,
-        background_sound: validatedData.background_sound,
-        structured_questions: validatedData.structured_questions,
-        evaluation_rubric: validatedData.evaluation_rubric,
-        template_id: validatedData.template_id,
-        agent_name: validatedData.agent_name,
-        tone: validatedData.tone,
-        generated_system_prompt: systemPrompt, // Store the final merged prompt
-        is_active: true
-      })
+      .insert(insertData)
       .select('*')
       .single();
 
     if (error) {
+      console.error('[Assistant API] Database insert error:', error);
+      console.error('[Assistant API] Error details:', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint
+      });
       throw error;
     }
+    
+    console.log('[Assistant API] Assistant created in database:', assistant.id);
 
     // Questions functionality removed for simplified schema
 
@@ -286,6 +306,13 @@ export async function POST(request: NextRequest) {
       message: 'Assistant created successfully',
     }, { status: 201 });
   } catch (error) {
+    console.error('[Assistant API] Error in POST:', error);
+    console.error('[Assistant API] Error stack:', error instanceof Error ? error.stack : 'No stack');
+    console.error('[Assistant API] Error details:', {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : String(error),
+      cause: error instanceof Error && 'cause' in error ? error.cause : undefined,
+    });
     return handleAPIError(error);
   }
 }
