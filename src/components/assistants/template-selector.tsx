@@ -25,6 +25,7 @@ export function TemplateSelector({ onSelectTemplate, onSkip }: TemplateSelectorP
   const [templates, setTemplates] = useState<Template[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
+  const [isProcessing, setIsProcessing] = useState(false)
   const supabase = createClientSupabaseClient()
 
   useEffect(() => {
@@ -60,13 +61,53 @@ export function TemplateSelector({ onSelectTemplate, onSkip }: TemplateSelectorP
   }
 
   const handleSelectTemplate = async (templateId: string) => {
+    // Prevent double-clicks and rapid consecutive calls
+    if (isProcessing) {
+      console.log('Template selection already in progress, ignoring duplicate call')
+      return
+    }
+    
+    setIsProcessing(true)
     setSelectedTemplate(templateId)
     
-    // Since we don't have template_questions table, pass empty questions for now
-    // In the future, this could be populated from customizable_fields in templates
-    const questions: any[] = []
+    try {
+      // Since we don't have template_questions table, pass empty questions for now
+      // In the future, this could be populated from customizable_fields in templates
+      const questions: any[] = []
 
-    onSelectTemplate(templateId, questions)
+      console.log('Selecting template:', templateId)
+      onSelectTemplate(templateId, questions)
+    } catch (error) {
+      console.error('Error selecting template:', error)
+      setSelectedTemplate(null)
+    } finally {
+      // Reset processing state after a short delay to prevent rapid clicks
+      setTimeout(() => {
+        setIsProcessing(false)
+      }, 1000)
+    }
+  }
+
+  const handleSkip = () => {
+    // Prevent double-clicks
+    if (isProcessing) {
+      console.log('Skip already in progress, ignoring duplicate call')
+      return
+    }
+    
+    setIsProcessing(true)
+    
+    try {
+      console.log('Skipping template selection')
+      onSkip()
+    } catch (error) {
+      console.error('Error skipping template:', error)
+    } finally {
+      // Reset processing state after a short delay
+      setTimeout(() => {
+        setIsProcessing(false)
+      }, 1000)
+    }
   }
 
   if (loading) {
@@ -93,12 +134,11 @@ export function TemplateSelector({ onSelectTemplate, onSkip }: TemplateSelectorP
         {templates.map((template) => (
           <Card 
             key={template.id} 
-            className={`vm-card transition-all duration-300 cursor-pointer ${
+            className={`vm-card transition-all duration-300 ${
               selectedTemplate === template.id 
                 ? 'ring-2 ring-orange-400 bg-gradient-to-br from-orange-900/20 to-gray-900' 
                 : 'hover:ring-1 hover:ring-gray-600'
             }`}
-            onClick={() => handleSelectTemplate(template.id)}
           >
             <CardHeader>
               <div className="flex items-start justify-between">
@@ -123,22 +163,27 @@ export function TemplateSelector({ onSelectTemplate, onSkip }: TemplateSelectorP
             </CardContent>
             <CardFooter>
               <Button 
-                onClick={() => handleSelectTemplate(template.id)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleSelectTemplate(template.id);
+                }}
+                disabled={isProcessing}
                 className={
                   selectedTemplate === template.id 
-                    ? 'w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white'
-                    : 'w-full bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white'
+                    ? 'w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white disabled:opacity-50'
+                    : 'w-full bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white disabled:opacity-50'
                 }
                 variant={selectedTemplate === template.id ? 'default' : 'outline'}
               >
-                {selectedTemplate === template.id ? 'Selected' : 'Use Template'}
+                {isProcessing ? 'Processing...' : (selectedTemplate === template.id ? 'Selected' : 'Use Template')}
               </Button>
             </CardFooter>
           </Card>
         ))}
 
         {/* Start from Scratch option */}
-        <Card className="vm-card hover:ring-1 hover:ring-gray-600 cursor-pointer" onClick={onSkip}>
+        <Card className="vm-card hover:ring-1 hover:ring-gray-600">
           <CardHeader>
             <div className="flex items-start justify-between">
               <FileText className="h-8 w-8 text-gray-400" />
@@ -153,11 +198,16 @@ export function TemplateSelector({ onSelectTemplate, onSkip }: TemplateSelectorP
           </CardContent>
           <CardFooter>
             <Button 
-              onClick={onSkip} 
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSkip();
+              }}
+              disabled={isProcessing}
               variant="outline" 
-              className="w-full bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
+              className="w-full bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white disabled:opacity-50"
             >
-              Start Fresh
+              {isProcessing ? 'Processing...' : 'Start Fresh'}
             </Button>
           </CardFooter>
         </Card>

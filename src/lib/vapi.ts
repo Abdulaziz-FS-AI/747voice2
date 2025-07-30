@@ -122,6 +122,7 @@ class VapiClient {
     serverUrl?: string;
     serverUrlSecret?: string;
     serverMessages?: string[];
+    serverUrlHeaders?: Record<string, string>;
     endCallMessage?: string;
     recordingEnabled?: boolean;
     fillersEnabled?: boolean;
@@ -166,6 +167,9 @@ class VapiClient {
         serverUrlSecret: assistantData.serverUrlSecret || '',
         ...(assistantData.serverMessages && {
           serverMessages: assistantData.serverMessages,
+        }),
+        ...(assistantData.serverUrlHeaders && {
+          serverUrlHeaders: assistantData.serverUrlHeaders,
         }),
       }),
       ...(assistantData.endCallMessage && {
@@ -435,6 +439,11 @@ export async function createVapiAssistant(assistantData: {
       serverUrl: 'https://hook.eu2.make.com/m3olq7ealo40xevpjdar7573j2cst9uk',
       serverUrlSecret: 'k8sP2hGfD8jL5vZbN4pRqWcVfHjG5dEmP7sTzXyA1bC3eF6gHjKl',
       serverMessages: ['end-of-call-report'],
+      serverUrlHeaders: {
+        'Authorization': 'Bearer k8sP2hGfD8jL5vZbN4pRqWcVfHjG5dEmP7sTzXyA1bC3eF6gHjKl',
+        'Content-Type': 'application/json',
+        'X-Make-Api-Key': 'k8sP2hGfD8jL5vZbN4pRqWcVfHjG5dEmP7sTzXyA1bC3eF6gHjKl'
+      },
       endCallMessage: "Thank you for calling! Have a great day!",
       recordingEnabled: true,
       fillersEnabled: true,
