@@ -33,7 +33,6 @@ interface VAPIPhoneNumberPayload {
     type: 'number'
     message?: string
     number: string
-    numberE164CheckEnabled?: boolean
     extension?: string
     callerId?: string
     description?: string
@@ -46,14 +45,12 @@ interface VAPIPhoneNumberPayload {
         type: 'number'
         message?: string
         number: string
-        numberE164CheckEnabled?: boolean
         extension?: string
         callerId?: string
         description?: string
       }
     }>
   }>
-  numberE164CheckEnabled?: boolean
 }
 
 

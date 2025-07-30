@@ -41,7 +41,8 @@ export async function GET(request: NextRequest) {
         assistants:assigned_assistant_id (
           id,
           name,
-          agent_name
+          agent_name,
+          vapi_assistant_id
         )
       `)
       .eq('user_id', user.id)
