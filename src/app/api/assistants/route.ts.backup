@@ -4,6 +4,8 @@ import { handleAPIError } from '@/lib/errors';
 import { createServiceRoleClient } from '@/lib/supabase';
 import { createVapiAssistant } from '@/lib/vapi';
 import { z } from 'zod';
+import { EvaluationRubric } from '@/lib/structured-data';
+// Removed prompt-builder imports for simplified schema
 
 // Structured question schema
 const StructuredQuestionSchema = z.object({
@@ -15,7 +17,7 @@ const StructuredQuestionSchema = z.object({
   required: z.boolean()
 });
 
-// Validation schema for creating assistants (matching your database)
+// Validation schema for creating assistants (simplified)
 const CreateAssistantSchema = z.object({
   name: z.string().min(1).max(255),
   company_name: z.string().optional(),
@@ -23,7 +25,7 @@ const CreateAssistantSchema = z.object({
   personality_traits: z.array(z.string()).optional().default(['professional']),
   model_id: z.string().optional().default('gpt-4.1-mini-2025-04-14'),
   voice_id: z.string().optional().default('Elliot'),
-  max_call_duration: z.number().min(30).max(600).default(300),
+  max_call_duration: z.number().min(30).max(600).default(300), // Max 10 minutes
   first_message: z.string().min(1, 'First message is required'),
   first_message_mode: z.enum(['assistant-speaks-first', 'user-speaks-first']).default('assistant-speaks-first'),
   background_sound: z.enum(['off', 'office']).default('office'),
@@ -32,13 +34,17 @@ const CreateAssistantSchema = z.object({
     'NumericScale', 'DescriptiveScale', 'Checklist', 'Matrix', 
     'PercentageScale', 'LikertScale', 'AutomaticRubric', 'PassFail'
   ]).optional().nullable(),
+  // Template support
   template_id: z.string().uuid().optional()
 });
+
+// Validation schema for updating assistants
+const UpdateAssistantSchema = CreateAssistantSchema.partial();
 
 // GET /api/assistants - Get all assistants for the user's team
 export async function GET(request: NextRequest) {
   try {
-    const { user } = await authenticateRequest();
+    const { user, profile } = await authenticateRequest();
     const { searchParams } = new URL(request.url);
     
     // Query parameters
@@ -46,6 +52,7 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(parseInt(searchParams.get('limit') || '10'), 50);
     const search = searchParams.get('search');
     const isActive = searchParams.get('active');
+    const personality = searchParams.get('personality');
 
     const supabase = createServiceRoleClient();
 
@@ -53,12 +60,20 @@ export async function GET(request: NextRequest) {
       .from('user_assistants')
       .select('*', { count: 'exact' });
 
-    // Filter by user
+    // Filter by user (single-user architecture)
     query = query.eq('user_id', user.id);
 
     // Apply filters
     if (search) {
       query = query.ilike('name', `%${search}%`);
+    }
+
+    if (isActive !== null) {
+      query = query.eq('is_active', isActive === 'true');
+    }
+
+    if (personality) {
+      query = query.eq('personality', personality);
     }
 
     // Apply pagination
@@ -114,8 +129,7 @@ export async function POST(request: NextRequest) {
 
     // Check if using a template
     if (validatedData.template_id) {
-      console.log('[Assistant API] Fetching template:', validatedData.template_id);
-      
+      // Fetch template from your actual templates table
       const { data: template, error: templateError } = await supabase
         .from('templates')
         .select('*')
@@ -124,24 +138,44 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (templateError || !template) {
-        console.error('[Assistant API] Template not found:', templateError);
         throw new Error('Template not found');
       }
 
       console.log('[Assistant API] Using template:', template.name);
-      systemPrompt = template.base_prompt;
 
-      // Process customizable fields for replacements
+      // Use the template's base_prompt
+      systemPrompt = template.base_prompt;
+      
+      // Process customizable_fields for dynamic replacements
+      const customizableFields = template.customizable_fields || {};
       const replacements: Record<string, string> = {
         COMPANY_NAME: validatedData.company_name || 'the company',
         ASSISTANT_NAME: validatedData.name || 'Assistant',
         PERSONALITY: validatedData.personality_traits?.join(', ') || 'professional',
       };
 
-      // Replace placeholders in system prompt
+      // Add any customizable fields from the template
+      Object.keys(customizableFields).forEach(field => {
+        if (!replacements[field.toUpperCase()]) {
+          replacements[field.toUpperCase()] = customizableFields[field] || '';
+        }
+      });
+
+      // Add question collection instructions if structured questions exist
+      if (validatedData.structured_questions?.length > 0) {
+        replacements.QUESTION_INSTRUCTIONS = 
+          'During the conversation, gather the following information naturally:\n' +
+          validatedData.structured_questions.map(q => 
+            `- ${q.question} (${q.required ? 'Required' : 'Optional'}: ${q.description})`
+          ).join('\n');
+      } else {
+        replacements.QUESTION_INSTRUCTIONS = '';
+      }
+
+      // Replace all placeholders in the system prompt
       Object.entries(replacements).forEach(([key, value]) => {
         const placeholder = `{${key}}`;
-        systemPrompt = systemPrompt.replace(new RegExp(placeholder.replace(/[{}]/g, '\\\\$&'), 'g'), value);
+        systemPrompt = systemPrompt.replace(new RegExp(placeholder.replace(/[{}]/g, '\\$&'), 'g'), value);
       });
 
       console.log('[Assistant API] Processed system prompt with template');
@@ -155,39 +189,18 @@ export async function POST(request: NextRequest) {
         `You are an AI assistant${validatedData.company_name ? ` working for ${validatedData.company_name}` : ''}. ` +
         `Your personality should be ${personalityDescription}. ` +
         (validatedData.structured_questions?.length > 0 
-          ? `\\n\\nIMPORTANT: During the conversation, naturally gather the following information:\\n` +
+          ? `\n\nIMPORTANT: During the conversation, naturally gather the following information:\n` +
             validatedData.structured_questions.map(q => 
               `- ${q.question} (${q.required ? 'Required' : 'Optional'})`
-            ).join('\\n') +
-            `\\n\\nGather this information naturally during the conversation without sounding like an interview.`
+            ).join('\n') +
+            `\n\nGather this information naturally during the conversation without sounding like an interview.`
           : '') +
-        `\\n\\nAlways maintain a ${personalityDescription} tone throughout the conversation.`;
+        `\n\nAlways maintain a ${personalityDescription} tone throughout the conversation.`;
     }
 
-    console.log('[Assistant API] System prompt generated');
-
-    // Create assistant in VAPI first (required for vapi_assistant_id)
-    console.log('[Assistant API] Creating assistant in VAPI...');
-    let vapiAssistantId: string;
-    try {
-      vapiAssistantId = await createVapiAssistant({
-        name: validatedData.name,
-        modelId: validatedData.model_id,
-        systemPrompt: systemPrompt,
-        firstMessage: firstMessage,
-        firstMessageMode: validatedData.first_message_mode,
-        voiceId: validatedData.voice_id,
-        maxDurationSeconds: validatedData.max_call_duration,
-        backgroundSound: validatedData.background_sound,
-        structuredQuestions: validatedData.structured_questions,
-        evaluationRubric: validatedData.evaluation_rubric,
-      });
-      console.log('[Assistant API] VAPI assistant created:', vapiAssistantId);
-    } catch (vapiError) {
-      console.error('[Assistant API] VAPI creation failed:', vapiError);
-      throw new Error('Failed to create assistant in VAPI: ' + (vapiError instanceof Error ? vapiError.message : 'Unknown error'));
-    }
-
+    // Create assistant (using simplified schema)
+    console.log('[Assistant API] Preparing database insert');
+    
     // Build config object with all assistant settings
     const config = {
       personality: validatedData.personality,
@@ -204,28 +217,30 @@ export async function POST(request: NextRequest) {
       evaluation_rubric: validatedData.evaluation_rubric,
       is_active: true
     };
-
-    // Insert into database with VAPI ID
+    
     const insertData = {
       user_id: user.id,
       name: validatedData.name,
-      template_id: validatedData.template_id || null,
-      vapi_assistant_id: vapiAssistantId,
+      template_id: validatedData.template_id,
+      vapi_assistant_id: '', // Will be updated after VAPI creation
       config: config
     };
+    console.log('[Assistant API] Insert data:', JSON.stringify(insertData, null, 2));
     
-    console.log('[Assistant API] Inserting into database...');
     const { data: assistant, error } = await supabase
-      .from('user_assistants')
+      .from('user_assistants') // Using your actual table name
       .insert(insertData)
       .select('*')
       .single();
 
     if (error) {
       console.error('[Assistant API] Database insert error:', error);
-      
-      // TODO: Rollback VAPI assistant creation if needed
-      
+      console.error('[Assistant API] Error details:', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint
+      });
       throw error;
     }
     
@@ -237,7 +252,7 @@ export async function POST(request: NextRequest) {
       
       const questionsToInsert = validatedData.structured_questions.map((q, index) => ({
         assistant_id: assistant.id,
-        form_title: 'Assistant Questions',
+        form_title: 'Assistant Questions', // Default title
         question_text: q.question,
         structured_name: q.structuredName,
         data_type: q.type,
@@ -251,9 +266,57 @@ export async function POST(request: NextRequest) {
 
       if (questionsError) {
         console.error('[Assistant API] Error saving structured questions:', questionsError);
+        // Don't fail the entire request, just log the error
       } else {
         console.log('[Assistant API] Structured questions saved successfully');
       }
+    }
+
+    // Questions functionality removed for simplified schema
+
+    // Create assistant in Vapi
+    let vapiAssistantId = null;
+    try {
+      vapiAssistantId = await createVapiAssistant({
+        name: validatedData.name,
+        modelId: validatedData.model_id,
+        systemPrompt: systemPrompt,
+        firstMessage: firstMessage,
+        firstMessageMode: validatedData.first_message_mode,
+        voiceId: validatedData.voice_id,
+        maxDurationSeconds: validatedData.max_call_duration,
+        backgroundSound: validatedData.background_sound,
+        structuredQuestions: validatedData.structured_questions,
+        evaluationRubric: validatedData.evaluation_rubric,
+      });
+
+      // Update the assistant with the Vapi ID
+      if (vapiAssistantId) {
+        await supabase
+          .from('user_assistants')
+          .update({ vapi_assistant_id: vapiAssistantId })
+          .eq('id', assistant.id);
+        
+        assistant.vapi_assistant_id = vapiAssistantId;
+      }
+    } catch (vapiError) {
+      console.error('Failed to create Vapi assistant:', vapiError);
+      // Mark assistant as inactive since Vapi deployment failed
+      await supabase
+        .from('user_assistants')
+        .update({ is_active: false })
+        .eq('id', assistant.id);
+      
+      return NextResponse.json({
+        success: false,
+        error: {
+          code: 'VAPI_DEPLOYMENT_FAILED',
+          message: 'Assistant created locally but Vapi deployment failed',
+          details: vapiError instanceof Error ? vapiError.message : 'Unknown error',
+          assistantId: assistant.id,
+          canRetry: true
+        },
+      }, { status: 207 }); // Partial success
     }
 
     // Log audit event
@@ -275,7 +338,6 @@ export async function POST(request: NextRequest) {
       data: assistant,
       message: 'Assistant created successfully',
     }, { status: 201 });
-    
   } catch (error) {
     console.error('[Assistant API] Error in POST:', error);
     console.error('[Assistant API] Error stack:', error instanceof Error ? error.stack : 'No stack');
