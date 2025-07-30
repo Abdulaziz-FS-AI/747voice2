@@ -30,6 +30,7 @@ interface VapiVoice {
 interface VapiTranscriber {
   provider: string;
   model?: string;
+  language?: string;
 }
 
 // Vapi API configuration
@@ -95,6 +96,7 @@ class VapiClient {
     name: string;
     systemPrompt?: string;
     firstMessage?: string;
+    firstMessageMode?: 'assistant-speaks-first' | 'user-speaks-first';
     voice?: {
       provider: string;
       voiceId: string;
@@ -115,6 +117,8 @@ class VapiClient {
       model?: string;
     };
     maxDurationSeconds?: number;
+    backgroundSound?: 'off' | 'office';
+    analysisPlan?: any;
     serverUrl?: string;
     serverUrlSecret?: string;
     endCallMessage?: string;
@@ -129,23 +133,32 @@ class VapiClient {
       name: assistantData.name,
       model: assistantData.model || {
         provider: 'openai',
-        model: 'gpt-4',
-        maxTokens: 250,
+        model: 'gpt-4.1-mini-2025-04-14',
+        maxTokens: 500,
         temperature: 0.7,
       },
       voice: assistantData.voice || {
-        provider: 'elevenlabs',
-        voiceId: 'voice_professional_female_en',
+        provider: 'vapi',
+        voiceId: 'Elliot',
       },
       transcriber: assistantData.transcriber || {
-        provider: 'deepgram',
-        model: 'nova-2',
+        provider: 'assembly-ai',
+        language: 'en',
       },
       ...(assistantData.firstMessage && {
         firstMessage: assistantData.firstMessage,
       }),
+      ...(assistantData.firstMessageMode && {
+        firstMessageMode: assistantData.firstMessageMode,
+      }),
       ...(assistantData.maxDurationSeconds && {
         maxDurationSeconds: assistantData.maxDurationSeconds,
+      }),
+      ...(assistantData.backgroundSound && {
+        backgroundSound: assistantData.backgroundSound,
+      }),
+      ...(assistantData.analysisPlan && {
+        analysisPlan: assistantData.analysisPlan,
       }),
       ...(assistantData.serverUrl && {
         serverUrl: assistantData.serverUrl,
@@ -295,11 +308,23 @@ export const vapiClient = VAPI_API_KEY ? new VapiClient(VAPI_API_KEY) : null;
 // Utility functions
 export async function createVapiAssistant(assistantData: {
   name: string;
+  modelId?: string;
   systemPrompt?: string;
   firstMessage?: string;
+  firstMessageMode?: 'assistant-speaks-first' | 'user-speaks-first';
   voiceId?: string;
   language?: string;
   maxDurationSeconds?: number;
+  backgroundSound?: 'off' | 'office';
+  structuredQuestions?: Array<{
+    id: string;
+    question: string;
+    structuredName: string;
+    type: 'string' | 'number' | 'boolean';
+    description: string;
+    required: boolean;
+  }>;
+  evaluationRubric?: string | null;
   functions?: VapiFunction[];
 }) {
   if (!vapiClient) {
@@ -311,7 +336,7 @@ export async function createVapiAssistant(assistantData: {
     // Prepare model configuration with functions
     const modelConfig: VapiModel = {
       provider: 'openai',
-      model: 'gpt-4',
+      model: assistantData.modelId || 'gpt-4.1-mini-2025-04-14',
       messages: [
         {
           role: 'system',
@@ -325,18 +350,74 @@ export async function createVapiAssistant(assistantData: {
       temperature: 0.7,
     };
 
-    // Voice configuration
+    // Voice configuration - VAPI voices
     const voiceConfig: VapiVoice = {
-      provider: '11labs',
-      voiceId: assistantData.voiceId || 'pNInz6obpgDQGcFmaJgB',
+      provider: 'vapi',
+      voiceId: assistantData.voiceId || 'Elliot',
     };
+
+    // Transcriber configuration
+    const transcriberConfig: VapiTranscriber = {
+      provider: 'assembly-ai',
+      language: assistantData.language?.substring(0, 2) || 'en',
+    };
+
+    // Create analysis plan for structured data and evaluation
+    const analysisPlan: any = {
+      minMessagesThreshold: 2,
+      summaryPlan: {
+        enabled: true,
+        timeoutSeconds: 30
+      }
+    };
+
+    // Add structured data plan if questions exist
+    if (assistantData.structuredQuestions && assistantData.structuredQuestions.length > 0) {
+      const properties: Record<string, any> = {};
+      const required: string[] = [];
+
+      assistantData.structuredQuestions.forEach(question => {
+        properties[question.structuredName] = {
+          type: question.type,
+          description: question.description
+        };
+
+        if (question.required) {
+          required.push(question.structuredName);
+        }
+      });
+
+      analysisPlan.structuredDataPlan = {
+        enabled: true,
+        schema: {
+          type: 'object',
+          properties,
+          required,
+          description: 'Structured data extracted from the conversation'
+        },
+        timeoutSeconds: 30
+      };
+    }
+
+    // Add evaluation plan if rubric is selected
+    if (assistantData.evaluationRubric) {
+      analysisPlan.successEvaluationPlan = {
+        rubric: assistantData.evaluationRubric,
+        enabled: true,
+        timeoutSeconds: 30
+      };
+    }
 
     const result = await vapiClient.createAssistant({
       name: assistantData.name,
       model: modelConfig,
       voice: voiceConfig,
-      firstMessage: assistantData.firstMessage,
+      transcriber: transcriberConfig,
+      firstMessage: assistantData.firstMessage || 'Hello! How can I help you today?',
+      firstMessageMode: assistantData.firstMessageMode || 'assistant-speaks-first',
       maxDurationSeconds: assistantData.maxDurationSeconds || 300,
+      backgroundSound: assistantData.backgroundSound || 'office',
+      analysisPlan: analysisPlan,
       serverUrl: `${process.env.NEXT_PUBLIC_URL}/api/webhooks/vapi`,
       serverUrlSecret: process.env.VAPI_WEBHOOK_SECRET || '',
       endCallMessage: "Thank you for calling! Have a great day!",
@@ -377,10 +458,10 @@ export async function updateVapiAssistant(
     if (assistantData.systemPrompt) updateData.systemPrompt = assistantData.systemPrompt;
     if (assistantData.firstMessage) updateData.firstMessage = assistantData.firstMessage;
     
-    if (assistantData.voiceId || assistantData.language) {
+    if (assistantData.voiceId) {
       updateData.voice = {
-        provider: 'azure',
-        voiceId: assistantData.voiceId || 'en-US-JennyNeural',
+        provider: 'vapi',
+        voiceId: assistantData.voiceId,
       };
     }
 

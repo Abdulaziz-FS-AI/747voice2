@@ -140,3 +140,14 @@ For local development, you'll also need to add your local URLs:
 4. **Redirect not working**
    - Ensure redirect URLs are configured in Supabase
    - Check that your domain is added to Site URL configuration
+
+5. **Works for some emails but not others**
+   - **OAuth Consent Screen in Testing Mode**: Only allows specific test users
+   - **Solution**: Add users to test user list OR publish the app
+   - **Steps**: Go to Google Cloud Console > OAuth consent screen > Test users > Add users
+   - **Alternative**: Change publishing status to "In production" (requires verification)
+
+6. **"access_blocked" error for certain users**
+   - User's Google account has restricted third-party app access
+   - Ask user to enable "Less secure app access" or use a different account
+   - Check if user's organization has G Suite restrictions

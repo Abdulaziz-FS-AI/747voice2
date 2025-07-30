@@ -4,19 +4,37 @@ import { handleAPIError } from '@/lib/errors';
 import { createServiceRoleClient } from '@/lib/supabase';
 import { createVapiAssistant } from '@/lib/vapi';
 import { z } from 'zod';
+import { EvaluationRubric } from '@/lib/structured-data';
 // Removed prompt-builder imports for simplified schema
+
+// Structured question schema
+const StructuredQuestionSchema = z.object({
+  id: z.string(),
+  question: z.string(),
+  structuredName: z.string(),
+  type: z.enum(['string', 'number', 'boolean']),
+  description: z.string(),
+  required: z.boolean()
+});
 
 // Validation schema for creating assistants (simplified)
 const CreateAssistantSchema = z.object({
   name: z.string().min(1).max(255),
   company_name: z.string().optional(),
   personality: z.enum(['professional', 'friendly', 'casual']).default('professional'),
-  system_prompt: z.string().optional(),
-  voice_id: z.string().optional(),
-  max_call_duration: z.number().min(30).max(3600).default(300),
+  personality_traits: z.array(z.string()).optional().default(['professional']),
+  model_id: z.string().optional().default('gpt-4.1-mini-2025-04-14'),
+  voice_id: z.string().optional().default('Elliot'),
+  max_call_duration: z.number().min(30).max(600).default(300), // Max 10 minutes
   language: z.string().max(10).default('en-US'),
-  first_message: z.string().optional(),
-  background_ambiance: z.string().default('office')
+  first_message: z.string().min(1, 'First message is required'),
+  first_message_mode: z.enum(['assistant-speaks-first', 'user-speaks-first']).default('assistant-speaks-first'),
+  background_sound: z.enum(['off', 'office']).default('office'),
+  structured_questions: z.array(StructuredQuestionSchema).optional().default([]),
+  evaluation_rubric: z.enum([
+    'NumericScale', 'DescriptiveScale', 'Checklist', 'Matrix', 
+    'PercentageScale', 'LikertScale', 'AutomaticRubric', 'PassFail'
+  ]).optional().nullable()
 });
 
 // Validation schema for updating assistants
@@ -98,13 +116,17 @@ export async function POST(request: NextRequest) {
 
     const supabase = createServiceRoleClient();
 
-    // Generate system prompt (simplified - no templates needed)
-    const systemPrompt = validatedData.system_prompt || 
-      `You are a ${validatedData.personality} AI assistant for ${validatedData.company_name || 'the company'}. ` +
-      `Help customers with their inquiries in a ${validatedData.personality} manner.`;
+    // Generate system prompt with personality traits
+    const personalityDescription = validatedData.personality_traits?.length > 0 
+      ? validatedData.personality_traits.join(', ')
+      : validatedData.personality;
     
-    const firstMessage = validatedData.first_message || 
-      `Hello! I'm here to help you. How can I assist you today?`;
+    const systemPrompt = 
+      `You are a ${personalityDescription} AI assistant for ${validatedData.company_name || 'the company'}. ` +
+      `Help customers with their inquiries in a ${personalityDescription} manner. ` +
+      `Your personality traits include: ${personalityDescription}.`;
+    
+    const firstMessage = validatedData.first_message;
 
     // Create assistant (using simplified schema)
     const { data: assistant, error } = await supabase
@@ -113,13 +135,18 @@ export async function POST(request: NextRequest) {
         user_id: user.id,
         name: validatedData.name,
         personality: validatedData.personality,
+        personality_traits: validatedData.personality_traits,
         company_name: validatedData.company_name,
+        model_id: validatedData.model_id,
         system_prompt: systemPrompt,
         first_message: firstMessage,
+        first_message_mode: validatedData.first_message_mode,
         voice_id: validatedData.voice_id,
         max_call_duration: validatedData.max_call_duration,
         language: validatedData.language,
-        background_ambiance: validatedData.background_ambiance,
+        background_sound: validatedData.background_sound,
+        structured_questions: validatedData.structured_questions,
+        evaluation_rubric: validatedData.evaluation_rubric,
         is_active: true
       })
       .select('*')
@@ -136,11 +163,16 @@ export async function POST(request: NextRequest) {
     try {
       vapiAssistantId = await createVapiAssistant({
         name: validatedData.name,
+        modelId: validatedData.model_id,
         systemPrompt: systemPrompt,
         firstMessage: firstMessage,
+        firstMessageMode: validatedData.first_message_mode,
         voiceId: validatedData.voice_id,
         language: validatedData.language,
         maxDurationSeconds: validatedData.max_call_duration,
+        backgroundSound: validatedData.background_sound,
+        structuredQuestions: validatedData.structured_questions,
+        evaluationRubric: validatedData.evaluation_rubric,
       });
 
       // Update the assistant with the Vapi ID

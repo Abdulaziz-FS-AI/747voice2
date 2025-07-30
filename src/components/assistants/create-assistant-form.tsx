@@ -7,58 +7,35 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Slider } from '@/components/ui/slider'
 import { AlertCircle, Loader2 } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
+import { ModelSelector } from '@/components/assistants/model-selector'
+import { VoiceSelector } from '@/components/assistants/voice-selector'
+import { PersonalitySelector } from '@/components/assistants/personality-selector'
+import { StructuredQuestions } from '@/components/assistants/structured-questions'
+import { EvaluationSelector } from '@/components/assistants/evaluation-selector'
+import { StructuredQuestion, EvaluationRubric } from '@/lib/structured-data'
 
 // Form data interface
 interface AssistantFormData {
   name: string
   company_name?: string
-  personality: 'professional' | 'friendly' | 'casual'
-  system_prompt?: string
+  personality_traits: string[]
+  model_id: string
   voice_id: string
   max_call_duration: number
   language: string
   first_message?: string
-  background_ambiance: string
+  first_message_mode: 'assistant-speaks-first' | 'user-speaks-first'
+  background_sound: 'off' | 'office'
+  structured_questions: StructuredQuestion[]
+  evaluation_rubric: EvaluationRubric | null
 }
 
-// ElevenLabs Voice options - Premium English voices
-const voiceOptions = [
-  { 
-    id: 'pNInz6obpgDQGcFmaJgB', 
-    label: 'Rachel', 
-    description: 'American Female - Calm, Professional'
-  },
-  { 
-    id: 'ErXwobaYiN019PkySvjV', 
-    label: 'Antoni', 
-    description: 'American Male - Warm, Deep'
-  },
-  { 
-    id: 'VR6AewLTigWG4xSOukaG', 
-    label: 'Arnold', 
-    description: 'American Male - Crisp, Business'
-  },
-  { 
-    id: 'EXAVITQu4vr4xnSDxMaL', 
-    label: 'Bella', 
-    description: 'American Female - Friendly, Engaging'
-  },
-  { 
-    id: 'MF3mGyEYCl7XYWbV9V6O', 
-    label: 'Elli', 
-    description: 'American Female - Youthful, Natural'
-  },
-  { 
-    id: 'TxGEqnHWrfWFTfGW9XjX', 
-    label: 'Josh', 
-    description: 'American Male - Deep, Authoritative'
-  }
-]
 
 // Language options
 const languageOptions = [
@@ -74,12 +51,9 @@ const languageOptions = [
   { value: 'pt-BR', label: 'Portuguese (Brazil)' }
 ]
 
-const ambientOptions = [
-  { value: 'office', label: 'Office Environment' },
-  { value: 'retail', label: 'Retail Store' },
-  { value: 'restaurant', label: 'Restaurant' },
-  { value: 'quiet', label: 'Quiet Space' },
-  { value: 'outdoor', label: 'Outdoor' }
+const backgroundSoundOptions = [
+  { value: 'off', label: 'No Background Sound' },
+  { value: 'office', label: 'Office Environment' }
 ]
 
 export function CreateAssistantForm() {
@@ -90,13 +64,16 @@ export function CreateAssistantForm() {
     defaultValues: {
       name: '',
       company_name: '',
-      personality: 'professional' as const,
-      system_prompt: '',
-      voice_id: 'pNInz6obpgDQGcFmaJgB', // Rachel - Professional default
-      max_call_duration: 300,
+      personality_traits: ['professional'],
+      model_id: 'gpt-4.1-mini-2025-04-14', // Default recommended model
+      voice_id: 'Elliot', // Default VAPI voice
+      max_call_duration: 300, // 5 minutes default
       language: 'en-US',
-      first_message: '',
-      background_ambiance: 'office'
+      first_message: 'Hello! How can I help you today?',
+      first_message_mode: 'assistant-speaks-first',
+      background_sound: 'office',
+      structured_questions: [],
+      evaluation_rubric: null
     }
   })
 
@@ -117,13 +94,17 @@ export function CreateAssistantForm() {
       const submitData = {
         name: data.name.trim(),
         company_name: data.company_name || undefined,
-        personality: data.personality || 'professional',
-        system_prompt: data.system_prompt || undefined,
-        voice_id: data.voice_id || 'pNInz6obpgDQGcFmaJgB',
+        personality: data.personality_traits?.[0] || 'professional', // Use first trait for legacy API
+        personality_traits: data.personality_traits || ['professional'],
+        model_id: data.model_id || 'gpt-4.1-mini-2025-04-14',
+        voice_id: data.voice_id || 'Elliot',
         max_call_duration: Number(data.max_call_duration) || 300,
         language: data.language || 'en-US',
-        first_message: data.first_message || undefined,
-        background_ambiance: data.background_ambiance || 'office'
+        first_message: data.first_message || 'Hello! How can I help you today?',
+        first_message_mode: data.first_message_mode || 'assistant-speaks-first',
+        background_sound: data.background_sound || 'office',
+        structured_questions: data.structured_questions || [],
+        evaluation_rubric: data.evaluation_rubric || null
       }
       
       console.log('Submitting assistant data:', submitData)
@@ -209,157 +190,198 @@ export function CreateAssistantForm() {
         </CardContent>
       </Card>
 
-      {/* Personality & Voice */}
+      {/* AI Model Selection */}
       <Card>
         <CardHeader>
-          <CardTitle>Personality & Voice</CardTitle>
+          <CardTitle>AI Model Selection</CardTitle>
           <CardDescription>
-            Choose your assistant's personality and voice characteristics
+            Choose the AI model that powers your assistant's intelligence and performance
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-3">
-            <Label>Personality *</Label>
-            <RadioGroup
-              value={formValues.personality}
-              onValueChange={(value) => setValue('personality', value as 'professional' | 'friendly' | 'casual')}
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="professional" id="professional" />
-                <Label htmlFor="professional" className="cursor-pointer">
-                  Professional - Formal, business-focused tone
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="friendly" id="friendly" />
-                <Label htmlFor="friendly" className="cursor-pointer">
-                  Friendly - Warm, approachable, and personable
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="casual" id="casual" />
-                <Label htmlFor="casual" className="cursor-pointer">
-                  Casual - Relaxed, conversational style
-                </Label>
-              </div>
-            </RadioGroup>
-          </div>
+        <CardContent>
+          <ModelSelector
+            selectedModel={formValues.model_id}
+            onModelSelect={(modelId) => setValue('model_id', modelId)}
+          />
+        </CardContent>
+      </Card>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="voice_id">Voice *</Label>
-              <Select value={formValues.voice_id} onValueChange={(value) => setValue('voice_id', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a voice" />
-                </SelectTrigger>
-                <SelectContent>
-                  {voiceOptions.map((voice) => (
-                    <SelectItem key={voice.id} value={voice.id}>
-                      <div>
-                        <div className="font-medium">{voice.label}</div>
-                        <div className="text-xs text-muted-foreground">{voice.description}</div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+      {/* Personality Selection */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Personality & Traits</CardTitle>
+          <CardDescription>
+            Define your assistant's character with multiple personality traits
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <PersonalitySelector
+            selectedTraits={formValues.personality_traits || []}
+            onTraitsChange={(traits) => setValue('personality_traits', traits)}
+            maxSelections={5}
+          />
+        </CardContent>
+      </Card>
 
-            <div className="space-y-2">
-              <Label htmlFor="language">Language *</Label>
-              <Select value={formValues.language} onValueChange={(value) => setValue('language', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a language" />
-                </SelectTrigger>
-                <SelectContent>
-                  {languageOptions.map((lang) => (
-                    <SelectItem key={lang.value} value={lang.value}>
-                      {lang.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+      {/* Voice Selection */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Voice Selection</CardTitle>
+          <CardDescription>
+            Choose the perfect VAPI voice that represents your brand
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <VoiceSelector
+            selectedVoice={formValues.voice_id}
+            onVoiceSelect={(voiceId) => setValue('voice_id', voiceId)}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Language Settings */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Language Settings</CardTitle>
+          <CardDescription>
+            Configure language and regional preferences
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <Label htmlFor="language">Language *</Label>
+            <Select value={formValues.language} onValueChange={(value) => setValue('language', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a language" />
+              </SelectTrigger>
+              <SelectContent>
+                {languageOptions.map((lang) => (
+                  <SelectItem key={lang.value} value={lang.value}>
+                    {lang.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
 
-      {/* Configuration */}
+      {/* Call Configuration */}
       <Card>
         <CardHeader>
-          <CardTitle>Configuration</CardTitle>
+          <CardTitle>Call Configuration</CardTitle>
           <CardDescription>
-            Customize your assistant's behavior and responses
+            Configure call behavior and conversation settings
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="system_prompt">Custom Instructions</Label>
-            <Textarea
-              id="system_prompt"
-              placeholder="Provide specific instructions for how your assistant should behave..."
-              className="min-h-[100px]"
-              {...register('system_prompt')}
-            />
-            <p className="text-xs text-muted-foreground">
-              Optional: Add specific instructions to customize your assistant's behavior
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="first_message">First Message</Label>
-            <Textarea
-              id="first_message"
-              placeholder="Hello! I'm here to help you. How can I assist you today?"
-              {...register('first_message')}
-            />
-            <p className="text-xs text-muted-foreground">
-              The greeting message your assistant will use when starting a conversation
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="max_call_duration">Max Call Duration (seconds) *</Label>
-              <Input
-                id="max_call_duration"
-                type="number"
-                min="30"
-                max="3600"
-                {...register('max_call_duration', { 
-                  valueAsNumber: true,
-                  required: 'Max call duration is required',
-                  min: { value: 30, message: 'Minimum duration is 30 seconds' },
-                  max: { value: 3600, message: 'Maximum duration is 3600 seconds' }
-                })}
+        <CardContent className="space-y-6">
+          {/* First Message Settings */}
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="assistant_speaks_first"
+                checked={formValues.first_message_mode === 'assistant-speaks-first'}
+                onCheckedChange={(checked) => 
+                  setValue('first_message_mode', checked ? 'assistant-speaks-first' : 'user-speaks-first')
+                }
               />
-              {errors.max_call_duration && (
+              <Label htmlFor="assistant_speaks_first" className="cursor-pointer font-medium">
+                Assistant speaks first
+              </Label>
+            </div>
+            <p className="text-xs text-muted-foreground ml-6">
+              When enabled, the assistant will greet the caller immediately when the call connects
+            </p>
+
+            <div className="space-y-2">
+              <Label htmlFor="first_message">First Message *</Label>
+              <Textarea
+                id="first_message"
+                placeholder="Hello! How can I help you today?"
+                {...register('first_message', { required: 'First message is required' })}
+              />
+              {errors.first_message && (
                 <p className="text-sm text-red-600 flex items-center gap-1">
                   <AlertCircle className="h-3 w-3" />
-                  {errors.max_call_duration.message}
+                  {errors.first_message.message}
                 </p>
               )}
               <p className="text-xs text-muted-foreground">
-                Maximum duration for calls (30-3600 seconds)
+                The greeting message your assistant will use when starting a conversation
               </p>
             </div>
+          </div>
 
+          {/* Call Duration Slider */}
+          <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="background_ambiance">Background Environment</Label>
-              <Select value={formValues.background_ambiance} onValueChange={(value) => setValue('background_ambiance', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select environment" />
-                </SelectTrigger>
-                <SelectContent>
-                  {ambientOptions.map((ambient) => (
-                    <SelectItem key={ambient.value} value={ambient.value}>
-                      {ambient.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="max_call_duration">Max Call Duration: {Math.floor(formValues.max_call_duration / 60)}:{(formValues.max_call_duration % 60).toString().padStart(2, '0')} minutes</Label>
+              <Slider
+                value={[formValues.max_call_duration]}
+                onValueChange={([value]) => setValue('max_call_duration', value)}
+                max={600} // 10 minutes
+                min={30}  // 30 seconds
+                step={30} // 30 second increments
+                className="w-full"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>30 seconds</span>
+                <span>10 minutes</span>
+              </div>
             </div>
           </div>
+
+          {/* Background Sound */}
+          <div className="space-y-2">
+            <Label htmlFor="background_sound">Background Sound</Label>
+            <Select value={formValues.background_sound} onValueChange={(value) => setValue('background_sound', value as 'off' | 'office')}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select background sound" />
+              </SelectTrigger>
+              <SelectContent>
+                {backgroundSoundOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Background sound played during the call. Office provides subtle ambient office sounds.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Structured Questions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Data Collection</CardTitle>
+          <CardDescription>
+            Set up questions to extract specific information from conversations
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <StructuredQuestions
+            questions={formValues.structured_questions || []}
+            onQuestionsChange={(questions) => setValue('structured_questions', questions)}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Call Evaluation */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Performance Evaluation</CardTitle>
+          <CardDescription>
+            Configure how the AI will evaluate call success and performance
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <EvaluationSelector
+            selectedRubric={formValues.evaluation_rubric}
+            onRubricChange={(rubric) => setValue('evaluation_rubric', rubric)}
+          />
         </CardContent>
       </Card>
 
