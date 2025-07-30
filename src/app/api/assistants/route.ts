@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = Math.min(parseInt(searchParams.get('limit') || '10'), 50);
     const search = searchParams.get('search');
-    const isActive = searchParams.get('active');
+    // const isActive = searchParams.get('active'); // TODO: implement active filter
 
     const supabase = createServiceRoleClient();
 
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
   try {
     console.log('[Assistant API] Starting POST request');
     
-    const { user, profile } = await requirePermission('basic');
+    const { user } = await requirePermission('basic');
     console.log('[Assistant API] User authenticated:', user.id);
     
     const body = await request.json();
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
     const supabase = createServiceRoleClient();
 
     let systemPrompt: string;
-    let firstMessage: string = validatedData.first_message;
+    const firstMessage: string = validatedData.first_message;
 
     // Check if using a template
     if (validatedData.template_id) {
