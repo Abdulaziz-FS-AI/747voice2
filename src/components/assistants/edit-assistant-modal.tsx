@@ -33,9 +33,18 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Loader2, Save } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
-import type { Database } from '@/types/database-simplified'
 
-type Assistant = Database['public']['Tables']['assistants']['Row']
+interface Assistant {
+  id: string
+  user_id: string
+  name: string
+  template_id: string | null
+  vapi_assistant_id: string
+  config: any
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
 
 interface EditAssistantModalProps {
   isOpen: boolean
@@ -80,14 +89,14 @@ export function EditAssistantModal({
     resolver: zodResolver(editAssistantSchema),
     defaultValues: {
       name: assistant.name,
-      company_name: assistant.company_name || '',
-      personality: (assistant.personality as 'professional' | 'friendly' | 'casual') || 'professional',
-      system_prompt: assistant.system_prompt || '',
-      voice_id: assistant.voice_id || 'burt',
-      max_call_duration: assistant.max_call_duration || 300,
-      language: assistant.language || 'en-US',
-      first_message: assistant.first_message || '',
-      background_ambiance: assistant.background_ambiance || 'office',
+      company_name: assistant.config?.companyName || '',
+      personality: (assistant.config?.personality as 'professional' | 'friendly' | 'casual') || 'professional',
+      system_prompt: assistant.config?.systemPrompt || '',
+      voice_id: assistant.config?.voiceId || 'burt',
+      max_call_duration: assistant.config?.maxCallDuration || 300,
+      language: assistant.config?.language || 'en-US',
+      first_message: assistant.config?.firstMessage || '',
+      background_ambiance: assistant.config?.backgroundAmbiance || 'office',
     }
   })
 
@@ -96,14 +105,14 @@ export function EditAssistantModal({
     if (assistant) {
       form.reset({
         name: assistant.name,
-        company_name: assistant.company_name || '',
-        personality: (assistant.personality as 'professional' | 'friendly' | 'casual') || 'professional',
-        system_prompt: assistant.system_prompt || '',
-        voice_id: assistant.voice_id || 'burt',
-        max_call_duration: assistant.max_call_duration || 300,
-        language: assistant.language || 'en-US',
-        first_message: assistant.first_message || '',
-        background_ambiance: assistant.background_ambiance || 'office',
+        company_name: assistant.config?.companyName || '',
+        personality: (assistant.config?.personality as 'professional' | 'friendly' | 'casual') || 'professional',
+        system_prompt: assistant.config?.systemPrompt || '',
+        voice_id: assistant.config?.voiceId || 'burt',
+        max_call_duration: assistant.config?.maxCallDuration || 300,
+        language: assistant.config?.language || 'en-US',
+        first_message: assistant.config?.firstMessage || '',
+        background_ambiance: assistant.config?.backgroundAmbiance || 'office',
       })
     }
   }, [assistant, form])

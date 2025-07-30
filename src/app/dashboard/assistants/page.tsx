@@ -26,9 +26,18 @@ import { DashboardLayout } from '@/components/dashboard/layout'
 import { EditAssistantModal } from '@/components/assistants/edit-assistant-modal'
 import { DeleteAssistantModal } from '@/components/assistants/delete-assistant-modal'
 import { useToast } from '@/hooks/use-toast'
-import type { Database } from '@/types/database-simplified'
 
-type Assistant = Database['public']['Tables']['assistants']['Row']
+interface Assistant {
+  id: string
+  user_id: string
+  name: string
+  template_id: string | null
+  vapi_assistant_id: string
+  config: any
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
 
 export default function AssistantsPage() {
   const router = useRouter()
@@ -92,7 +101,7 @@ export default function AssistantsPage() {
     if (searchQuery) {
       filtered = filtered.filter(assistant =>
         assistant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        assistant.company_name?.toLowerCase().includes(searchQuery.toLowerCase())
+        assistant.config?.companyName?.toLowerCase().includes(searchQuery.toLowerCase())
       )
     }
 
@@ -266,7 +275,7 @@ export default function AssistantsPage() {
                     <div className="space-y-1 flex-1">
                       <CardTitle className="text-lg">{assistant.name}</CardTitle>
                       <p className="text-sm text-muted-foreground">
-                        {assistant.company_name || 'No company'}
+                        {assistant.config?.companyName || 'No company'}
                       </p>
                     </div>
                     <DropdownMenu>
@@ -306,19 +315,19 @@ export default function AssistantsPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     {getStatusBadge(assistant.is_active)}
-                    <Badge variant="outline">{assistant.personality}</Badge>
+                    <Badge variant="outline">{assistant.config?.personality || 'professional'}</Badge>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2 text-sm">
                     <div>
-                      <span className="font-medium">Company:</span> {assistant.company_name}
+                      <span className="font-medium">Company:</span> {assistant.config?.companyName || 'Not set'}
                     </div>
                     <div>
-                      <span className="font-medium">Max Duration:</span> {assistant.max_call_duration}s
+                      <span className="font-medium">Max Duration:</span> {assistant.config?.maxCallDuration || 1800}s
                     </div>
                     <div>
-                      <span className="font-medium">Language:</span> {assistant.language}
+                      <span className="font-medium">Language:</span> {assistant.config?.language || 'en-US'}
                     </div>
                     {assistant.vapi_assistant_id && (
                       <div>

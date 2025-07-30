@@ -13,9 +13,18 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { AlertTriangle, Loader2, Trash2 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
-import type { Database } from '@/types/database-simplified'
 
-type Assistant = Database['public']['Tables']['assistants']['Row']
+interface Assistant {
+  id: string
+  user_id: string
+  name: string
+  template_id: string | null
+  vapi_assistant_id: string
+  config: any
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
 
 interface DeleteAssistantModalProps {
   isOpen: boolean
@@ -98,7 +107,7 @@ export function DeleteAssistantModal({
               </Badge>
             </div>
             <div className="text-sm text-muted-foreground">
-              <div>Company: {assistant.company_name}</div>
+              <div>Company: {assistant.config?.companyName || 'Not set'}</div>
               {assistant.vapi_assistant_id && (
                 <div>Vapi ID: {assistant.vapi_assistant_id.slice(0, 8)}...</div>
               )}

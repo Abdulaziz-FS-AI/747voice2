@@ -21,14 +21,7 @@ import {
 import type { Database } from '@/types/database-simplified'
 
 // Type definitions for better type safety
-type DatabaseCall = Database['public']['Tables']['calls']['Row']
-type DatabaseCallInsert = Database['public']['Tables']['calls']['Insert']
-type DatabaseCallUpdate = Database['public']['Tables']['calls']['Update']
-type AssistantWithInfo = DatabaseCall & {
-  assistants: Database['public']['Tables']['assistants']['Row']
-}
 type CallStatus = 'initiated' | 'ringing' | 'answered' | 'completed' | 'failed' | 'busy' | 'no_answer'
-type CallDirection = 'inbound' | 'outbound'
 type VapiMessage = {
   role?: string
   content?: string
@@ -59,8 +52,8 @@ export class WebhookProcessor {
     try {
       // Find assistant in our database
       const { data: assistant, error: assistantError } = await this.supabase
-        .from('assistants')
-        .select('id, user_id, name')
+        .from('user_assistants')
+        .select('id, user_id, name, config')
         .eq('vapi_assistant_id', event.call.assistantId)
         .single()
 
@@ -131,7 +124,7 @@ export class WebhookProcessor {
       // Find existing call record
       const { data: call, error: callError } = await this.supabase
         .from('calls')
-        .select('*, assistants(id, user_id, name)')
+        .select('*')
         .eq('vapi_call_id', event.call.id)
         .single()
 
@@ -186,7 +179,7 @@ export class WebhookProcessor {
       const analysis = await this.callAnalyzer.analyzeCall({
         callId: call.id,
         assistantId: call.assistant_id,
-        userId: call.assistants.user_id,
+        userId: call.user_id,
         transcript: event.call.transcript || '',
         responses,
         callDuration: updateData.duration,
@@ -199,7 +192,7 @@ export class WebhookProcessor {
         .insert({
           call_id: call.id,
           assistant_id: call.assistant_id,
-          user_id: call.assistants.user_id,
+          user_id: call.user_id,
           ...analysis,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()

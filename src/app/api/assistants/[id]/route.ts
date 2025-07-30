@@ -14,7 +14,7 @@ export async function GET(
     const supabase = createServiceRoleClient()
 
     const { data: assistant, error } = await supabase
-      .from('assistants')
+      .from('user_assistants')
       .select('*, assistant_questions(*)')
       .eq('id', params.id)
       .eq('user_id', user.id)
@@ -48,7 +48,7 @@ export async function PATCH(
 
     // Verify ownership
     const { data: existing } = await supabase
-      .from('assistants')
+      .from('user_assistants')
       .select('id, vapi_assistant_id')
       .eq('id', params.id)
       .eq('user_id', user.id)
@@ -63,7 +63,7 @@ export async function PATCH(
 
     // Update in database
     const { data: assistant, error } = await supabase
-      .from('assistants')
+      .from('user_assistants')
       .update({
         ...body,
         updated_at: new Date().toISOString()
@@ -106,7 +106,7 @@ export async function DELETE(
 
     // Get assistant details
     const { data: assistant } = await supabase
-      .from('assistants')
+      .from('user_assistants')
       .select('id, vapi_assistant_id')
       .eq('id', params.id)
       .eq('user_id', user.id)
@@ -131,7 +131,7 @@ export async function DELETE(
 
     // Delete from database (cascades to questions)
     const { error } = await supabase
-      .from('assistants')
+      .from('user_assistants')
       .delete()
       .eq('id', params.id)
 

@@ -25,7 +25,7 @@ export async function GET(
     const supabase = createServiceRoleClient()
 
     const { data: phoneNumber, error } = await supabase
-      .from('phone_numbers')
+      .from('user_phone_numbers')
       .select(`
         *,
         assistants:assigned_assistant_id (
@@ -88,7 +88,7 @@ export async function PATCH(
 
     // Verify ownership
     const { data: existingNumber } = await supabase
-      .from('phone_numbers')
+      .from('user_phone_numbers')
       .select('id, user_id')
       .eq('id', params.id)
       .eq('user_id', user.id)
@@ -104,7 +104,7 @@ export async function PATCH(
     // Validate assistant assignment if provided
     if (validatedData.assigned_assistant_id) {
       const { data: assistant } = await supabase
-        .from('assistants')
+        .from('user_assistants')
         .select('id')
         .eq('id', validatedData.assigned_assistant_id)
         .eq('user_id', user.id)
@@ -131,7 +131,7 @@ export async function PATCH(
 
     // Update phone number
     const { data: phoneNumber, error } = await supabase
-      .from('phone_numbers')
+      .from('user_phone_numbers')
       .update(updateData)
       .eq('id', params.id)
       .select(`
@@ -199,7 +199,7 @@ export async function DELETE(
 
     // Get phone number details before deletion
     const { data: phoneNumber } = await supabase
-      .from('phone_numbers')
+      .from('user_phone_numbers')
       .select('id, user_id, provider, provider_config')
       .eq('id', params.id)
       .eq('user_id', user.id)
@@ -215,7 +215,7 @@ export async function DELETE(
     // Soft delete (set is_active to false) rather than hard delete
     // This preserves call history and analytics
     const { error } = await supabase
-      .from('phone_numbers')
+      .from('user_phone_numbers')
       .update({
         is_active: false,
         assigned_assistant_id: null,

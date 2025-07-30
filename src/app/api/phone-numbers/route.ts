@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     const supabase = createServiceRoleClient()
 
     const { data: phoneNumbers, error } = await supabase
-      .from('phone_numbers')
+      .from('user_phone_numbers')
       .select(`
         *,
         assistants:assigned_assistant_id (

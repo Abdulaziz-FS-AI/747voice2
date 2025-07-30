@@ -56,56 +56,71 @@ export interface Database {
           updated_at?: string
         }
       }
-      phone_numbers: {
+      user_phone_numbers: {
         Row: {
           id: string
           user_id: string
-          number: string
-          country_code: string
-          vapi_phone_number_id: string | null
+          phone_number: string
+          friendly_name: string
+          provider: string
+          vapi_phone_id: string
+          vapi_credential_id: string
+          twilio_account_sid: string | null
+          twilio_auth_token: string | null
+          assigned_assistant_id: string | null
+          assigned_at: string | null
+          webhook_url: string | null
           is_active: boolean
-          monthly_cost: number
+          notes: string | null
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
           user_id: string
-          number: string
-          country_code: string
-          vapi_phone_number_id?: string | null
+          phone_number: string
+          friendly_name: string
+          provider?: string
+          vapi_phone_id: string
+          vapi_credential_id: string
+          twilio_account_sid?: string | null
+          twilio_auth_token?: string | null
+          assigned_assistant_id?: string | null
+          assigned_at?: string | null
+          webhook_url?: string | null
           is_active?: boolean
-          monthly_cost?: number
+          notes?: string | null
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
           user_id?: string
-          number?: string
-          country_code?: string
-          vapi_phone_number_id?: string | null
+          phone_number?: string
+          friendly_name?: string
+          provider?: string
+          vapi_phone_id?: string
+          vapi_credential_id?: string
+          twilio_account_sid?: string | null
+          twilio_auth_token?: string | null
+          assigned_assistant_id?: string | null
+          assigned_at?: string | null
+          webhook_url?: string | null
           is_active?: boolean
-          monthly_cost?: number
+          notes?: string | null
           created_at?: string
           updated_at?: string
         }
       }
-      assistants: {
+      user_assistants: {
         Row: {
           id: string
           user_id: string
           name: string
-          personality: 'professional' | 'friendly' | 'casual'
-          company_name: string | null
-          max_call_duration: number
-          background_ambiance: string
-          voice_id: string | null
+          template_id: string | null
+          vapi_assistant_id: string
+          config: Json
           is_active: boolean
-          vapi_assistant_id: string | null
-          system_prompt: string | null
-          first_message: string | null
-          language: string
           created_at: string
           updated_at: string
         }
@@ -113,16 +128,10 @@ export interface Database {
           id?: string
           user_id: string
           name: string
-          personality?: 'professional' | 'friendly' | 'casual'
-          company_name?: string | null
-          max_call_duration?: number
-          background_ambiance?: string
-          voice_id?: string | null
+          template_id?: string | null
+          vapi_assistant_id: string
+          config?: Json
           is_active?: boolean
-          vapi_assistant_id?: string | null
-          system_prompt?: string | null
-          first_message?: string | null
-          language?: string
           created_at?: string
           updated_at?: string
         }
@@ -130,16 +139,95 @@ export interface Database {
           id?: string
           user_id?: string
           name?: string
-          personality?: 'professional' | 'friendly' | 'casual'
-          company_name?: string | null
-          max_call_duration?: number
-          background_ambiance?: string
-          voice_id?: string | null
+          template_id?: string | null
+          vapi_assistant_id?: string
+          config?: Json
           is_active?: boolean
-          vapi_assistant_id?: string | null
-          system_prompt?: string | null
-          first_message?: string | null
-          language?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      templates: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          category: string
+          config: Json
+          placeholders: Json | null
+          is_active: boolean
+          is_public: boolean
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          category?: string
+          config?: Json
+          placeholders?: Json | null
+          is_active?: boolean
+          is_public?: boolean
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          category?: string
+          config?: Json
+          placeholders?: Json | null
+          is_active?: boolean
+          is_public?: boolean
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      structured_questions: {
+        Row: {
+          id: string
+          user_id: string
+          assistant_id: string
+          question_text: string
+          field_name: string
+          field_type: string
+          description: string | null
+          is_required: boolean
+          validation_rules: Json | null
+          order_index: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          assistant_id: string
+          question_text: string
+          field_name: string
+          field_type?: string
+          description?: string | null
+          is_required?: boolean
+          validation_rules?: Json | null
+          order_index?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          assistant_id?: string
+          question_text?: string
+          field_name?: string
+          field_type?: string
+          description?: string | null
+          is_required?: boolean
+          validation_rules?: Json | null
+          order_index?: number
           created_at?: string
           updated_at?: string
         }

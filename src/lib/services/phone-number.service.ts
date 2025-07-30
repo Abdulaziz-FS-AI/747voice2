@@ -85,7 +85,7 @@ export class PhoneNumberService {
 
       // Check if phone number already exists for user
       const { data: existingPhone } = await supabase
-        .from('phone_numbers')
+        .from('user_phone_numbers')
         .select('id')
         .eq('user_id', userId)
         .eq('phone_number', validatedData.phoneNumber)
@@ -102,7 +102,7 @@ export class PhoneNumberService {
       let vapiAssistantId: string | null = null
       if (request.assistantId) {
         const { data: assistant } = await supabase
-          .from('assistants')
+          .from('user_assistants')
           .select('vapi_assistant_id')
           .eq('id', request.assistantId)
           .eq('user_id', userId)
@@ -145,7 +145,7 @@ export class PhoneNumberService {
 
       // Begin database transaction
       const { data: dbPhone, error: dbError } = await supabase
-        .from('phone_numbers')
+        .from('user_phone_numbers')
         .insert({
           user_id: userId,
           phone_number: validatedData.phoneNumber,
@@ -208,10 +208,10 @@ export class PhoneNumberService {
       const supabase = await createServerSupabaseClient()
       
       const { data: phones, error } = await supabase
-        .from('phone_numbers')
+        .from('user_phone_numbers')
         .select(`
           *,
-          assigned_assistant:assistants(
+          assigned_assistant:user_assistants(
             id,
             name,
             vapi_assistant_id
@@ -245,10 +245,10 @@ export class PhoneNumberService {
       const supabase = await createServerSupabaseClient()
       
       const { data: phone, error } = await supabase
-        .from('phone_numbers')
+        .from('user_phone_numbers')
         .select(`
           *,
-          assigned_assistant:assistants(
+          assigned_assistant:user_assistants(
             id,
             name,
             vapi_assistant_id
@@ -308,7 +308,7 @@ export class PhoneNumberService {
       // Validate assistant ownership if assigning
       if (validatedData.assistantId) {
         const { data: assistant, error: assistantError } = await supabase
-          .from('assistants')
+          .from('user_assistants')
           .select('id, name, vapi_assistant_id')
           .eq('id', validatedData.assistantId)
           .eq('user_id', userId)
@@ -328,7 +328,7 @@ export class PhoneNumberService {
 
       // Update database
       const { data: updatedPhone, error: updateError } = await supabase
-        .from('phone_numbers')
+        .from('user_phone_numbers')
         .update({ 
           assigned_assistant_id: validatedData.assistantId,
           updated_at: new Date().toISOString()
@@ -337,7 +337,7 @@ export class PhoneNumberService {
         .eq('user_id', userId)
         .select(`
           *,
-          assigned_assistant:assistants(
+          assigned_assistant:user_assistants(
             id,
             name,
             vapi_assistant_id
@@ -399,7 +399,7 @@ export class PhoneNumberService {
 
       // Soft delete from database (maintain audit trail)
       const { error: deleteError } = await supabase
-        .from('phone_numbers')
+        .from('user_phone_numbers')
         .update({ 
           is_active: false,
           updated_at: new Date().toISOString()

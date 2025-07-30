@@ -10,10 +10,30 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { DashboardLayout } from '@/components/dashboard/layout'
 import { Skeleton } from '@/components/ui/skeleton'
-import type { Database } from '@/types/database'
 
-type Assistant = Database['public']['Tables']['assistants']['Row'] & {
-  assistant_questions: Database['public']['Tables']['assistant_questions']['Row'][]
+interface Assistant {
+  id: string
+  user_id: string
+  name: string
+  template_id: string | null
+  vapi_assistant_id: string
+  config: any
+  is_active: boolean
+  created_at: string
+  updated_at: string
+  assistant_questions?: Array<{
+    id: string
+    assistant_id: string
+    question_text: string
+    field_name: string
+    field_type: string
+    description: string | null
+    is_required: boolean
+    validation_rules: any | null
+    order_index: number
+    created_at: string
+    updated_at: string
+  }>
 }
 
 export default function AssistantDetailsPage() {
@@ -128,11 +148,11 @@ export default function AssistantDetailsPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Language</span>
-                  <span className="text-sm font-medium">{assistant.language || 'en-US'}</span>
+                  <span className="text-sm font-medium">{assistant.config?.language || 'en-US'}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Max Duration</span>
-                  <span className="text-sm font-medium">{assistant.max_call_duration}s</span>
+                  <span className="text-sm font-medium">{assistant.config?.maxCallDuration || 1800}s</span>
                 </div>
               </div>
             </div>
@@ -158,32 +178,32 @@ export default function AssistantDetailsPage() {
                     <div className="flex items-center gap-2 text-sm">
                       <Phone className="h-4 w-4 text-muted-foreground" />
                       <span className="text-muted-foreground">Agent Name:</span>
-                      <span className="font-medium">{assistant.agent_name || 'Not set'}</span>
+                      <span className="font-medium">{assistant.config?.agentName || 'Not set'}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Building className="h-4 w-4 text-muted-foreground" />
                       <span className="text-muted-foreground">Company:</span>
-                      <span className="font-medium">{assistant.company_name || 'Not set'}</span>
+                      <span className="font-medium">{assistant.config?.companyName || 'Not set'}</span>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm">
                       <span className="text-muted-foreground">Tone:</span>
                       <Badge variant="outline" className="capitalize">
-                        {assistant.tone || assistant.personality}
+                        {assistant.config?.tone || assistant.config?.personality || 'professional'}
                       </Badge>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <span className="text-muted-foreground">Voice ID:</span>
-                      <span className="font-mono text-xs">{assistant.voice_id || 'default'}</span>
+                      <span className="font-mono text-xs">{assistant.config?.voiceId || 'Paige'}</span>
                     </div>
                   </div>
                 </div>
-                {assistant.custom_instructions && (
+                {assistant.config?.customInstructions && (
                   <div className="pt-4 border-t">
                     <h4 className="text-sm font-medium mb-2">Custom Instructions</h4>
                     <p className="text-sm text-muted-foreground">
-                      {assistant.custom_instructions}
+                      {assistant.config?.customInstructions}
                     </p>
                   </div>
                 )}
@@ -201,11 +221,11 @@ export default function AssistantDetailsPage() {
               </CardHeader>
               <CardContent>
                 <pre className="text-sm whitespace-pre-wrap bg-muted p-4 rounded-lg">
-                  {assistant.system_prompt || assistant.generated_system_prompt || 'No system prompt configured'}
+                  {assistant.config?.systemPrompt || assistant.config?.generatedSystemPrompt || 'No system prompt configured'}
                 </pre>
               </CardContent>
             </Card>
-            {assistant.first_message && (
+            {assistant.config?.firstMessage && (
               <Card>
                 <CardHeader>
                   <CardTitle>First Message</CardTitle>
@@ -214,7 +234,7 @@ export default function AssistantDetailsPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm">{assistant.first_message}</p>
+                  <p className="text-sm">{assistant.config?.firstMessage}</p>
                 </CardContent>
               </Card>
             )}
@@ -229,14 +249,14 @@ export default function AssistantDetailsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {assistant.assistant_questions.length === 0 ? (
+                {(!assistant.assistant_questions || assistant.assistant_questions.length === 0) ? (
                   <p className="text-sm text-muted-foreground text-center py-8">
                     No questions configured
                   </p>
                 ) : (
                   <div className="space-y-4">
                     {assistant.assistant_questions
-                      .sort((a, b) => a.display_order - b.display_order)
+                      .sort((a, b) => a.order_index - b.order_index)
                       .map((question, index) => (
                         <div key={question.id} className="border rounded-lg p-4">
                           <div className="flex items-start justify-between mb-2">
@@ -250,9 +270,9 @@ export default function AssistantDetailsPage() {
                             )}
                           </div>
                           <div className="space-y-1 text-sm text-muted-foreground">
-                            <p>{question.answer_description}</p>
+                            <p>{question.description}</p>
                             <div className="flex gap-4 text-xs">
-                              <span>Field: <code>{question.structured_field_name}</code></span>
+                              <span>Field: <code>{question.field_name}</code></span>
                               <span>Type: {question.field_type}</span>
                             </div>
                           </div>
