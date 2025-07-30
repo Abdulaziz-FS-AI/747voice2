@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
       .from('phone_numbers')
       .select(`
         *,
-        user_assistants!assigned_assistant_id (
+        assistants!assigned_assistant_id (
           id,
           name
         )
@@ -54,9 +54,9 @@ export async function GET(request: NextRequest) {
     // Transform the data to flatten assistant info
     const transformedData = phoneNumbers?.map(number => ({
       ...number,
-      assistant: number.user_assistants ? {
-        id: number.user_assistants.id,
-        name: number.user_assistants.name
+      assistant: number.assistants ? {
+        id: number.assistants.id,
+        name: number.assistants.name
       } : null
     })) || []
 
