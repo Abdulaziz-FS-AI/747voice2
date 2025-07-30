@@ -42,7 +42,15 @@ const backgroundSoundOptions = [
   { value: 'office', label: 'Office Environment' }
 ]
 
-export function CreateAssistantForm() {
+interface CreateAssistantFormProps {
+  templateData?: {
+    templateId: string
+    questions: any[]
+  } | null
+  onCancel?: () => void
+}
+
+export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
 
@@ -88,7 +96,8 @@ export function CreateAssistantForm() {
         first_message_mode: data.first_message_mode || 'assistant-speaks-first',
         background_sound: data.background_sound || 'office',
         structured_questions: data.structured_questions || [],
-        evaluation_rubric: data.evaluation_rubric || null
+        evaluation_rubric: data.evaluation_rubric || null,
+        template_id: templateData?.templateId || undefined
       }
       
       console.log('Submitting assistant data:', submitData)
@@ -130,31 +139,34 @@ export function CreateAssistantForm() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-4">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Main Grid Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {/* Basic Information - Full width on mobile, half on tablet+ */}
-          <div className="md:col-span-2 lg:col-span-1">
-            <Card className="h-fit">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Basic Information</CardTitle>
+    <div className="max-w-6xl mx-auto p-6 bg-black min-h-screen">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        {/* Compact Grid Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {/* Basic Information */}
+          <div>
+            <Card className="vm-card h-fit">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-sm font-semibold text-orange-400 flex items-center gap-2">
+                  <span className="h-2 w-2 bg-orange-400 rounded-full"></span>
+                  Basic Information
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-4">
                 <div>
                   <Input
                     placeholder="Assistant Name *"
                     {...register('name', { required: 'Assistant name is required' })}
-                    className="text-sm"
+                    className="bg-gray-900 border-gray-700 text-white placeholder-gray-400 text-sm focus:border-orange-400 focus:ring-orange-400"
                   />
                   {errors.name && (
-                    <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>
+                    <p className="text-xs text-red-400 mt-1">{errors.name.message}</p>
                   )}
                 </div>
                 <Input
                   placeholder="Company Name"
                   {...register('company_name')}
-                  className="text-sm"
+                  className="bg-gray-900 border-gray-700 text-white placeholder-gray-400 text-sm focus:border-orange-400 focus:ring-orange-400"
                 />
               </CardContent>
             </Card>
@@ -162,9 +174,12 @@ export function CreateAssistantForm() {
 
           {/* AI Model */}
           <div>
-            <Card className="h-fit">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">AI Model</CardTitle>
+            <Card className="vm-card h-fit">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-sm font-semibold text-blue-400 flex items-center gap-2">
+                  <span className="h-2 w-2 bg-blue-400 rounded-full"></span>
+                  AI Model
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <ModelSelector
@@ -177,9 +192,12 @@ export function CreateAssistantForm() {
 
           {/* Voice */}
           <div>
-            <Card className="h-fit">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Voice</CardTitle>
+            <Card className="vm-card h-fit">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-sm font-semibold text-green-400 flex items-center gap-2">
+                  <span className="h-2 w-2 bg-green-400 rounded-full"></span>
+                  Voice
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <VoiceSelector
@@ -191,10 +209,13 @@ export function CreateAssistantForm() {
           </div>
 
           {/* Personality */}
-          <div className="md:col-span-2 lg:col-span-1">
-            <Card className="h-fit">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Personality</CardTitle>
+          <div>
+            <Card className="vm-card h-fit">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-sm font-semibold text-purple-400 flex items-center gap-2">
+                  <span className="h-2 w-2 bg-purple-400 rounded-full"></span>
+                  Personality
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <PersonalitySelector
@@ -207,20 +228,23 @@ export function CreateAssistantForm() {
           </div>
 
           {/* First Message */}
-          <div className="lg:col-span-2">
-            <Card className="h-fit">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">First Message</CardTitle>
+          <div className="md:col-span-2">
+            <Card className="vm-card h-fit">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-sm font-semibold text-yellow-400 flex items-center gap-2">
+                  <span className="h-2 w-2 bg-yellow-400 rounded-full"></span>
+                  First Message
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <Textarea
                   placeholder="Hello! How can I help you today?"
                   {...register('first_message', { required: 'First message is required' })}
                   rows={3}
-                  className="text-sm"
+                  className="bg-gray-900 border-gray-700 text-white placeholder-gray-400 text-sm focus:border-orange-400 focus:ring-orange-400 resize-none"
                 />
                 {errors.first_message && (
-                  <p className="text-xs text-red-500 mt-1">{errors.first_message.message}</p>
+                  <p className="text-xs text-red-400 mt-1">{errors.first_message.message}</p>
                 )}
               </CardContent>
             </Card>
@@ -306,17 +330,21 @@ export function CreateAssistantForm() {
         </div>
 
         {/* Submit Buttons */}
-        <div className="flex justify-end gap-3 pt-4 border-t">
+        <div className="flex justify-end gap-4 pt-6 border-t border-gray-800">
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.back()}
+            onClick={onCancel || (() => router.back())}
             disabled={isLoading}
-            size="sm"
+            className="bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={isLoading} size="sm">
+          <Button 
+            type="submit" 
+            disabled={isLoading} 
+            className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold px-8 shadow-lg shadow-orange-500/25"
+          >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Create Assistant
           </Button>

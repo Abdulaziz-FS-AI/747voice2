@@ -96,6 +96,30 @@ export async function POST(request: NextRequest) {
     const { user } = await requirePermission('basic');
     console.log('[Assistant API] User authenticated:', user.id);
     
+    // Ensure user profile exists (create if missing)
+    const supabase = createServiceRoleClient();
+    const { data: existingProfile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', user.id)
+      .single();
+    
+    if (!existingProfile) {
+      console.log('[Assistant API] Creating missing user profile');
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          email: user.email || 'unknown@example.com',
+          full_name: user.user_metadata?.full_name || 'Unknown User'
+        });
+      
+      if (profileError) {
+        console.error('[Assistant API] Failed to create profile:', profileError);
+        throw new Error('Failed to create user profile');
+      }
+    }
+    
     const body = await request.json();
     console.log('[Assistant API] Request body received:', JSON.stringify(body, null, 2));
 
@@ -106,8 +130,6 @@ export async function POST(request: NextRequest) {
     // Validate input
     const validatedData = CreateAssistantSchema.parse(body);
     console.log('[Assistant API] Data validated successfully');
-
-    const supabase = createServiceRoleClient();
 
     let systemPrompt: string;
     const firstMessage: string = validatedData.first_message;
@@ -131,20 +153,24 @@ export async function POST(request: NextRequest) {
       console.log('[Assistant API] Using template:', template.name);
       systemPrompt = template.base_prompt;
 
-      // Process customizable fields for replacements
+      // Process customizable fields from template
+      const customizableFields = template.customizable_fields || {};
+      
+      // Create replacements object
       const replacements: Record<string, string> = {
-        COMPANY_NAME: validatedData.company_name || 'the company',
         ASSISTANT_NAME: validatedData.name || 'Assistant',
+        COMPANY_NAME: validatedData.company_name || 'the company',
         PERSONALITY: validatedData.personality_traits?.join(', ') || 'professional',
+        ...customizableFields // Include any template-specific defaults
       };
 
-      // Replace placeholders in system prompt
+      // Replace placeholders in system prompt (supports {FIELD_NAME} format)
       Object.entries(replacements).forEach(([key, value]) => {
         const placeholder = `{${key}}`;
-        systemPrompt = systemPrompt.replace(new RegExp(placeholder.replace(/[{}]/g, '\\\\$&'), 'g'), value);
+        systemPrompt = systemPrompt.replace(new RegExp(placeholder.replace(/[{}]/g, '\\$&'), 'g'), value);
       });
 
-      console.log('[Assistant API] Processed system prompt with template');
+      console.log('[Assistant API] Processed system prompt with template customizations');
     } else {
       // Generate default system prompt without template
       const personalityDescription = validatedData.personality_traits?.length > 0 

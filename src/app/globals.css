@@ -2,38 +2,43 @@
 @import "tailwindcss";
 
 :root {
-  /* Voice Matrix Brand Colors - Calming & Professional */
-  --vm-primary: #5B9BD5;      /* Soft blue */
-  --vm-primary-light: #7BB3E0;
-  --vm-primary-dark: #4A8BC2;
+  /* Voice Matrix Dark Theme - Banking Style with Orange Accents */
+  --vm-primary: #FF8C42;        /* Vibrant orange primary */
+  --vm-primary-light: #FFA666;  /* Lighter orange */
+  --vm-primary-dark: #E6792B;   /* Darker orange */
   
-  --vm-background: #FAFBFC;    /* Very light gray */
-  --vm-surface: #FFFFFF;      /* Pure white cards */
-  --vm-surface-elevated: #F8F9FA; /* Slightly elevated */
-  --vm-surface-hover: #F1F3F5; /* Subtle hover */
+  --vm-background: #0F0F0F;     /* Deep black background */
+  --vm-surface: #1A1A1A;       /* Dark gray cards */
+  --vm-surface-elevated: #242424; /* Slightly elevated surface */
+  --vm-surface-hover: #2A2A2A;  /* Hover state */
   
-  --vm-text-primary: #2D3748;  /* Dark gray text */
-  --vm-text-secondary: #718096; /* Medium gray */
-  --vm-text-tertiary: #A0AEC0;  /* Light gray */
+  --vm-text-primary: #FFFFFF;   /* Pure white text */
+  --vm-text-secondary: #B0B0B0; /* Light gray */
+  --vm-text-tertiary: #808080;  /* Medium gray */
+  --vm-text-muted: #666666;     /* Muted gray */
   
-  --vm-accent: #48BB78;        /* Soft green accent */
-  --vm-success: #38A169;       /* Success green */
-  --vm-warning: #ED8936;       /* Warning orange */
-  --vm-error: #E53E3E;         /* Error red */
+  --vm-accent: #FF8C42;         /* Orange accent */
+  --vm-success: #10B981;        /* Green success */
+  --vm-warning: #F59E0B;        /* Yellow warning */
+  --vm-error: #EF4444;          /* Red error */
+  --vm-info: #3B82F6;           /* Blue info */
   
-  --vm-border: rgba(91, 155, 213, 0.15); /* Soft blue border */
-  --vm-border-hover: rgba(91, 155, 213, 0.25);
+  --vm-border: rgba(255, 140, 66, 0.2);  /* Orange border */
+  --vm-border-subtle: rgba(255, 255, 255, 0.1); /* Subtle border */
+  --vm-border-hover: rgba(255, 140, 66, 0.4);
   
   /* Gradients */
-  --vm-gradient-primary: linear-gradient(135deg, #5B9BD5 0%, #4A8BC2 100%);
-  --vm-gradient-surface: linear-gradient(135deg, #FFFFFF 0%, #F8F9FA 100%);
-  --vm-gradient-glow: linear-gradient(135deg, rgba(91, 155, 213, 0.05) 0%, rgba(72, 187, 120, 0.05) 100%);
+  --vm-gradient-primary: linear-gradient(135deg, #FF8C42 0%, #E6792B 100%);
+  --vm-gradient-surface: linear-gradient(135deg, #1A1A1A 0%, #242424 100%);
+  --vm-gradient-glow: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(255, 140, 66, 0.05) 100%);
+  --vm-gradient-card: linear-gradient(135deg, #1A1A1A 0%, #1F1F1F 100%);
   
   /* Shadows */
-  --vm-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
-  --vm-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
-  --vm-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-  --vm-shadow-glow: 0 0 20px rgba(91, 155, 213, 0.15);
+  --vm-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --vm-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --vm-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4);
+  --vm-shadow-glow: 0 0 20px rgba(255, 140, 66, 0.3);
+  --vm-shadow-orange: 0 4px 20px rgba(255, 140, 66, 0.2);
   
   /* Fonts */
   --vm-font-display: 'Inter', sans-serif;
@@ -48,6 +53,12 @@
   --color-secondary: var(--vm-surface);
   --color-accent: var(--vm-accent);
   --color-muted: var(--vm-text-secondary);
+  --color-muted-foreground: var(--vm-text-tertiary);
+  --color-card: var(--vm-surface);
+  --color-card-foreground: var(--vm-text-primary);
+  --color-border: var(--vm-border-subtle);
+  --color-input: var(--vm-surface);
+  --color-ring: var(--vm-primary);
   --font-sans: var(--vm-font-body);
   --font-mono: var(--vm-font-mono);
 }
@@ -71,19 +82,39 @@ body {
   min-height: 100vh;
 }
 
-/* Voice Matrix Professional Styling */
+/* Voice Matrix Dark Banking Style */
 .vm-card {
-  background: var(--vm-gradient-surface);
-  border: 1px solid var(--vm-border);
+  background: var(--vm-gradient-card);
+  border: 1px solid var(--vm-border-subtle);
   border-radius: 12px;
   box-shadow: var(--vm-shadow-md);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .vm-card:hover {
-  border-color: var(--vm-border-hover);
+  border-color: var(--vm-border);
   transform: translateY(-2px);
-  box-shadow: var(--vm-shadow-lg);
+  box-shadow: var(--vm-shadow-orange);
+}
+
+/* Orange accent cards */
+.vm-card-accent {
+  background: var(--vm-gradient-card);
+  border: 1px solid var(--vm-border);
+  border-radius: 12px;
+  box-shadow: var(--vm-shadow-orange);
+  position: relative;
+  overflow: hidden;
+}
+
+.vm-card-accent::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--vm-gradient-primary);
 }
 
 .vm-button-primary {
