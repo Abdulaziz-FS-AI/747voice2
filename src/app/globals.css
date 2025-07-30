@@ -218,3 +218,126 @@ body {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Enhanced scrollbar styling */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thumb-orange-500\/20::-webkit-scrollbar-thumb {
+  background-color: rgba(251, 146, 60, 0.2);
+  border-radius: 4px;
+}
+
+.scrollbar-thumb-orange-500\/20::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(251, 146, 60, 0.4);
+}
+
+.scrollbar-track-transparent::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Professional form styling */
+.vm-form-section {
+  background: var(--vm-gradient-card);
+  border: 1px solid var(--vm-border-subtle);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.vm-form-section:hover {
+  border-color: var(--vm-border);
+  box-shadow: var(--vm-shadow-orange);
+  transform: translateY(-1px);
+}
+
+/* Improved focus states */
+.vm-input-focus:focus {
+  outline: none;
+  border-color: var(--vm-primary);
+  box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Professional badge styling */
+.vm-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.vm-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--vm-shadow-sm);
+}
+
+/* Enhanced button styles */
+.vm-button-secondary {
+  background: var(--vm-surface-elevated);
+  color: var(--vm-text-secondary);
+  border: 1px solid var(--vm-border-subtle);
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.vm-button-secondary:hover {
+  background: var(--vm-surface-hover);
+  color: var(--vm-text-primary);
+  border-color: var(--vm-border);
+  transform: translateY(-1px);
+  box-shadow: var(--vm-shadow-md);
+}
+
+/* Smooth animations */
+@keyframes vm-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.vm-animate-in {
+  animation: vm-fade-in 0.3s ease-out;
+}
+
+/* Professional loading states */
+.vm-loading {
+  opacity: 0.7;
+  pointer-events: none;
+  filter: grayscale(0.3);
+}
+
+/* Enhanced dropdown styles */
+.vm-dropdown {
+  background: var(--vm-surface);
+  border: 1px solid var(--vm-border);
+  border-radius: 8px;
+  box-shadow: var(--vm-shadow-lg);
+  backdrop-filter: blur(10px);
+}
+
+.vm-dropdown-item {
+  padding: 12px 16px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.vm-dropdown-item:hover {
+  background: var(--vm-surface-hover);
+  color: var(--vm-text-primary);
+}
+
+.vm-dropdown-item:last-child {
+  border-bottom: none;
+}
