@@ -6,7 +6,7 @@
  * validation, and transaction management.
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createServerSupabaseClient } from '@/lib/supabase'
 import { VAPIService } from './vapi.service'
 import { LoggerService } from './logger.service'
 import { ValidationError, NotFoundError, ConflictError } from '@/lib/errors'
@@ -83,7 +83,7 @@ export class PhoneNumberService {
       // Validate input
       const validatedData = PhoneNumberSchema.parse(request)
       
-      const supabase = await createClient()
+      const supabase = await createServerSupabaseClient()
 
       // Check if phone number already exists for user
       const { data: existingPhone } = await supabase
@@ -226,7 +226,7 @@ export class PhoneNumberService {
     const correlationId = crypto.randomUUID()
     
     try {
-      const supabase = await createClient()
+      const supabase = await createServerSupabaseClient()
       
       const { data: phones, error } = await supabase
         .from('user_phone_numbers')
@@ -263,7 +263,7 @@ export class PhoneNumberService {
     const correlationId = crypto.randomUUID()
     
     try {
-      const supabase = await createClient()
+      const supabase = await createServerSupabaseClient()
       
       const { data: phone, error } = await supabase
         .from('user_phone_numbers')
@@ -319,7 +319,7 @@ export class PhoneNumberService {
       // Validate input
       const validatedData = AssignmentSchema.parse(request)
       
-      const supabase = await createClient()
+      const supabase = await createServerSupabaseClient()
 
       // Get phone number (verify ownership)
       const phone = await this.getPhoneNumberById(phoneId, userId)
@@ -405,7 +405,7 @@ export class PhoneNumberService {
     })
 
     try {
-      const supabase = await createClient()
+      const supabase = await createServerSupabaseClient()
 
       // Get phone number (verify ownership)
       const phone = await this.getPhoneNumberById(phoneId, userId)

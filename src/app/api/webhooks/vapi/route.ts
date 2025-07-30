@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { handleAPIError, VapiError } from '@/lib/errors';
-import { createServiceRoleClient } from '@/lib/supabase';
+import { createServerSupabaseClient } from '@/lib/supabase';
 import { VapiClient } from '@/lib/vapi';
 import type { Database } from '@/types/database';
 import { 
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     console.log('Received Vapi webhook event:', event.type, event.callId);
 
-    const supabase = createServiceRoleClient();
+    const supabase = await createServerSupabaseClient();
 
     // Only handle call-end events for reports
     if (isCallEndEvent(event)) {
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
 
 
 // Handle call end event - Create complete call report
-async function handleCallEnd(supabase: ReturnType<typeof createServiceRoleClient>, event: CallEndEvent) {
+async function handleCallEnd(supabase: Awaited<Awaited<ReturnType<typeof createServerSupabaseClient>>>, event: CallEndEvent) {
   const { call } = event;
 
   // Find the assistant in our database
@@ -144,7 +144,7 @@ async function handleCallEnd(supabase: ReturnType<typeof createServiceRoleClient
 
 // Create lead from call analysis
 async function createLeadFromCall(
-  supabase: ReturnType<typeof createServiceRoleClient>,
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
   call: Database['public']['Tables']['calls']['Row'],
   structuredData: Record<string, unknown>
 ) {
@@ -181,7 +181,7 @@ async function createLeadFromCall(
 }
 
 // Store call transcript
-async function storeTranscript(supabase: ReturnType<typeof createServiceRoleClient>, callId: string, transcript: string) {
+async function storeTranscript(supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>, callId: string, transcript: string) {
   // Parse transcript and store as individual entries
   // For now, we'll store the entire transcript as one entry
   const { error } = await supabase
