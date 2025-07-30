@@ -332,10 +332,21 @@ export async function createVapiAssistant(assistantData: {
   }
 
   try {
+    // Map custom model IDs to VAPI-compatible models
+    const modelMapping: Record<string, string> = {
+      'gpt-4.1-nano-2025-04-14': 'gpt-4o-mini',  // Cheapest
+      'gpt-4o-mini-cluster-2025-04-14': 'gpt-4o-mini',  // Fastest
+      'gpt-4.1-2025-04-14': 'gpt-4o',  // 4.1
+      'gpt-4o-cluster-2025-04-14': 'gpt-4o',  // 4o
+      'gpt-4.1-mini-2025-04-14': 'gpt-4o-mini'  // Default
+    };
+
+    const vapiModel = modelMapping[assistantData.modelId || ''] || 'gpt-4o-mini';
+
     // Prepare model configuration with functions
     const modelConfig: VapiModel = {
       provider: 'openai',
-      model: assistantData.modelId || 'gpt-4.1-mini-2025-04-14',
+      model: vapiModel,
       messages: [
         {
           role: 'system',
@@ -417,8 +428,8 @@ export async function createVapiAssistant(assistantData: {
       maxDurationSeconds: assistantData.maxDurationSeconds || 300,
       backgroundSound: assistantData.backgroundSound || 'office',
       analysisPlan: analysisPlan,
-      serverUrl: `${process.env.NEXT_PUBLIC_URL}/api/webhooks/vapi`,
-      serverUrlSecret: process.env.VAPI_WEBHOOK_SECRET || '',
+      serverUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://747voice-tau.vercel.app'}/api/webhooks/vapi`,
+      serverUrlSecret: process.env.VAPI_WEBHOOK_SECRET || 'd64785c3a91b6ba5c6a7b5fab7ee5ea1df2857f0e9cf62efda8f58179811d5de',
       endCallMessage: "Thank you for calling! Have a great day!",
       recordingEnabled: true,
       fillersEnabled: true,

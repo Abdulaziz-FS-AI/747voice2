@@ -33,7 +33,11 @@ const CreateAssistantSchema = z.object({
   evaluation_rubric: z.enum([
     'NumericScale', 'DescriptiveScale', 'Checklist', 'Matrix', 
     'PercentageScale', 'LikertScale', 'AutomaticRubric', 'PassFail'
-  ]).optional().nullable()
+  ]).optional().nullable(),
+  // Template support
+  template_id: z.string().optional(),
+  agent_name: z.string().optional(),
+  tone: z.string().optional()
 });
 
 // Validation schema for updating assistants
@@ -115,17 +119,74 @@ export async function POST(request: NextRequest) {
 
     const supabase = createServiceRoleClient();
 
-    // Generate system prompt with personality traits
-    const personalityDescription = validatedData.personality_traits?.length > 0 
-      ? validatedData.personality_traits.join(', ')
-      : validatedData.personality;
-    
-    const systemPrompt = 
-      `You are a ${personalityDescription} AI assistant for ${validatedData.company_name || 'the company'}. ` +
-      `Help customers with their inquiries in a ${personalityDescription} manner. ` +
-      `Your personality traits include: ${personalityDescription}.`;
-    
-    const firstMessage = validatedData.first_message;
+    let systemPrompt: string;
+    let firstMessage: string = validatedData.first_message;
+
+    // Check if using a template
+    if (validatedData.template_id) {
+      // Fetch template
+      const { data: template, error: templateError } = await supabase
+        .from('prompt_templates')
+        .select('*')
+        .eq('id', validatedData.template_id)
+        .single();
+
+      if (templateError || !template) {
+        throw new Error('Template not found');
+      }
+
+      // Replace placeholders in the template
+      systemPrompt = template.base_prompt;
+      
+      // Replace dynamic placeholders
+      const replacements: Record<string, string> = {
+        AGENT_NAME: validatedData.agent_name || 'Assistant',
+        COMPANY_NAME: validatedData.company_name || 'the company',
+        TONE: validatedData.tone || validatedData.personality_traits?.join(', ') || 'professional',
+        CUSTOM_INSTRUCTIONS: '',
+      };
+
+      // Add question collection instructions if structured questions exist
+      if (validatedData.structured_questions?.length > 0) {
+        replacements.QUESTION_COLLECTION_INSTRUCTIONS = 
+          'During the conversation, gather the following information naturally:\n' +
+          validatedData.structured_questions.map(q => 
+            `- ${q.question} (${q.required ? 'Required' : 'Optional'}: ${q.description})`
+          ).join('\n');
+      } else {
+        replacements.QUESTION_COLLECTION_INSTRUCTIONS = '';
+      }
+
+      // Replace all placeholders
+      Object.entries(replacements).forEach(([key, value]) => {
+        systemPrompt = systemPrompt.replace(new RegExp(`\\{${key}\\}`, 'g'), value);
+      });
+
+      // Update first message if template has one
+      if (template.first_message_template) {
+        firstMessage = template.first_message_template;
+        Object.entries(replacements).forEach(([key, value]) => {
+          firstMessage = firstMessage.replace(new RegExp(`\\{${key}\\}`, 'g'), value);
+        });
+      }
+    } else {
+      // Generate default system prompt without template
+      const personalityDescription = validatedData.personality_traits?.length > 0 
+        ? validatedData.personality_traits.join(', ')
+        : validatedData.personality;
+      
+      systemPrompt = 
+        `You are an AI assistant${validatedData.company_name ? ` working for ${validatedData.company_name}` : ''}. ` +
+        `Your personality should be ${personalityDescription}. ` +
+        (validatedData.structured_questions?.length > 0 
+          ? `\n\nIMPORTANT: During the conversation, naturally gather the following information:\n` +
+            validatedData.structured_questions.map(q => 
+              `- ${q.question} (${q.required ? 'Required' : 'Optional'})`
+            ).join('\n') +
+            `\n\nGather this information naturally during the conversation without sounding like an interview.`
+          : '') +
+        `\n\nAlways maintain a ${personalityDescription} tone throughout the conversation.`;
+    }
 
     // Create assistant (using simplified schema)
     const { data: assistant, error } = await supabase
@@ -145,6 +206,10 @@ export async function POST(request: NextRequest) {
         background_sound: validatedData.background_sound,
         structured_questions: validatedData.structured_questions,
         evaluation_rubric: validatedData.evaluation_rubric,
+        template_id: validatedData.template_id,
+        agent_name: validatedData.agent_name,
+        tone: validatedData.tone,
+        generated_system_prompt: systemPrompt, // Store the final merged prompt
         is_active: true
       })
       .select('*')
