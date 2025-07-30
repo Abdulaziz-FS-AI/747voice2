@@ -57,6 +57,8 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
   const [isLoading, setIsLoading] = useState(false)
   const [showAuthToken, setShowAuthToken] = useState(false)
   const [assistants, setAssistants] = useState<Assistant[]>([])
+  const [assistantsLoading, setAssistantsLoading] = useState(false)
+  const [assistantsFetched, setAssistantsFetched] = useState(false)
   const [currentStep, setCurrentStep] = useState<'details' | 'config' | 'assign'>('details')
 
   const form = useForm<PhoneNumberFormData>({
@@ -75,21 +77,38 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
 
   useEffect(() => {
     if (open) {
-      fetchAssistants()
       reset()
       setCurrentStep('details')
+      setAssistantsFetched(false) // Reset fetch status when modal opens
     }
   }, [open, reset])
 
   const fetchAssistants = async () => {
+    // Prevent multiple simultaneous requests
+    if (assistantsLoading || assistantsFetched) return
+    
+    setAssistantsLoading(true)
     try {
       const response = await fetch('/api/assistants')
       const data = await response.json()
       if (data.success) {
         setAssistants(data.data || [])
+        setAssistantsFetched(true)
       }
     } catch (error) {
       console.error('Failed to fetch assistants:', error)
+    } finally {
+      setAssistantsLoading(false)
+    }
+  }
+
+  // Only fetch assistants when user reaches the assign step
+  const handleStepChange = (newStep: 'details' | 'config' | 'assign') => {
+    setCurrentStep(newStep)
+    
+    // Lazy load assistants only when user goes to assign step
+    if (newStep === 'assign' && !assistantsFetched) {
+      fetchAssistants()
     }
   }
 
@@ -140,13 +159,13 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
   }
 
   const nextStep = () => {
-    if (currentStep === 'details') setCurrentStep('config')
-    else if (currentStep === 'config') setCurrentStep('assign')
+    if (currentStep === 'details') handleStepChange('config')
+    else if (currentStep === 'config') handleStepChange('assign')
   }
 
   const prevStep = () => {
-    if (currentStep === 'assign') setCurrentStep('config')
-    else if (currentStep === 'config') setCurrentStep('details')
+    if (currentStep === 'assign') handleStepChange('config')
+    else if (currentStep === 'config') handleStepChange('details')
   }
 
   const canProceedToConfig = () => {
@@ -286,24 +305,33 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
             <TabsContent value="assign" className="space-y-4 mt-6">
               <div className="space-y-2">
                 <Label htmlFor="assignedAssistantId">Assign to Assistant (Optional)</Label>
-                <Select onValueChange={(value) => setValue('assignedAssistantId', value)}>
+                <Select onValueChange={(value) => setValue('assignedAssistantId', value === 'unassigned' ? undefined : value)}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select an assistant" />
+                    <SelectValue placeholder={assistantsLoading ? "Loading assistants..." : "Select an assistant"} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">
+                    <SelectItem value="unassigned">
                       <span className="text-muted-foreground">Don&apos;t assign yet</span>
                     </SelectItem>
-                    {assistants.map((assistant) => (
-                      <SelectItem key={assistant.id} value={assistant.id}>
-                        <div>
-                          <div className="font-medium">{assistant.name}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {assistant.agent_name} • {assistant.company_name}
-                          </div>
+                    {assistantsLoading ? (
+                      <SelectItem value="loading" disabled>
+                        <div className="flex items-center gap-2">
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                          <span className="text-muted-foreground">Loading assistants...</span>
                         </div>
                       </SelectItem>
-                    ))}
+                    ) : (
+                      assistants.map((assistant) => (
+                        <SelectItem key={assistant.id} value={assistant.id}>
+                          <div>
+                            <div className="font-medium">{assistant.name}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {assistant.agent_name} • {assistant.company_name}
+                            </div>
+                          </div>
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
