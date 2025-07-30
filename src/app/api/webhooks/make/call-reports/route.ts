@@ -11,30 +11,17 @@ import { createServerSupabaseClient } from '@/lib/supabase'
 import { LoggerService } from '@/lib/services/logger.service'
 
 interface MakeCallReportPayload {
-  // Call identification
-  vapi_call_id: string
-  assistant_id: string
-  phone_number?: string
-  
-  // Call details
-  call_status: 'completed' | 'failed' | 'busy' | 'no-answer' | 'cancelled'
-  started_at: string
-  ended_at: string
-  duration_seconds: number
-  cost_cents: number
-  
-  // Call content
-  transcript?: string
-  caller_number?: string
-  
-  // Structured data collected during call
-  structured_data?: Record<string, any>
-  
-  // Success evaluation from VAPI
-  success_evaluation?: Record<string, any>
-  
-  // Raw VAPI payload for debugging
-  raw_payload: Record<string, any>
+  // Exact structure as received from Make.com
+  id: string                    // VAPI call ID (UUID)
+  assistant_id: string          // VAPI assistant ID (UUID)
+  duration_seconds: number      // Call duration in seconds
+  caller_number?: string        // Caller's phone number
+  started_at: string           // Start timestamp (ISO format)
+  transcript?: string          // Call transcript
+  structured_data?: Record<string, any> // JSONB structured data
+  success_evaluation?: string   // Success evaluation text
+  summary?: string             // Call summary text
+  cost: number                 // Cost (integer, cents or dollars)
 }
 
 const logger = LoggerService.getInstance()
@@ -63,9 +50,8 @@ export async function POST(request: NextRequest) {
     
     logger.info('Received Make.com call report', {
       correlationId,
-      vapiCallId: payload.vapi_call_id,
+      vapiCallId: payload.id,
       assistantId: payload.assistant_id,
-      callStatus: payload.call_status,
       duration: payload.duration_seconds
     })
 
@@ -82,7 +68,7 @@ export async function POST(request: NextRequest) {
     if (assistantError || !assistant) {
       logger.error('Assistant not found for call report', {
         correlationId,
-        vapiCallId: payload.vapi_call_id,
+        vapiCallId: payload.id,
         assistantId: payload.assistant_id,
         error: assistantError?.message
       })
@@ -95,11 +81,11 @@ export async function POST(request: NextRequest) {
 
     // Find phone number if provided
     let phoneNumberId = null
-    if (payload.phone_number) {
+    if (payload.caller_number) {
       const { data: phoneNumber } = await supabase
         .from('user_phone_numbers')
         .select('id')
-        .eq('phone_number', payload.phone_number)
+        .eq('phone_number', payload.caller_number)
         .eq('user_id', assistant.user_id)
         .single()
       
@@ -113,17 +99,15 @@ export async function POST(request: NextRequest) {
         user_id: assistant.user_id,
         assistant_id: assistant.id,
         phone_number_id: phoneNumberId,
-        vapi_call_id: payload.vapi_call_id,
-        call_status: payload.call_status,
+        vapi_call_id: payload.id,
         duration_seconds: payload.duration_seconds,
-        cost_cents: payload.cost_cents,
+        cost_cents: Math.round(payload.cost * 100), // Convert to cents if needed
         caller_number: payload.caller_number,
         started_at: payload.started_at,
-        ended_at: payload.ended_at,
         transcript: payload.transcript,
         structured_data: payload.structured_data || {},
-        success_evaluation: payload.success_evaluation || {},
-        raw_payload: payload.raw_payload
+        success_evaluation: payload.success_evaluation,
+        summary: payload.summary
       })
       .select()
       .single()
@@ -131,7 +115,7 @@ export async function POST(request: NextRequest) {
     if (insertError) {
       logger.error('Failed to insert call log', {
         correlationId,
-        vapiCallId: payload.vapi_call_id,
+        vapiCallId: payload.id,
         error: insertError.message
       })
       
@@ -143,7 +127,7 @@ export async function POST(request: NextRequest) {
 
     logger.info('Call log stored successfully', {
       correlationId,
-      vapiCallId: payload.vapi_call_id,
+      vapiCallId: payload.id,
       callLogId: callLog.id,
       userId: assistant.user_id
     })
