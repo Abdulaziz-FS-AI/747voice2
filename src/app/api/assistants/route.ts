@@ -32,7 +32,7 @@ const CreateAssistantSchema = z.object({
     'NumericScale', 'DescriptiveScale', 'Checklist', 'Matrix', 
     'PercentageScale', 'LikertScale', 'AutomaticRubric', 'PassFail'
   ]).optional().nullable(),
-  client_messages: z.array(z.string()).optional().default([]), // Add client messages field
+  client_messages: z.array(z.string()).optional().default(['end-of-call-report']), // Default system message
   template_id: z.string().uuid().optional()
 });
 

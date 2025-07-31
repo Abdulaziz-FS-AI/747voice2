@@ -103,7 +103,7 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
         background_sound: data.background_sound || 'office',
         structured_questions: data.structured_questions || [],
         evaluation_rubric: data.evaluation_rubric || null,
-        client_messages: data.client_messages || [],
+        client_messages: data.client_messages || ['end-of-call-report'],
         template_id: templateData?.templateId || undefined
       }
       
