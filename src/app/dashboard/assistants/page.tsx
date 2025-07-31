@@ -50,7 +50,7 @@ export default function AssistantsPage() {
   const [filteredAssistants, setFilteredAssistants] = useState<Assistant[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'enabled' | 'disabled'>('all')
   
   // Modal states
   const [selectedAssistant, setSelectedAssistant] = useState<Assistant | null>(null)
@@ -111,7 +111,7 @@ export default function AssistantsPage() {
     // Status filter
     if (statusFilter !== 'all') {
       filtered = filtered.filter(assistant => 
-        statusFilter === 'active' ? assistant.is_active : !assistant.is_active
+        statusFilter === 'enabled' ? assistant.is_active : !assistant.is_active
       )
     }
 
@@ -379,8 +379,8 @@ export default function AssistantsPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Neural States</SelectItem>
-                    <SelectItem value="active">Active Agents</SelectItem>
-                    <SelectItem value="inactive">Dormant Agents</SelectItem>
+                    <SelectItem value="enabled">Enabled Agents</SelectItem>
+                    <SelectItem value="disabled">Disabled Agents</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -560,12 +560,12 @@ export default function AssistantsPage() {
                             {assistant.is_active ? (
                               <>
                                 <PowerOff className="mr-2 h-4 w-4 group-hover:text-orange-400" />
-                                Deactivate
+                                Disable
                               </>
                             ) : (
                               <>
                                 <Power className="mr-2 h-4 w-4 group-hover:text-emerald-400" />
-                                Activate
+                                Enable
                               </>
                             )}
                           </DropdownMenuItem>
@@ -585,7 +585,7 @@ export default function AssistantsPage() {
                         variant={assistant.is_active ? 'default' : 'secondary'}
                         className={assistant.is_active ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-gray-500/20 text-gray-400 border-gray-500/30'}
                       >
-                        {assistant.is_active ? 'Active Neural State' : 'Dormant'}
+                        {assistant.is_active ? 'Enabled' : 'Disabled'}
                       </Badge>
                       <Badge 
                         variant="outline" 

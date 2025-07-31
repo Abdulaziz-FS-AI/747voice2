@@ -61,7 +61,7 @@ export function AssistantCard({
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
-            <h3 className="font-semibold text-lg leading-none">
+            <h3 className="font-semibold text-lg leading-none vm-text-bright">
               {assistant.name}
             </h3>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -109,7 +109,7 @@ export function AssistantCard({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Badge variant={assistant.is_active ? "default" : "secondary"}>
-              {assistant.is_active ? "Active" : "Inactive"}
+              {assistant.is_active ? "Enabled" : "Disabled"}
             </Badge>
             {assistant.tone && (
               <Badge variant="outline" className="capitalize">

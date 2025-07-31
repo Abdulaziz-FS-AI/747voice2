@@ -130,6 +130,11 @@
   --vm-duration-fast: 200ms;
   --vm-duration-normal: 300ms;
   --vm-duration-slow: 400ms;
+  
+  /* ===== ENHANCED TEXT COLORS FOR BETTER VISIBILITY ===== */
+  --vm-text-primary: #ffffff;
+  --vm-text-secondary: #e2e8f0;
+  --vm-text-muted: #cbd5e1;
 }
 
 @theme inline {
@@ -178,6 +183,72 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+}
+
+/* ==============================================
+   ENHANCED NEURAL TYPOGRAPHY SYSTEM
+   ============================================== */
+
+/* ===== IMPROVED TEXT VISIBILITY CLASSES ===== */
+.vm-text-display {
+  @apply text-3xl font-bold tracking-tight;
+  color: var(--vm-text-primary);
+  font-weight: 800;
+}
+
+.vm-text-gradient {
+  background: linear-gradient(135deg, var(--vm-orange-primary) 0%, var(--vm-violet) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+}
+
+.vm-text-neural {
+  background: linear-gradient(135deg, var(--vm-orange-primary) 0%, var(--vm-violet) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+}
+
+.vm-text-primary {
+  color: var(--vm-text-primary);
+  font-weight: 600;
+}
+
+.vm-text-secondary {
+  color: var(--vm-text-secondary);
+  font-weight: 500;
+}
+
+.vm-text-muted {
+  color: var(--vm-text-muted);
+  font-weight: 500;
+}
+
+/* ===== ENHANCED READABILITY CLASSES ===== */
+.vm-text-bright {
+  color: #ffffff;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.vm-text-readable {
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+.vm-text-contrast {
+  color: #ffffff;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.vm-heading {
+  color: var(--vm-text-primary);
+  font-weight: 700;
+  font-family: var(--vm-font-display);
 }
 
 /* ==============================================
@@ -649,6 +720,26 @@ body {
 
 .vm-fade-in {
   animation: vm-neural-fade-in var(--vm-duration-slow) var(--vm-transition-neural);
+}
+
+/* ===== VOICE WAVE ANIMATIONS ===== */
+.voice-wave {
+  animation: voice-wave-flow 4s ease-in-out infinite;
+}
+
+.voice-wave-secondary {
+  animation: voice-wave-flow 4s ease-in-out infinite reverse;
+}
+
+@keyframes voice-wave-flow {
+  0%, 100% {
+    stroke-dasharray: 20 10;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 30 15;
+    stroke-dashoffset: -20;
+  }
 }
 
 /* ===== ULTRA-VIBRANT ANIMATION CLASSES ===== */
