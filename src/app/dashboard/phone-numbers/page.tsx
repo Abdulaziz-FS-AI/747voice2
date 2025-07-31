@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
-import { Plus, Phone, MoreVertical, Edit, Trash2, Users, PhoneCall, Clock, TrendingUp, RefreshCw, Sync } from 'lucide-react'
+import { Plus, Phone, MoreVertical, Edit, Trash2, Users, PhoneCall, Clock, TrendingUp, RefreshCw, RotateCcw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -285,7 +285,7 @@ export default function PhoneNumbersPage() {
               disabled={refreshing || syncing}
               size="lg"
             >
-              <Sync className={`mr-2 h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
+              <RotateCcw className={`mr-2 h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
               {syncing ? 'Syncing...' : 'Sync VAPI'}
             </Button>
             <Button 
