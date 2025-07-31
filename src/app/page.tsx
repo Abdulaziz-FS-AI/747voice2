@@ -80,34 +80,54 @@ const VoiceWave = ({ mousePosition, variant = 'primary' }: { mousePosition: { x:
   )
 }
 
-// Enhanced bass bars with more variety
-const BassBars = ({ mousePosition, count = 20 }: { mousePosition: { x: number, y: number }, count?: number }) => {
+// Enhanced bass bars with full-width dynamic animation
+const BassBars = ({ mousePosition, count = 50, variant = 'default' }: { 
+  mousePosition: { x: number, y: number }, 
+  count?: number,
+  variant?: 'default' | 'wide' | 'social'
+}) => {
   const bars = Array.from({ length: count }, (_, i) => i)
   
+  const containerClass = variant === 'social' 
+    ? "absolute inset-x-0 bottom-0 flex items-end justify-center gap-[2px] pointer-events-none px-8"
+    : variant === 'wide'
+    ? "absolute inset-x-0 bottom-0 flex items-end justify-center gap-1 pointer-events-none px-4"
+    : "absolute bottom-0 left-1/2 transform -translate-x-1/2 flex items-end gap-1 pointer-events-none"
+  
   return (
-    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex items-end gap-1 pointer-events-none">
-      {bars.map((bar, index) => (
-        <motion.div
-          key={bar}
-          className="bass-bar"
-          style={{
-            width: '3px',
-            background: index % 3 === 0 ? 'var(--vm-gradient-brand)' : 
-                       index % 3 === 1 ? 'var(--vm-gradient-voice)' : 'var(--vm-gradient-matrix)',
-            borderRadius: '2px',
-          }}
-          animate={{
-            height: `${15 + Math.sin((index + Date.now() * 0.003) * 0.7) * 20 + mousePosition.y * 0.4}px`
-          }}
-          transition={{
-            duration: 0.6,
-            repeat: Infinity,
-            repeatType: "reverse",
-            ease: "easeInOut",
-            delay: index * 0.05
-          }}
-        />
-      ))}
+    <div className={containerClass}>
+      {bars.map((bar, index) => {
+        const centerDistance = Math.abs(index - count / 2)
+        const heightMultiplier = variant === 'social' ? 2.5 : variant === 'wide' ? 2 : 1
+        const maxHeight = variant === 'social' ? 80 : variant === 'wide' ? 60 : 40
+        
+        return (
+          <motion.div
+            key={bar}
+            className="bass-bar"
+            style={{
+              width: variant === 'social' ? '4px' : variant === 'wide' ? '3px' : '3px',
+              background: index % 4 === 0 ? 'var(--vm-gradient-brand)' : 
+                         index % 4 === 1 ? 'var(--vm-gradient-voice)' : 
+                         index % 4 === 2 ? 'var(--vm-gradient-matrix)' : 'var(--vm-orange-primary)',
+              borderRadius: '2px',
+              boxShadow: variant === 'social' ? '0 0 8px rgba(255, 107, 53, 0.3)' : undefined
+            }}
+            animate={{
+              height: `${10 + Math.sin((index + Date.now() * 0.002) * 0.8) * maxHeight * heightMultiplier + 
+                      Math.cos((centerDistance + Date.now() * 0.001) * 0.5) * 15 + 
+                      mousePosition.y * 0.3}px`
+            }}
+            transition={{
+              duration: 0.8 + (index % 5) * 0.1,
+              repeat: Infinity,
+              repeatType: "reverse",
+              ease: "easeInOut",
+              delay: index * 0.02
+            }}
+          />
+        )
+      })}
     </div>
   )
 }
@@ -254,7 +274,7 @@ export default function HomePage() {
         {/* Background Effects */}
         <VoiceWave mousePosition={mousePosition} variant="primary" />
         <VoiceIndicators mousePosition={mousePosition} />
-        <BassBars mousePosition={mousePosition} count={25} />
+        <BassBars mousePosition={mousePosition} count={40} variant="wide" />
         
         <div className="relative z-10 text-center max-w-5xl mx-auto px-6">
           <motion.div
@@ -304,16 +324,48 @@ export default function HomePage() {
               </motion.div>
             </div>
 
-            {/* Social Proof */}
-            <div className="flex flex-col items-center gap-4">
-              <p className="text-sm vm-text-muted">Trusted by 2,500+ companies worldwide</p>
-              <div className="flex items-center gap-1">
-                {[1,2,3,4,5].map((star) => (
-                  <Star key={star} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                ))}
-                <span className="ml-2 vm-text-secondary">4.9/5 from 1,200+ reviews</span>
+            {/* Social Proof with Enhanced Animation */}
+            <motion.div 
+              className="flex flex-col items-center gap-6 relative"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1, duration: 0.8 }}
+            >
+              {/* Enhanced Bass Bars Animation */}
+              <div className="relative w-full max-w-2xl h-24 mb-4">
+                <BassBars mousePosition={mousePosition} count={60} variant="social" />
               </div>
-            </div>
+              
+              {/* Social Proof Text */}
+              <motion.div 
+                className="flex flex-col items-center gap-3"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.5, duration: 0.8 }}
+              >
+                <p className="text-sm vm-text-muted font-medium">Trusted by 2,500+ companies worldwide</p>
+                <div className="flex items-center gap-1">
+                  {[1,2,3,4,5].map((star, index) => (
+                    <motion.div
+                      key={star}
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 1.8 + index * 0.1, duration: 0.3 }}
+                    >
+                      <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                    </motion.div>
+                  ))}
+                  <motion.span 
+                    className="ml-2 vm-text-secondary font-medium"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 2.3, duration: 0.6 }}
+                  >
+                    4.9/5 from 1,200+ reviews
+                  </motion.span>
+                </div>
+              </motion.div>
+            </motion.div>
           </motion.div>
         </div>
       </section>
@@ -564,7 +616,7 @@ export default function HomePage() {
       {/* CTA Section */}
       <section className="py-24 px-6 relative">
         <VoiceWave mousePosition={mousePosition} variant="primary" />
-        <BassBars mousePosition={mousePosition} count={30} />
+        <BassBars mousePosition={mousePosition} count={45} variant="wide" />
         
         <motion.div
           initial={{ opacity: 0, y: 30 }}
