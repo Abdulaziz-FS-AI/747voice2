@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
-import { Plus, Phone, MoreVertical, Edit, Trash2, Users, PhoneCall, Clock, TrendingUp, RefreshCw, RotateCcw, Trash } from 'lucide-react'
+import { Plus, Phone, MoreVertical, Trash2, Users, PhoneCall, Clock, TrendingUp, RefreshCw, RotateCcw, Trash } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -23,7 +23,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { DashboardLayout } from '@/components/dashboard/layout'
 import { AddPhoneNumberModal } from '@/components/phone-numbers/add-phone-number-modal'
-import { EditPhoneNumberModal } from '@/components/phone-numbers/edit-phone-number-modal'
 import { StatsCard } from '@/components/dashboard/stats-card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/hooks/use-toast'
@@ -55,8 +54,6 @@ export default function PhoneNumbersPage() {
   })
   const [loading, setLoading] = useState(true)
   const [showAddModal, setShowAddModal] = useState(false)
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [editingNumber, setEditingNumber] = useState<PhoneNumber | null>(null)
   const [refreshing, setRefreshing] = useState(false)
   const [syncing, setSyncing] = useState(false)
   const [cleaning, setCleaning] = useState(false)
@@ -224,18 +221,6 @@ export default function PhoneNumbersPage() {
     })
   }
 
-  const handleEditNumber = (number: PhoneNumber) => {
-    setEditingNumber(number)
-    setShowEditModal(true)
-  }
-
-  const handleNumberUpdated = (updatedNumber: PhoneNumber) => {
-    setPhoneNumbers(prev => 
-      prev.map(n => n.id === updatedNumber.id ? updatedNumber : n)
-    )
-    setShowEditModal(false)
-    setEditingNumber(null)
-  }
 
   const fetchSyncStatus = async () => {
     try {
@@ -524,12 +509,6 @@ export default function PhoneNumbersPage() {
                               {number.is_active ? 'Deactivate' : 'Activate'}
                             </DropdownMenuItem>
                             <DropdownMenuItem 
-                              onClick={() => handleEditNumber(number)}
-                            >
-                              <Edit className="mr-2 h-4 w-4" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
                               onClick={() => handleDeleteNumber(number.id)}
                               className="text-destructive focus:text-destructive"
                             >
@@ -554,16 +533,6 @@ export default function PhoneNumbersPage() {
           onSuccess={handleNumberAdded}
         />
 
-        {/* Edit Phone Number Modal */}
-        <EditPhoneNumberModal
-          open={showEditModal}
-          onClose={() => {
-            setShowEditModal(false)
-            setEditingNumber(null)
-          }}
-          phoneNumber={editingNumber}
-          onSuccess={handleNumberUpdated}
-        />
       </div>
     </DashboardLayout>
   )

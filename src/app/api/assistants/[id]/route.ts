@@ -104,46 +104,159 @@ export async function DELETE(
     const { user } = await requirePermission()
     const supabase = createServiceRoleClient()
 
-    // Get assistant details
+    console.log(`Delete assistant request: ${params.id} for user: ${user.id}`)
+
+    // Get assistant details and assigned phone numbers
     const { data: assistant } = await supabase
       .from('user_assistants')
-      .select('id, vapi_assistant_id')
+      .select('id, name, vapi_assistant_id')
       .eq('id', params.id)
       .eq('user_id', user.id)
       .single()
 
     if (!assistant) {
+      console.log(`Assistant ${params.id} not found for user ${user.id}`)
       return NextResponse.json({
         success: false,
         error: { code: 'NOT_FOUND', message: 'Assistant not found' }
       }, { status: 404 })
     }
 
-    // Delete from Vapi if exists
+    console.log(`Found assistant: ${assistant.name} (${assistant.id})`)
+
+    // Get phone numbers assigned to this assistant
+    const { data: assignedPhones, error: phonesError } = await supabase
+      .from('user_phone_numbers')
+      .select('id, phone_number, friendly_name, vapi_phone_id')
+      .eq('assigned_assistant_id', assistant.id)
+      .eq('is_active', true)
+
+    if (phonesError) {
+      console.error('Error fetching assigned phone numbers:', phonesError)
+    } else if (assignedPhones && assignedPhones.length > 0) {
+      console.log(`Found ${assignedPhones.length} phone numbers assigned to assistant ${assistant.name}`)
+    }
+
+    // Delete from VAPI first (both assistant and its phone numbers)
+    const deletionResults = {
+      assistant: { success: false, error: null as any },
+      phoneNumbers: [] as Array<{ id: string, number: string, success: boolean, error: any }>
+    }
+
+    // Delete assistant from VAPI
     if (assistant.vapi_assistant_id && vapiClient) {
       try {
+        console.log(`Deleting assistant ${assistant.vapi_assistant_id} from VAPI`)
         await vapiClient.deleteAssistant(assistant.vapi_assistant_id)
+        deletionResults.assistant.success = true
+        console.log(`Successfully deleted assistant from VAPI`)
       } catch (vapiError) {
-        console.error('Failed to delete from Vapi:', vapiError)
-        // Continue with local deletion even if Vapi fails
+        console.error('Failed to delete assistant from VAPI:', vapiError)
+        deletionResults.assistant.error = vapiError
+        // Continue with local deletion even if VAPI fails
       }
     }
 
-    // Delete from database (cascades to questions)
-    const { error } = await supabase
+    // Delete assigned phone numbers from VAPI
+    if (assignedPhones && assignedPhones.length > 0) {
+      for (const phone of assignedPhones) {
+        try {
+          console.log(`Deleting phone number ${phone.phone_number} (${phone.vapi_phone_id}) from VAPI`)
+          
+          const response = await fetch(`https://api.vapi.ai/phone-number/${phone.vapi_phone_id}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${process.env.VAPI_API_KEY}`
+            }
+          })
+
+          if (response.ok || response.status === 404) {
+            // 404 means already deleted, which is fine
+            deletionResults.phoneNumbers.push({
+              id: phone.id,
+              number: phone.phone_number,
+              success: true,
+              error: null
+            })
+            console.log(`Successfully deleted phone number ${phone.phone_number} from VAPI`)
+          } else {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+          }
+        } catch (vapiError) {
+          console.error(`Failed to delete phone number ${phone.phone_number} from VAPI:`, vapiError)
+          deletionResults.phoneNumbers.push({
+            id: phone.id,
+            number: phone.phone_number,
+            success: false,
+            error: vapiError
+          })
+          // Continue with next phone number
+        }
+      }
+    }
+
+    // Soft delete phone numbers in database (preserve call history)
+    if (assignedPhones && assignedPhones.length > 0) {
+      console.log(`Soft deleting ${assignedPhones.length} assigned phone numbers`)
+      const { error: phoneDeleteError } = await supabase
+        .from('user_phone_numbers')
+        .update({
+          is_active: false,
+          assigned_assistant_id: null,
+          assigned_at: null,
+          sync_status: 'deleted',
+          sync_error: 'Assistant deleted',
+          last_synced_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('assigned_assistant_id', assistant.id)
+
+      if (phoneDeleteError) {
+        console.error('Error soft deleting phone numbers:', phoneDeleteError)
+      } else {
+        console.log(`Successfully soft deleted phone numbers`)
+      }
+    }
+
+    // Soft delete assistant from database (preserve call history)
+    console.log(`Soft deleting assistant ${assistant.name}`)
+    const { error: assistantDeleteError } = await supabase
       .from('user_assistants')
-      .delete()
+      .update({
+        is_active: false,
+        sync_status: 'deleted',
+        sync_error: null,
+        last_synced_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
       .eq('id', params.id)
 
-    if (error) {
-      throw error
+    if (assistantDeleteError) {
+      console.error('Error soft deleting assistant:', assistantDeleteError)
+      throw assistantDeleteError
+    }
+
+    console.log(`Successfully deleted assistant ${assistant.name} and ${assignedPhones?.length || 0} phone numbers`)
+
+    // Build response message
+    let message = `Assistant "${assistant.name}" deleted successfully`
+    if (assignedPhones && assignedPhones.length > 0) {
+      const successfulPhoneDeletes = deletionResults.phoneNumbers.filter(p => p.success).length
+      message += ` along with ${successfulPhoneDeletes} assigned phone numbers`
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Assistant deleted successfully'
+      message,
+      details: {
+        assistant: deletionResults.assistant,
+        phoneNumbers: deletionResults.phoneNumbers,
+        totalPhoneNumbers: assignedPhones?.length || 0
+      }
     })
+
   } catch (error) {
+    console.error('DELETE assistant error:', error)
     return handleAPIError(error)
   }
 }
