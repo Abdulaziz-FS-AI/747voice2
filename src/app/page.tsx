@@ -61,9 +61,9 @@ const useOptimizedMouseTracking = () => {
 const VoiceWave = ({ mousePosition, variant = 'primary' }: { mousePosition: { x: number, y: number }, variant?: 'primary' | 'secondary' | 'accent' }) => {
   const gradientId = `waveGradient-${variant}`
   const colors = {
-    primary: { start: 'var(--vm-orange-primary)', mid: 'var(--vm-violet)', end: 'var(--vm-cyan)' },
-    secondary: { start: 'var(--vm-cyan)', mid: 'var(--vm-emerald)', end: 'var(--vm-violet)' },
-    accent: { start: 'var(--vm-violet)', mid: 'var(--vm-orange-primary)', end: 'var(--vm-emerald)' }
+    primary: { start: 'var(--vm-secondary-purple)', mid: 'var(--vm-accent-blue)', end: 'var(--vm-accent-teal)' },
+    secondary: { start: 'var(--vm-accent-teal)', mid: 'var(--vm-success-green)', end: 'var(--vm-secondary-purple)' },
+    accent: { start: 'var(--vm-secondary-purple)', mid: 'var(--vm-accent-blue)', end: 'var(--vm-success-green)' }
   }
 
   return (
@@ -167,9 +167,9 @@ const OptimizedBassBars = ({ mousePosition, isScrolling, count = 25, variant = '
             style={{
               width: variant === 'social' ? '5px' : variant === 'wide' ? '4px' : '4px',
               height: `${finalHeight}px`,
-              background: index % 4 === 0 ? 'var(--vm-orange)' : 
-                         index % 4 === 1 ? 'var(--vm-cyan)' : 
-                         index % 4 === 2 ? 'var(--vm-violet)' : 'var(--vm-emerald)',
+              background: index % 4 === 0 ? 'var(--vm-secondary-purple)' : 
+                         index % 4 === 1 ? 'var(--vm-accent-blue)' : 
+                         index % 4 === 2 ? 'var(--vm-accent-teal)' : 'var(--vm-success-green)',
               borderRadius: '2px',
               boxShadow: variant === 'social' && !isScrolling ? '0 0 6px currentColor' : undefined,
               opacity: isScrolling ? 0.6 : 1,
@@ -195,7 +195,7 @@ const OptimizedVoiceIndicators = ({ isScrolling }: { isScrolling: boolean }) => 
           key={indicator}
           className="absolute w-1.5 h-1.5 rounded-full animate-pulse"
           style={{
-            background: 'var(--vm-orange)',
+            background: 'var(--vm-secondary-purple)',
             left: `${25 + (index * 15)}%`,
             top: `${35 + Math.sin(index) * 15}%`,
             boxShadow: '0 0 8px currentColor',
@@ -216,7 +216,7 @@ const Header = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl" 
-            style={{ background: 'rgba(10, 10, 11, 0.95)', borderBottom: '1px solid var(--vm-border-subtle)' }}>
+            style={{ background: 'rgba(15, 15, 20, 0.95)', borderBottom: '1px solid var(--vm-border-default)' }}>
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -224,7 +224,7 @@ const Header = () => {
             className="flex items-center gap-3"
             whileHover={{ scale: 1.05 }}
           >
-            <div className="w-10 h-10 rounded-xl overflow-hidden" style={{ background: 'var(--vm-gradient-brand)' }}>
+            <div className="w-10 h-10 rounded-xl overflow-hidden" style={{ background: 'var(--vm-gradient-primary)' }}>
               <svg className="w-full h-full p-1" viewBox="0 0 100 100" fill="none">
                 <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="3" className="text-yellow-400"/>
                 <rect x="25" y="45" width="50" height="10" rx="5" fill="currentColor" className="text-yellow-400"/>
@@ -236,32 +236,32 @@ const Header = () => {
               </svg>
             </div>
             <div>
-              <h1 className="text-xl font-bold vm-text-primary">Voice Matrix</h1>
-              <p className="text-xs vm-text-muted">AI Voice Platform</p>
+              <h1 className="text-xl font-bold" style={{ color: 'var(--vm-primary-light)' }}>Voice Matrix</h1>
+              <p className="text-xs" style={{ color: 'var(--vm-neutral-400)' }}>AI Voice Platform</p>
             </div>
           </motion.div>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            <a href="#features" className="vm-text-secondary hover:text-[var(--vm-orange-primary)] transition-colors">Features</a>
-            <a href="#pricing" className="vm-text-secondary hover:text-[var(--vm-orange-primary)] transition-colors">Pricing</a>
-            <a href="#testimonials" className="vm-text-secondary hover:text-[var(--vm-orange-primary)] transition-colors">Reviews</a>
-            <a href="#contact" className="vm-text-secondary hover:text-[var(--vm-orange-primary)] transition-colors">Contact</a>
+            <a href="#features" className="transition-colors hover:text-purple-400" style={{ color: 'var(--vm-neutral-200)' }}>Features</a>
+            <a href="#pricing" className="transition-colors hover:text-purple-400" style={{ color: 'var(--vm-neutral-200)' }}>Pricing</a>
+            <a href="#testimonials" className="transition-colors hover:text-purple-400" style={{ color: 'var(--vm-neutral-200)' }}>Reviews</a>
+            <a href="#contact" className="transition-colors hover:text-purple-400" style={{ color: 'var(--vm-neutral-200)' }}>Contact</a>
           </nav>
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center gap-4">
             {user ? (
-              <Button onClick={() => router.push('/dashboard')} style={{ background: 'var(--vm-gradient-brand)' }}>
+              <Button onClick={() => router.push('/dashboard')} style={{ background: 'var(--vm-gradient-primary)', color: '#FFFFFF' }}>
                 Dashboard
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             ) : (
               <>
-                <Button variant="ghost" onClick={() => router.push('/login')} className="vm-text-primary">
+                <Button variant="ghost" onClick={() => router.push('/login')} style={{ color: 'var(--vm-primary-light)' }}>
                   Sign In
                 </Button>
-                <Button onClick={() => router.push('/signup')} style={{ background: 'var(--vm-gradient-brand)' }}>
+                <Button onClick={() => router.push('/signup')} style={{ background: 'var(--vm-gradient-primary)', color: '#FFFFFF' }}>
                   Get Started
                 </Button>
               </>
@@ -284,22 +284,22 @@ const Header = () => {
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="md:hidden py-4 border-t" style={{ borderColor: 'var(--vm-border-subtle)' }}
+            className="md:hidden py-4 border-t" style={{ borderColor: 'var(--vm-border-default)' }}
           >
             <nav className="flex flex-col gap-4">
-              <a href="#features" className="vm-text-secondary" onClick={() => setIsMenuOpen(false)}>Features</a>
-              <a href="#pricing" className="vm-text-secondary" onClick={() => setIsMenuOpen(false)}>Pricing</a>
-              <a href="#testimonials" className="vm-text-secondary" onClick={() => setIsMenuOpen(false)}>Reviews</a>
-              <a href="#contact" className="vm-text-secondary" onClick={() => setIsMenuOpen(false)}>Contact</a>
-              <div className="flex flex-col gap-2 pt-4 border-t" style={{ borderColor: 'var(--vm-border-subtle)' }}>
+              <a href="#features" style={{ color: 'var(--vm-neutral-200)' }} onClick={() => setIsMenuOpen(false)}>Features</a>
+              <a href="#pricing" style={{ color: 'var(--vm-neutral-200)' }} onClick={() => setIsMenuOpen(false)}>Pricing</a>
+              <a href="#testimonials" style={{ color: 'var(--vm-neutral-200)' }} onClick={() => setIsMenuOpen(false)}>Reviews</a>
+              <a href="#contact" style={{ color: 'var(--vm-neutral-200)' }} onClick={() => setIsMenuOpen(false)}>Contact</a>
+              <div className="flex flex-col gap-2 pt-4 border-t" style={{ borderColor: 'var(--vm-border-default)' }}>
                 {user ? (
-                  <Button onClick={() => router.push('/dashboard')} style={{ background: 'var(--vm-gradient-brand)' }}>
+                  <Button onClick={() => router.push('/dashboard')} style={{ background: 'var(--vm-gradient-primary)', color: '#FFFFFF' }}>
                     Dashboard
                   </Button>
                 ) : (
                   <>
-                    <Button variant="outline" onClick={() => router.push('/login')}>Sign In</Button>
-                    <Button onClick={() => router.push('/signup')} style={{ background: 'var(--vm-gradient-brand)' }}>Get Started</Button>
+                    <Button variant="outline" onClick={() => router.push('/login')} style={{ borderColor: 'var(--vm-neutral-700)', color: 'var(--vm-neutral-200)' }}>Sign In</Button>
+                    <Button onClick={() => router.push('/signup')} style={{ background: 'var(--vm-gradient-primary)', color: '#FFFFFF' }}>Get Started</Button>
                   </>
                 )}
               </div>
@@ -326,9 +326,9 @@ export default function HomePage() {
   // Show loading state while checking authentication
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--vm-background)' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--vm-primary-dark)' }}>
         <div className="text-center">
-          <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: 'var(--vm-gradient-brand)' }}>
+          <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: 'var(--vm-gradient-primary)' }}>
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -336,14 +336,14 @@ export default function HomePage() {
               <Zap className="h-8 w-8 text-white" />
             </motion.div>
           </div>
-          <p className="vm-text-secondary">Loading Voice Matrix...</p>
+          <p style={{ color: 'var(--vm-neutral-400)' }}>Loading Voice Matrix...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--vm-background)' }}>
+    <div className="min-h-screen" style={{ background: 'var(--vm-primary-dark)' }}>
       <Header />
 
       {/* Hero Section */}
@@ -359,17 +359,17 @@ export default function HomePage() {
             transition={{ duration: 0.8 }}
           >
             <Badge className="mb-6 px-4 py-2" 
-                   style={{ background: 'var(--vm-orange-pale)', color: 'var(--vm-orange-primary)', border: '1px solid var(--vm-orange-primary)' }}>
+                   style={{ background: 'rgba(139, 92, 246, 0.1)', color: 'var(--vm-secondary-purple)', border: '1px solid var(--vm-secondary-purple)' }}>
               <Zap className="mr-2 h-4 w-4" />
               Next-Generation Voice AI Platform
             </Badge>
             
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 vm-text-gradient leading-tight">
-              Transform Your Business with<br />
-              <span className="vm-text-neural">Intelligent Voice Agents</span>
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+              <span style={{ color: 'var(--vm-primary-light)' }}>Transform Your Business with</span><br />
+              <span className="vm-text-gradient">Intelligent Voice Agents</span>
             </h1>
             
-            <p className="text-xl md:text-2xl vm-text-secondary mb-8 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed" style={{ color: 'var(--vm-neutral-200)' }}>
               Deploy AI-powered voice agents that understand, respond, and convert customers 24/7. 
               Increase engagement by 300% and reduce operational costs by 70%.
             </p>
@@ -379,7 +379,7 @@ export default function HomePage() {
                 <Button 
                   size="lg" 
                   className="px-8 py-4 text-lg font-semibold"
-                  style={{ background: 'var(--vm-gradient-brand)', border: 'none' }}
+                  style={{ background: 'var(--vm-gradient-primary)', border: 'none', color: '#FFFFFF' }}
                   onClick={() => router.push(user ? '/dashboard' : '/signup')}
                 >
                   {user ? 'Go to Dashboard' : 'Start Free Trial'}
@@ -392,7 +392,7 @@ export default function HomePage() {
                   variant="outline" 
                   size="lg" 
                   className="px-8 py-4 text-lg font-semibold"
-                  style={{ borderColor: 'var(--vm-orange-primary)', color: 'var(--vm-orange-primary)' }}
+                  style={{ borderColor: 'var(--vm-secondary-purple)', color: 'var(--vm-secondary-purple)' }}
                 >
                   <Play className="mr-2 h-5 w-5" />
                   Watch Demo
@@ -419,7 +419,7 @@ export default function HomePage() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.5, duration: 0.8 }}
               >
-                <p className="text-sm vm-text-muted font-medium">Trusted by 2,500+ companies worldwide</p>
+                <p className="text-sm font-medium" style={{ color: 'var(--vm-neutral-400)' }}>Trusted by 2,500+ companies worldwide</p>
                 <div className="flex items-center gap-1">
                   {[1,2,3,4,5].map((star, index) => (
                     <motion.div
@@ -432,7 +432,8 @@ export default function HomePage() {
                     </motion.div>
                   ))}
                   <motion.span 
-                    className="ml-2 vm-text-secondary font-medium"
+                    className="ml-2 font-medium"
+                    style={{ color: 'var(--vm-neutral-200)' }}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 2.3, duration: 0.6 }}
@@ -457,10 +458,10 @@ export default function HomePage() {
             transition={{ duration: 0.8 }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 vm-text-primary">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: 'var(--vm-primary-light)' }}>
               Everything You Need for Voice AI Success
             </h2>
-            <p className="text-xl vm-text-secondary max-w-3xl mx-auto">
+            <p className="text-xl max-w-3xl mx-auto" style={{ color: 'var(--vm-neutral-200)' }}>
               Deploy, manage, and scale your voice operations with enterprise-grade tools and analytics.
             </p>
           </motion.div>
@@ -505,16 +506,16 @@ export default function HomePage() {
                 transition={{ duration: 0.8, delay: index * 0.1 }}
                 whileHover={{ y: -10, scale: 1.02 }}
                 className="p-8 rounded-2xl relative group"
-                style={{ background: 'var(--vm-surface)', border: '1px solid var(--vm-border-subtle)' }}
+                style={{ background: 'var(--vm-primary-surface)', border: '1px solid var(--vm-border-default)' }}
               >
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-orange-500/0 via-orange-500/5 to-orange-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
                 <div className="relative z-10">
-                  <div className="p-3 rounded-xl mb-6 inline-block" style={{ background: 'var(--vm-gradient-brand)' }}>
+                  <div className="p-3 rounded-xl mb-6 inline-block" style={{ background: 'var(--vm-gradient-primary)' }}>
                     <feature.icon className="h-6 w-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-4 vm-text-primary">{feature.title}</h3>
-                  <p className="vm-text-secondary leading-relaxed">{feature.description}</p>
+                  <h3 className="text-xl font-semibold mb-4" style={{ color: 'var(--vm-primary-light)' }}>{feature.title}</h3>
+                  <p className="leading-relaxed" style={{ color: 'var(--vm-neutral-200)' }}>{feature.description}</p>
                 </div>
               </motion.div>
             ))}
@@ -533,10 +534,10 @@ export default function HomePage() {
             transition={{ duration: 0.8 }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 vm-text-primary">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: 'var(--vm-primary-light)' }}>
               Simple, Transparent Pricing
             </h2>
-            <p className="text-xl vm-text-secondary max-w-2xl mx-auto">
+            <p className="text-xl max-w-2xl mx-auto" style={{ color: 'var(--vm-neutral-200)' }}>
               Choose the perfect plan for your business. Start free, scale as you grow.
             </p>
           </motion.div>
@@ -582,25 +583,25 @@ export default function HomePage() {
               >
                 {plan.popular && (
                   <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-4 py-1"
-                         style={{ background: 'var(--vm-gradient-brand)' }}>
+                         style={{ background: 'var(--vm-gradient-primary)', color: '#FFFFFF' }}>
                     Most Popular
                   </Badge>
                 )}
                 
                 <div className="text-center mb-6">
-                  <h3 className="text-xl font-semibold mb-2 vm-text-primary">{plan.name}</h3>
+                  <h3 className="text-xl font-semibold mb-2" style={{ color: 'var(--vm-primary-light)' }}>{plan.name}</h3>
                   <div className="mb-2">
-                    <span className="text-4xl font-bold vm-text-primary">{plan.price}</span>
-                    {plan.price !== "Free" && plan.price !== "Custom" && <span className="vm-text-muted">/month</span>}
+                    <span className="text-4xl font-bold" style={{ color: 'var(--vm-primary-light)' }}>{plan.price}</span>
+                    {plan.price !== "Free" && plan.price !== "Custom" && <span style={{ color: 'var(--vm-neutral-400)' }}>/month</span>}
                   </div>
-                  <p className="vm-text-secondary">{plan.description}</p>
+                  <p style={{ color: 'var(--vm-neutral-200)' }}>{plan.description}</p>
                 </div>
                 
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-center gap-3">
                       <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                      <span className="vm-text-secondary">{feature}</span>
+                      <span style={{ color: 'var(--vm-neutral-200)' }}>{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -608,7 +609,7 @@ export default function HomePage() {
                 <Button 
                   className="w-full"
                   variant={plan.popular ? "default" : "outline"}
-                  style={plan.popular ? { background: 'var(--vm-gradient-brand)' } : { borderColor: 'var(--vm-orange-primary)', color: 'var(--vm-orange-primary)' }}
+                  style={plan.popular ? { background: 'var(--vm-gradient-primary)', color: '#FFFFFF' } : { borderColor: 'var(--vm-secondary-purple)', color: 'var(--vm-secondary-purple)' }}
                 >
                   {plan.cta}
                 </Button>
@@ -627,10 +628,10 @@ export default function HomePage() {
             transition={{ duration: 0.8 }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 vm-text-primary">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: 'var(--vm-primary-light)' }}>
               Loved by Thousands of Companies
             </h2>
-            <p className="text-xl vm-text-secondary max-w-2xl mx-auto">
+            <p className="text-xl max-w-2xl mx-auto" style={{ color: 'var(--vm-neutral-200)' }}>
               See what our customers are saying about Voice Matrix.
             </p>
           </motion.div>
@@ -665,22 +666,22 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: index * 0.1 }}
                 className="p-6 rounded-2xl"
-                style={{ background: 'var(--vm-surface)', border: '1px solid var(--vm-border-subtle)' }}
+                style={{ background: 'var(--vm-primary-surface)', border: '1px solid var(--vm-border-default)' }}
               >
                 <div className="flex items-center mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
                     <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                   ))}
                 </div>
-                <p className="vm-text-secondary mb-6 leading-relaxed">"{testimonial.content}"</p>
+                <p className="mb-6 leading-relaxed" style={{ color: 'var(--vm-neutral-200)' }}>"{testimonial.content}"</p>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full flex items-center justify-center"
-                       style={{ background: 'var(--vm-gradient-brand)' }}>
+                       style={{ background: 'var(--vm-gradient-primary)' }}>
                     <span className="text-white font-semibold">{testimonial.name.charAt(0)}</span>
                   </div>
                   <div>
-                    <div className="font-semibold vm-text-primary">{testimonial.name}</div>
-                    <div className="text-sm vm-text-muted">{testimonial.title}, {testimonial.company}</div>
+                    <div className="font-semibold" style={{ color: 'var(--vm-primary-light)' }}>{testimonial.name}</div>
+                    <div className="text-sm" style={{ color: 'var(--vm-neutral-400)' }}>{testimonial.title}, {testimonial.company}</div>
                   </div>
                 </div>
               </motion.div>
@@ -703,7 +704,7 @@ export default function HomePage() {
           <h2 className="text-4xl md:text-6xl font-bold mb-6 vm-text-gradient">
             Ready to Transform Your Business?
           </h2>
-          <p className="text-xl vm-text-secondary mb-8 max-w-2xl mx-auto">
+          <p className="text-xl mb-8 max-w-2xl mx-auto" style={{ color: 'var(--vm-neutral-200)' }}>
             Join thousands of companies using Voice Matrix to automate conversations, 
             increase engagement, and drive growth.
           </p>
@@ -713,7 +714,7 @@ export default function HomePage() {
               <Button 
                 size="lg" 
                 className="px-8 py-4 text-lg font-semibold"
-                style={{ background: 'var(--vm-gradient-brand)', border: 'none' }}
+                style={{ background: 'var(--vm-gradient-primary)', border: 'none', color: '#FFFFFF' }}
                 onClick={() => router.push(user ? '/dashboard' : '/signup')}
               >
                 {user ? 'Go to Dashboard' : 'Start Free Trial Today'}
@@ -725,7 +726,7 @@ export default function HomePage() {
                 variant="outline" 
                 size="lg" 
                 className="px-8 py-4 text-lg font-semibold"
-                style={{ borderColor: 'var(--vm-orange-primary)', color: 'var(--vm-orange-primary)' }}
+                style={{ borderColor: 'var(--vm-secondary-purple)', color: 'var(--vm-secondary-purple)' }}
               >
                 <Phone className="mr-2 h-5 w-5" />
                 Schedule Demo
@@ -733,51 +734,51 @@ export default function HomePage() {
             </motion.div>
           </div>
           
-          <p className="text-sm vm-text-muted">
+          <p className="text-sm" style={{ color: 'var(--vm-neutral-400)' }}>
             No credit card required • 14-day free trial • Cancel anytime
           </p>
         </motion.div>
       </section>
 
       {/* Footer */}
-      <footer id="contact" className="py-16 px-6 border-t" style={{ borderColor: 'var(--vm-border-subtle)' }}>
+      <footer id="contact" className="py-16 px-6 border-t" style={{ borderColor: 'var(--vm-border-default)' }}>
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 rounded-xl" style={{ background: 'var(--vm-gradient-brand)' }}>
+                <div className="p-2 rounded-xl" style={{ background: 'var(--vm-gradient-primary)' }}>
                   <Mic className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold vm-text-primary">Voice Matrix</h3>
-                  <p className="text-sm vm-text-muted">AI Voice Platform</p>
+                  <h3 className="text-xl font-bold" style={{ color: 'var(--vm-primary-light)' }}>Voice Matrix</h3>
+                  <p className="text-sm" style={{ color: 'var(--vm-neutral-400)' }}>AI Voice Platform</p>
                 </div>
               </div>
-              <p className="vm-text-secondary mb-4 max-w-md">
+              <p className="mb-4 max-w-md" style={{ color: 'var(--vm-neutral-200)' }}>
                 Transform your business with intelligent voice agents that understand, respond, and convert customers 24/7.
               </p>
-              <p className="text-sm vm-text-muted">
+              <p className="text-sm" style={{ color: 'var(--vm-neutral-400)' }}>
                 © 2024 Voice Matrix. All rights reserved.
               </p>
             </div>
             
             <div>
-              <h4 className="font-semibold vm-text-primary mb-4">Product</h4>
+              <h4 className="font-semibold mb-4" style={{ color: 'var(--vm-primary-light)' }}>Product</h4>
               <ul className="space-y-2">
-                <li><a href="#features" className="vm-text-secondary hover:text-[var(--vm-orange-primary)] transition-colors">Features</a></li>
-                <li><a href="#pricing" className="vm-text-secondary hover:text-[var(--vm-orange-primary)] transition-colors">Pricing</a></li>
-                <li><a href="/dashboard" className="vm-text-secondary hover:text-[var(--vm-orange-primary)] transition-colors">Dashboard</a></li>
-                <li><a href="/docs" className="vm-text-secondary hover:text-[var(--vm-orange-primary)] transition-colors">Documentation</a></li>
+                <li><a href="#features" className="transition-colors hover:text-purple-400" style={{ color: 'var(--vm-neutral-200)' }}>Features</a></li>
+                <li><a href="#pricing" className="transition-colors hover:text-purple-400" style={{ color: 'var(--vm-neutral-200)' }}>Pricing</a></li>
+                <li><a href="/dashboard" className="transition-colors hover:text-purple-400" style={{ color: 'var(--vm-neutral-200)' }}>Dashboard</a></li>
+                <li><a href="/docs" className="transition-colors hover:text-purple-400" style={{ color: 'var(--vm-neutral-200)' }}>Documentation</a></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="font-semibold vm-text-primary mb-4">Company</h4>
+              <h4 className="font-semibold mb-4" style={{ color: 'var(--vm-primary-light)' }}>Company</h4>
               <ul className="space-y-2">
-                <li><a href="/about" className="vm-text-secondary hover:text-[var(--vm-orange-primary)] transition-colors">About</a></li>
-                <li><a href="/careers" className="vm-text-secondary hover:text-[var(--vm-orange-primary)] transition-colors">Careers</a></li>
-                <li><a href="/contact" className="vm-text-secondary hover:text-[var(--vm-orange-primary)] transition-colors">Contact</a></li>
-                <li><a href="/privacy" className="vm-text-secondary hover:text-[var(--vm-orange-primary)] transition-colors">Privacy</a></li>
+                <li><a href="/about" className="transition-colors hover:text-purple-400" style={{ color: 'var(--vm-neutral-200)' }}>About</a></li>
+                <li><a href="/careers" className="transition-colors hover:text-purple-400" style={{ color: 'var(--vm-neutral-200)' }}>Careers</a></li>
+                <li><a href="/contact" className="transition-colors hover:text-purple-400" style={{ color: 'var(--vm-neutral-200)' }}>Contact</a></li>
+                <li><a href="/privacy" className="transition-colors hover:text-purple-400" style={{ color: 'var(--vm-neutral-200)' }}>Privacy</a></li>
               </ul>
             </div>
           </div>
