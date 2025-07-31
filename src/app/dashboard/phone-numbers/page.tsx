@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
-import { Plus, Phone, MoreVertical, Edit, Trash2, Users, PhoneCall, Clock, TrendingUp, RefreshCw, RotateCcw } from 'lucide-react'
+import { Plus, Phone, MoreVertical, Edit, Trash2, Users, PhoneCall, Clock, TrendingUp, RefreshCw, RotateCcw, Trash } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -59,6 +59,7 @@ export default function PhoneNumbersPage() {
   const [editingNumber, setEditingNumber] = useState<PhoneNumber | null>(null)
   const [refreshing, setRefreshing] = useState(false)
   const [syncing, setSyncing] = useState(false)
+  const [cleaning, setCleaning] = useState(false)
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null)
 
   useEffect(() => {
@@ -140,19 +141,22 @@ export default function PhoneNumbersPage() {
         method: 'DELETE'
       })
 
-      if (response.ok) {
+      const data = await response.json()
+
+      if (response.ok && data.success) {
         setPhoneNumbers(prev => prev.filter(n => n.id !== numberId))
         toast({
           title: 'Success',
-          description: 'Phone number deleted successfully'
+          description: data.message || 'Phone number deleted successfully'
         })
       } else {
-        throw new Error('Failed to delete')
+        throw new Error(data.error?.message || `HTTP ${response.status}: ${response.statusText}`)
       }
     } catch (error) {
+      console.error('Delete phone number error:', error)
       toast({
         title: 'Error',
-        description: 'Failed to delete phone number',
+        description: error instanceof Error ? error.message : 'Failed to delete phone number',
         variant: 'destructive'
       })
     }
@@ -287,6 +291,48 @@ export default function PhoneNumbersPage() {
     }
   }
 
+  const handleCleanup = async () => {
+    if (!confirm('This will remove phone numbers that no longer exist in VAPI. Continue?')) {
+      return
+    }
+
+    setCleaning(true)
+    try {
+      const response = await fetch('/api/phone-numbers/cleanup', {
+        method: 'POST'
+      })
+      const data = await response.json()
+      
+      if (data.success) {
+        // Refresh data after cleanup
+        await fetchPhoneNumbers(false)
+        
+        let description = data.message
+        if (data.details && data.details.length > 0) {
+          description += '\n\nCleaned up:'
+          data.details.forEach((item: any) => {
+            description += `\n• ${item.number} (${item.name})`
+          })
+        }
+        
+        toast({
+          title: 'Cleanup Complete',
+          description: description
+        })
+      } else {
+        throw new Error(data.error?.message || 'Cleanup failed')
+      }
+    } catch (error) {
+      toast({
+        title: 'Cleanup Error',
+        description: error instanceof Error ? error.message : 'Failed to clean up phone numbers',
+        variant: 'destructive'
+      })
+    } finally {
+      setCleaning(false)
+    }
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-8">
@@ -311,12 +357,22 @@ export default function PhoneNumbersPage() {
             <Button 
               variant="outline"
               onClick={handleSync}
-              disabled={refreshing || syncing}
+              disabled={refreshing || syncing || cleaning}
               size="lg"
               title={lastSyncTime ? `Last sync: ${new Date(lastSyncTime).toLocaleString()}` : 'Never synced'}
             >
               <RotateCcw className={`mr-2 h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
               {syncing ? 'Syncing...' : 'Sync VAPI'}
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={handleCleanup}
+              disabled={refreshing || syncing || cleaning}
+              size="lg"
+              title="Remove phone numbers that don't exist in VAPI"
+            >
+              <Trash className={`mr-2 h-4 w-4 ${cleaning ? 'animate-pulse' : ''}`} />
+              {cleaning ? 'Cleaning...' : 'Cleanup'}
             </Button>
             <Button 
               onClick={() => setShowAddModal(true)}

@@ -27,7 +27,7 @@ export const assistantCreatedEventSchema = baseResourceEventSchema.extend({
     voice: z.any(),
     firstMessage: z.string().optional(),
     context: z.string().optional(),
-    metadata: z.record(z.any()).optional(),
+    metadata: z.record(z.string(), z.any()).optional(),
   }),
 })
 
@@ -42,9 +42,9 @@ export const assistantUpdatedEventSchema = baseResourceEventSchema.extend({
     voice: z.any(),
     firstMessage: z.string().optional(),
     context: z.string().optional(),
-    metadata: z.record(z.any()).optional(),
+    metadata: z.record(z.string(), z.any()).optional(),
   }),
-  changes: z.record(z.any()).optional(),
+  changes: z.record(z.string(), z.any()).optional(),
 })
 
 export const assistantDeletedEventSchema = baseResourceEventSchema.extend({
@@ -66,7 +66,7 @@ export const phoneNumberCreatedEventSchema = baseResourceEventSchema.extend({
     assistantId: z.string().optional(),
     twilioAccountSid: z.string().optional(),
     twilioPhoneNumberSid: z.string().optional(),
-    metadata: z.record(z.any()).optional(),
+    metadata: z.record(z.string(), z.any()).optional(),
   }),
 })
 
@@ -81,9 +81,9 @@ export const phoneNumberUpdatedEventSchema = baseResourceEventSchema.extend({
     assistantId: z.string().optional(),
     twilioAccountSid: z.string().optional(),
     twilioPhoneNumberSid: z.string().optional(),
-    metadata: z.record(z.any()).optional(),
+    metadata: z.record(z.string(), z.any()).optional(),
   }),
-  changes: z.record(z.any()).optional(),
+  changes: z.record(z.string(), z.any()).optional(),
 })
 
 export const phoneNumberDeletedEventSchema = baseResourceEventSchema.extend({

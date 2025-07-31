@@ -179,26 +179,37 @@ export async function DELETE(
     const { user } = await authenticateRequest()
     const supabase = createServiceRoleClient()
 
-    // User is already authenticated, no additional permission check needed for now
+    console.log(`Delete phone number request: ${params.id} for user: ${user.id}`)
 
     // Get phone number details before deletion
-    const { data: phoneNumber } = await supabase
+    const { data: phoneNumber, error: fetchError } = await supabase
       .from('user_phone_numbers')
-      .select('id, user_id, provider, provider_config')
+      .select('id, user_id, phone_number, friendly_name, vapi_phone_id, is_active')
       .eq('id', params.id)
       .eq('user_id', user.id)
       .single()
 
+    if (fetchError) {
+      console.error('Error fetching phone number:', fetchError)
+      return NextResponse.json({
+        success: false,
+        error: { code: 'FETCH_ERROR', message: `Database error: ${fetchError.message}` }
+      }, { status: 500 })
+    }
+
     if (!phoneNumber) {
+      console.log(`Phone number ${params.id} not found for user ${user.id}`)
       return NextResponse.json({
         success: false,
         error: { code: 'NOT_FOUND', message: 'Phone number not found' }
       }, { status: 404 })
     }
 
+    console.log(`Found phone number: ${phoneNumber.phone_number} (${phoneNumber.friendly_name}), active: ${phoneNumber.is_active}`)
+
     // Soft delete (set is_active to false) rather than hard delete
     // This preserves call history and analytics
-    const { error } = await supabase
+    const { error: updateError } = await supabase
       .from('user_phone_numbers')
       .update({
         is_active: false,
@@ -208,15 +219,22 @@ export async function DELETE(
       })
       .eq('id', params.id)
 
-    if (error) {
-      throw error
+    if (updateError) {
+      console.error('Error updating phone number:', updateError)
+      return NextResponse.json({
+        success: false,
+        error: { code: 'UPDATE_ERROR', message: `Failed to delete: ${updateError.message}` }
+      }, { status: 500 })
     }
+
+    console.log(`Successfully soft-deleted phone number ${params.id}`)
 
     return NextResponse.json({
       success: true,
       message: 'Phone number deleted successfully'
     })
   } catch (error) {
+    console.error('DELETE phone number error:', error)
     return handleAPIError(error)
   }
 }
