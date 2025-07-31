@@ -1,10 +1,9 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowRight, Play, Mic, Shield, BarChart3 } from 'lucide-react'
+import { ArrowRight, Play, Mic, Shield, BarChart3, Users, CheckCircle, Star, Menu, X, Phone, Zap, Globe, Headphones } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/lib/auth-context'
@@ -28,70 +27,216 @@ const useSimpleMouseTracking = () => {
   return mousePosition
 }
 
-// Subtle voice wave component
-const VoiceWave = ({ mousePosition }: { mousePosition: { x: number, y: number } }) => {
+// Enhanced voice wave component with more variety
+const VoiceWave = ({ mousePosition, variant = 'primary' }: { mousePosition: { x: number, y: number }, variant?: 'primary' | 'secondary' | 'accent' }) => {
+  const gradientId = `waveGradient-${variant}`
+  const colors = {
+    primary: { start: 'var(--vm-orange-primary)', mid: 'var(--vm-violet)', end: 'var(--vm-cyan)' },
+    secondary: { start: 'var(--vm-cyan)', mid: 'var(--vm-emerald)', end: 'var(--vm-violet)' },
+    accent: { start: 'var(--vm-violet)', mid: 'var(--vm-orange-primary)', end: 'var(--vm-emerald)' }
+  }
+
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       <svg className="w-full h-full" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice">
         <defs>
-          <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style={{ stopColor: 'var(--vm-orange-primary)', stopOpacity: 0.3 }} />
-            <stop offset="50%" style={{ stopColor: 'var(--vm-violet)', stopOpacity: 0.5 }} />
-            <stop offset="100%" style={{ stopColor: 'var(--vm-cyan)', stopOpacity: 0.3 }} />
+          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style={{ stopColor: colors[variant].start, stopOpacity: 0.4 }} />
+            <stop offset="50%" style={{ stopColor: colors[variant].mid, stopOpacity: 0.6 }} />
+            <stop offset="100%" style={{ stopColor: colors[variant].end, stopOpacity: 0.4 }} />
           </linearGradient>
         </defs>
         
-        {/* Horizontal voice wave */}
+        {/* Primary voice wave */}
         <path
-          d={`M 0 200 Q 200 ${180 + mousePosition.y * 0.2} 400 200 T 800 200`}
-          stroke="url(#waveGradient)"
-          strokeWidth="2"
+          d={`M 0 200 Q 200 ${180 + mousePosition.y * 0.3} 400 200 T 800 200`}
+          stroke={`url(#${gradientId})`}
+          strokeWidth="3"
           fill="none"
           className="voice-wave"
         />
         
         {/* Secondary wave */}
         <path
-          d={`M 0 220 Q 200 ${200 + mousePosition.y * 0.15} 400 220 T 800 220`}
-          stroke="url(#waveGradient)"
+          d={`M 0 220 Q 200 ${200 + mousePosition.y * 0.2} 400 220 T 800 220`}
+          stroke={`url(#${gradientId})`}
+          strokeWidth="2"
+          fill="none"
+          opacity="0.7"
+          className="voice-wave-secondary"
+        />
+        
+        {/* Tertiary wave */}
+        <path
+          d={`M 0 240 Q 200 ${220 + mousePosition.y * 0.1} 400 240 T 800 240`}
+          stroke={`url(#${gradientId})`}
           strokeWidth="1"
           fill="none"
-          opacity="0.6"
-          className="voice-wave-secondary"
+          opacity="0.5"
+          className="voice-wave"
         />
       </svg>
     </div>
   )
 }
 
-// Bass bars component
-const BassBars = ({ mousePosition }: { mousePosition: { x: number, y: number } }) => {
-  const bars = Array.from({ length: 12 }, (_, i) => i)
+// Enhanced bass bars with more variety
+const BassBars = ({ mousePosition, count = 20 }: { mousePosition: { x: number, y: number }, count?: number }) => {
+  const bars = Array.from({ length: count }, (_, i) => i)
   
   return (
-    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex items-end gap-2 pointer-events-none">
+    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex items-end gap-1 pointer-events-none">
       {bars.map((bar, index) => (
         <motion.div
           key={bar}
           className="bass-bar"
           style={{
-            width: '4px',
-            background: 'var(--vm-gradient-brand)',
+            width: '3px',
+            background: index % 3 === 0 ? 'var(--vm-gradient-brand)' : 
+                       index % 3 === 1 ? 'var(--vm-gradient-voice)' : 'var(--vm-gradient-matrix)',
             borderRadius: '2px',
-            height: `${20 + Math.sin((index + mousePosition.x * 0.1) * 0.5) * 15}px`,
           }}
           animate={{
-            height: `${20 + Math.sin((index + Date.now() * 0.002) * 0.5) * 15 + mousePosition.y * 0.3}px`
+            height: `${15 + Math.sin((index + Date.now() * 0.003) * 0.7) * 20 + mousePosition.y * 0.4}px`
           }}
           transition={{
-            duration: 0.5,
+            duration: 0.6,
             repeat: Infinity,
             repeatType: "reverse",
+            ease: "easeInOut",
+            delay: index * 0.05
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
+// Floating voice indicators
+const VoiceIndicators = ({ mousePosition }: { mousePosition: { x: number, y: number } }) => {
+  const indicators = Array.from({ length: 8 }, (_, i) => i)
+  
+  return (
+    <div className="absolute inset-0 pointer-events-none">
+      {indicators.map((indicator, index) => (
+        <motion.div
+          key={indicator}
+          className="absolute w-2 h-2 rounded-full"
+          style={{
+            background: 'var(--vm-orange-primary)',
+            left: `${20 + (index * 10)}%`,
+            top: `${30 + Math.sin(index) * 20}%`,
+            boxShadow: '0 0 10px var(--vm-orange-primary)'
+          }}
+          animate={{
+            scale: [1, 1.5, 1],
+            opacity: [0.3, 0.8, 0.3],
+            y: [0, -10 + mousePosition.y * 0.1, 0]
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            delay: index * 0.3,
             ease: "easeInOut"
           }}
         />
       ))}
     </div>
+  )
+}
+
+// Header component
+const Header = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { user } = useAuth()
+  const router = useRouter()
+
+  return (
+    <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl" 
+            style={{ background: 'rgba(10, 10, 11, 0.95)', borderBottom: '1px solid var(--vm-border-subtle)' }}>
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <motion.div 
+            className="flex items-center gap-3"
+            whileHover={{ scale: 1.05 }}
+          >
+            <div className="p-2 rounded-xl" style={{ background: 'var(--vm-gradient-brand)' }}>
+              <Mic className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold vm-text-primary">Voice Matrix</h1>
+              <p className="text-xs vm-text-muted">AI Voice Platform</p>
+            </div>
+          </motion.div>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-8">
+            <a href="#features" className="vm-text-secondary hover:text-[var(--vm-orange-primary)] transition-colors">Features</a>
+            <a href="#pricing" className="vm-text-secondary hover:text-[var(--vm-orange-primary)] transition-colors">Pricing</a>
+            <a href="#testimonials" className="vm-text-secondary hover:text-[var(--vm-orange-primary)] transition-colors">Reviews</a>
+            <a href="#contact" className="vm-text-secondary hover:text-[var(--vm-orange-primary)] transition-colors">Contact</a>
+          </nav>
+
+          {/* Auth Buttons */}
+          <div className="hidden md:flex items-center gap-4">
+            {user ? (
+              <Button onClick={() => router.push('/dashboard')} style={{ background: 'var(--vm-gradient-brand)' }}>
+                Dashboard
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            ) : (
+              <>
+                <Button variant="ghost" onClick={() => router.push('/login')} className="vm-text-primary">
+                  Sign In
+                </Button>
+                <Button onClick={() => router.push('/signup')} style={{ background: 'var(--vm-gradient-brand)' }}>
+                  Get Started
+                </Button>
+              </>
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
+        </div>
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="md:hidden py-4 border-t" style={{ borderColor: 'var(--vm-border-subtle)' }}
+          >
+            <nav className="flex flex-col gap-4">
+              <a href="#features" className="vm-text-secondary" onClick={() => setIsMenuOpen(false)}>Features</a>
+              <a href="#pricing" className="vm-text-secondary" onClick={() => setIsMenuOpen(false)}>Pricing</a>
+              <a href="#testimonials" className="vm-text-secondary" onClick={() => setIsMenuOpen(false)}>Reviews</a>
+              <a href="#contact" className="vm-text-secondary" onClick={() => setIsMenuOpen(false)}>Contact</a>
+              <div className="flex flex-col gap-2 pt-4 border-t" style={{ borderColor: 'var(--vm-border-subtle)' }}>
+                {user ? (
+                  <Button onClick={() => router.push('/dashboard')} style={{ background: 'var(--vm-gradient-brand)' }}>
+                    Dashboard
+                  </Button>
+                ) : (
+                  <>
+                    <Button variant="outline" onClick={() => router.push('/login')}>Sign In</Button>
+                    <Button onClick={() => router.push('/signup')} style={{ background: 'var(--vm-gradient-brand)' }}>Get Started</Button>
+                  </>
+                )}
+              </div>
+            </nav>
+          </motion.div>
+        )}
+      </div>
+    </header>
   )
 }
 
@@ -102,32 +247,38 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--vm-background)' }}>
+      <Header />
+
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Subtle Background Effects */}
-        <VoiceWave mousePosition={mousePosition} />
-        <BassBars mousePosition={mousePosition} />
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
+        {/* Background Effects */}
+        <VoiceWave mousePosition={mousePosition} variant="primary" />
+        <VoiceIndicators mousePosition={mousePosition} />
+        <BassBars mousePosition={mousePosition} count={25} />
         
-        <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
+        <div className="relative z-10 text-center max-w-5xl mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <Badge className="mb-6 px-4 py-2" style={{ background: 'var(--vm-orange-pale)', color: 'var(--vm-orange-primary)', border: '1px solid var(--vm-orange-primary)' }}>
-              Voice AI Technology
+            <Badge className="mb-6 px-4 py-2" 
+                   style={{ background: 'var(--vm-orange-pale)', color: 'var(--vm-orange-primary)', border: '1px solid var(--vm-orange-primary)' }}>
+              <Zap className="mr-2 h-4 w-4" />
+              Next-Generation Voice AI Platform
             </Badge>
             
-            <h1 className="text-6xl md:text-7xl font-bold mb-6 vm-text-gradient">
-              Voice Matrix
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 vm-text-gradient leading-tight">
+              Transform Your Business with<br />
+              <span className="vm-text-neural">Intelligent Voice Agents</span>
             </h1>
             
-            <p className="text-xl md:text-2xl vm-text-secondary mb-8 max-w-2xl mx-auto leading-relaxed">
-              Deploy intelligent voice agents that understand, respond, and convert. 
-              Transform your business with AI-powered conversations.
+            <p className="text-xl md:text-2xl vm-text-secondary mb-8 max-w-3xl mx-auto leading-relaxed">
+              Deploy AI-powered voice agents that understand, respond, and convert customers 24/7. 
+              Increase engagement by 300% and reduce operational costs by 70%.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button 
                   size="lg" 
@@ -152,12 +303,196 @@ export default function HomePage() {
                 </Button>
               </motion.div>
             </div>
+
+            {/* Social Proof */}
+            <div className="flex flex-col items-center gap-4">
+              <p className="text-sm vm-text-muted">Trusted by 2,500+ companies worldwide</p>
+              <div className="flex items-center gap-1">
+                {[1,2,3,4,5].map((star) => (
+                  <Star key={star} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                ))}
+                <span className="ml-2 vm-text-secondary">4.9/5 from 1,200+ reviews</span>
+              </div>
+            </div>
           </motion.div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-24 px-6">
+      <section id="features" className="py-24 px-6 relative">
+        <VoiceWave mousePosition={mousePosition} variant="secondary" />
+        
+        <div className="max-w-6xl mx-auto relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 vm-text-primary">
+              Everything You Need for Voice AI Success
+            </h2>
+            <p className="text-xl vm-text-secondary max-w-3xl mx-auto">
+              Deploy, manage, and scale your voice operations with enterprise-grade tools and analytics.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                icon: Mic,
+                title: "Smart Voice Agents",
+                description: "Deploy AI agents that understand context, handle complex conversations, and provide human-like responses to customer inquiries."
+              },
+              {
+                icon: Shield,
+                title: "Enterprise Security",
+                description: "Bank-grade security and compliance features protect your business data with end-to-end encryption and SOC 2 certification."
+              },
+              {
+                icon: BarChart3,
+                title: "Real-time Analytics",
+                description: "Track performance, monitor conversations, and optimize your voice operations with detailed insights and reporting."
+              },
+              {
+                icon: Users,
+                title: "Team Collaboration",
+                description: "Manage multiple agents, assign team roles, and collaborate effectively with built-in workflow management tools."
+              },
+              {
+                icon: Globe,
+                title: "Global Reach",
+                description: "Support 50+ languages and dialects with localized voice models and cultural understanding capabilities."
+              },
+              {
+                icon: Headphones,
+                title: "24/7 Support",
+                description: "Get expert help whenever you need it with our dedicated support team and comprehensive documentation."
+              }
+            ].map((feature, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: index * 0.1 }}
+                whileHover={{ y: -10, scale: 1.02 }}
+                className="p-8 rounded-2xl relative group"
+                style={{ background: 'var(--vm-surface)', border: '1px solid var(--vm-border-subtle)' }}
+              >
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-orange-500/0 via-orange-500/5 to-orange-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                
+                <div className="relative z-10">
+                  <div className="p-3 rounded-xl mb-6 inline-block" style={{ background: 'var(--vm-gradient-brand)' }}>
+                    <feature.icon className="h-6 w-6 text-white" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-4 vm-text-primary">{feature.title}</h3>
+                  <p className="vm-text-secondary leading-relaxed">{feature.description}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="pricing" className="py-24 px-6 relative">
+        <VoiceWave mousePosition={mousePosition} variant="accent" />
+        
+        <div className="max-w-6xl mx-auto relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 vm-text-primary">
+              Simple, Transparent Pricing
+            </h2>
+            <p className="text-xl vm-text-secondary max-w-2xl mx-auto">
+              Choose the perfect plan for your business. Start free, scale as you grow.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                name: "Starter",
+                price: "Free",
+                description: "Perfect for trying out Voice Matrix",
+                features: ["500 free minutes/month", "1 voice agent", "Basic analytics", "Email support"],
+                cta: "Start Free",
+                popular: false
+              },
+              {
+                name: "Professional",
+                price: "$49",
+                description: "Best for growing businesses",
+                features: ["5,000 minutes/month", "5 voice agents", "Advanced analytics", "Priority support", "Custom integrations"],
+                cta: "Start Trial",
+                popular: true
+              },
+              {
+                name: "Enterprise",
+                price: "Custom",
+                description: "For large organizations",
+                features: ["Unlimited minutes", "Unlimited agents", "Custom AI models", "Dedicated support", "White-label options"],
+                cta: "Contact Sales",
+                popular: false
+              }
+            ].map((plan, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: index * 0.1 }}
+                whileHover={{ y: -10, scale: 1.02 }}
+                className={`p-8 rounded-2xl relative ${plan.popular ? 'ring-2' : ''}`}
+                style={{ 
+                  background: 'var(--vm-surface)', 
+                  border: '1px solid var(--vm-border-subtle)',
+                  ringColor: plan.popular ? 'var(--vm-orange-primary)' : 'transparent'
+                }}
+              >
+                {plan.popular && (
+                  <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-4 py-1"
+                         style={{ background: 'var(--vm-gradient-brand)' }}>
+                    Most Popular
+                  </Badge>
+                )}
+                
+                <div className="text-center mb-6">
+                  <h3 className="text-xl font-semibold mb-2 vm-text-primary">{plan.name}</h3>
+                  <div className="mb-2">
+                    <span className="text-4xl font-bold vm-text-primary">{plan.price}</span>
+                    {plan.price !== "Free" && plan.price !== "Custom" && <span className="vm-text-muted">/month</span>}
+                  </div>
+                  <p className="vm-text-secondary">{plan.description}</p>
+                </div>
+                
+                <ul className="space-y-3 mb-8">
+                  {plan.features.map((feature, featureIndex) => (
+                    <li key={featureIndex} className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                      <span className="vm-text-secondary">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                
+                <Button 
+                  className="w-full"
+                  variant={plan.popular ? "default" : "outline"}
+                  style={plan.popular ? { background: 'var(--vm-gradient-brand)' } : { borderColor: 'var(--vm-orange-primary)', color: 'var(--vm-orange-primary)' }}
+                >
+                  {plan.cta}
+                </Button>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section id="testimonials" className="py-24 px-6">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -166,45 +501,61 @@ export default function HomePage() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6 vm-text-primary">
-              Powerful Voice Agents
+              Loved by Thousands of Companies
             </h2>
             <p className="text-xl vm-text-secondary max-w-2xl mx-auto">
-              Everything you need to deploy, manage, and scale your voice AI operations.
+              See what our customers are saying about Voice Matrix.
             </p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                icon: Mic,
-                title: "Smart Voice Agents",
-                description: "Deploy AI agents that understand context and respond naturally to customer inquiries."
+                name: "Sarah Johnson",
+                title: "Head of Customer Success",
+                company: "TechFlow Inc",
+                content: "Voice Matrix transformed our customer service. We've seen a 300% increase in customer satisfaction and reduced response times by 80%.",
+                rating: 5
               },
               {
-                icon: Shield,
-                title: "Enterprise Security",
-                description: "Bank-grade security and compliance features to protect your business data."
+                name: "Michael Chen",
+                title: "Operations Director", 
+                company: "Global Solutions",
+                content: "The AI agents handle complex queries better than we expected. It's like having 24/7 expert staff without the overhead costs.",
+                rating: 5
               },
               {
-                icon: BarChart3,
-                title: "Real-time Analytics",
-                description: "Track performance, monitor conversations, and optimize your voice operations."
+                name: "Emily Rodriguez",
+                title: "Founder",
+                company: "StartupX",
+                content: "As a startup, Voice Matrix gave us enterprise-level voice capabilities from day one. The ROI has been incredible.",
+                rating: 5
               }
-            ].map((feature, index) => (
+            ].map((testimonial, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: index * 0.2 }}
-                whileHover={{ y: -10 }}
-                className="p-8 rounded-2xl"
+                transition={{ duration: 0.8, delay: index * 0.1 }}
+                className="p-6 rounded-2xl"
                 style={{ background: 'var(--vm-surface)', border: '1px solid var(--vm-border-subtle)' }}
               >
-                <div className="p-3 rounded-xl mb-6 inline-block" style={{ background: 'var(--vm-gradient-brand)' }}>
-                  <feature.icon className="h-6 w-6 text-white" />
+                <div className="flex items-center mb-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                  ))}
                 </div>
-                <h3 className="text-xl font-semibold mb-4 vm-text-primary">{feature.title}</h3>
-                <p className="vm-text-secondary leading-relaxed">{feature.description}</p>
+                <p className="vm-text-secondary mb-6 leading-relaxed">"{testimonial.content}"</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center"
+                       style={{ background: 'var(--vm-gradient-brand)' }}>
+                    <span className="text-white font-semibold">{testimonial.name.charAt(0)}</span>
+                  </div>
+                  <div>
+                    <div className="font-semibold vm-text-primary">{testimonial.name}</div>
+                    <div className="text-sm vm-text-muted">{testimonial.title}, {testimonial.company}</div>
+                  </div>
+                </div>
               </motion.div>
             ))}
           </div>
@@ -212,33 +563,99 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 px-6">
+      <section className="py-24 px-6 relative">
+        <VoiceWave mousePosition={mousePosition} variant="primary" />
+        <BassBars mousePosition={mousePosition} count={30} />
+        
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="max-w-4xl mx-auto text-center"
+          className="max-w-4xl mx-auto text-center relative z-10"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 vm-text-primary">
+          <h2 className="text-4xl md:text-6xl font-bold mb-6 vm-text-gradient">
             Ready to Transform Your Business?
           </h2>
           <p className="text-xl vm-text-secondary mb-8 max-w-2xl mx-auto">
-            Join thousands of companies using Voice Matrix to automate conversations and drive growth.
+            Join thousands of companies using Voice Matrix to automate conversations, 
+            increase engagement, and drive growth.
           </p>
           
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button 
-              size="lg" 
-              className="px-8 py-4 text-lg font-semibold"
-              style={{ background: 'var(--vm-gradient-brand)', border: 'none' }}
-              onClick={() => router.push(user ? '/dashboard' : '/signup')}
-            >
-              {user ? 'Go to Dashboard' : 'Get Started Today'}
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </motion.div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button 
+                size="lg" 
+                className="px-8 py-4 text-lg font-semibold"
+                style={{ background: 'var(--vm-gradient-brand)', border: 'none' }}
+                onClick={() => router.push(user ? '/dashboard' : '/signup')}
+              >
+                {user ? 'Go to Dashboard' : 'Start Free Trial Today'}
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="px-8 py-4 text-lg font-semibold"
+                style={{ borderColor: 'var(--vm-orange-primary)', color: 'var(--vm-orange-primary)' }}
+              >
+                <Phone className="mr-2 h-5 w-5" />
+                Schedule Demo
+              </Button>
+            </motion.div>
+          </div>
+          
+          <p className="text-sm vm-text-muted">
+            No credit card required • 14-day free trial • Cancel anytime
+          </p>
         </motion.div>
       </section>
+
+      {/* Footer */}
+      <footer id="contact" className="py-16 px-6 border-t" style={{ borderColor: 'var(--vm-border-subtle)' }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div className="md:col-span-2">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 rounded-xl" style={{ background: 'var(--vm-gradient-brand)' }}>
+                  <Mic className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold vm-text-primary">Voice Matrix</h3>
+                  <p className="text-sm vm-text-muted">AI Voice Platform</p>
+                </div>
+              </div>
+              <p className="vm-text-secondary mb-4 max-w-md">
+                Transform your business with intelligent voice agents that understand, respond, and convert customers 24/7.
+              </p>
+              <p className="text-sm vm-text-muted">
+                © 2024 Voice Matrix. All rights reserved.
+              </p>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold vm-text-primary mb-4">Product</h4>
+              <ul className="space-y-2">
+                <li><a href="#features" className="vm-text-secondary hover:text-[var(--vm-orange-primary)] transition-colors">Features</a></li>
+                <li><a href="#pricing" className="vm-text-secondary hover:text-[var(--vm-orange-primary)] transition-colors">Pricing</a></li>
+                <li><a href="/dashboard" className="vm-text-secondary hover:text-[var(--vm-orange-primary)] transition-colors">Dashboard</a></li>
+                <li><a href="/docs" className="vm-text-secondary hover:text-[var(--vm-orange-primary)] transition-colors">Documentation</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold vm-text-primary mb-4">Company</h4>
+              <ul className="space-y-2">
+                <li><a href="/about" className="vm-text-secondary hover:text-[var(--vm-orange-primary)] transition-colors">About</a></li>
+                <li><a href="/careers" className="vm-text-secondary hover:text-[var(--vm-orange-primary)] transition-colors">Careers</a></li>
+                <li><a href="/contact" className="vm-text-secondary hover:text-[var(--vm-orange-primary)] transition-colors">Contact</a></li>
+                <li><a href="/privacy" className="vm-text-secondary hover:text-[var(--vm-orange-primary)] transition-colors">Privacy</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

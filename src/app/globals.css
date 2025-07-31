@@ -722,24 +722,86 @@ body {
   animation: vm-neural-fade-in var(--vm-duration-slow) var(--vm-transition-neural);
 }
 
-/* ===== VOICE WAVE ANIMATIONS ===== */
+/* ===== ENHANCED VOICE WAVE ANIMATIONS ===== */
 .voice-wave {
-  animation: voice-wave-flow 4s ease-in-out infinite;
+  animation: voice-wave-flow 6s ease-in-out infinite;
 }
 
 .voice-wave-secondary {
-  animation: voice-wave-flow 4s ease-in-out infinite reverse;
+  animation: voice-wave-flow-alt 8s ease-in-out infinite reverse;
 }
 
 @keyframes voice-wave-flow {
   0%, 100% {
-    stroke-dasharray: 20 10;
+    stroke-dasharray: 25 15;
     stroke-dashoffset: 0;
+    filter: blur(0px);
+  }
+  25% {
+    stroke-dasharray: 35 20;
+    stroke-dashoffset: -15;
+    filter: blur(0.5px);
   }
   50% {
-    stroke-dasharray: 30 15;
-    stroke-dashoffset: -20;
+    stroke-dasharray: 40 25;
+    stroke-dashoffset: -30;
+    filter: blur(0px);
   }
+  75% {
+    stroke-dasharray: 30 18;
+    stroke-dashoffset: -45;
+    filter: blur(0.3px);
+  }
+}
+
+@keyframes voice-wave-flow-alt {
+  0%, 100% {
+    stroke-dasharray: 20 12;
+    stroke-dashoffset: 0;
+  }
+  33% {
+    stroke-dasharray: 28 16;
+    stroke-dashoffset: -25;
+  }
+  66% {
+    stroke-dasharray: 35 20;
+    stroke-dashoffset: -50;
+  }
+}
+
+/* ===== VOICE INDICATOR ANIMATIONS ===== */
+@keyframes voice-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+}
+
+@keyframes voice-float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-8px) rotate(120deg);
+  }
+  66% {
+    transform: translateY(4px) rotate(240deg);
+  }
+}
+
+/* ===== BASS BAR ENHANCEMENTS ===== */
+.bass-bar {
+  filter: drop-shadow(0 0 4px currentColor);
+  transition: all 0.3s ease;
+}
+
+.bass-bar:hover {
+  filter: drop-shadow(0 0 8px currentColor);
+  transform: scaleY(1.2);
 }
 
 /* ===== ULTRA-VIBRANT ANIMATION CLASSES ===== */
