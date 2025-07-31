@@ -124,53 +124,84 @@ export function DeleteAssistantModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-destructive" />
-            Delete Assistant
+      <DialogContent className="max-w-lg border-0 shadow-2xl" style={{ 
+        background: 'var(--vm-surface)',
+        borderRadius: '16px'
+      }}>
+        <DialogHeader className="text-center space-y-4 pb-2">
+          <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center" 
+               style={{ background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' }}>
+            <Trash2 className="h-8 w-8 text-white" />
+          </div>
+          <DialogTitle className="text-2xl font-bold vm-text-primary">
+            Delete Voice Agent
           </DialogTitle>
-          <DialogDescription className="text-left">
-            This action cannot be undone. This will permanently delete the assistant
-            and remove all associated data.
+          <DialogDescription className="text-center vm-text-secondary leading-relaxed">
+            This action cannot be undone. This will permanently remove <strong className="vm-text-primary">{assistant.name}</strong> and all associated data from your account.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           {/* Assistant Info */}
-          <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="font-medium">{assistant.name}</span>
-              <Badge variant={assistant.is_active ? 'default' : 'secondary'}>
+          <div className="rounded-xl p-6 border" style={{ 
+            background: 'var(--vm-background)',
+            borderColor: 'var(--vm-border-subtle)'
+          }}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center" 
+                     style={{ background: 'var(--vm-gradient-brand)' }}>
+                  <span className="text-white font-semibold">{assistant.name.charAt(0).toUpperCase()}</span>
+                </div>
+                <div>
+                  <h3 className="font-semibold vm-text-primary">{assistant.name}</h3>
+                  <p className="text-sm vm-text-muted">{assistant.config?.company_name || 'No company set'}</p>
+                </div>
+              </div>
+              <Badge 
+                className={`px-3 py-1 ${assistant.is_active 
+                  ? 'bg-green-500/10 text-green-400 border-green-500/20' 
+                  : 'bg-gray-500/10 text-gray-400 border-gray-500/20'
+                }`}
+              >
                 {assistant.is_active ? 'Active' : 'Inactive'}
               </Badge>
             </div>
-            <div className="text-sm text-muted-foreground">
-              <div>Company: {assistant.config?.companyName || 'Not set'}</div>
-              {assistant.vapi_assistant_id && (
-                <div>Vapi ID: {assistant.vapi_assistant_id.slice(0, 8)}...</div>
-              )}
-            </div>
+            {assistant.vapi_assistant_id && (
+              <div className="text-xs vm-text-muted font-mono">
+                VAPI ID: {assistant.vapi_assistant_id.slice(0, 8)}...
+              </div>
+            )}
           </div>
 
           {/* Assigned Phone Numbers */}
           {!loadingPhones && assignedPhones.length > 0 && (
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-              <div className="flex items-start gap-3">
-                <Phone className="h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" />
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-orange-800">
-                    Assigned Phone Numbers ({assignedPhones.length})
+            <div className="rounded-xl p-6 border" style={{ 
+              background: 'var(--vm-orange-pale)',
+              borderColor: 'var(--vm-orange-primary)',
+              borderWidth: '1px'
+            }}>
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center" 
+                     style={{ background: 'var(--vm-orange-primary)' }}>
+                  <Phone className="h-5 w-5 text-white" />
+                </div>
+                <div className="space-y-3 flex-1">
+                  <p className="font-semibold" style={{ color: 'var(--vm-orange-primary)' }}>
+                    Connected Phone Numbers ({assignedPhones.length})
                   </p>
-                  <div className="space-y-1">
+                  <div className="grid gap-2">
                     {assignedPhones.map((phone) => (
-                      <div key={phone.id} className="text-sm text-orange-700">
-                        • {phone.phone_number} ({phone.friendly_name})
+                      <div key={phone.id} className="flex items-center gap-2 p-2 rounded-lg" 
+                           style={{ background: 'rgba(255, 255, 255, 0.5)' }}>
+                        <div className="w-2 h-2 rounded-full" style={{ background: 'var(--vm-orange-primary)' }} />
+                        <span className="font-mono text-sm vm-text-primary">{phone.phone_number}</span>
+                        <span className="text-sm vm-text-muted">({phone.friendly_name})</span>
                       </div>
                     ))}
                   </div>
-                  <p className="text-xs text-orange-600 mt-2">
-                    These phone numbers will be deleted from VAPI and unassigned in your account.
+                  <p className="text-sm vm-text-secondary">
+                    These phone numbers will be removed from VAPI and unassigned from your account.
                   </p>
                 </div>
               </div>
@@ -178,48 +209,72 @@ export function DeleteAssistantModal({
           )}
 
           {/* Warning */}
-          <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-destructive">
-                  Warning: This will also delete:
+          <div className="rounded-xl p-6 border-2 border-dashed" style={{ 
+            background: 'rgba(239, 68, 68, 0.05)',
+            borderColor: '#ef4444'
+          }}>
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center bg-red-500/10" >
+                <AlertTriangle className="h-5 w-5 text-red-500" />
+              </div>
+              <div className="space-y-3 flex-1">
+                <p className="font-semibold text-red-500">
+                  This deletion will permanently remove:
                 </p>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• The assistant from your VAPI account</li>
-                  <li>• All assigned phone numbers from VAPI</li>
-                  <li>• Call history and transcripts (preserved in database)</li>
-                  <li>• Associated analytics and reports</li>
-                </ul>
+                <div className="grid gap-2">
+                  {[
+                    'Voice agent from your VAPI account',
+                    'All connected phone numbers',
+                    'Call history and conversation logs',
+                    'Analytics data and performance reports'
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-center gap-2 text-sm vm-text-secondary">
+                      <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                      {item}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs vm-text-muted italic">
+                  Note: Database records will be preserved for audit purposes
+                </p>
               </div>
             </div>
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="flex gap-3 pt-6">
           <Button
             type="button"
             variant="outline"
             onClick={handleClose}
             disabled={isDeleting}
+            className="flex-1 h-12 font-medium"
+            style={{ 
+              borderColor: 'var(--vm-border-subtle)',
+              color: 'var(--vm-text-secondary)'
+            }}
           >
             Cancel
           </Button>
           <Button
             type="button"
-            variant="destructive"
             onClick={handleDelete}
             disabled={isDeleting}
+            className="flex-1 h-12 font-medium text-white"
+            style={{ 
+              background: isDeleting ? '#dc2626' : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+              border: 'none'
+            }}
           >
             {isDeleting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Deleting...
+                Deleting Agent...
               </>
             ) : (
               <>
                 <Trash2 className="mr-2 h-4 w-4" />
-                Delete Assistant
+                Delete Voice Agent
               </>
             )}
           </Button>

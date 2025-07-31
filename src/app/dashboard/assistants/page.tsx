@@ -551,7 +551,7 @@ export default function AssistantsPage() {
                             <MoreVertical className="h-4 w-4" style={{ color: 'var(--vm-gray-400)' }} />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuContent align="end" className="w-48 z-50">
                           <DropdownMenuItem onClick={() => handleEdit(assistant)} className="group">
                             <Edit className="mr-2 h-4 w-4 group-hover:text-blue-400" />
                             Modify Agent
@@ -575,7 +575,7 @@ export default function AssistantsPage() {
                             className="text-destructive group"
                           >
                             <Trash2 className="mr-2 h-4 w-4 group-hover:text-red-400" />
-                            Terminate
+                            Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
