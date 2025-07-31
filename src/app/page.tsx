@@ -200,22 +200,29 @@ function HomeContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--vm-void)' }}>
+      <div className="min-h-screen flex items-center justify-center vm-neural-grid" style={{ background: 'var(--vm-void)' }}>
         <div className="text-center">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-2xl font-bold mb-4"
-            style={{ color: 'var(--vm-orange-primary)' }}
+            className="vm-text-display mb-8 vm-text-gradient"
           >
             Voice Matrix
           </motion.h1>
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            className="w-8 h-8 border-2 border-t-transparent rounded-full mx-auto"
-            style={{ borderColor: 'var(--vm-orange-primary)', borderTopColor: 'transparent' }}
-          />
+          <motion.div className="relative">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              className="w-12 h-12 border-2 border-t-transparent rounded-full mx-auto vm-glow-pulse"
+              style={{ borderColor: 'var(--vm-orange-primary)', borderTopColor: 'transparent' }}
+            />
+            <motion.div
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute inset-0 w-12 h-12 rounded-full mx-auto"
+              style={{ background: 'var(--vm-gradient-glow)' }}
+            />
+          </motion.div>
         </div>
       </div>
     )
@@ -295,18 +302,19 @@ function HomeContent() {
   ]
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--vm-void)' }}>
+    <div className="min-h-screen vm-neural-grid" style={{ background: 'var(--vm-void)' }}>
       <MouseFollower />
       <ParticleSystem />
       
-      {/* Premium Header */}
+      {/* Neural Matrix Header */}
       <motion.header
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="fixed top-0 w-full z-40 backdrop-blur-xl"
+        className="fixed top-0 w-full z-40 vm-glass"
         style={{ 
-          background: 'rgba(10, 11, 14, 0.8)',
-          borderBottom: '1px solid var(--vm-border-subtle)'
+          background: 'rgba(0, 0, 0, 0.9)',
+          borderBottom: '1px solid var(--vm-border-subtle)',
+          backdropFilter: 'blur(20px)'
         }}
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -315,10 +323,15 @@ function HomeContent() {
               whileHover={{ scale: 1.05 }}
               className="flex items-center gap-3"
             >
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--vm-gradient-brand)' }}>
-                <Radio className="w-6 h-6 text-white" />
-              </div>
-              <h1 className="text-2xl font-bold" style={{ color: 'var(--vm-pure)' }}>
+              <motion.div 
+                className="w-12 h-12 rounded-xl flex items-center justify-center vm-energy-pulse" 
+                style={{ background: 'var(--vm-gradient-brand)' }}
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.6 }}
+              >
+                <Radio className="w-7 h-7 text-white" />
+              </motion.div>
+              <h1 className="text-2xl font-bold vm-text-gradient font-display">
                 Voice Matrix
               </h1>
             </motion.div>
@@ -381,15 +394,14 @@ function HomeContent() {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-5xl sm:text-7xl font-bold mb-8 leading-tight"
-              style={{ color: 'var(--vm-pure)' }}
+              className="vm-text-hero mb-12"
             >
               Transform Every Call Into
               <motion.span
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, delay: 0.5 }}
-                className="block bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent"
+                className="block vm-text-gradient vm-float"
               >
                 Qualified Revenue
               </motion.span>
@@ -399,8 +411,7 @@ function HomeContent() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-xl mb-12 max-w-4xl mx-auto leading-relaxed"
-              style={{ color: 'var(--vm-gray-300)' }}
+              className="text-xl mb-12 max-w-4xl mx-auto leading-relaxed vm-text-secondary"
             >
               Revolutionary AI voice assistants that understand, engage, and convert prospects with human-like intelligence. 
               Never miss a lead with our 24/7 neural-powered conversation platform.

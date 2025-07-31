@@ -1,107 +1,106 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
   /* ==============================================
-     VOICE MATRIX DESIGN SYSTEM v2.0
-     Professional AI Voice Assistant Platform
+     VOICE MATRIX DESIGN SYSTEM v3.0
+     Revolutionary AI Voice Technology Platform
      ============================================== */
   
-  /* ===== PRIMARY COLORS ===== */
-  --vm-void: #FAFBFC;           /* Light background for clean feel */
-  --vm-surface: #FFFFFF;        /* Elevated cards and panels */
-  --vm-surface-elevated: #F8F9FA; /* Hover states and active surfaces */
-  --vm-pure: #1A1D23;           /* High-contrast text and critical elements */
+  /* ===== MATRIX CORE COLORS ===== */
+  --vm-void: #000000;               /* Deep space, dramatic backgrounds */
+  --vm-matrix-black: #0A0B0E;      /* Primary void background */
+  --vm-surface: #111827;           /* Card backgrounds, elevated surfaces */
+  --vm-surface-elevated: #1F2937;  /* Hover states, active surfaces */
+  --vm-pure: #FFFFFF;              /* Quantum white, pure clarity */
   
-  /* ===== BRAND COLORS ===== */
-  --vm-orange-primary: #FF6B35;    /* Primary brand accent */
-  --vm-orange-light: #FF8757;      /* Hover states and secondary brand */
-  --vm-orange-pale: #FFF4F0;       /* Subtle backgrounds and selected states */
-  --vm-orange-dark: #E5521C;       /* Active states and pressed buttons */
+  /* ===== NEURAL BRAND COLORS ===== */
+  --vm-orange-primary: #FF6B35;    /* Neural orange - primary brand */
+  --vm-orange-light: #FF8757;      /* Energy orange - hover states */
+  --vm-orange-dark: #E5521C;       /* Deep orange - active states */
+  --vm-orange-pale: rgba(255, 107, 53, 0.1); /* Subtle backgrounds */
   
-  /* ===== ACCENT COLORS ===== */
-  --vm-violet: #8B5CF6;         /* Premium features */
-  --vm-violet-light: #A78BFA;   /* Secondary violet */
-  --vm-cyan: #06B6D4;           /* Information indicators */
-  --vm-emerald: #10B981;        /* Success states */
+  /* ===== VOICE SPECTRUM COLORS ===== */
+  --vm-violet: #8B5CF6;            /* Voice violet - neural processing */
+  --vm-violet-light: #A78BFA;      /* Light violet - secondary accents */
+  --vm-cyan: #06B6D4;              /* Tech cyan - data flow */
+  --vm-emerald: #10B981;           /* Matrix green - success states */
+  --vm-pulse-purple: #7C3AED;      /* Pulse purple - interactive elements */
+  --vm-signal-blue: #3B82F6;       /* Signal blue - information */
   
   /* ===== FUNCTIONAL COLORS ===== */
-  --vm-success: #10B981;        /* Success operations */
-  --vm-warning: #F59E0B;        /* Warnings and cautions */
-  --vm-error: #EF4444;          /* Errors and destructive actions */
-  --vm-info: #3B82F6;           /* Informational messages */
+  --vm-success: #22C55E;           /* Success neural - confirmations */
+  --vm-warning: #EAB308;           /* Warning pulse - attention needed */
+  --vm-error: #EF4444;             /* Error signal - destructive actions */
+  --vm-info: #3B82F6;              /* Info signal - informational */
   
-  /* ===== NEUTRAL SPECTRUM ===== */
-  --vm-gray-50: #FAFBFC;        /* Lightest backgrounds */
-  --vm-gray-100: #F1F3F5;       /* Light mode surface colors */
-  --vm-gray-200: #E4E6EA;       /* Light mode borders */
-  --vm-gray-300: #CDD1D8;       /* Placeholder text */
-  --vm-gray-400: #9AA0AB;       /* Secondary text */
-  --vm-gray-500: #6C737F;       /* Body text in light mode */
-  --vm-gray-600: #4A5059;       /* Headings in light mode */
-  --vm-gray-700: #343842;       /* Dark mode borders */
-  --vm-gray-800: #252932;       /* Dark mode elevated surfaces */
-  --vm-gray-900: #1A1D23;       /* Dark mode primary surfaces */
+  /* ===== NEURAL GRAYSCALE ===== */
+  --vm-gray-50: #F9FAFB;           /* Text primary on dark */
+  --vm-gray-100: #F3F4F6;          /* Light text */
+  --vm-gray-200: #E5E7EB;          /* Borders and dividers */
+  --vm-gray-300: #D1D5DB;          /* Secondary text */
+  --vm-gray-400: #9CA3AF;          /* Muted text */
+  --vm-gray-500: #6B7280;          /* Processing gray */
+  --vm-gray-600: #4B5563;          /* Dark text */
+  --vm-gray-700: #374151;          /* Border subtle */
+  --vm-gray-800: #1F2937;          /* Dark surface */
+  --vm-gray-900: #111827;          /* Primary dark surface */
   
-  /* ===== GRADIENTS ===== */
+  /* ===== NEURAL GRADIENTS ===== */
   --vm-gradient-brand: linear-gradient(135deg, #FF6B35 0%, #E5521C 100%);
-  --vm-gradient-premium: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
-  --vm-gradient-success: linear-gradient(135deg, #10B981 0%, #059669 100%);
-  --vm-gradient-surface: linear-gradient(135deg, #FFFFFF 0%, #F8F9FA 100%);
-  --vm-gradient-glass: linear-gradient(135deg, rgba(255, 107, 53, 0.08) 0%, rgba(255, 107, 53, 0.03) 100%);
+  --vm-gradient-neural: linear-gradient(135deg, #FF6B35 0%, #8B5CF6 100%);
+  --vm-gradient-voice: linear-gradient(90deg, #06B6D4 0%, #10B981 100%);
+  --vm-gradient-matrix: linear-gradient(45deg, #8B5CF6 0%, #7C3AED 100%);
+  --vm-gradient-surface: linear-gradient(145deg, #111827 0%, #1F2937 100%);
+  --vm-gradient-void: linear-gradient(180deg, #000000 0%, #0A0B0E 100%);
+  --vm-gradient-glow: radial-gradient(circle, rgba(255, 107, 53, 0.3) 0%, transparent 70%);
   
-  /* ===== SHADOWS ===== */
-  --vm-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.08);
-  --vm-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.12);
-  --vm-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.15);
-  --vm-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.18);
-  --vm-shadow-xl: 0 16px 64px rgba(0, 0, 0, 0.25);
-  --vm-shadow-brand: 0 4px 12px rgba(255, 107, 53, 0.2);
-  --vm-shadow-brand-lg: 0 6px 16px rgba(255, 107, 53, 0.25);
-  --vm-shadow-premium: 0 4px 16px rgba(255, 107, 53, 0.08);
-  --vm-shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.15);
+  /* ===== NEURAL GLOW EFFECTS ===== */
+  --vm-glow-primary: 0 0 20px rgba(255, 107, 53, 0.3);
+  --vm-glow-voice: 0 0 30px rgba(139, 92, 246, 0.4);
+  --vm-glow-success: 0 0 15px rgba(34, 197, 94, 0.3);
+  --vm-glow-pulse: 0 0 40px rgba(255, 107, 53, 0.2);
   
-  /* ===== BORDERS ===== */
-  --vm-border-subtle: rgba(0, 0, 0, 0.08);
-  --vm-border-default: rgba(0, 0, 0, 0.12);
-  --vm-border-emphasis: rgba(0, 0, 0, 0.16);
-  --vm-border-brand: rgba(255, 107, 53, 0.2);
-  --vm-border-brand-strong: rgba(255, 107, 53, 0.4);
+  /* ===== MATRIX SHADOWS ===== */
+  --vm-shadow-neural: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --vm-shadow-deep: 0 8px 32px rgba(0, 0, 0, 0.6);
+  --vm-shadow-brand: 0 4px 20px rgba(255, 107, 53, 0.3);
+  --vm-shadow-brand-lg: 0 8px 32px rgba(255, 107, 53, 0.4);
+  --vm-shadow-void: 0 16px 64px rgba(0, 0, 0, 0.8);
   
-  /* ===== TYPOGRAPHY ===== */
-  --vm-font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* ===== MATRIX BORDERS ===== */
+  --vm-border-subtle: rgba(139, 92, 246, 0.1);
+  --vm-border-default: rgba(139, 92, 246, 0.2);
+  --vm-border-emphasis: rgba(255, 107, 53, 0.3);
+  --vm-border-glow: rgba(255, 107, 53, 0.5);
+  
+  /* ===== NEURAL TYPOGRAPHY ===== */
+  --vm-font-display: 'Space Grotesk', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --vm-font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --vm-font-mono: 'JetBrains Mono', 'SF Mono', 'Monaco', 'Cascadia Code', monospace;
   
-  /* ===== SPACING SCALE ===== */
-  --vm-space-1: 4px;   /* Tiny spacing */
-  --vm-space-2: 8px;   /* Small spacing */
-  --vm-space-3: 12px;  /* Medium-small spacing */
-  --vm-space-4: 16px;  /* Default spacing */
-  --vm-space-5: 20px;  /* Medium spacing */
-  --vm-space-6: 24px;  /* Large spacing */
-  --vm-space-8: 32px;  /* Extra large spacing */
-  --vm-space-10: 40px; /* Huge spacing */
-  --vm-space-12: 48px; /* Maximum spacing */
-  --vm-space-16: 64px; /* Exceptional spacing */
+  /* ===== MATRIX SPACING ===== */
+  --vm-space-1: 2px;   /* Micro spacing */
+  --vm-space-2: 4px;   /* Nano spacing */
+  --vm-space-3: 8px;   /* Mini spacing */
+  --vm-space-4: 12px;  /* Small spacing */
+  --vm-space-5: 16px;  /* Base spacing */
+  --vm-space-6: 24px;  /* Medium spacing */
+  --vm-space-7: 32px;  /* Large spacing */
+  --vm-space-8: 48px;  /* XL spacing */
+  --vm-space-9: 64px;  /* XXL spacing */
+  --vm-space-10: 96px; /* Hero spacing */
   
-  /* ===== TRANSITIONS ===== */
-  --vm-transition-micro: 150ms ease-out;
-  --vm-transition-default: 200ms cubic-bezier(0.4, 0, 0.2, 1);
-  --vm-transition-smooth: 300ms cubic-bezier(0.4, 0, 0.2, 1);
-  --vm-transition-entrance: 400ms cubic-bezier(0.0, 0, 0.2, 1);
-  --vm-transition-exit: 250ms cubic-bezier(0.4, 0, 1, 1);
+  /* ===== NEURAL TRANSITIONS ===== */
+  --vm-transition-neural: cubic-bezier(0.4, 0, 0.2, 1);
+  --vm-transition-voice: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --vm-transition-matrix: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --vm-transition-pulse: cubic-bezier(0.68, -0.55, 0.265, 1.55);
   
-  /* ===== COMPONENT SIZING ===== */
-  --vm-button-height: 44px;
-  --vm-input-height: 44px;
-  --vm-icon-sm: 16px;
-  --vm-icon-md: 20px;
-  --vm-icon-lg: 24px;
-  --vm-border-radius-sm: 6px;
-  --vm-border-radius-md: 8px;
-  --vm-border-radius-lg: 12px;
-  --vm-border-radius-xl: 16px;
+  --vm-duration-micro: 150ms;
+  --vm-duration-fast: 200ms;
+  --vm-duration-normal: 300ms;
+  --vm-duration-slow: 400ms;
 }
 
 @theme inline {
@@ -109,20 +108,20 @@
   --color-foreground: var(--vm-pure);
   --color-primary: var(--vm-orange-primary);
   --color-secondary: var(--vm-surface);
-  --color-accent: var(--vm-orange-primary);
+  --color-accent: var(--vm-violet);
   --color-muted: var(--vm-gray-400);
   --color-muted-foreground: var(--vm-gray-300);
   --color-card: var(--vm-surface);
   --color-card-foreground: var(--vm-pure);
   --color-border: var(--vm-border-subtle);
-  --color-input: var(--vm-void);
+  --color-input: var(--vm-surface);
   --color-ring: var(--vm-orange-primary);
   --font-sans: var(--vm-font-body);
   --font-mono: var(--vm-font-mono);
 }
 
 /* ==============================================
-   BASE STYLES & RESET
+   NEURAL BASE STYLES & RESET
    ============================================== */
 
 *,
@@ -149,43 +148,55 @@ body {
   min-height: 100vh;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 /* ==============================================
-   COMPONENT STYLES - VOICE MATRIX DESIGN SYSTEM
+   NEURAL COMPONENT STYLES
    ============================================== */
 
-/* ===== CARDS & SURFACES ===== */
+/* ===== NEURAL CARDS & SURFACES ===== */
 .vm-card {
   background: var(--vm-gradient-surface);
   border: 1px solid var(--vm-border-subtle);
-  border-radius: var(--vm-border-radius-lg);
-  box-shadow: var(--vm-shadow-sm);
-  transition: var(--vm-transition-default);
+  border-radius: 16px;
+  box-shadow: var(--vm-shadow-neural);
+  transition: all var(--vm-duration-normal) var(--vm-transition-neural);
   padding: var(--vm-space-6);
+  position: relative;
+  overflow: hidden;
+}
+
+.vm-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--vm-gradient-brand);
+  opacity: 0;
+  transition: opacity var(--vm-duration-normal);
 }
 
 .vm-card:hover {
-  border-color: var(--vm-border-brand);
-  transform: translateY(-2px);
-  box-shadow: var(--vm-shadow-brand);
+  border-color: var(--vm-border-emphasis);
+  transform: translateY(-4px);
+  box-shadow: var(--vm-shadow-brand), var(--vm-glow-primary);
 }
 
-.vm-card-elevated {
-  background: var(--vm-surface-elevated);
-  border: 1px solid var(--vm-border-default);
-  border-radius: var(--vm-border-radius-xl);
-  box-shadow: var(--vm-shadow-lg);
-  padding: var(--vm-space-8);
+.vm-card:hover::before {
+  opacity: 1;
 }
 
 .vm-card-feature {
   background: var(--vm-gradient-surface);
-  border: 1px solid var(--vm-border-brand);
-  border-radius: var(--vm-border-radius-lg);
-  box-shadow: var(--vm-shadow-premium);
+  border: 1px solid var(--vm-border-default);
+  border-radius: 20px;
+  box-shadow: var(--vm-shadow-neural);
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(20px);
 }
 
 .vm-card-feature::before {
@@ -195,74 +206,102 @@ body {
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--vm-gradient-brand);
+  background: var(--vm-gradient-neural);
+  opacity: 0.6;
 }
 
-/* ===== BUTTONS ===== */
+.vm-card-feature:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: var(--vm-shadow-brand-lg), var(--vm-glow-voice);
+  border-color: var(--vm-border-glow);
+}
+
+/* ===== NEURAL BUTTONS ===== */
 .vm-button-primary {
   background: var(--vm-gradient-brand);
   color: var(--vm-pure);
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 20px;
+  font-family: var(--vm-font-display);
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
   border: none;
-  border-radius: var(--vm-border-radius-md);
-  padding: 16px 24px;
-  height: var(--vm-button-height);
+  border-radius: 12px;
+  padding: 16px 32px;
+  height: 52px;
   cursor: pointer;
-  transition: var(--vm-transition-default);
+  transition: all var(--vm-duration-normal) var(--vm-transition-voice);
   box-shadow: var(--vm-shadow-brand);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--vm-space-2);
+  gap: var(--vm-space-3);
+  position: relative;
+  overflow: hidden;
+}
+
+.vm-button-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left var(--vm-duration-slow);
 }
 
 .vm-button-primary:hover {
-  transform: scale(1.02);
-  box-shadow: var(--vm-shadow-brand-lg);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: var(--vm-shadow-brand-lg), var(--vm-glow-primary);
+}
+
+.vm-button-primary:hover::before {
+  left: 100%;
 }
 
 .vm-button-primary:active {
-  transform: scale(0.98);
+  transform: translateY(-1px) scale(1.02);
 }
 
 .vm-button-secondary {
   background: transparent;
-  border: 1.5px solid var(--vm-gray-300);
-  color: var(--vm-gray-600);
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 20px;
-  border-radius: var(--vm-border-radius-md);
-  padding: 16px 24px;
-  height: var(--vm-button-height);
+  border: 2px solid var(--vm-orange-primary);
+  color: var(--vm-orange-primary);
+  font-family: var(--vm-font-display);
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.4;
+  border-radius: 12px;
+  padding: 16px 32px;
+  height: 52px;
   cursor: pointer;
-  transition: var(--vm-transition-default);
+  transition: all var(--vm-duration-normal) var(--vm-transition-neural);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--vm-space-2);
+  gap: var(--vm-space-3);
+  backdrop-filter: blur(10px);
 }
 
 .vm-button-secondary:hover {
-  background: var(--vm-gray-100);
-  border-color: var(--vm-gray-400);
-  color: var(--vm-gray-700);
+  background: rgba(255, 107, 53, 0.1);
+  border-color: var(--vm-orange-light);
+  transform: translateY(-2px);
+  box-shadow: var(--vm-glow-primary);
 }
 
 .vm-button-ghost {
-  background: transparent;
+  background: rgba(139, 92, 246, 0.1);
   border: none;
-  color: var(--vm-gray-500);
-  font-weight: 400;
+  color: var(--vm-violet);
+  font-weight: 500;
   font-size: 14px;
-  line-height: 20px;
-  border-radius: var(--vm-border-radius-sm);
+  border-radius: 8px;
   padding: 12px 20px;
-  height: 40px;
+  height: 44px;
   cursor: pointer;
-  transition: var(--vm-transition-micro);
+  transition: all var(--vm-duration-fast) var(--vm-transition-neural);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -270,103 +309,195 @@ body {
 }
 
 .vm-button-ghost:hover {
-  color: var(--vm-gray-700);
-  background: rgba(106, 115, 125, 0.08);
+  background: rgba(139, 92, 246, 0.2);
+  color: var(--vm-violet-light);
+  transform: translateY(-1px);
 }
 
-/* ===== INPUTS & FORMS ===== */
+/* ===== NEURAL INPUT FIELDS ===== */
 .vm-input {
-  background: var(--vm-surface);
-  border: 1.5px solid var(--vm-gray-300);
-  border-radius: var(--vm-border-radius-md);
-  color: var(--vm-gray-700);
-  padding: 12px 16px;
-  font-size: 14px;
-  line-height: 20px;
+  background: rgba(17, 24, 39, 0.8);
+  border: 1px solid var(--vm-border-subtle);
+  border-radius: 12px;
+  color: var(--vm-pure);
+  padding: 16px 20px;
+  font-size: 15px;
+  line-height: 1.4;
   font-weight: 400;
-  height: var(--vm-input-height);
+  height: 56px;
   width: 100%;
-  transition: var(--vm-transition-default);
+  transition: all var(--vm-duration-normal) var(--vm-transition-neural);
   font-family: var(--vm-font-body);
+  backdrop-filter: blur(20px);
 }
 
 .vm-input:focus {
   outline: none;
   border-color: var(--vm-orange-primary);
-  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.12);
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1), var(--vm-glow-primary);
+  transform: translateY(-2px);
+  background: rgba(17, 24, 39, 0.9);
 }
 
 .vm-input::placeholder {
-  color: var(--vm-gray-500);
+  color: var(--vm-gray-400);
   font-weight: 400;
 }
 
-.vm-textarea {
-  background: var(--vm-surface);
-  border: 1.5px solid var(--vm-gray-300);
-  border-radius: var(--vm-border-radius-md);
-  color: var(--vm-gray-700);
-  padding: 16px;
-  font-size: 14px;
-  line-height: 22px;
-  font-weight: 400;
-  min-height: 120px;
-  width: 100%;
-  resize: vertical;
-  transition: var(--vm-transition-default);
-  font-family: var(--vm-font-body);
-}
-
-.vm-textarea:focus {
-  outline: none;
-  border-color: var(--vm-orange-primary);
-  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.12);
-}
-
-/* ===== TYPOGRAPHY UTILITIES ===== */
-.vm-heading {
+/* ===== NEURAL TYPOGRAPHY ===== */
+.vm-text-hero {
   font-family: var(--vm-font-display);
-  font-weight: 600;
-  color: var(--vm-pure);
+  font-weight: 900;
+  font-size: clamp(48px, 8vw, 72px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--vm-pure) 0%, var(--vm-gray-300) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-align: center;
+}
+
+.vm-text-display {
+  font-family: var(--vm-font-display);
+  font-weight: 700;
+  font-size: clamp(36px, 6vw, 48px);
   line-height: 1.2;
   letter-spacing: -0.01em;
+  color: var(--vm-pure);
+}
+
+.vm-text-gradient {
+  background: var(--vm-gradient-brand);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.vm-text-neural {
+  background: var(--vm-gradient-neural);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .vm-text-muted {
-  color: var(--vm-gray-500);
+  color: var(--vm-gray-400);
 }
 
 .vm-text-secondary {
-  color: var(--vm-gray-600);
+  color: var(--vm-gray-300);
 }
 
-.vm-text-brand {
+/* ===== NEURAL BADGES ===== */
+.vm-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  border-radius: 20px;
+  background: rgba(255, 107, 53, 0.1);
   color: var(--vm-orange-primary);
+  border: 1px solid rgba(255, 107, 53, 0.2);
+  transition: all var(--vm-duration-fast) var(--vm-transition-neural);
+  gap: var(--vm-space-2);
+  backdrop-filter: blur(10px);
 }
 
-/* ===== LAYOUT UTILITIES ===== */
-.vm-container {
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 0 var(--vm-space-6);
+.vm-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--vm-glow-primary);
+  background: rgba(255, 107, 53, 0.15);
+  border-color: rgba(255, 107, 53, 0.3);
 }
 
-.vm-section {
-  padding: var(--vm-space-16) 0;
+/* ===== NEURAL STATUS INDICATORS ===== */
+.vm-status-online {
+  position: relative;
+  padding-left: 16px;
 }
 
-.vm-section-sm {
-  padding: var(--vm-space-12) 0;
+.vm-status-online::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  background: var(--vm-emerald);
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+  animation: vm-pulse-neural 2s ease-in-out infinite;
 }
 
-/* ==============================================
-   SCROLLBARS & INTERACTIONS
-   ============================================== */
+@keyframes vm-pulse-neural {
+  0%, 100% {
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.1);
+  }
+}
 
-/* Custom Scrollbars */
+/* ===== NEURAL ANIMATIONS ===== */
+@keyframes vm-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes vm-glow-pulse {
+  0%, 100% {
+    box-shadow: var(--vm-glow-primary);
+  }
+  50% {
+    box-shadow: var(--vm-glow-pulse);
+  }
+}
+
+@keyframes vm-matrix-scan {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes vm-neural-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ===== ANIMATION CLASSES ===== */
+.vm-float {
+  animation: vm-float 6s ease-in-out infinite;
+}
+
+.vm-glow-pulse {
+  animation: vm-glow-pulse 3s ease-in-out infinite;
+}
+
+.vm-fade-in {
+  animation: vm-neural-fade-in var(--vm-duration-slow) var(--vm-transition-neural);
+}
+
+/* ===== NEURAL SCROLLBARS ===== */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -374,18 +505,14 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--vm-orange-primary);
-  border-radius: 3px;
-  opacity: 0.6;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--vm-orange-light);
+  background: var(--vm-gradient-brand);
+  border-radius: 4px;
   opacity: 0.8;
 }
 
-::-webkit-scrollbar-corner {
-  background: transparent;
+::-webkit-scrollbar-thumb:hover {
+  opacity: 1;
+  box-shadow: var(--vm-glow-primary);
 }
 
 /* Firefox scrollbars */
@@ -394,457 +521,193 @@ body {
   scrollbar-color: var(--vm-orange-primary) transparent;
 }
 
-/* Selection Styling */
+/* ===== NEURAL SELECTION ===== */
 ::selection {
   background: var(--vm-orange-primary);
-  color: var(--vm-pure);
+  color: var(--vm-void);
 }
 
 ::-moz-selection {
   background: var(--vm-orange-primary);
-  color: var(--vm-pure);
+  color: var(--vm-void);
 }
 
 /* ==============================================
-   MODERN UI ENHANCEMENTS
+   SPECIALIZED NEURAL EFFECTS
    ============================================== */
 
-/* Enhanced Card Variants */
-.vm-card-modern {
-  background: var(--vm-surface);
+/* Glass Morphism */
+.vm-glass {
+  background: rgba(17, 24, 39, 0.8);
+  backdrop-filter: blur(20px);
   border: 1px solid var(--vm-border-subtle);
-  border-radius: var(--vm-border-radius-xl);
-  box-shadow: var(--vm-shadow-sm);
-  transition: all var(--vm-transition-default);
-  padding: var(--vm-space-8);
+  border-radius: 16px;
+}
+
+/* Neural Grid Pattern */
+.vm-neural-grid {
+  background-image: 
+    linear-gradient(rgba(139, 92, 246, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+  position: relative;
+}
+
+/* Matrix Code Effect */
+.vm-matrix-effect {
   position: relative;
   overflow: hidden;
 }
 
-.vm-card-modern::before {
+.vm-matrix-effect::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 1px;
-  background: var(--vm-gradient-brand);
-  opacity: 0;
-  transition: opacity var(--vm-transition-default);
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 107, 53, 0.1), transparent);
+  transform: translateX(-100%);
+  animation: vm-matrix-scan 3s ease-in-out infinite;
 }
 
-.vm-card-modern:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--vm-shadow-md);
-  border-color: var(--vm-border-default);
-}
-
-.vm-card-modern:hover::before {
-  opacity: 1;
-}
-
-/* Modern Input Variants */
-.vm-input-modern {
-  background: var(--vm-surface);
-  border: 1px solid var(--vm-border-subtle);
-  border-radius: var(--vm-border-radius-lg);
-  color: var(--vm-pure);
-  padding: 16px 20px;
-  font-size: 15px;
-  line-height: 22px;
-  font-weight: 400;
-  height: 52px;
-  width: 100%;
-  transition: all var(--vm-transition-default);
-  font-family: var(--vm-font-body);
-  box-shadow: var(--vm-shadow-xs);
-}
-
-.vm-input-modern:focus {
-  outline: none;
-  border-color: var(--vm-orange-primary);
-  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.08), var(--vm-shadow-sm);
-  transform: translateY(-1px);
-}
-
-/* Professional Button Variants */
-.vm-button-modern {
-  background: var(--vm-gradient-brand);
-  color: var(--vm-pure);
-  font-weight: 600;
-  font-size: 15px;
-  line-height: 22px;
-  border: none;
-  border-radius: var(--vm-border-radius-lg);
-  padding: 16px 32px;
-  height: 52px;
-  cursor: pointer;
-  transition: all var(--vm-transition-default);
-  box-shadow: var(--vm-shadow-brand);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--vm-space-3);
+/* Holographic Border */
+.vm-hologram {
   position: relative;
-  overflow: hidden;
+  border: 1px solid transparent;
+  background: linear-gradient(var(--vm-surface), var(--vm-surface)) padding-box,
+              var(--vm-gradient-neural) border-box;
+  border-radius: 16px;
 }
 
-.vm-button-modern::before {
+/* Energy Pulse */
+.vm-energy-pulse {
+  position: relative;
+}
+
+.vm-energy-pulse::after {
   content: '';
   position: absolute;
-  top: 0;
-  left: -100%;
+  top: 50%;
+  left: 50%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left var(--vm-transition-smooth);
+  border: 2px solid var(--vm-orange-primary);
+  border-radius: inherit;
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 0;
+  animation: vm-energy-pulse-anim 2s ease-out infinite;
 }
 
-.vm-button-modern:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--vm-shadow-brand-lg);
-}
-
-.vm-button-modern:hover::before {
-  left: 100%;
-}
-
-.vm-button-modern:active {
-  transform: translateY(-1px);
-}
-
-/* Enhanced Typography */
-.vm-heading-modern {
-  font-family: var(--vm-font-display);
-  font-weight: 700;
-  color: var(--vm-pure);
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  background: linear-gradient(135deg, var(--vm-pure) 0%, var(--vm-gray-600) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Status Indicators */
-.vm-status-active {
-  position: relative;
-  padding-left: 12px;
-}
-
-.vm-status-active::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 6px;
-  height: 6px;
-  background: var(--vm-emerald);
-  border-radius: 50%;
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
-  animation: vm-pulse-dot 2s ease-in-out infinite;
-}
-
-@keyframes vm-pulse-dot {
-  0%, 100% {
-    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+@keyframes vm-energy-pulse-anim {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.8;
   }
-  50% {
-    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
-  }
-}
-
-/* Modern List Items */
-.vm-list-item {
-  display: flex;
-  align-items: center;
-  padding: var(--vm-space-4) var(--vm-space-6);
-  border-radius: var(--vm-border-radius-md);
-  transition: all var(--vm-transition-micro);
-  cursor: pointer;
-  border: 1px solid transparent;
-}
-
-.vm-list-item:hover {
-  background: var(--vm-surface-elevated);
-  border-color: var(--vm-border-subtle);
-  transform: translateX(2px);
-}
-
-/* Enhanced Badges */
-.vm-badge-modern {
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 16px;
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 18px;
-  border-radius: 20px;
-  background: rgba(255, 107, 53, 0.08);
-  color: var(--vm-orange-primary);
-  border: 1px solid rgba(255, 107, 53, 0.12);
-  transition: all var(--vm-transition-micro);
-  gap: var(--vm-space-2);
-}
-
-.vm-badge-modern:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--vm-shadow-xs);
-  background: rgba(255, 107, 53, 0.12);
-}
-
-/* ==============================================
-   UTILITY CLASSES
-   ============================================== */
-
-/* Text Utilities */
-.line-clamp-1 {
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.line-clamp-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* Enhanced Scrollbar Classes */
-.scrollbar-thin {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 107, 53, 0.3) transparent;
-}
-
-.scrollbar-thin::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background: rgba(255, 107, 53, 0.3);
-  border-radius: 2px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 107, 53, 0.5);
-}
-
-/* ==============================================
-   COMPONENT SPECIFIC STYLES
-   ============================================== */
-
-/* Badge Components */
-.vm-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 12px;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 16px;
-  border-radius: 14px;
-  background: rgba(255, 107, 53, 0.1);
-  color: var(--vm-orange-light);
-  border: 1px solid rgba(255, 107, 53, 0.2);
-  transition: var(--vm-transition-micro);
-}
-
-.vm-badge:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--vm-shadow-xs);
-  background: rgba(255, 107, 53, 0.15);
-}
-
-.vm-badge-success {
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--vm-emerald);
-  border-color: rgba(16, 185, 129, 0.2);
-}
-
-.vm-badge-warning {
-  background: rgba(245, 158, 11, 0.1);
-  color: var(--vm-warning);
-  border-color: rgba(245, 158, 11, 0.2);
-}
-
-.vm-badge-violet {
-  background: rgba(139, 92, 246, 0.1);
-  color: var(--vm-violet-light);
-  border-color: rgba(139, 92, 246, 0.2);
-}
-
-/* Dropdown & Menu Components */
-.vm-dropdown {
-  background: rgba(248, 249, 250, 0.95);
-  border: 1px solid var(--vm-border-default);
-  border-radius: var(--vm-border-radius-lg);
-  box-shadow: var(--vm-shadow-lg);
-  backdrop-filter: blur(20px);
-  padding: var(--vm-space-2);
-  max-height: 320px;
-  overflow-y: auto;
-}
-
-.vm-dropdown-item {
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  font-size: 14px;
-  line-height: 20px;
-  color: var(--vm-gray-700);
-  border-radius: var(--vm-border-radius-sm);
-  cursor: pointer;
-  transition: var(--vm-transition-micro);
-  gap: var(--vm-space-3);
-}
-
-.vm-dropdown-item:hover {
-  background: var(--vm-gray-100);
-  color: var(--vm-pure);
-}
-
-.vm-dropdown-item:active,
-.vm-dropdown-item[data-state="selected"] {
-  background: rgba(255, 107, 53, 0.1);
-  color: var(--vm-orange-light);
-}
-
-/* Code Block Styling */
-.vm-code {
-  background: var(--vm-gray-50);
-  border: 1px solid var(--vm-gray-200);
-  border-radius: var(--vm-border-radius-md);
-  padding: var(--vm-space-4);
-  font-family: var(--vm-font-mono);
-  font-size: 13px;
-  line-height: 20px;
-  color: var(--vm-gray-700);
-  overflow-x: auto;
-}
-
-/* Glass Morphism Elements */
-.vm-glass {
-  background: rgba(248, 249, 250, 0.8);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--vm-border-emphasis);
-  border-radius: var(--vm-border-radius-xl);
-}
-
-/* ==============================================
-   ANIMATIONS & TRANSITIONS
-   ============================================== */
-
-/* Fade In Animation */
-@keyframes vm-fade-in {
-  from {
+  100% {
+    transform: translate(-50%, -50%) scale(1.2);
     opacity: 0;
-    transform: translateY(10px);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Scale In Animation */
-@keyframes vm-scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* Slide In Animation */
-@keyframes vm-slide-in {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-/* Pulse Animation for Loading */
-@keyframes vm-pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-/* Animation Classes */
-.vm-animate-in {
-  animation: vm-fade-in var(--vm-transition-entrance);
-}
-
-.vm-animate-scale {
-  animation: vm-scale-in var(--vm-transition-smooth);
-}
-
-.vm-animate-slide {
-  animation: vm-slide-in var(--vm-transition-default);
-}
-
-.vm-animate-pulse {
-  animation: vm-pulse 2s ease-in-out infinite;
-}
-
-/* Loading States */
-.vm-loading {
-  opacity: 0.7;
-  pointer-events: none;
-  filter: grayscale(0.2);
-  transition: var(--vm-transition-default);
-}
-
-/* Focus States */
-.vm-focus-ring:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.12);
 }
 
 /* ==============================================
-   RADIX UI OVERRIDES
+   COMPONENT SPECIFIC OVERRIDES
    ============================================== */
 
-/* Select Component Styling */
+/* Radix UI Components */
 [data-radix-select-content] {
-  font-family: var(--vm-font-body);
   background: var(--vm-surface);
   border: 1px solid var(--vm-border-default);
-  border-radius: var(--vm-border-radius-lg);
-  box-shadow: var(--vm-shadow-lg);
+  border-radius: 12px;
+  box-shadow: var(--vm-shadow-deep);
   backdrop-filter: blur(20px);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 [data-radix-select-item] {
-  font-family: var(--vm-font-body);
-  line-height: 1.4;
-  color: var(--vm-gray-700);
-  transition: var(--vm-transition-micro);
+  color: var(--vm-gray-300);
+  transition: all var(--vm-duration-fast);
 }
 
 [data-radix-select-item]:hover {
-  background: var(--vm-gray-100);
-  color: var(--vm-gray-800);
+  background: rgba(255, 107, 53, 0.1);
+  color: var(--vm-orange-primary);
+}
+
+/* React Hot Toast */
+[data-sonner-toaster] {
+  font-family: var(--vm-font-body);
+}
+
+[data-sonner-toast] {
+  background: var(--vm-surface) !important;
+  border: 1px solid var(--vm-border-default) !important;
+  box-shadow: var(--vm-shadow-neural) !important;
+  backdrop-filter: blur(20px);
+}
+
+/* ==============================================
+   RESPONSIVE NEURAL SYSTEM
+   ============================================== */
+
+@media (max-width: 768px) {
+  .vm-card {
+    padding: var(--vm-space-5);
+    border-radius: 12px;
+  }
+  
+  .vm-button-primary,
+  .vm-button-secondary {
+    height: 48px;
+    padding: 14px 24px;
+    font-size: 14px;
+  }
+  
+  .vm-input {
+    height: 52px;
+    padding: 14px 16px;
+    font-size: 14px;
+  }
+  
+  :root {
+    --vm-space-6: 16px;
+    --vm-space-7: 24px;
+    --vm-space-8: 32px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .vm-text-hero {
+    font-size: 84px;
+  }
+  
+  .vm-text-display {
+    font-size: 56px;
+  }
+}
+
+/* ==============================================
+   NEURAL ACCESSIBILITY
+   ============================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.vm-focus-ring:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.3);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --vm-border-subtle: var(--vm-border-emphasis);
+    --vm-border-default: var(--vm-border-glow);
+  }
 }
