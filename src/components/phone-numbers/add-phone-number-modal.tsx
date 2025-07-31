@@ -114,6 +114,7 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
 
   const onSubmit = async (data: PhoneNumberFormData) => {
     setIsLoading(true)
+    let result: any = null
     
     try {
       // Prepare the payload for Twilio-only setup
@@ -125,6 +126,11 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
         assistantId: data.assignedAssistantId || null
       }
 
+      console.log('Sending phone number creation request:', {
+        ...payload,
+        twilioAuthToken: '[REDACTED]' // Don't log sensitive data
+      })
+
       const response = await fetch('/api/phone-numbers', {
         method: 'POST',
         headers: {
@@ -133,10 +139,11 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
         body: JSON.stringify(payload)
       })
 
-      const result = await response.json()
+      result = await response.json()
+      console.log('API Response:', result)
 
       if (!response.ok) {
-        throw new Error(result.error?.message || 'Failed to add phone number')
+        throw new Error(result.error?.message || `HTTP ${response.status}: ${response.statusText}`)
       }
 
       toast({
@@ -148,9 +155,26 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
       onClose()
     } catch (error) {
       console.error('Error adding phone number:', error)
+      console.error('Full API Response:', result)
+      
+      let errorMessage = 'Failed to add phone number'
+      
+      if (error instanceof Error) {
+        errorMessage = error.message
+      } else if (result?.error) {
+        errorMessage = result.error.message || result.error.code || errorMessage
+        console.error('API Error Details:', result.error)
+      }
+      
+      // In development, show more detailed error info
+      if (process.env.NODE_ENV === 'development' && result?.error?.details) {
+        console.error('Error Details:', result.error.details)
+        errorMessage += ` (${JSON.stringify(result.error.details)})`
+      }
+      
       toast({
         title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to add phone number',
+        description: errorMessage,
         variant: 'destructive',
       })
     } finally {

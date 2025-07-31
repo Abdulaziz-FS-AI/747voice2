@@ -58,7 +58,18 @@ export interface AssignAssistantRequest {
 
 export class PhoneNumberService {
   private readonly logger = LoggerService.getInstance()
-  private readonly vapiService = VAPIService.getInstance()
+  private readonly vapiService: VAPIService
+  
+  constructor() {
+    try {
+      this.vapiService = VAPIService.getInstance()
+    } catch (error) {
+      this.logger.error('Failed to initialize VAPI service', {
+        error: error instanceof Error ? error.message : 'Unknown error'
+      })
+      throw new Error(`VAPI service initialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+  }
 
   /**
    * Create a new phone number for a user
