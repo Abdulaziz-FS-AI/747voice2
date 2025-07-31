@@ -3,10 +3,10 @@ import { createServiceRoleClient } from '@/lib/supabase'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { templateId: string } }
+  context: { params: Promise<{ templateId: string }> }
 ) {
   try {
-    const { templateId } = params
+    const { templateId } = await context.params
     const supabase = createServiceRoleClient()
     
     // Fetch specific template
