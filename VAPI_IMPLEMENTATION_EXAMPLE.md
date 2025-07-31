@@ -11,26 +11,14 @@ Your Voice Matrix project now uses the updated VAPI API format with proper serve
 ### Server Configuration in VAPI Assistant Creation
 
 ```typescript
-// src/lib/vapi.ts - Lines 451-484
+// src/lib/vapi.ts - Lines 435-443
 
 const serverConfig = {
   url: process.env.MAKE_WEBHOOK_URL || 'https://hook.eu2.make.com/m3olq7ealo40xevpjdar7573j2cst9uk',
-  timeoutSeconds: 20,
+  secret: process.env.MAKE_WEBHOOK_SECRET || 'k8sP2hGfD8jL5vZbN4pRqWcVfHjG5dEmP7sTzXyA1bC3eF6gHjKl',
   headers: {
-    'Authorization': `Bearer ${process.env.MAKE_WEBHOOK_SECRET}`,
-    'Content-Type': 'application/json',
-    'X-Webhook-Source': 'voice-matrix',
-    'X-Assistant-Name': assistantData.name,
-    'X-User-ID': '{{userId}}',           // VAPI fills this automatically
-    'X-Assistant-ID': '{{assistantId}}', // VAPI fills this automatically  
-    'X-Call-ID': '{{callId}}',          // VAPI fills this automatically
-    'X-Phone-Number': '{{phoneNumber}}', // VAPI fills this automatically
-    'X-Timestamp': '{{timestamp}}'       // VAPI fills this automatically
-  },
-  backoffPlan: {
-    type: 'exponential',
-    maxRetries: 3,
-    baseDelaySeconds: 1
+    'X-API-Key': process.env.MAKE_WEBHOOK_SECRET || 'k8sP2hGfD8jL5vZbN4pRqWcVfHjG5dEmP7sTzXyA1bC3eF6gHjKl',
+    'Content-Type': 'application/json'
   }
 };
 
@@ -63,19 +51,11 @@ MAKE_WEBHOOK_SECRET=your_make_webhook_secret_key
 
 ## 3. What Each Header Does
 
-### Authentication Headers
-- **`Authorization: Bearer ${MAKE_WEBHOOK_SECRET}`** - Authenticates the webhook request
-- **`X-Webhook-Source: voice-matrix`** - Identifies the source application
+### Authentication & Content Headers
+- **`X-API-Key: ${MAKE_WEBHOOK_SECRET}`** - Authenticates the webhook request with Make.com
+- **`Content-Type: application/json`** - Specifies the content type for the webhook payload
 
-### Context Headers (VAPI Template Variables)
-- **`X-User-ID: {{userId}}`** - The user who owns the assistant
-- **`X-Assistant-ID: {{assistantId}}`** - The assistant handling the call
-- **`X-Call-ID: {{callId}}`** - Unique identifier for the call
-- **`X-Phone-Number: {{phoneNumber}}`** - The phone number being called
-- **`X-Timestamp: {{timestamp}}`** - When the webhook was triggered
-
-### Custom Headers
-- **`X-Assistant-Name: assistantData.name`** - Human-readable assistant name
+This minimal configuration ensures compatibility with Make.com webhooks while keeping the implementation simple and focused. All contextual information (user ID, assistant ID, call ID, phone number, timestamp) is available in the webhook payload body sent by VAPI.
 
 ## 4. Server Messages Explained
 
@@ -130,22 +110,20 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     
     // Verify authentication
-    const authHeader = headersList.get('authorization');
-    const expectedAuth = `Bearer ${process.env.MAKE_WEBHOOK_SECRET}`;
+    const apiKey = headersList.get('x-api-key');
+    const expectedApiKey = process.env.MAKE_WEBHOOK_SECRET;
     
-    if (authHeader !== expectedAuth) {
+    if (apiKey !== expectedApiKey) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    // Extract context from headers
+    // Extract context from webhook payload (VAPI includes this in the body)
     const context = {
-      source: headersList.get('x-webhook-source'),
-      userId: headersList.get('x-user-id'),
-      assistantId: headersList.get('x-assistant-id'),
-      callId: headersList.get('x-call-id'),
-      phoneNumber: headersList.get('x-phone-number'),
-      timestamp: headersList.get('x-timestamp'),
-      assistantName: headersList.get('x-assistant-name')
+      userId: body.message?.userId || body.userId,
+      assistantId: body.message?.assistantId || body.assistantId,
+      callId: body.message?.callId || body.callId,
+      phoneNumber: body.message?.phoneNumber || body.phoneNumber,
+      timestamp: body.message?.timestamp || body.timestamp
     };
     
     console.log('VAPI Webhook received:', {
@@ -258,16 +236,15 @@ Test your webhook configuration:
 # Test the webhook endpoint directly
 curl -X POST https://your-app.com/api/webhooks/vapi \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer your-webhook-secret" \
-  -H "X-Webhook-Source: voice-matrix" \
-  -H "X-User-ID: test-user-123" \
-  -H "X-Assistant-ID: test-assistant-456" \
-  -H "X-Call-ID: test-call-789" \
+  -H "X-API-Key: your-webhook-secret" \
   -d '{
     "message": {
       "type": "conversation-update",
       "transcript": "Hello, how can I help you?",
-      "timestamp": "2025-01-31T10:00:00Z"
+      "timestamp": "2025-01-31T10:00:00Z",
+      "userId": "test-user-123",
+      "assistantId": "test-assistant-456",
+      "callId": "test-call-789"
     }
   }'
 ```

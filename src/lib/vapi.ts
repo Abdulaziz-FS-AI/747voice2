@@ -432,19 +432,13 @@ export async function createVapiAssistant(assistantData: {
       };
     }
 
-    // Create server configuration with proper headers (new VAPI format)
+    // Create server configuration with minimal headers as requested
     const serverConfig = {
       url: process.env.MAKE_WEBHOOK_URL || 'https://hook.eu2.make.com/m3olq7ealo40xevpjdar7573j2cst9uk',
       secret: process.env.MAKE_WEBHOOK_SECRET || 'k8sP2hGfD8jL5vZbN4pRqWcVfHjG5dEmP7sTzXyA1bC3eF6gHjKl',
       headers: {
         'X-API-Key': process.env.MAKE_WEBHOOK_SECRET || 'k8sP2hGfD8jL5vZbN4pRqWcVfHjG5dEmP7sTzXyA1bC3eF6gHjKl',
-        'X-Webhook-Source': 'voice-matrix',
-        'X-Assistant-Name': assistantData.name,
-        'X-User-ID': '{{userId}}',           // VAPI template variables
-        'X-Assistant-ID': '{{assistantId}}', // VAPI template variables  
-        'X-Call-ID': '{{callId}}',          // VAPI template variables
-        'X-Phone-Number': '{{phoneNumber}}', // VAPI template variables
-        'X-Timestamp': '{{timestamp}}'       // VAPI template variables
+        'Content-Type': 'application/json'
       }
     };
 
