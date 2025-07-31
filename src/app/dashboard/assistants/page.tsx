@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
-import { Plus, Search, Edit, Trash2, MoreVertical, Power, PowerOff, Bot, Zap, Sparkles } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, MoreVertical, Power, PowerOff, Bot, Zap, Sparkles, RefreshCw } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -48,6 +48,7 @@ export default function AssistantsPage() {
   const [assistants, setAssistants] = useState<Assistant[]>([])
   const [filteredAssistants, setFilteredAssistants] = useState<Assistant[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
   
@@ -68,14 +69,25 @@ export default function AssistantsPage() {
     filterAssistants()
   }, [assistants, searchQuery, statusFilter])
 
-  const fetchAssistants = async () => {
+  const fetchAssistants = async (isRefresh = false) => {
     try {
-      setLoading(true)
+      if (isRefresh) {
+        setRefreshing(true)
+      } else {
+        setLoading(true)
+      }
+      
       const response = await fetch('/api/assistants')
       const data = await response.json()
       
       if (data.success) {
         setAssistants(data.data || [])
+        if (isRefresh) {
+          toast({
+            title: 'Success',
+            description: 'Assistants refreshed successfully'
+          })
+        }
       } else {
         toast({
           title: 'Error',
@@ -91,8 +103,16 @@ export default function AssistantsPage() {
         variant: 'destructive'
       })
     } finally {
-      setLoading(false)
+      if (isRefresh) {
+        setRefreshing(false)
+      } else {
+        setLoading(false)
+      }
     }
+  }
+
+  const handleRefresh = () => {
+    fetchAssistants(true)
   }
 
   const filterAssistants = () => {
@@ -240,28 +260,53 @@ export default function AssistantsPage() {
                 Deploy and manage your intelligent AI voice agents
               </motion.p>
             </div>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <Button 
-                onClick={() => router.push('/dashboard/assistants/new')}
-                className="relative overflow-hidden group"
-                style={{
-                  background: 'var(--vm-gradient-brand)',
-                  border: 'none',
-                  boxShadow: '0 8px 32px rgba(255, 107, 53, 0.3)'
-                }}
+            <div className="flex items-center gap-3">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-700" />
-                <Plus className="mr-2 h-5 w-5" />
-                <span className="font-semibold">Create Neural Assistant</span>
-                <Sparkles className="ml-2 h-4 w-4" />
-              </Button>
-            </motion.div>
+                <Button 
+                  onClick={handleRefresh}
+                  disabled={refreshing}
+                  variant="outline"
+                  className="relative overflow-hidden group"
+                  style={{
+                    background: 'rgba(255, 107, 53, 0.1)',
+                    border: '1px solid var(--vm-border-brand)',
+                    color: 'var(--vm-orange-primary)'
+                  }}
+                >
+                  <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                  <span className="font-medium">Refresh</span>
+                </Button>
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button 
+                  onClick={() => router.push('/dashboard/assistants/new')}
+                  className="relative overflow-hidden group"
+                  style={{
+                    background: 'var(--vm-gradient-brand)',
+                    border: 'none',
+                    boxShadow: '0 8px 32px rgba(255, 107, 53, 0.3)'
+                  }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-700" />
+                  <Plus className="mr-2 h-5 w-5" />
+                  <span className="font-semibold">Create Neural Assistant</span>
+                  <Sparkles className="ml-2 h-4 w-4" />
+                </Button>
+              </motion.div>
+            </div>
           </motion.div>
         </div>
 
@@ -278,10 +323,23 @@ export default function AssistantsPage() {
           }}>
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-500/50 to-transparent" />
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Search className="h-5 w-5" style={{ color: 'var(--vm-orange-primary)' }} />
-                Neural Search Matrix
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Search className="h-5 w-5" style={{ color: 'var(--vm-orange-primary)' }} />
+                  Neural Search Matrix
+                </CardTitle>
+                <Button
+                  onClick={handleRefresh}
+                  disabled={refreshing}
+                  variant="ghost"
+                  size="sm"
+                  className="text-sm hover:bg-white/10"
+                  style={{ color: 'var(--vm-orange-primary)' }}
+                >
+                  <RefreshCw className={`h-4 w-4 mr-1 ${refreshing ? 'animate-spin' : ''}`} />
+                  {refreshing ? 'Refreshing...' : 'Refresh'}
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="flex gap-4 flex-col sm:flex-row">
