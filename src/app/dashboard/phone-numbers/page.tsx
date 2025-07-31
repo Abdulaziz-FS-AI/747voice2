@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { DashboardLayout } from '@/components/dashboard/layout'
 import { AddPhoneNumberModal } from '@/components/phone-numbers/add-phone-number-modal'
+import { EditPhoneNumberModal } from '@/components/phone-numbers/edit-phone-number-modal'
 import { StatsCard } from '@/components/dashboard/stats-card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/hooks/use-toast'
@@ -54,6 +55,8 @@ export default function PhoneNumbersPage() {
   })
   const [loading, setLoading] = useState(true)
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [editingNumber, setEditingNumber] = useState<PhoneNumber | null>(null)
 
   useEffect(() => {
     if (!user) {
@@ -190,6 +193,19 @@ export default function PhoneNumbersPage() {
       title: 'Success',
       description: 'Phone number added successfully'
     })
+  }
+
+  const handleEditNumber = (number: PhoneNumber) => {
+    setEditingNumber(number)
+    setShowEditModal(true)
+  }
+
+  const handleNumberUpdated = (updatedNumber: PhoneNumber) => {
+    setPhoneNumbers(prev => 
+      prev.map(n => n.id === updatedNumber.id ? updatedNumber : n)
+    )
+    setShowEditModal(false)
+    setEditingNumber(null)
   }
 
   return (
@@ -363,7 +379,7 @@ export default function PhoneNumbersPage() {
                               {number.is_active ? 'Deactivate' : 'Activate'}
                             </DropdownMenuItem>
                             <DropdownMenuItem 
-                              onClick={() => router.push(`/dashboard/phone-numbers/${number.id}/edit`)}
+                              onClick={() => handleEditNumber(number)}
                             >
                               <Edit className="mr-2 h-4 w-4" />
                               Edit
@@ -391,6 +407,17 @@ export default function PhoneNumbersPage() {
           open={showAddModal}
           onClose={() => setShowAddModal(false)}
           onSuccess={handleNumberAdded}
+        />
+
+        {/* Edit Phone Number Modal */}
+        <EditPhoneNumberModal
+          open={showEditModal}
+          onClose={() => {
+            setShowEditModal(false)
+            setEditingNumber(null)
+          }}
+          phoneNumber={editingNumber}
+          onSuccess={handleNumberUpdated}
         />
       </div>
     </DashboardLayout>
