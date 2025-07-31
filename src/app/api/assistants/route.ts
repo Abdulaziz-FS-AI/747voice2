@@ -263,8 +263,7 @@ export async function POST(request: NextRequest) {
       max_call_duration: validatedData.max_call_duration,
       background_sound: validatedData.background_sound,
       structured_questions: validatedData.structured_questions,
-      evaluation_rubric: validatedData.evaluation_rubric,
-      is_active: true
+      evaluation_rubric: validatedData.evaluation_rubric
     };
 
     // Insert into database with VAPI ID

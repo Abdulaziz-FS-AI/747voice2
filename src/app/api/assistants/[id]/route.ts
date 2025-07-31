@@ -218,21 +218,15 @@ export async function DELETE(
       }
     }
 
-    // Soft delete assistant from database (preserve call history)
-    console.log(`Soft deleting assistant ${assistant.name}`)
+    // Delete assistant from database completely
+    console.log(`Deleting assistant ${assistant.name} from database`)
     const { error: assistantDeleteError } = await supabase
       .from('user_assistants')
-      .update({
-        is_active: false,
-        sync_status: 'deleted',
-        sync_error: null,
-        last_synced_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      })
+      .delete()
       .eq('id', params.id)
 
     if (assistantDeleteError) {
-      console.error('Error soft deleting assistant:', assistantDeleteError)
+      console.error('Error deleting assistant from database:', assistantDeleteError)
       throw assistantDeleteError
     }
 
