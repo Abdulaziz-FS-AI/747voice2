@@ -6,7 +6,7 @@
  * validation, and transaction management.
  */
 
-import { createServerSupabaseClient } from '@/lib/supabase'
+import { createServiceRoleClient } from '@/lib/supabase'
 import { VAPIService } from './vapi.service'
 import { LoggerService } from './logger.service'
 import { ValidationError, NotFoundError, ConflictError } from '@/lib/errors'
@@ -92,7 +92,7 @@ export class PhoneNumberService {
       // Validate input
       const validatedData = PhoneNumberSchema.parse(request)
       
-      const supabase = await createServerSupabaseClient()
+      const supabase = createServiceRoleClient()
 
       // Check if phone number already exists for user
       const { data: existingPhone } = await supabase
@@ -113,7 +113,7 @@ export class PhoneNumberService {
       let vapiAssistantId: string | null = null
       if (request.assistantId) {
         const { data: assistant } = await supabase
-          .from('assistants')
+          .from('user_assistants')
           .select('vapi_assistant_id')
           .eq('id', request.assistantId)
           .eq('user_id', userId)
@@ -216,13 +216,13 @@ export class PhoneNumberService {
     const correlationId = crypto.randomUUID()
     
     try {
-      const supabase = await createServerSupabaseClient()
+      const supabase = createServiceRoleClient()
       
       const { data: phones, error } = await supabase
         .from('phone_numbers')
         .select(`
           *,
-          assigned_assistant:assistants(
+          assigned_assistant:user_assistants(
             id,
             name,
             vapi_assistant_id
@@ -253,13 +253,13 @@ export class PhoneNumberService {
     const correlationId = crypto.randomUUID()
     
     try {
-      const supabase = await createServerSupabaseClient()
+      const supabase = createServiceRoleClient()
       
       const { data: phone, error } = await supabase
         .from('phone_numbers')
         .select(`
           *,
-          assigned_assistant:assistants(
+          assigned_assistant:user_assistants(
             id,
             name,
             vapi_assistant_id
@@ -309,7 +309,7 @@ export class PhoneNumberService {
       // Validate input
       const validatedData = AssignmentSchema.parse(request)
       
-      const supabase = await createServerSupabaseClient()
+      const supabase = createServiceRoleClient()
 
       // Get phone number (verify ownership)
       const phone = await this.getPhoneNumberById(phoneId, userId)
@@ -319,7 +319,7 @@ export class PhoneNumberService {
       // Validate assistant ownership if assigning
       if (validatedData.assistantId) {
         const { data: assistant, error: assistantError } = await supabase
-          .from('assistants')
+          .from('user_assistants')
           .select('id, name, vapi_assistant_id')
           .eq('id', validatedData.assistantId)
           .eq('user_id', userId)
@@ -348,7 +348,7 @@ export class PhoneNumberService {
         .eq('user_id', userId)
         .select(`
           *,
-          assigned_assistant:assistants(
+          assigned_assistant:user_assistants(
             id,
             name,
             vapi_assistant_id
@@ -395,7 +395,7 @@ export class PhoneNumberService {
     })
 
     try {
-      const supabase = await createServerSupabaseClient()
+      const supabase = createServiceRoleClient()
 
       // Get phone number (verify ownership)
       const phone = await this.getPhoneNumberById(phoneId, userId)
