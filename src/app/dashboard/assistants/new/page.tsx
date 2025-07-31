@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { CreateAssistantForm } from '@/components/assistants/create-assistant-form'
+import { TemplateSelector } from '@/components/assistants/template-selector'
 import { DashboardLayout } from '@/components/dashboard/layout'
 
 export default function NewAssistantPage() {
@@ -11,7 +11,7 @@ export default function NewAssistantPage() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">
           <Button
@@ -22,15 +22,15 @@ export default function NewAssistantPage() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold">Create New Assistant</h1>
+            <h1 className="text-2xl font-bold">Choose Your Assistant Template</h1>
             <p className="text-muted-foreground">
-              Set up your AI voice assistant in just a few steps
+              Start with a proven template or build from scratch
             </p>
           </div>
         </div>
 
-        {/* Form */}
-        <CreateAssistantForm />
+        {/* Template Selection */}
+        <TemplateSelector />
       </div>
     </DashboardLayout>
   )

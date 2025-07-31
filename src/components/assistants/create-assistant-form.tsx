@@ -45,7 +45,10 @@ const backgroundSoundOptions = [
 interface CreateAssistantFormProps {
   templateData?: {
     templateId: string
-    questions: any[]
+    name: string
+    category: string
+    config: any
+    placeholders: any
   } | null
   onCancel?: () => void
 }
@@ -56,17 +59,17 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
 
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<AssistantFormData>({
     defaultValues: {
-      name: '',
-      company_name: '',
-      personality_traits: ['professional'],
-      model_id: 'gpt-4.1-mini-2025-04-14', // Default recommended model
-      voice_id: 'Elliot', // Default VAPI voice
-      max_call_duration: 300, // 5 minutes default
-      first_message: 'Hello! How can I help you today?',
-      first_message_mode: 'assistant-speaks-first',
-      background_sound: 'office',
-      structured_questions: [],
-      evaluation_rubric: null
+      name: templateData?.placeholders?.name || '',
+      company_name: templateData?.placeholders?.company_name || '',
+      personality_traits: templateData?.config?.personality_traits || ['professional'],
+      model_id: templateData?.config?.model_id || 'gpt-4.1-mini-2025-04-14', // Default recommended model
+      voice_id: templateData?.config?.voice_id || 'Elliot', // Default VAPI voice
+      max_call_duration: templateData?.config?.max_call_duration || 300, // 5 minutes default
+      first_message: templateData?.config?.first_message || 'Hello! How can I help you today?',
+      first_message_mode: templateData?.config?.first_message_mode || 'assistant-speaks-first',
+      background_sound: templateData?.config?.background_sound || 'office',
+      structured_questions: templateData?.config?.structured_questions || [],
+      evaluation_rubric: templateData?.config?.evaluation_rubric || null
     }
   })
 
