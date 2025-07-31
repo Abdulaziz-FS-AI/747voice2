@@ -59,6 +59,7 @@ export default function PhoneNumbersPage() {
   const [editingNumber, setEditingNumber] = useState<PhoneNumber | null>(null)
   const [refreshing, setRefreshing] = useState(false)
   const [syncing, setSyncing] = useState(false)
+  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null)
 
   useEffect(() => {
     if (!user) {
@@ -67,6 +68,7 @@ export default function PhoneNumbersPage() {
     }
 
     fetchPhoneNumbers()
+    fetchSyncStatus()
   }, [user])
 
   const fetchPhoneNumbers = async (showRefreshingState = false) => {
@@ -231,6 +233,18 @@ export default function PhoneNumbersPage() {
     setEditingNumber(null)
   }
 
+  const fetchSyncStatus = async () => {
+    try {
+      const response = await fetch('/api/sync/status')
+      const data = await response.json()
+      if (data.success && data.data.lastSync) {
+        setLastSyncTime(data.data.lastSync)
+      }
+    } catch (error) {
+      console.error('Failed to fetch sync status:', error)
+    }
+  }
+
   const handleSync = async () => {
     setSyncing(true)
     try {
@@ -242,9 +256,22 @@ export default function PhoneNumbersPage() {
       if (data.success) {
         // Refresh data after sync
         await fetchPhoneNumbers(false)
+        await fetchSyncStatus()
+        
+        // Show detailed sync results
+        const details = data.data
+        let description = data.message
+        
+        if (details.phoneNumbers.details.length > 0) {
+          description += '\n\nRemoved phone numbers:'
+          details.phoneNumbers.details.forEach((item: any) => {
+            description += `\n• ${item.number} - ${item.action}`
+          })
+        }
+        
         toast({
           title: 'Sync Complete',
-          description: data.message
+          description: description
         })
       } else {
         throw new Error(data.error?.message || 'Sync failed')
@@ -286,6 +313,7 @@ export default function PhoneNumbersPage() {
               onClick={handleSync}
               disabled={refreshing || syncing}
               size="lg"
+              title={lastSyncTime ? `Last sync: ${new Date(lastSyncTime).toLocaleString()}` : 'Never synced'}
             >
               <RotateCcw className={`mr-2 h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
               {syncing ? 'Syncing...' : 'Sync VAPI'}

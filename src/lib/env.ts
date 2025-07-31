@@ -10,6 +10,11 @@ const requiredEnvVars = [
   'MAKE_WEBHOOK_SECRET'
 ] as const;
 
+// Optional environment variables
+const optionalEnvVars = [
+  'CRON_SECRET'
+] as const;
+
 type RequiredEnvVar = typeof requiredEnvVars[number];
 
 export function validateEnv(): void {

@@ -5,7 +5,7 @@ import { VAPIService } from '@/lib/services/vapi.service'
 
 /**
  * POST /api/sync
- * Sync local data with VAPI to remove stale records
+ * Comprehensive sync with VAPI - handles deletions, updates, and reconciliation
  */
 export async function POST(request: NextRequest) {
   try {
@@ -14,87 +14,206 @@ export async function POST(request: NextRequest) {
     const vapiService = VAPIService.getInstance()
 
     const results = {
-      assistants: { checked: 0, removed: 0 },
-      phoneNumbers: { checked: 0, removed: 0 }
+      assistants: { 
+        checked: 0, 
+        removed: 0, 
+        errors: 0,
+        details: [] as Array<{ id: string, name: string, action: string }>
+      },
+      phoneNumbers: { 
+        checked: 0, 
+        removed: 0, 
+        errors: 0,
+        details: [] as Array<{ id: string, number: string, action: string }>
+      }
     }
 
     // Sync Assistants
+    console.log('Starting assistant sync for user:', user.id)
+    
     const { data: localAssistants } = await supabase
       .from('user_assistants')
       .select('id, vapi_assistant_id, name')
       .eq('user_id', user.id)
       .eq('is_active', true)
 
-    if (localAssistants) {
+    if (localAssistants && localAssistants.length > 0) {
       results.assistants.checked = localAssistants.length
       
-      // Get all VAPI assistants
-      const vapiAssistants = await vapiService.getAssistants()
-      const vapiIds = new Set(vapiAssistants.map(a => a.id))
-
-      // Find assistants that exist locally but not in VAPI
-      const staleAssistants = localAssistants.filter(
-        assistant => !vapiIds.has(assistant.vapi_assistant_id)
-      )
-
-      // Soft delete stale assistants
-      for (const staleAssistant of staleAssistants) {
-        await supabase
-          .from('user_assistants')
-          .update({ is_active: false })
-          .eq('id', staleAssistant.id)
+      try {
+        // Get all VAPI assistants
+        const vapiAssistants = await vapiService.getAssistants()
+        const vapiIds = new Set(vapiAssistants.map(a => a.id))
         
-        results.assistants.removed++
+        console.log(`Found ${vapiAssistants.length} assistants in VAPI`)
+
+        // Process each local assistant
+        for (const assistant of localAssistants) {
+          if (!vapiIds.has(assistant.vapi_assistant_id)) {
+            // Assistant doesn't exist in VAPI anymore
+            console.log(`Assistant ${assistant.name} (${assistant.vapi_assistant_id}) not found in VAPI`)
+            
+            // Soft delete the assistant
+            const { error } = await supabase
+              .from('user_assistants')
+              .update({ 
+                is_active: false,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', assistant.id)
+            
+            if (!error) {
+              results.assistants.removed++
+              results.assistants.details.push({
+                id: assistant.id,
+                name: assistant.name,
+                action: 'removed - not found in VAPI'
+              })
+              
+              // Also remove any phone number assignments
+              await supabase
+                .from('user_phone_numbers')
+                .update({ 
+                  assigned_assistant_id: null,
+                  assigned_at: null,
+                  updated_at: new Date().toISOString()
+                })
+                .eq('assigned_assistant_id', assistant.id)
+            } else {
+              results.assistants.errors++
+              console.error('Error soft deleting assistant:', error)
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching VAPI assistants:', error)
+        results.assistants.errors++
       }
     }
 
     // Sync Phone Numbers
+    console.log('Starting phone number sync for user:', user.id)
+    
     const { data: localPhones } = await supabase
       .from('user_phone_numbers')  
-      .select('id, vapi_phone_id, friendly_name')
+      .select('id, vapi_phone_id, phone_number, friendly_name')
       .eq('user_id', user.id)
       .eq('is_active', true)
 
-    if (localPhones) {
+    if (localPhones && localPhones.length > 0) {
       results.phoneNumbers.checked = localPhones.length
 
-      // Check each phone number exists in VAPI
-      for (const phone of localPhones) {
+      // Check each phone number individually
+      const checkPromises = localPhones.map(async (phone) => {
         try {
-          // Try to get the phone number from VAPI
-          await fetch(`https://api.vapi.ai/phone-number/${phone.vapi_phone_id}`, {
+          const response = await fetch(`https://api.vapi.ai/phone-number/${phone.vapi_phone_id}`, {
             headers: {
               'Authorization': `Bearer ${process.env.VAPI_API_KEY}`
             }
-          }).then(res => {
-            if (res.status === 404) {
-              // Phone number doesn't exist in VAPI, soft delete it
-              supabase
-                .from('user_phone_numbers')
-                .update({ is_active: false })
-                .eq('id', phone.id)
-              
-              results.phoneNumbers.removed++
-            }
           })
+
+          if (response.status === 404) {
+            // Phone number doesn't exist in VAPI
+            console.log(`Phone ${phone.phone_number} (${phone.vapi_phone_id}) not found in VAPI`)
+            
+            const { error } = await supabase
+              .from('user_phone_numbers')
+              .update({ 
+                is_active: false,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', phone.id)
+            
+            if (!error) {
+              results.phoneNumbers.removed++
+              results.phoneNumbers.details.push({
+                id: phone.id,
+                number: phone.phone_number,
+                action: 'removed - not found in VAPI'
+              })
+            } else {
+              results.phoneNumbers.errors++
+              console.error('Error soft deleting phone number:', error)
+            }
+          } else if (!response.ok && response.status !== 404) {
+            // Other error - log but don't delete
+            console.error(`Error checking phone ${phone.id}: ${response.status}`)
+            results.phoneNumbers.errors++
+          }
         } catch (error) {
-          // If we can't check, leave it alone
-          console.error(`Could not verify phone ${phone.id}:`, error)
+          // Network error - don't delete, just log
+          console.error(`Network error checking phone ${phone.id}:`, error)
+          results.phoneNumbers.errors++
         }
-      }
+      })
+
+      // Wait for all phone checks to complete
+      await Promise.all(checkPromises)
     }
+
+    // Add sync metadata to audit log
+    await supabase
+      .from('audit_logs')
+      .insert({
+        user_id: user.id,
+        action: 'sync_with_vapi',
+        resource_type: 'sync',
+        new_values: results,
+        created_at: new Date().toISOString()
+      })
+
+    const summary = `Sync complete. Assistants: ${results.assistants.removed} removed (${results.assistants.checked} checked). ` +
+                    `Phone numbers: ${results.phoneNumbers.removed} removed (${results.phoneNumbers.checked} checked).`
 
     return NextResponse.json({
       success: true,
       data: results,
-      message: `Sync complete. Removed ${results.assistants.removed} assistants and ${results.phoneNumbers.removed} phone numbers.`
+      message: summary
     })
 
   } catch (error) {
     console.error('Sync error:', error)
     return NextResponse.json({
       success: false,
-      error: { code: 'SYNC_ERROR', message: 'Failed to sync with VAPI' }
+      error: { 
+        code: 'SYNC_ERROR', 
+        message: error instanceof Error ? error.message : 'Failed to sync with VAPI' 
+      }
+    }, { status: 500 })
+  }
+}
+
+/**
+ * GET /api/sync/status
+ * Get the last sync status
+ */
+export async function GET(request: NextRequest) {
+  try {
+    const { user } = await authenticateRequest()
+    const supabase = createServiceRoleClient()
+
+    // Get the last sync from audit logs
+    const { data: lastSync } = await supabase
+      .from('audit_logs')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('action', 'sync_with_vapi')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single()
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        lastSync: lastSync?.created_at || null,
+        results: lastSync?.new_values || null
+      }
+    })
+
+  } catch (error) {
+    return NextResponse.json({
+      success: false,
+      error: { code: 'STATUS_ERROR', message: 'Failed to get sync status' }
     }, { status: 500 })
   }
 }

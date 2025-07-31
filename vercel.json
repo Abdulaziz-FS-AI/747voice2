@@ -3,13 +3,25 @@
     "src/app/api/webhooks/vapi/route.ts": {
       "maxDuration": 60
     },
+    "src/app/api/webhooks/vapi/resource/route.ts": {
+      "maxDuration": 30
+    },
     "src/app/api/webhooks/make/call-reports/route.ts": {
       "maxDuration": 60
     },
     "src/app/api/sync/route.ts": {
       "maxDuration": 30
+    },
+    "src/app/api/cron/sync/route.ts": {
+      "maxDuration": 60
     }
   },
+  "crons": [
+    {
+      "path": "/api/cron/sync",
+      "schedule": "0 */6 * * *"
+    }
+  ],
   "env": {
     "NODE_ENV": "production"
   },

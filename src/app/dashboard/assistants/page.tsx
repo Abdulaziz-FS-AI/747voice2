@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
-import { Plus, Search, Edit, Trash2, MoreVertical, Power, PowerOff, Bot, Zap, Sparkles, RefreshCw } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, MoreVertical, Power, PowerOff, Bot, Zap, Sparkles, RefreshCw, RotateCcw } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -46,6 +46,7 @@ export default function AssistantsPage() {
   const { toast } = useToast()
   
   const [assistants, setAssistants] = useState<Assistant[]>([])
+  const [syncing, setSyncing] = useState(false)
   const [filteredAssistants, setFilteredAssistants] = useState<Assistant[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -197,6 +198,47 @@ export default function AssistantsPage() {
     })
   }
 
+  const handleSync = async () => {
+    setSyncing(true)
+    try {
+      const response = await fetch('/api/sync', {
+        method: 'POST'
+      })
+      const data = await response.json()
+      
+      if (data.success) {
+        // Refresh data after sync
+        await fetchAssistants(false)
+        
+        // Show detailed sync results
+        const details = data.data
+        let description = data.message
+        
+        if (details.assistants.details.length > 0) {
+          description += '\n\nRemoved assistants:'
+          details.assistants.details.forEach((item: any) => {
+            description += `\n• ${item.name} - ${item.action}`
+          })
+        }
+        
+        toast({
+          title: 'Sync Complete',
+          description: description
+        })
+      } else {
+        throw new Error(data.error?.message || 'Sync failed')
+      }
+    } catch (error) {
+      toast({
+        title: 'Sync Error',
+        description: error instanceof Error ? error.message : 'Failed to sync with VAPI',
+        variant: 'destructive'
+      })
+    } finally {
+      setSyncing(false)
+    }
+  }
+
   const getStatusBadge = (isActive: boolean) => (
     <Badge variant={isActive ? 'default' : 'secondary'}>
       {isActive ? 'Active' : 'Inactive'}
@@ -270,7 +312,7 @@ export default function AssistantsPage() {
               >
                 <Button 
                   onClick={handleRefresh}
-                  disabled={refreshing}
+                  disabled={refreshing || syncing}
                   variant="outline"
                   className="relative overflow-hidden group"
                   style={{
@@ -281,6 +323,29 @@ export default function AssistantsPage() {
                 >
                   <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
                   <span className="font-medium">Refresh</span>
+                </Button>
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.35 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button 
+                  onClick={handleSync}
+                  disabled={refreshing || syncing}
+                  variant="outline"
+                  className="relative overflow-hidden group"
+                  style={{
+                    background: 'rgba(139, 92, 246, 0.1)',
+                    border: '1px solid var(--vm-border-brand)',
+                    color: 'var(--vm-violet)'
+                  }}
+                >
+                  <RotateCcw className={`mr-2 h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
+                  <span className="font-medium">{syncing ? 'Syncing...' : 'Sync VAPI'}</span>
                 </Button>
               </motion.div>
               
