@@ -3,29 +3,58 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import Image from 'next/image'
 import { ArrowRight, Play, Mic, Shield, BarChart3, Users, CheckCircle, Star, Menu, X, Phone, Zap, Globe, Headphones } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/lib/auth-context'
 
-// Simple mouse tracking for subtle interactions
-const useSimpleMouseTracking = () => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+// Performance-optimized mouse tracking with throttling
+const useOptimizedMouseTracking = () => {
+  const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 })
+  const [isScrolling, setIsScrolling] = useState(false)
 
   useEffect(() => {
+    let animationFrameId: number
+    let scrollTimeout: NodeJS.Timeout
+
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth) * 100,
-        y: (e.clientY / window.innerHeight) * 100
+      // Skip mouse tracking while scrolling for better performance
+      if (isScrolling) return
+      
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId)
+      }
+      
+      animationFrameId = requestAnimationFrame(() => {
+        setMousePosition({
+          x: (e.clientX / window.innerWidth) * 100,
+          y: (e.clientY / window.innerHeight) * 100
+        })
       })
     }
 
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [])
+    const handleScroll = () => {
+      setIsScrolling(true)
+      clearTimeout(scrollTimeout)
+      scrollTimeout = setTimeout(() => {
+        setIsScrolling(false)
+      }, 150)
+    }
 
-  return mousePosition
+    window.addEventListener('mousemove', handleMouseMove, { passive: true })
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('scroll', handleScroll)
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId)
+      }
+      clearTimeout(scrollTimeout)
+    }
+  }, [isScrolling])
+
+  return { mousePosition, isScrolling }
 }
 
 // Enhanced voice wave component with more variety
@@ -81,48 +110,70 @@ const VoiceWave = ({ mousePosition, variant = 'primary' }: { mousePosition: { x:
   )
 }
 
-// Enhanced bass bars with full-width dynamic animation
-const BassBars = ({ mousePosition, count = 50, variant = 'default' }: { 
-  mousePosition: { x: number, y: number }, 
+// Performance-optimized bass bars with reduced count and CSS animations
+const OptimizedBassBars = ({ mousePosition, isScrolling, count = 25, variant = 'default' }: { 
+  mousePosition: { x: number, y: number },
+  isScrolling: boolean,
   count?: number,
   variant?: 'default' | 'wide' | 'social'
 }) => {
+  const [animationTime, setAnimationTime] = useState(0)
+  
+  // Use RAF for time-based animation instead of Date.now()
+  useEffect(() => {
+    if (isScrolling) return // Pause during scroll
+    
+    let rafId: number
+    const startTime = performance.now()
+    
+    const animate = (currentTime: number) => {
+      const elapsed = (currentTime - startTime) / 1000 // Convert to seconds
+      setAnimationTime(elapsed)
+      rafId = requestAnimationFrame(animate)
+    }
+    
+    rafId = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(rafId)
+  }, [isScrolling])
+  
   const bars = Array.from({ length: count }, (_, i) => i)
   
   const containerClass = variant === 'social' 
-    ? "absolute inset-x-0 bottom-0 flex items-end justify-center gap-[2px] pointer-events-none px-8"
+    ? "absolute inset-x-0 bottom-0 flex items-end justify-center gap-[3px] pointer-events-none px-8"
     : variant === 'wide'
-    ? "absolute inset-x-0 bottom-0 flex items-end justify-center gap-1 pointer-events-none px-4"
-    : "absolute bottom-0 left-1/2 transform -translate-x-1/2 flex items-end gap-1 pointer-events-none"
+    ? "absolute inset-x-0 bottom-0 flex items-end justify-center gap-2 pointer-events-none px-4"
+    : "absolute bottom-0 left-1/2 transform -translate-x-1/2 flex items-end gap-2 pointer-events-none"
   
   return (
-    <div className={containerClass}>
+    <div className={containerClass} style={{ willChange: isScrolling ? 'auto' : 'transform' }}>
       {bars.map((bar, index) => {
         const centerDistance = Math.abs(index - count / 2)
         const heightMultiplier = variant === 'social' ? 1.5 : variant === 'wide' ? 1.2 : 1
-        const maxHeight = variant === 'social' ? 40 : variant === 'wide' ? 35 : 25
+        const maxHeight = variant === 'social' ? 35 : variant === 'wide' ? 30 : 20
+        
+        // Pre-calculate animation values to reduce computation
+        const baseHeight = 6
+        const wave1 = Math.sin((index + animationTime * 3) * 1.2) * (maxHeight * 0.3) * heightMultiplier
+        const wave2 = Math.cos((centerDistance + animationTime * 4) * 1.8) * 2
+        const wave3 = Math.sin((index + animationTime * 6) * 2.1) * 1.5
+        const mouseInfluence = isScrolling ? 0 : mousePosition.y * 0.05
+        
+        const finalHeight = Math.max(baseHeight, baseHeight + wave1 + wave2 + wave3 + mouseInfluence)
         
         return (
-          <motion.div
+          <div
             key={bar}
-            className="bass-bar"
+            className="bass-bar transition-all duration-75 ease-linear"
             style={{
-              width: variant === 'social' ? '4px' : variant === 'wide' ? '3px' : '3px',
-              background: index % 4 === 0 ? 'var(--vm-gradient-brand)' : 
-                         index % 4 === 1 ? 'var(--vm-gradient-voice)' : 
-                         index % 4 === 2 ? 'var(--vm-gradient-matrix)' : 'var(--vm-orange-primary)',
+              width: variant === 'social' ? '5px' : variant === 'wide' ? '4px' : '4px',
+              height: `${finalHeight}px`,
+              background: index % 4 === 0 ? 'var(--vm-orange)' : 
+                         index % 4 === 1 ? 'var(--vm-cyan)' : 
+                         index % 4 === 2 ? 'var(--vm-violet)' : 'var(--vm-emerald)',
               borderRadius: '2px',
-              boxShadow: variant === 'social' ? '0 0 8px rgba(255, 107, 53, 0.3)' : undefined
-            }}
-            animate={{
-              height: `${8 + Math.sin((index + Date.now() * 0.003) * 1.2) * (maxHeight * 0.4) * heightMultiplier + 
-                      Math.cos((centerDistance + Date.now() * 0.004) * 1.8) * 3 + 
-                      Math.sin((index + Date.now() * 0.006) * 2.1) * 2 +
-                      mousePosition.y * 0.1}px`
-            }}
-            transition={{
-              duration: 0.1,
-              ease: "linear"
+              boxShadow: variant === 'social' && !isScrolling ? '0 0 6px currentColor' : undefined,
+              opacity: isScrolling ? 0.6 : 1,
+              willChange: isScrolling ? 'auto' : 'height, opacity'
             }}
           />
         )
@@ -131,32 +182,25 @@ const BassBars = ({ mousePosition, count = 50, variant = 'default' }: {
   )
 }
 
-// Floating voice indicators
-const VoiceIndicators = ({ mousePosition }: { mousePosition: { x: number, y: number } }) => {
-  const indicators = Array.from({ length: 8 }, (_, i) => i)
+// Simplified voice indicators with CSS animations
+const OptimizedVoiceIndicators = ({ isScrolling }: { isScrolling: boolean }) => {
+  const indicators = Array.from({ length: 4 }, (_, i) => i) // Reduced count
+  
+  if (isScrolling) return null // Don't render during scroll
   
   return (
     <div className="absolute inset-0 pointer-events-none">
       {indicators.map((indicator, index) => (
-        <motion.div
+        <div
           key={indicator}
-          className="absolute w-2 h-2 rounded-full"
+          className="absolute w-1.5 h-1.5 rounded-full animate-pulse"
           style={{
-            background: 'var(--vm-orange-primary)',
-            left: `${20 + (index * 10)}%`,
-            top: `${30 + Math.sin(index) * 20}%`,
-            boxShadow: '0 0 10px var(--vm-orange-primary)'
-          }}
-          animate={{
-            scale: [1, 1.5, 1],
-            opacity: [0.3, 0.8, 0.3],
-            y: [0, -10 + mousePosition.y * 0.1, 0]
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            delay: index * 0.3,
-            ease: "easeInOut"
+            background: 'var(--vm-orange)',
+            left: `${25 + (index * 15)}%`,
+            top: `${35 + Math.sin(index) * 15}%`,
+            boxShadow: '0 0 8px currentColor',
+            animationDelay: `${index * 0.5}s`,
+            animationDuration: '2s'
           }}
         />
       ))}
@@ -270,7 +314,7 @@ const Header = () => {
 export default function HomePage() {
   const router = useRouter()
   const { user, loading } = useAuth()
-  const mousePosition = useSimpleMouseTracking()
+  const { mousePosition, isScrolling } = useOptimizedMouseTracking()
 
   // Redirect authenticated users to dashboard
   useEffect(() => {
@@ -304,9 +348,9 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
-        {/* Background Effects */}
-        <VoiceWave mousePosition={mousePosition} variant="primary" />
-        <VoiceIndicators mousePosition={mousePosition} />
+        {/* Background Effects - Optimized */}
+        {!isScrolling && <VoiceWave mousePosition={mousePosition} variant="primary" />}
+        <OptimizedVoiceIndicators isScrolling={isScrolling} />
         
         <div className="relative z-10 text-center max-w-5xl mx-auto px-6">
           <motion.div
@@ -363,9 +407,9 @@ export default function HomePage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1, duration: 0.8 }}
             >
-              {/* Enhanced Bass Bars Animation */}
+              {/* Optimized Bass Bars Animation */}
               <div className="relative w-full max-w-3xl h-16 mb-8">
-                <BassBars mousePosition={mousePosition} count={50} variant="social" />
+                <OptimizedBassBars mousePosition={mousePosition} isScrolling={isScrolling} count={30} variant="social" />
               </div>
               
               {/* Social Proof Text */}
@@ -404,7 +448,7 @@ export default function HomePage() {
 
       {/* Features Section */}
       <section id="features" className="py-24 px-6 relative">
-        <VoiceWave mousePosition={mousePosition} variant="secondary" />
+        {!isScrolling && <VoiceWave mousePosition={mousePosition} variant="secondary" />}
         
         <div className="max-w-6xl mx-auto relative z-10">
           <motion.div
@@ -480,7 +524,7 @@ export default function HomePage() {
 
       {/* Pricing Section */}
       <section id="pricing" className="py-24 px-6 relative">
-        <VoiceWave mousePosition={mousePosition} variant="accent" />
+        {!isScrolling && <VoiceWave mousePosition={mousePosition} variant="accent" />}
         
         <div className="max-w-6xl mx-auto relative z-10">
           <motion.div
@@ -647,8 +691,8 @@ export default function HomePage() {
 
       {/* CTA Section */}
       <section className="py-24 px-6 relative">
-        <VoiceWave mousePosition={mousePosition} variant="primary" />
-        <BassBars mousePosition={mousePosition} count={45} variant="wide" />
+        {!isScrolling && <VoiceWave mousePosition={mousePosition} variant="primary" />}
+        <OptimizedBassBars mousePosition={mousePosition} isScrolling={isScrolling} count={25} variant="wide" />
         
         <motion.div
           initial={{ opacity: 0, y: 30 }}

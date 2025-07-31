@@ -3,84 +3,81 @@
 
 :root {
   /* ==============================================
-     VOICE MATRIX DESIGN SYSTEM v3.0
-     Revolutionary AI Voice Technology Platform
+     VOICE MATRIX DESIGN SYSTEM v4.0
+     Professional AI Voice Technology Platform
      ============================================== */
   
-  /* ===== MATRIX CORE COLORS ===== */
-  --vm-void: #000000;               /* Deep space, dramatic backgrounds */  
-  --vm-background: #0a0a0b;         /* Primary background - very dark */
-  --vm-surface: #1a1b1e;           /* Card backgrounds, elevated surfaces */
-  --vm-surface-elevated: #22242a;  /* Hover states, active surfaces */
-  --vm-surface-subtle: #151619;    /* Subtle surfaces */
-  --vm-pure: #ffffff;              /* Pure white for high contrast text */
+  /* ===== PRIMARY COLORS ===== */
+  --vm-primary-dark: #0F0F14;      /* Deep charcoal for main backgrounds */
+  --vm-primary-surface: #1A1A1F;   /* Elevated surface color for cards and panels */
+  --vm-primary-light: #F8F9FA;     /* Clean white for text and highlights */
   
-  /* ===== VIBRANT BRAND COLORS (Bass Bars Inspired) ===== */
-  --vm-orange: #ff6b35;            /* Primary orange - main brand */
-  --vm-cyan: #00d4ff;              /* Electric cyan - data streams */
-  --vm-violet: #8b5cf6;            /* Deep violet - neural networks */
-  --vm-emerald: #10b981;           /* Matrix green - success states */
-  --vm-yellow: #fbbf24;            /* Bright yellow - warnings/highlights */
-  --vm-pink: #ec4899;              /* Electric pink - accents */
+  /* ===== SECONDARY COLORS ===== */
+  --vm-secondary-purple: #8B5CF6;       /* Primary brand accent for key actions */
+  --vm-secondary-purple-light: #A78BFA; /* Hover states and secondary elements */
+  --vm-secondary-purple-pale: #EDE9FE;  /* Subtle backgrounds and selected states */
   
-  /* ===== ACCENT VARIATIONS ===== */
-  --vm-orange-light: #ff8757;      /* Lighter orange for hover states */
-  --vm-orange-dark: #e5521c;       /* Darker orange for active states */
-  --vm-cyan-light: #22d3ee;        /* Light cyan for secondary elements */
-  --vm-violet-light: #a78bfa;      /* Light violet for backgrounds */
-  --vm-emerald-light: #34d399;     /* Light emerald for success highlights */
-  
-  /* ===== ULTRA-VIBRANT MATRIX COLORS ===== */
-  --vm-matrix-neon-green: #00FF41; /* Classic matrix neon green */
-  --vm-neural-electric-blue: #00D4FF; /* Electric neural blue */
-  --vm-quantum-violet: #8A2BE2;    /* Deep quantum violet */
-  --vm-voice-spectrum-orange: #FF4500; /* Voice frequency orange */
-  --vm-ai-consciousness-cyan: #00FFFF; /* AI consciousness cyan */
-  --vm-energy-plasma-pink: #FF1493; /* High-energy plasma pink */
-  --vm-hologram-lime: #32CD32;     /* Holographic lime */
-  --vm-tech-gold: #FFD700;         /* Technology gold */
+  /* ===== ACCENT COLORS ===== */
+  --vm-accent-gradient-start: #8B5CF6;  /* Purple for gradient beginnings */
+  --vm-accent-gradient-end: #EC4899;    /* Pink for gradient endings */
+  --vm-accent-blue: #3B82F6;            /* For informational elements */
+  --vm-accent-teal: #14B8A6;            /* For success states and confirmations */
   
   /* ===== FUNCTIONAL COLORS ===== */
-  --vm-success: #22C55E;           /* Success neural - confirmations */
-  --vm-warning: #EAB308;           /* Warning pulse - attention needed */
-  --vm-error: #EF4444;             /* Error signal - destructive actions */
-  --vm-info: #3B82F6;              /* Info signal - informational */
+  --vm-success-green: #10B981;     /* Successful operations and saves */
+  --vm-warning-amber: #F59E0B;     /* Warnings and cautions */
+  --vm-error-red: #EF4444;         /* Errors and destructive actions */
+  --vm-info-blue: #3B82F6;         /* Informational messages */
   
-  /* ===== NEURAL GRAYSCALE ===== */
-  --vm-gray-50: #F9FAFB;           /* Text primary on dark */
-  --vm-gray-100: #F3F4F6;          /* Light text */
-  --vm-gray-200: #E5E7EB;          /* Borders and dividers */
-  --vm-gray-300: #D1D5DB;          /* Secondary text */
-  --vm-gray-400: #9CA3AF;          /* Muted text */
-  --vm-gray-500: #6B7280;          /* Processing gray */
-  --vm-gray-600: #4B5563;          /* Dark text */
-  --vm-gray-700: #374151;          /* Border subtle */
-  --vm-gray-800: #1F2937;          /* Dark surface */
-  --vm-gray-900: #111827;          /* Primary dark surface */
+  /* ===== NEUTRAL COLORS ===== */
+  --vm-neutral-50: #FAFAFA;        /* Lightest backgrounds */
+  --vm-neutral-100: #F4F4F5;       /* Light mode backgrounds */
+  --vm-neutral-200: #E4E4E7;       /* Borders in light mode */
+  --vm-neutral-400: #A1A1AA;       /* Muted text */
+  --vm-neutral-500: #71717A;       /* Secondary text */
+  --vm-neutral-600: #52525B;       /* Primary text in light mode */
+  --vm-neutral-700: #3F3F46;       /* Dark mode borders */
+  --vm-neutral-800: #27272A;       /* Dark mode elevated surfaces */
+  --vm-neutral-900: #18181B;       /* Dark mode primary surfaces */
   
-  /* ===== MODERN GRADIENTS ===== */
-  --vm-gradient-brand: linear-gradient(135deg, var(--vm-orange) 0%, var(--vm-orange-dark) 100%);
-  --vm-gradient-neural: linear-gradient(135deg, var(--vm-orange) 0%, var(--vm-violet) 100%);
-  --vm-gradient-voice: linear-gradient(90deg, var(--vm-cyan) 0%, var(--vm-emerald) 100%);
-  --vm-gradient-matrix: linear-gradient(45deg, var(--vm-violet) 0%, var(--vm-cyan) 100%);
-  --vm-gradient-surface: linear-gradient(145deg, var(--vm-surface) 0%, var(--vm-surface-elevated) 100%);
-  --vm-gradient-primary: radial-gradient(circle, var(--vm-orange) 0%, transparent 70%);
+  /* ===== LEGACY COMPATIBILITY ALIASES ===== */
+  --vm-background: var(--vm-primary-dark);
+  --vm-surface: var(--vm-primary-surface);
+  --vm-text-primary: var(--vm-primary-light);
+  --vm-orange: var(--vm-secondary-purple);  /* Map orange to purple for brand consistency */
+  --vm-violet: var(--vm-secondary-purple);
+  --vm-emerald: var(--vm-success-green);
+  --vm-pure: var(--vm-primary-light);
   
-  /* ===== ULTRA-VIBRANT GRADIENTS ===== */
-  --vm-gradient-matrix-flow: linear-gradient(135deg, #00FF41 0%, #00FFFF 50%, #00D4FF 100%);
-  --vm-gradient-voice-spectrum: linear-gradient(90deg, #FF4500 0%, #FF1493 50%, #8A2BE2 100%);
-  --vm-gradient-ai-consciousness: linear-gradient(45deg, #00FFFF 0%, #8A2BE2 50%, #00D4FF 100%);
-  --vm-gradient-energy-plasma: linear-gradient(180deg, #FF1493 0%, #FF4500 50%, #FFD700 100%);
-  --vm-gradient-quantum-field: linear-gradient(270deg, #8A2BE2 0%, #00FF41 50%, #00FFFF 100%);
-  --vm-gradient-neural-fire: radial-gradient(circle, #FF4500 0%, #FF1493 30%, #8A2BE2 70%, transparent 100%);
-  --vm-gradient-matrix-rain: linear-gradient(180deg, transparent 0%, #00FF41 50%, transparent 100%);
-  --vm-gradient-holographic: conic-gradient(from 0deg, #00FFFF, #FF1493, #FFD700, #00FF41, #8A2BE2, #00FFFF);
+  /* ===== PROFESSIONAL TEXT COLORS ===== */
+  --vm-text-secondary: var(--vm-neutral-200); /* Secondary text */
+  --vm-text-muted: var(--vm-neutral-400);     /* Muted text */
+  --vm-text-accent: var(--vm-secondary-purple); /* Accent highlights */
   
-  /* ===== NEURAL GLOW EFFECTS ===== */
-  --vm-glow-primary: 0 0 20px rgba(255, 107, 53, 0.3);
-  --vm-glow-voice: 0 0 30px rgba(139, 92, 246, 0.4);
-  --vm-glow-success: 0 0 15px rgba(34, 197, 94, 0.3);
-  --vm-glow-pulse: 0 0 40px rgba(255, 107, 53, 0.2);
+  /* ===== BORDER COLORS ===== */
+  --vm-border-subtle: rgba(255, 255, 255, 0.06);  /* Subtle element borders */
+  --vm-border-default: rgba(255, 255, 255, 0.1);  /* Default borders */
+  --vm-border-emphasis: rgba(139, 92, 246, 0.3);  /* Emphasized borders */
+  --vm-border-glow: rgba(139, 92, 246, 0.5);      /* Glowing borders */
+  
+  /* ===== PROFESSIONAL GRADIENTS ===== */
+  --vm-gradient-primary: linear-gradient(135deg, var(--vm-accent-gradient-start) 0%, var(--vm-accent-gradient-end) 100%);
+  --vm-gradient-surface: linear-gradient(145deg, var(--vm-primary-surface) 0%, var(--vm-neutral-800) 100%);
+  --vm-gradient-accent: linear-gradient(90deg, var(--vm-secondary-purple) 0%, var(--vm-accent-blue) 100%);
+  --vm-gradient-success: linear-gradient(135deg, var(--vm-success-green) 0%, var(--vm-accent-teal) 100%);
+  
+  /* ===== PROFESSIONAL SHADOWS ===== */
+  --vm-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --vm-shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --vm-shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --vm-shadow-xl: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --vm-shadow-brand: 0 4px 6px -1px rgba(139, 92, 246, 0.25);
+  
+  /* ===== PROFESSIONAL GLOW EFFECTS ===== */
+  --vm-glow-primary: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  --vm-glow-focus: 0 0 0 3px rgba(139, 92, 246, 0.3);
+  --vm-glow-success: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  --vm-glow-error: 0 0 0 3px rgba(239, 68, 68, 0.2);
   
   /* ===== ULTRA-VIBRANT GLOW EFFECTS ===== */
   --vm-glow-matrix: 0 0 30px rgba(0, 255, 65, 0.6), 0 0 60px rgba(0, 255, 65, 0.3);
@@ -104,10 +101,16 @@
   --vm-border-emphasis: rgba(255, 107, 53, 0.3);
   --vm-border-glow: rgba(255, 107, 53, 0.5);
   
-  /* ===== NEURAL TYPOGRAPHY ===== */
-  --vm-font-display: 'Space Grotesk', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --vm-font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* ===== PROFESSIONAL TYPOGRAPHY ===== */
+  --vm-font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --vm-font-mono: 'JetBrains Mono', 'SF Mono', 'Monaco', 'Cascadia Code', monospace;
+  
+  /* ===== FONT WEIGHTS ===== */
+  --vm-font-light: 300;
+  --vm-font-regular: 400;
+  --vm-font-medium: 500;
+  --vm-font-semibold: 600;
+  --vm-font-bold: 700;
   
   /* ===== MATRIX SPACING ===== */
   --vm-space-1: 2px;   /* Micro spacing */
@@ -173,10 +176,10 @@ html {
 }
 
 body {
-  background: var(--vm-background);
-  color: var(--vm-text-primary);
-  font-family: var(--vm-font-body);
-  font-weight: 400;
+  background: var(--vm-primary-dark);
+  color: var(--vm-primary-light);
+  font-family: var(--vm-font-primary);
+  font-weight: var(--vm-font-regular);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -185,48 +188,122 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  /* Performance optimizations */
+  scroll-behavior: smooth;
+  overscroll-behavior: none;
+}
+
+/* Optimize scroll performance for specific elements */
+.performance-optimized {
+  /* Prevent unnecessary repaints during scroll */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Optimize heavy sections during scroll */
+.scroll-optimized {
+  contain: layout style paint;
+  will-change: transform;
 }
 
 /* ==============================================
    ENHANCED NEURAL TYPOGRAPHY SYSTEM
    ============================================== */
 
-/* ===== IMPROVED TEXT VISIBILITY CLASSES ===== */
-.vm-text-display {
-  @apply text-3xl font-bold tracking-tight;
+/* ===== PROFESSIONAL TEXT CLASSES ===== */
+.vm-heading-1 {
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: var(--vm-font-bold);
+  letter-spacing: -0.025em;
   color: var(--vm-text-primary);
-  font-weight: 800;
+  font-family: var(--vm-font-primary);
+}
+
+.vm-heading-2 {
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: var(--vm-font-semibold);
+  letter-spacing: -0.02em;
+  color: var(--vm-text-primary);
+  font-family: var(--vm-font-primary);
+}
+
+.vm-heading-3 {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: var(--vm-font-semibold);
+  letter-spacing: -0.015em;
+  color: var(--vm-text-primary);
+  font-family: var(--vm-font-primary);
+}
+
+.vm-heading-4 {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: var(--vm-font-medium);
+  letter-spacing: -0.01em;
+  color: var(--vm-text-primary);
+  font-family: var(--vm-font-primary);
+}
+
+.vm-heading-5 {
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: var(--vm-font-medium);
+  letter-spacing: 0;
+  color: var(--vm-text-primary);
+  font-family: var(--vm-font-primary);
+}
+
+.vm-body-large {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: var(--vm-font-regular);
+  letter-spacing: 0;
+  color: var(--vm-text-primary);
+  font-family: var(--vm-font-primary);
+}
+
+.vm-body {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: var(--vm-font-regular);
+  letter-spacing: 0;
+  color: var(--vm-text-primary);
+  font-family: var(--vm-font-primary);
+}
+
+.vm-body-small {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: var(--vm-font-regular);
+  letter-spacing: 0.025em;
+  color: var(--vm-text-secondary);
+  font-family: var(--vm-font-primary);
 }
 
 .vm-text-gradient {
-  background: linear-gradient(135deg, var(--vm-orange-primary) 0%, var(--vm-violet) 100%);
+  background: var(--vm-gradient-primary);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  font-weight: 800;
-}
-
-.vm-text-neural {
-  background: linear-gradient(135deg, var(--vm-orange-primary) 0%, var(--vm-violet) 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 700;
+  font-weight: var(--vm-font-semibold);
 }
 
 .vm-text-primary {
   color: var(--vm-text-primary);
-  font-weight: 600;
+  font-weight: var(--vm-font-regular);
 }
 
 .vm-text-secondary {
   color: var(--vm-text-secondary);
-  font-weight: 500;
+  font-weight: var(--vm-font-regular);
 }
 
 .vm-text-muted {
   color: var(--vm-text-muted);
-  font-weight: 500;
+  font-weight: var(--vm-font-regular);
 }
 
 /* ===== ENHANCED READABILITY CLASSES ===== */
@@ -257,14 +334,14 @@ body {
    NEURAL COMPONENT STYLES
    ============================================== */
 
-/* ===== NEURAL CARDS & SURFACES ===== */
+/* ===== PROFESSIONAL CARDS & SURFACES ===== */
 .vm-card {
-  background: var(--vm-gradient-surface);
-  border: 1px solid var(--vm-border-subtle);
-  border-radius: 16px;
-  box-shadow: var(--vm-shadow-neural);
-  transition: all var(--vm-duration-normal) var(--vm-transition-neural);
-  padding: var(--vm-space-6);
+  background: var(--vm-primary-surface);
+  border: 1px solid var(--vm-border-default);
+  border-radius: 12px;
+  box-shadow: var(--vm-shadow-base);
+  transition: all 200ms ease-out;
+  padding: 24px;
   position: relative;
   overflow: hidden;
 }
@@ -283,8 +360,8 @@ body {
 
 .vm-card:hover {
   border-color: var(--vm-border-emphasis);
-  transform: translateY(-4px);
-  box-shadow: var(--vm-shadow-brand), var(--vm-glow-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--vm-shadow-xl);
 }
 
 .vm-card:hover::before {
@@ -318,26 +395,26 @@ body {
   border-color: var(--vm-border-glow);
 }
 
-/* ===== NEURAL BUTTONS ===== */
+/* ===== PROFESSIONAL BUTTONS ===== */
 .vm-button-primary {
-  background: var(--vm-gradient-brand);
-  color: var(--vm-pure);
-  font-family: var(--vm-font-display);
-  font-weight: 600;
-  font-size: 15px;
-  line-height: 1.4;
-  letter-spacing: 0.01em;
+  background: var(--vm-gradient-primary);
+  color: #FFFFFF;
+  font-family: var(--vm-font-body);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0;
   border: none;
-  border-radius: 12px;
-  padding: 16px 32px;
-  height: 52px;
+  border-radius: 8px;
+  padding: 12px 24px;
+  height: 40px;
   cursor: pointer;
-  transition: all var(--vm-duration-normal) var(--vm-transition-voice);
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: var(--vm-shadow-brand);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--vm-space-3);
+  gap: 8px;
   position: relative;
   overflow: hidden;
 }
@@ -354,8 +431,9 @@ body {
 }
 
 .vm-button-primary:hover {
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: var(--vm-shadow-brand-lg), var(--vm-glow-primary);
+  filter: brightness(110%);
+  transform: scale(1.02);
+  box-shadow: var(--vm-shadow-xl);
 }
 
 .vm-button-primary:hover::before {
@@ -363,86 +441,81 @@ body {
 }
 
 .vm-button-primary:active {
-  transform: translateY(-1px) scale(1.02);
+  transform: scale(0.98);
 }
 
 .vm-button-secondary {
   background: transparent;
-  border: 2px solid var(--vm-orange-primary);
-  color: var(--vm-orange-primary);
-  font-family: var(--vm-font-display);
-  font-weight: 600;
-  font-size: 15px;
-  line-height: 1.4;
-  border-radius: 12px;
-  padding: 16px 32px;
-  height: 52px;
+  border: 1px solid var(--vm-neutral-700);
+  color: var(--vm-neutral-200);
+  font-family: var(--vm-font-body);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  border-radius: 8px;
+  padding: 12px 24px;
+  height: 40px;
   cursor: pointer;
-  transition: all var(--vm-duration-normal) var(--vm-transition-neural);
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--vm-space-3);
-  backdrop-filter: blur(10px);
+  gap: 8px;
 }
 
 .vm-button-secondary:hover {
-  background: rgba(255, 107, 53, 0.1);
-  border-color: var(--vm-orange-light);
-  transform: translateY(-2px);
-  box-shadow: var(--vm-glow-primary);
+  background: var(--vm-neutral-800);
+  border-color: var(--vm-neutral-600);
+  color: var(--vm-primary-light);
 }
 
 .vm-button-ghost {
-  background: rgba(139, 92, 246, 0.1);
+  background: transparent;
   border: none;
-  color: var(--vm-violet);
-  font-weight: 500;
+  color: var(--vm-neutral-400);
+  font-weight: 400;
   font-size: 14px;
   border-radius: 8px;
-  padding: 12px 20px;
-  height: 44px;
+  padding: 8px 16px;
+  height: 36px;
   cursor: pointer;
-  transition: all var(--vm-duration-fast) var(--vm-transition-neural);
+  transition: all 150ms ease-out;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--vm-space-2);
+  gap: 8px;
 }
 
 .vm-button-ghost:hover {
-  background: rgba(139, 92, 246, 0.2);
-  color: var(--vm-violet-light);
-  transform: translateY(-1px);
+  background: rgba(161, 161, 170, 0.1);
+  color: var(--vm-primary-light);
 }
 
-/* ===== NEURAL INPUT FIELDS ===== */
+/* ===== PROFESSIONAL INPUT FIELDS ===== */
 .vm-input {
-  background: rgba(17, 24, 39, 0.8);
-  border: 1px solid var(--vm-border-subtle);
-  border-radius: 12px;
-  color: var(--vm-pure);
-  padding: 16px 20px;
-  font-size: 15px;
-  line-height: 1.4;
+  background: var(--vm-primary-dark);
+  border: 1px solid var(--vm-neutral-800);
+  border-radius: 8px;
+  color: var(--vm-neutral-100);
+  padding: 10px 16px;
+  font-size: 14px;
+  line-height: 20px;
   font-weight: 400;
-  height: 56px;
+  height: 40px;
   width: 100%;
-  transition: all var(--vm-duration-normal) var(--vm-transition-neural);
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
   font-family: var(--vm-font-body);
-  backdrop-filter: blur(20px);
 }
 
 .vm-input:focus {
   outline: none;
-  border-color: var(--vm-orange-primary);
-  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1), var(--vm-glow-primary);
-  transform: translateY(-2px);
-  background: rgba(17, 24, 39, 0.9);
+  border-color: var(--vm-secondary-purple);
+  box-shadow: var(--vm-glow-focus);
+  background: var(--vm-primary-dark);
 }
 
 .vm-input::placeholder {
-  color: var(--vm-gray-400);
+  color: var(--vm-neutral-600);
   font-weight: 400;
 }
 
@@ -795,15 +868,21 @@ body {
   }
 }
 
-/* ===== BASS BAR ENHANCEMENTS ===== */
+/* ===== PERFORMANCE-OPTIMIZED BASS BAR STYLES ===== */
 .bass-bar {
-  filter: drop-shadow(0 0 4px currentColor);
-  transition: all 0.3s ease;
+  will-change: height, opacity;
+  contain: layout style paint;
+  transform: translateZ(0); /* Force hardware acceleration */
 }
 
-.bass-bar:hover {
-  filter: drop-shadow(0 0 8px currentColor);
-  transform: scaleY(1.2);
+/* Optimize animations for better scroll performance */
+.bass-bar:not(.scrolling) {
+  transition: height 0.075s linear, opacity 0.075s linear;
+}
+
+.bass-bar.scrolling {
+  will-change: auto;
+  transition: opacity 0.2s ease;
 }
 
 /* ===== ULTRA-VIBRANT ANIMATION CLASSES ===== */

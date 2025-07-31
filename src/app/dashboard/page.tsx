@@ -112,16 +112,16 @@ export default function DashboardPage() {
         >
           <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6 p-6 rounded-2xl border"
                style={{ 
-                 backgroundColor: 'var(--vm-surface)',
-                 borderColor: 'rgba(255, 255, 255, 0.1)'
+                 backgroundColor: 'var(--vm-primary-surface)',
+                 borderColor: 'var(--vm-border-default)'
                }}>
             <div className="space-y-4">
               {/* Status Indicator */}
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2 px-3 py-1 rounded-full" 
                      style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)' }}>
-                  <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: 'var(--vm-emerald)' }} />
-                  <span className="text-sm font-medium" style={{ color: 'var(--vm-emerald)' }}>Online</span>
+                  <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: 'var(--vm-success-green)' }} />
+                  <span className="text-sm font-medium" style={{ color: 'var(--vm-success-green)' }}>Online</span>
                 </div>
               </div>
               
@@ -131,10 +131,10 @@ export default function DashboardPage() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2, duration: 0.8 }}
               >
-                <h1 className="text-4xl lg:text-5xl font-bold tracking-tight" style={{ color: 'var(--vm-text-primary)' }}>
+                <h1 className="text-4xl lg:text-5xl font-bold tracking-tight" style={{ color: 'var(--vm-primary-light)' }}>
                   Voice Matrix Dashboard
                 </h1>
-                <p className="text-lg mt-2" style={{ color: 'var(--vm-text-muted)' }}>
+                <p className="text-lg mt-2" style={{ color: 'var(--vm-neutral-400)' }}>
                   Manage your AI voice agents and monitor performance
                 </p>
               </motion.div>
@@ -153,8 +153,8 @@ export default function DashboardPage() {
                 className="px-6 py-3 rounded-xl font-medium text-sm transition-all duration-200 border"
                 style={{ 
                   backgroundColor: 'transparent',
-                  borderColor: 'rgba(255, 255, 255, 0.2)',
-                  color: 'var(--vm-text-primary)'
+                  borderColor: 'var(--vm-neutral-700)',
+                  color: 'var(--vm-neutral-200)'
                 }}
                 onClick={() => router.push('/dashboard/assistants')}
               >
@@ -167,8 +167,8 @@ export default function DashboardPage() {
                 whileTap={{ scale: 0.98 }}
                 className="px-6 py-3 rounded-xl font-medium text-sm transition-all duration-200"
                 style={{ 
-                  backgroundColor: 'var(--vm-orange)',
-                  color: 'white'
+                  background: 'var(--vm-gradient-primary)',
+                  color: '#FFFFFF'
                 }}
                 onClick={() => router.push('/dashboard/assistants/new')}
               >
@@ -191,8 +191,8 @@ export default function DashboardPage() {
             whileHover={{ y: -4 }}
             className="p-6 rounded-xl border transition-all duration-200"
             style={{ 
-              backgroundColor: 'var(--vm-surface)',
-              borderColor: 'rgba(255, 255, 255, 0.1)'
+              backgroundColor: 'var(--vm-primary-surface)',
+              borderColor: 'var(--vm-border-default)'
             }}
           >
             <div className="flex items-center justify-between mb-4">
@@ -218,8 +218,8 @@ export default function DashboardPage() {
             whileHover={{ y: -4 }}
             className="p-6 rounded-xl border transition-all duration-200"
             style={{ 
-              backgroundColor: 'var(--vm-surface)',
-              borderColor: 'rgba(255, 255, 255, 0.1)'
+              backgroundColor: 'var(--vm-primary-surface)',
+              borderColor: 'var(--vm-border-default)'
             }}
           >
             <div className="flex items-center justify-between mb-4">
@@ -249,8 +249,8 @@ export default function DashboardPage() {
             whileHover={{ y: -4 }}
             className="p-6 rounded-xl border transition-all duration-200"
             style={{ 
-              backgroundColor: 'var(--vm-surface)',
-              borderColor: 'rgba(255, 255, 255, 0.1)'
+              backgroundColor: 'var(--vm-primary-surface)',
+              borderColor: 'var(--vm-border-default)'
             }}
           >
             <div className="flex items-center justify-between mb-4">
@@ -276,8 +276,8 @@ export default function DashboardPage() {
             whileHover={{ y: -4 }}
             className="p-6 rounded-xl border transition-all duration-200"
             style={{ 
-              backgroundColor: 'var(--vm-surface)',
-              borderColor: 'rgba(255, 255, 255, 0.1)'
+              backgroundColor: 'var(--vm-primary-surface)',
+              borderColor: 'var(--vm-border-default)'
             }}
           >
             <div className="flex items-center justify-between mb-4">

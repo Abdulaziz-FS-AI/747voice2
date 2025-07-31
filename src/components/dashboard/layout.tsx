@@ -44,7 +44,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--vm-background)' }}>
+    <div className="min-h-screen" style={{ background: 'var(--vm-primary-dark)' }}>
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 
@@ -59,29 +59,29 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         "fixed inset-y-0 z-50 flex w-80 flex-col transition-transform lg:translate-x-0",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )} style={{ 
-        background: 'var(--vm-gradient-surface)',
-        borderRight: '1px solid var(--vm-border)'
+        background: 'var(--vm-primary-surface)',
+        borderRight: '1px solid var(--vm-border-default)'
       }}>
         
         {/* Premium Logo Section */}
-        <div className="flex h-20 items-center justify-between px-6" style={{ borderBottom: '1px solid var(--vm-border)' }}>
+        <div className="flex h-20 items-center justify-between px-6" style={{ borderBottom: '1px solid var(--vm-border-default)' }}>
           <div className="flex items-center gap-3">
             {/* Voice Matrix Logo */}
             <div className="relative">
               <div 
-                className="h-12 w-12 rounded-full flex items-center justify-center vm-glow"
+                className="h-12 w-12 rounded-full flex items-center justify-center"
                 style={{ background: 'var(--vm-gradient-primary)' }}
               >
-                <Mic className="h-7 w-7" style={{ color: 'var(--vm-background)' }} />
+                <Mic className="h-7 w-7" style={{ color: '#FFFFFF' }} />
               </div>
               <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full flex items-center justify-center"
-                   style={{ background: 'var(--vm-accent)' }}>
-                <Zap className="h-2.5 w-2.5" style={{ color: 'var(--vm-background)' }} />
+                   style={{ background: 'var(--vm-accent-blue)' }}>
+                <Zap className="h-2.5 w-2.5" style={{ color: '#FFFFFF' }} />
               </div>
             </div>
             <div>
-              <h1 className="vm-heading text-2xl tracking-wide">Voice Matrix</h1>
-              <p className="vm-text-muted text-xs font-medium">AI Intelligence Platform</p>
+              <h1 className="text-2xl font-semibold tracking-wide" style={{ color: 'var(--vm-primary-light)' }}>Voice Matrix</h1>
+              <p className="text-xs font-medium" style={{ color: 'var(--vm-neutral-400)' }}>AI Intelligence Platform</p>
             </div>
           </div>
           <Button
@@ -90,7 +90,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             className="lg:hidden hover:bg-white/10"
             onClick={() => setSidebarOpen(false)}
           >
-            <X className="h-5 w-5" style={{ color: 'var(--vm-text-primary)' }} />
+            <X className="h-5 w-5" style={{ color: 'var(--vm-primary-light)' }} />
           </Button>
         </div>
 
@@ -106,7 +106,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   className={cn(
                     "w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left transition-all duration-300 group",
                     isActive 
-                      ? "vm-glow text-white" 
+                      ? "text-white" 
                       : "hover:bg-white/5 hover:transform hover:scale-[1.02]"
                   )}
                   style={{
@@ -124,19 +124,19 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   )}>
                     <item.icon className={cn(
                       "h-5 w-5 transition-all",
-                      isActive ? "text-white" : "text-[var(--vm-primary)] group-hover:scale-110"
+                      isActive ? "text-white" : "text-[var(--vm-secondary-purple)] group-hover:scale-110"
                     )} />
                   </div>
                   <div className="flex-1">
                     <div className={cn(
                       "font-semibold text-sm",
-                      isActive ? "text-white" : "text-[var(--vm-text-primary)]"
+                      isActive ? "text-white" : "text-[var(--vm-primary-light)]"
                     )}>
                       {item.name}
                     </div>
                     <div className={cn(
                       "text-xs",
-                      isActive ? "text-white/80" : "text-[var(--vm-text-secondary)]"
+                      isActive ? "text-white/80" : "text-[var(--vm-neutral-400)]"
                     )}>
                       {item.description}
                     </div>
@@ -151,34 +151,34 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </nav>
 
         {/* Premium User Section */}
-        <div className="p-4" style={{ borderTop: '1px solid var(--vm-border)' }}>
+        <div className="p-4" style={{ borderTop: '1px solid var(--vm-border-default)' }}>
           <div className="vm-card p-4 mb-3">
             <div className="flex items-center gap-3 mb-3">
               <div 
                 className="h-12 w-12 rounded-full flex items-center justify-center vm-glow relative"
                 style={{ background: 'var(--vm-gradient-primary)' }}
               >
-                <span className="text-lg font-bold" style={{ color: 'var(--vm-background)' }}>
+                <span className="text-lg font-bold" style={{ color: '#FFFFFF' }}>
                   {user?.email?.[0]?.toUpperCase() || 'U'}
                 </span>
                 <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full"
-                     style={{ background: 'var(--vm-success)' }}>
+                     style={{ background: 'var(--vm-success-green)' }}>
                   <div className="w-2 h-2 rounded-full bg-white m-1" />
                 </div>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm truncate" style={{ color: 'var(--vm-text-primary)' }}>
+                <p className="font-semibold text-sm truncate" style={{ color: 'var(--vm-primary-light)' }}>
                   {user?.email}
                 </p>
                 <div className="flex items-center gap-2">
                   <div className="px-2 py-0.5 rounded-full text-xs font-medium"
                        style={{ 
                          background: 'var(--vm-gradient-primary)', 
-                         color: 'var(--vm-background)' 
+                         color: '#FFFFFF' 
                        }}>
                     Pro Plan
                   </div>
-                  <Activity className="h-3 w-3" style={{ color: 'var(--vm-success)' }} />
+                  <Activity className="h-3 w-3" style={{ color: 'var(--vm-success-green)' }} />
                 </div>
               </div>
             </div>
@@ -200,8 +200,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <header 
           className="sticky top-0 z-30 flex h-16 items-center gap-4 px-6 backdrop-blur-xl"
           style={{ 
-            background: 'rgba(10, 10, 11, 0.95)',
-            borderBottom: '1px solid var(--vm-border)'
+            background: 'rgba(15, 15, 20, 0.9)',
+            borderBottom: '1px solid var(--vm-border-default)'
           }}
         >
           <Button
@@ -210,18 +210,18 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             className="lg:hidden hover:bg-white/10"
             onClick={() => setSidebarOpen(true)}
           >
-            <Menu className="h-5 w-5" style={{ color: 'var(--vm-text-primary)' }} />
+            <Menu className="h-5 w-5" style={{ color: 'var(--vm-primary-light)' }} />
           </Button>
           
           {/* System Status */}
           <div className="flex items-center gap-2 ml-auto">
-            <div className="h-2 w-2 rounded-full" style={{ background: 'var(--vm-success)' }} />
-            <span className="text-sm font-medium vm-text-muted">System Online</span>
+            <div className="h-2 w-2 rounded-full" style={{ background: 'var(--vm-success-green)' }} />
+            <span className="text-sm font-medium" style={{ color: 'var(--vm-neutral-400)' }}>System Online</span>
           </div>
         </header>
 
         {/* Enhanced Page Content */}
-        <main className="p-6" style={{ background: 'var(--vm-background)' }}>
+        <main className="p-6" style={{ background: 'var(--vm-primary-dark)' }}>
           <div className="max-w-7xl mx-auto">
             {children}
           </div>
