@@ -28,8 +28,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/hooks/use-toast'
 import type { Database } from '@/types/database'
 
-type PhoneNumber = Database['public']['Tables']['phone_numbers']['Row'] & {
-  assistants?: {
+type PhoneNumber = Database['public']['Tables']['user_phone_numbers']['Row'] & {
+  user_assistants?: {
     id: string
     name: string
   } | null
@@ -156,7 +156,9 @@ export default function PhoneNumbersPage() {
     }
   }
 
-  const formatPhoneNumber = (phoneNumber: string) => {
+  const formatPhoneNumber = (phoneNumber: string | null | undefined) => {
+    if (!phoneNumber) return 'N/A'
+    
     // Format US numbers as (XXX) XXX-XXXX
     if (phoneNumber.match(/^\+1\d{10}$/)) {
       const cleaned = phoneNumber.replace(/^\+1/, '')
@@ -165,7 +167,7 @@ export default function PhoneNumbersPage() {
     return phoneNumber
   }
 
-  const getProviderBadge = (provider: string) => {
+  const getProviderBadge = (provider: string | null | undefined) => {
     switch (provider) {
       case 'testing':
         return <Badge variant="secondary">Testing</Badge>
@@ -173,6 +175,9 @@ export default function PhoneNumbersPage() {
         return <Badge variant="default">Twilio</Badge>
       case 'vapi':
         return <Badge variant="outline">Vapi</Badge>
+      case null:
+      case undefined:
+        return <Badge variant="secondary">Unknown</Badge>
       default:
         return <Badge variant="secondary">{provider}</Badge>
     }
@@ -318,10 +323,10 @@ export default function PhoneNumbersPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        {number.assistants ? (
+                        {number.user_assistants ? (
                           <div className="flex items-center gap-2">
                             <Users className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm">{number.assistants.name}</span>
+                            <span className="text-sm">{number.user_assistants.name}</span>
                           </div>
                         ) : (
                           <span className="text-sm text-muted-foreground">Not assigned</span>

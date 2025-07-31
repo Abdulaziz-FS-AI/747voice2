@@ -153,6 +153,13 @@ export class PhoneNumberService {
       })
       
       const vapiPhone = await this.vapiService.createPhoneNumber(vapiPayload)
+      
+      this.logger.info('VAPI phone number created, preparing database insert', {
+        correlationId,
+        vapiPhoneId: vapiPhone.id,
+        credentialId: vapiPhone.credentialId,
+        hasCredentialId: !!vapiPhone.credentialId
+      })
 
       // Begin database transaction
       const { data: dbPhone, error: dbError } = await supabase
@@ -163,7 +170,7 @@ export class PhoneNumberService {
           friendly_name: validatedData.friendlyName,  
           provider: 'twilio',
           vapi_phone_id: vapiPhone.id,
-          vapi_credential_id: vapiPhone.credentialId,
+          vapi_credential_id: vapiPhone.credentialId || 'auto_generated',
           twilio_account_sid: validatedData.twilioAccountSid,
           twilio_auth_token: validatedData.twilioAuthToken, // Store encrypted in production
           webhook_url: webhookUrl,
