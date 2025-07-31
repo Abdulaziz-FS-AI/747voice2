@@ -213,14 +213,13 @@ export async function POST(request: NextRequest) {
 
     // Step 7: Build system prompt
     const firstMessage: string = validatedData.first_message;
-    let systemPrompt: string;
 
     // For now, use a simple default prompt without template dependency
     const personalityDescription = validatedData.personality_traits?.length > 0 
       ? validatedData.personality_traits.join(', ')
       : validatedData.personality;
     
-    systemPrompt = 
+    const systemPrompt = 
       `You are an AI assistant${validatedData.company_name ? ` working for ${validatedData.company_name}` : ''}. ` +
       `Your personality should be ${personalityDescription}. ` +
       (validatedData.structured_questions?.length > 0 

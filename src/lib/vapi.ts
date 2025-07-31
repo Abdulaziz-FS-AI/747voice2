@@ -66,12 +66,17 @@ class VapiClient {
     try {
       console.log(`[VAPI] Making request to: ${endpoint}`);
       
+      // Create timeout with AbortController for compatibility
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
       const response = await fetch(url, {
         ...options,
         headers,
-        // Add timeout to prevent hanging
-        signal: AbortSignal.timeout(30000) // 30 second timeout
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
 
       let data;
       try {
