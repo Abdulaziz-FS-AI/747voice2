@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServiceClient } from '@/lib/supabase/service'
+import { createServiceRoleClient } from '@/lib/supabase'
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServiceClient()
+    const supabase = createServiceRoleClient()
     
     // Fetch active public templates
     const { data: templates, error } = await supabase
