@@ -64,16 +64,27 @@ class VapiClient {
     };
 
     try {
+      console.log(`[VAPI] Making request to: ${endpoint}`);
+      
       const response = await fetch(url, {
         ...options,
         headers,
+        // Add timeout to prevent hanging
+        signal: AbortSignal.timeout(30000) // 30 second timeout
       });
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error('[VAPI] Failed to parse response as JSON:', jsonError);
+        data = { message: 'Invalid response format from VAPI' };
+      }
 
       if (!response.ok) {
+        console.error(`[VAPI] API error response: ${response.status}`, data);
         throw new VapiError(
-          data.message || `Vapi API error: ${response.status}`,
+          data.message || data.error?.message || `Vapi API error: ${response.status}`,
           response.status,
           data
         );
@@ -84,6 +95,14 @@ class VapiClient {
       if (error instanceof VapiError) {
         throw error;
       }
+      
+      // Handle timeout errors
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.error('[VAPI] Request timed out');
+        throw new VapiError('VAPI request timed out', 504);
+      }
+      
+      console.error('[VAPI] Network error:', error);
       throw new VapiError(
         `Network error: ${error instanceof Error ? error.message : 'Unknown error'}`,
         500
@@ -345,10 +364,10 @@ export async function createVapiAssistant(assistantData: {
   evaluationRubric?: string | null;
   functions?: VapiFunction[];
   clientMessages?: string[];
-}) {
+}): Promise<string> {
   if (!vapiClient) {
-    console.warn('Vapi client not configured, skipping assistant creation');
-    return null;
+    console.warn('Vapi client not configured, generating fallback ID');
+    throw new Error('VAPI client not configured');
   }
 
   try {
@@ -455,6 +474,18 @@ export async function createVapiAssistant(assistantData: {
       'end-of-call-report'      // Call analytics and summary only
     ];
 
+    console.log('[VAPI] Creating assistant with config:', {
+      name: assistantData.name,
+      modelProvider: modelConfig.provider,
+      model: modelConfig.model,
+      voice: voiceConfig.voiceId,
+      firstMessageMode: assistantData.firstMessageMode,
+      backgroundSound: assistantData.backgroundSound,
+      hasStructuredQuestions: !!analysisPlan.structuredDataPlan,
+      hasEvaluation: !!analysisPlan.successEvaluationPlan,
+      serverUrl: serverConfig.url
+    });
+
     const result = await vapiClient.createAssistant({
       name: assistantData.name,
       model: modelConfig,
@@ -478,9 +509,24 @@ export async function createVapiAssistant(assistantData: {
       responseDelaySeconds: 0.4,
     });
 
+    if (!result || !result.id) {
+      throw new Error('VAPI returned invalid response - no assistant ID');
+    }
+
+    console.log('[VAPI] Assistant created successfully with ID:', result.id);
     return result.id;
   } catch (error) {
-    console.error('Failed to create Vapi assistant:', error);
+    console.error('[VAPI] Failed to create assistant:', error);
+    
+    // Log more detailed error information
+    if (error instanceof VapiError) {
+      console.error('[VAPI] Error details:', {
+        message: error.message,
+        statusCode: error.statusCode,
+        details: error.details
+      });
+    }
+    
     throw error;
   }
 }

@@ -1,37 +1,38 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { ArrowLeft } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { TemplateSelector } from '@/components/assistants/template-selector'
-import { DashboardLayout } from '@/components/dashboard/layout'
+import { CreateAssistantForm } from '@/components/assistants/create-assistant-form'
 
 export default function NewAssistantPage() {
   const router = useRouter()
 
-  return (
-    <DashboardLayout>
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.back()}
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">Choose Your Assistant Template</h1>
-            <p className="text-muted-foreground">
-              Start with a proven template or build from scratch
-            </p>
-          </div>
-        </div>
+  // Use a basic template configuration without requiring template selection
+  const basicTemplate = {
+    templateId: undefined, // No template ID needed
+    name: 'Basic Assistant',
+    category: 'general',
+    config: {
+      personality_traits: ['professional'],
+      model_id: 'gpt-4.1-mini-2025-04-14',
+      voice_id: 'Elliot',
+      max_call_duration: 300,
+      first_message: 'Hello! How can I help you today?',
+      first_message_mode: 'assistant-speaks-first' as const,
+      background_sound: 'office' as const,
+      structured_questions: [],
+      evaluation_rubric: null,
+      client_messages: ['end-of-call-report']
+    },
+    placeholders: {
+      name: '',
+      company_name: ''
+    }
+  }
 
-        {/* Template Selection */}
-        <TemplateSelector />
-      </div>
-    </DashboardLayout>
+  return (
+    <CreateAssistantForm 
+      templateData={basicTemplate}
+      onCancel={() => router.push('/dashboard/assistants')}
+    />
   )
 }
