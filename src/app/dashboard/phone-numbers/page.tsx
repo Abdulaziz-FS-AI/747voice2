@@ -113,8 +113,10 @@ export default function PhoneNumbersPage() {
     const stats = numbers.reduce((acc, number) => {
       acc.totalNumbers += 1
       if (number.is_active) acc.activeNumbers += 1
-      acc.totalCalls += number.total_calls || 0
-      acc.totalMinutes += number.total_minutes || 0
+      // Note: total_calls and total_minutes would need to be fetched from calls table
+      // For now, setting to 0 until we implement call aggregation
+      acc.totalCalls += 0
+      acc.totalMinutes += 0
       return acc
     }, {
       totalNumbers: 0,
@@ -401,11 +403,6 @@ export default function PhoneNumbersPage() {
                           >
                             {number.is_active ? "Active" : "Inactive"}
                           </Badge>
-                          {number.is_verified && (
-                            <Badge variant="outline" className="text-xs">
-                              Verified
-                            </Badge>
-                          )}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -420,20 +417,14 @@ export default function PhoneNumbersPage() {
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">
-                          <div>{number.total_calls || 0} calls</div>
+                          <div>0 calls</div>
                           <div className="text-muted-foreground">
-                            {number.total_minutes || 0} min
+                            0 min
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        {number.last_call_at ? (
-                          <span className="text-sm text-muted-foreground">
-                            {new Date(number.last_call_at).toLocaleDateString()}
-                          </span>
-                        ) : (
-                          <span className="text-sm text-muted-foreground">Never</span>
-                        )}
+                        <span className="text-sm text-muted-foreground">Never</span>
                       </TableCell>
                       <TableCell>
                         <DropdownMenu>
