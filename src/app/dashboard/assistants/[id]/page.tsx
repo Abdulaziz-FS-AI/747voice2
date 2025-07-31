@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
-import { ArrowLeft, Phone, Building, Clock, Globe, Edit, Power } from 'lucide-react'
+import { ArrowLeft, Phone, Building, Clock, Globe, Edit, Power, BarChart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -42,6 +42,8 @@ export default function AssistantDetailsPage() {
   const { user } = useAuth()
   const [assistant, setAssistant] = useState<Assistant | null>(null)
   const [loading, setLoading] = useState(true)
+  const [analyticsData, setAnalyticsData] = useState<any>(null)
+  const [analyticsLoading, setAnalyticsLoading] = useState(false)
 
   useEffect(() => {
     if (!user) {
@@ -67,6 +69,30 @@ export default function AssistantDetailsPage() {
       router.push('/dashboard')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchAnalytics = async () => {
+    if (!assistant?.id) return
+    
+    try {
+      setAnalyticsLoading(true)
+      const response = await fetch(`/api/analytics/assistant/${assistant.id}`)
+      const data = await response.json()
+      
+      if (data.success) {
+        setAnalyticsData(data.data)
+      }
+    } catch (error) {
+      console.error('Failed to fetch analytics:', error)
+    } finally {
+      setAnalyticsLoading(false)
+    }
+  }
+
+  const onTabChange = (value: string) => {
+    if (value === 'analytics' && !analyticsData && !analyticsLoading) {
+      fetchAnalytics()
     }
   }
 
@@ -160,11 +186,15 @@ export default function AssistantDetailsPage() {
         </Card>
 
         {/* Tabs */}
-        <Tabs defaultValue="details" className="space-y-4">
+        <Tabs defaultValue="details" className="space-y-4" onValueChange={onTabChange}>
           <TabsList>
             <TabsTrigger value="details">Details</TabsTrigger>
             <TabsTrigger value="prompts">Prompts</TabsTrigger>
             <TabsTrigger value="questions">Questions</TabsTrigger>
+            <TabsTrigger value="analytics">
+              <BarChart className="mr-2 h-4 w-4" />
+              Analytics
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="details" className="space-y-4">
@@ -282,6 +312,138 @@ export default function AssistantDetailsPage() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-4">
+            {analyticsLoading ? (
+              <div className="space-y-4">
+                <Skeleton className="h-32" />
+                <Skeleton className="h-64" />
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Analytics Overview */}
+                <div className="grid gap-4 md:grid-cols-4">
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium">Total Calls</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{analyticsData?.totalCalls || 0}</div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium">Total Cost</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">${(analyticsData?.totalCost || 0).toFixed(2)}</div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium">Avg Duration</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{Math.round(analyticsData?.avgDuration || 0)}s</div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{Math.round(analyticsData?.successRate || 0)}%</div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Recent Calls */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Recent Calls</CardTitle>
+                    <CardDescription>
+                      Latest call activity for this assistant
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {!analyticsData?.recentCalls || analyticsData.recentCalls.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-8">
+                        No calls yet
+                      </p>
+                    ) : (
+                      <div className="space-y-4">
+                        {analyticsData.recentCalls.map((call: any, index: number) => (
+                          <div key={call.id || index} className="flex items-center justify-between p-4 border rounded-lg">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <Phone className="h-4 w-4 text-muted-foreground" />
+                                <span className="font-medium">{call.caller_number}</span>
+                                <Badge variant={call.success_evaluation ? "default" : "secondary"}>
+                                  {call.success_evaluation ? "Success" : "Pending"}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                <span className="flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  {call.duration_seconds}s
+                                </span>
+                                <span>${(call.cost || 0).toFixed(2)}</span>
+                                <span>{new Date(call.started_at).toLocaleDateString()}</span>
+                              </div>
+                            </div>
+                            {call.structured_data && (
+                              <div className="text-right">
+                                <div className="text-sm font-medium">Data Collected</div>
+                                <div className="text-xs text-muted-foreground">
+                                  {Object.keys(call.structured_data).length} fields
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Dynamic Questions Analytics */}
+                {analyticsData?.questionAnalytics && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Question Performance</CardTitle>
+                      <CardDescription>
+                        Success rates for structured questions
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {Object.entries(analyticsData.questionAnalytics).map(([fieldName, stats]: [string, any]) => (
+                          <div key={fieldName} className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium capitalize">
+                                {fieldName.replace(/_/g, ' ')}
+                              </span>
+                              <span className="text-sm text-muted-foreground">
+                                {stats.answeredCount}/{stats.totalAsked} answered
+                              </span>
+                            </div>
+                            <div className="w-full bg-muted rounded-full h-2">
+                              <div
+                                className="bg-primary h-2 rounded-full"
+                                style={{
+                                  width: `${(stats.answeredCount / stats.totalAsked) * 100}%`
+                                }}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>

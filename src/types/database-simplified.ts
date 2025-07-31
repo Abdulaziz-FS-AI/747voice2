@@ -56,6 +56,53 @@ export interface Database {
           updated_at?: string
         }
       }
+      call_logs: {
+        Row: {
+          id: string
+          assistant_id: string
+          duration_seconds: number
+          cost: number
+          caller_number: string
+          started_at: string
+          transcript: string | null
+          structured_data: Json | null
+          success_evaluation: Json | null
+          summary: string | null
+          user_id: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          assistant_id: string
+          duration_seconds: number
+          cost: number
+          caller_number: string
+          started_at: string
+          transcript?: string | null
+          structured_data?: Json | null
+          success_evaluation?: Json | null
+          summary?: string | null
+          user_id: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          assistant_id?: string
+          duration_seconds?: number
+          cost?: number
+          caller_number?: string
+          started_at?: string
+          transcript?: string | null
+          structured_data?: Json | null
+          success_evaluation?: Json | null
+          summary?: string | null
+          user_id?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
       user_phone_numbers: {
         Row: {
           id: string
