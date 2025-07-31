@@ -96,7 +96,7 @@ export class PhoneNumberService {
 
       // Check if phone number already exists for user
       const { data: existingPhone } = await supabase
-        .from('phone_numbers')
+        .from('user_phone_numbers')
         .select('id')
         .eq('user_id', userId)
         .eq('phone_number', validatedData.phoneNumber)
@@ -156,7 +156,7 @@ export class PhoneNumberService {
 
       // Begin database transaction
       const { data: dbPhone, error: dbError } = await supabase
-        .from('phone_numbers')
+        .from('user_phone_numbers')
         .insert({
           user_id: userId,
           phone_number: validatedData.phoneNumber,
@@ -219,7 +219,7 @@ export class PhoneNumberService {
       const supabase = createServiceRoleClient()
       
       const { data: phones, error } = await supabase
-        .from('phone_numbers')
+        .from('user_phone_numbers')
         .select(`
           *,
           assigned_assistant:user_assistants(
@@ -256,7 +256,7 @@ export class PhoneNumberService {
       const supabase = createServiceRoleClient()
       
       const { data: phone, error } = await supabase
-        .from('phone_numbers')
+        .from('user_phone_numbers')
         .select(`
           *,
           assigned_assistant:user_assistants(
@@ -339,7 +339,7 @@ export class PhoneNumberService {
 
       // Update database
       const { data: updatedPhone, error: updateError } = await supabase
-        .from('phone_numbers')
+        .from('user_phone_numbers')
         .update({ 
           assigned_assistant_id: validatedData.assistantId,
           updated_at: new Date().toISOString()
@@ -410,7 +410,7 @@ export class PhoneNumberService {
 
       // Soft delete from database (maintain audit trail)
       const { error: deleteError } = await supabase
-        .from('phone_numbers')
+        .from('user_phone_numbers')
         .update({ 
           is_active: false,
           updated_at: new Date().toISOString()

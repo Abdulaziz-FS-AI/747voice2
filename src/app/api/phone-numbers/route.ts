@@ -35,10 +35,10 @@ export async function GET(request: NextRequest) {
     const supabase = createServiceRoleClient()
 
     const { data: phoneNumbers, error } = await supabase
-      .from('phone_numbers')
+      .from('user_phone_numbers')
       .select(`
         *,
-        assistants!assigned_assistant_id (
+        user_assistants!assigned_assistant_id (
           id,
           name
         )
@@ -54,9 +54,9 @@ export async function GET(request: NextRequest) {
     // Transform the data to flatten assistant info
     const transformedData = phoneNumbers?.map(number => ({
       ...number,
-      assistant: number.assistants ? {
-        id: number.assistants.id,
-        name: number.assistants.name
+      assistant: number.user_assistants ? {
+        id: number.user_assistants.id,
+        name: number.user_assistants.name
       } : null
     })) || []
 
