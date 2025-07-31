@@ -439,11 +439,12 @@ export async function createVapiAssistant(assistantData: {
     }
 
     // Create server configuration with updated header format
+    const webhookSecret = process.env.MAKE_WEBHOOK_SECRET || '';
     const serverConfig = {
       url: process.env.MAKE_WEBHOOK_URL || 'https://hook.eu2.make.com/m3olq7ealo40xevpjdar7573j2cst9uk',
-      secret: process.env.MAKE_WEBHOOK_SECRET,
+      secret: webhookSecret,
       headers: {
-        'x-make-apikey': process.env.MAKE_WEBHOOK_SECRET,
+        'x-make-apikey': webhookSecret,
         'Content-Type': 'application/json'
       }
     };
