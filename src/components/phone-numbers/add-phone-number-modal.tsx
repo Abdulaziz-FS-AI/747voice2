@@ -28,10 +28,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from '@/hooks/use-toast'
-import type { Database } from '@/types/database'
+import type { Database } from '@/types/database-simplified'
 
-type PhoneNumber = Database['public']['Tables']['phone_numbers']['Row']
-type Assistant = Database['public']['Tables']['assistants']['Row']
+type PhoneNumber = Database['public']['Tables']['user_phone_numbers']['Row']
+type Assistant = Database['public']['Tables']['user_assistants']['Row']
 
 // Form validation schema - Twilio only
 const phoneNumberSchema = z.object({
