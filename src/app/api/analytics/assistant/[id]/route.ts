@@ -47,7 +47,7 @@ export async function GET(
       if (!logsError && logs) {
         callLogs = logs
       }
-    } catch (error) {
+    } catch {
       console.log('call_logs table not found, using calls table')
     }
 
@@ -87,7 +87,7 @@ export async function GET(
     const successRate = totalCalls > 0 ? (successfulCalls.length / totalCalls) * 100 : 0
 
     // Analyze dynamic questions
-    let questionAnalytics = {}
+    const questionAnalytics: Record<string, any> = {}
     
     for (const call of allCalls) {
       if (call.structured_data) {

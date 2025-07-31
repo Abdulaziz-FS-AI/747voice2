@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
       if (!logError && logCosts) {
         callLogsCosts = logCosts
       }
-    } catch (error) {
+    } catch {
       // call_logs table might not exist yet, that's okay
       console.log('call_logs table not found, using calls table only')
     }
