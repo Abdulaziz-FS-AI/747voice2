@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
-import { Plus, Search, Edit, Trash2, MoreVertical, Power, PowerOff, Bot, Zap, Sparkles, RefreshCw, RotateCcw } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, MoreVertical, Power, PowerOff, Bot, Zap, Sparkles, RefreshCw } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -49,7 +49,6 @@ export default function AssistantsPage() {
   const [syncing, setSyncing] = useState(false)
   const [filteredAssistants, setFilteredAssistants] = useState<Assistant[]>([])
   const [loading, setLoading] = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
   
@@ -70,25 +69,15 @@ export default function AssistantsPage() {
     filterAssistants()
   }, [assistants, searchQuery, statusFilter])
 
-  const fetchAssistants = async (isRefresh = false) => {
+  const fetchAssistants = async () => {
     try {
-      if (isRefresh) {
-        setRefreshing(true)
-      } else {
-        setLoading(true)
-      }
+      setLoading(true)
       
       const response = await fetch('/api/assistants')
       const data = await response.json()
       
       if (data.success) {
         setAssistants(data.data || [])
-        if (isRefresh) {
-          toast({
-            title: 'Success',
-            description: 'Assistants refreshed successfully'
-          })
-        }
       } else {
         toast({
           title: 'Error',
@@ -104,16 +93,8 @@ export default function AssistantsPage() {
         variant: 'destructive'
       })
     } finally {
-      if (isRefresh) {
-        setRefreshing(false)
-      } else {
-        setLoading(false)
-      }
+      setLoading(false)
     }
-  }
-
-  const handleRefresh = () => {
-    fetchAssistants(true)
   }
 
   const filterAssistants = () => {
@@ -208,7 +189,7 @@ export default function AssistantsPage() {
       
       if (data.success) {
         // Refresh data after sync
-        await fetchAssistants(false)
+        await fetchAssistants()
         
         // Show detailed sync results
         const details = data.data
@@ -311,8 +292,8 @@ export default function AssistantsPage() {
                 whileTap={{ scale: 0.98 }}
               >
                 <Button 
-                  onClick={handleRefresh}
-                  disabled={refreshing || syncing}
+                  onClick={handleSync}
+                  disabled={syncing}
                   variant="outline"
                   className="relative overflow-hidden group"
                   style={{
@@ -321,31 +302,8 @@ export default function AssistantsPage() {
                     color: 'var(--vm-orange-primary)'
                   }}
                 >
-                  <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-                  <span className="font-medium">Refresh</span>
-                </Button>
-              </motion.div>
-              
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6, delay: 0.35 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Button 
-                  onClick={handleSync}
-                  disabled={refreshing || syncing}
-                  variant="outline"
-                  className="relative overflow-hidden group"
-                  style={{
-                    background: 'rgba(139, 92, 246, 0.1)',
-                    border: '1px solid var(--vm-border-brand)',
-                    color: 'var(--vm-violet)'
-                  }}
-                >
-                  <RotateCcw className={`mr-2 h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
-                  <span className="font-medium">{syncing ? 'Syncing...' : 'Sync VAPI'}</span>
+                  <RefreshCw className={`mr-2 h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
+                  <span className="font-medium">{syncing ? 'Refreshing...' : 'Refresh'}</span>
                 </Button>
               </motion.div>
               
@@ -393,17 +351,6 @@ export default function AssistantsPage() {
                   <Search className="h-5 w-5" style={{ color: 'var(--vm-orange-primary)' }} />
                   Neural Search Matrix
                 </CardTitle>
-                <Button
-                  onClick={handleRefresh}
-                  disabled={refreshing}
-                  variant="ghost"
-                  size="sm"
-                  className="text-sm hover:bg-white/10"
-                  style={{ color: 'var(--vm-orange-primary)' }}
-                >
-                  <RefreshCw className={`h-4 w-4 mr-1 ${refreshing ? 'animate-spin' : ''}`} />
-                  {refreshing ? 'Refreshing...' : 'Refresh'}
-                </Button>
               </div>
             </CardHeader>
             <CardContent>
