@@ -344,6 +344,7 @@ export async function createVapiAssistant(assistantData: {
   }>;
   evaluationRubric?: string | null;
   functions?: VapiFunction[];
+  clientMessages?: string[];
 }) {
   if (!vapiClient) {
     console.warn('Vapi client not configured, skipping assistant creation');
@@ -467,7 +468,7 @@ export async function createVapiAssistant(assistantData: {
       // Use new VAPI server format with headers
       server: serverConfig,
       serverMessages: serverMessages,
-      clientMessages: [], // No client messages
+      clientMessages: assistantData.clientMessages || [], // Use provided client messages or default to empty
       endCallMessage: "Thank you for calling! Have a great day!",
       recordingEnabled: true,
       fillersEnabled: true,
