@@ -19,7 +19,6 @@ import {
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
-import { CostTracker } from './cost-tracker'
 
 interface DashboardLayoutProps {
   children: ReactNode
@@ -214,16 +213,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <Menu className="h-5 w-5" style={{ color: 'var(--vm-text-primary)' }} />
           </Button>
           
-          {/* Cost Tracker & Status */}
-          <div className="flex items-center gap-4 ml-auto">
-            {/* Cost Countdown */}
-            <CostTracker userId={user?.id} />
-            
-            {/* System Status */}
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full" style={{ background: 'var(--vm-success)' }} />
-              <span className="text-sm font-medium vm-text-muted">System Online</span>
-            </div>
+          {/* System Status */}
+          <div className="flex items-center gap-2 ml-auto">
+            <div className="h-2 w-2 rounded-full" style={{ background: 'var(--vm-success)' }} />
+            <span className="text-sm font-medium vm-text-muted">System Online</span>
           </div>
         </header>
 

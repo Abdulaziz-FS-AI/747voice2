@@ -4,11 +4,11 @@ import { createServiceRoleClient } from '@/lib/supabase'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { user } = await authenticateRequest()
-    const assistantId = params.id
+    const { id: assistantId } = await params
     
     if (!assistantId) {
       return NextResponse.json({
