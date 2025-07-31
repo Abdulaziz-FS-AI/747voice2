@@ -283,7 +283,6 @@ export default function HomePage() {
         {/* Background Effects */}
         <VoiceWave mousePosition={mousePosition} variant="primary" />
         <VoiceIndicators mousePosition={mousePosition} />
-        <BassBars mousePosition={mousePosition} count={40} variant="wide" />
         
         <div className="relative z-10 text-center max-w-5xl mx-auto px-6">
           <motion.div

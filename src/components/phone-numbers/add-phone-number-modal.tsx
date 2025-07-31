@@ -210,146 +210,256 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Phone className="h-5 w-5" />
+      <DialogContent className="sm:max-w-[600px] border-0 shadow-2xl" style={{
+        background: 'var(--vm-surface)',
+        borderRadius: '16px'
+      }}>
+        <DialogHeader className="text-center space-y-4 pb-2">
+          <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center" 
+               style={{ background: 'var(--vm-gradient-brand)' }}>
+            <Phone className="h-8 w-8 text-white" />
+          </div>
+          <DialogTitle className="text-2xl font-bold vm-text-primary">
             Connect Your Phone Number
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-center vm-text-secondary leading-relaxed">
             Add a phone number to receive calls through your AI assistants
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <Tabs value={currentStep} className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="details" disabled={currentStep !== 'details'}>Details</TabsTrigger>
-              <TabsTrigger value="config" disabled={currentStep !== 'config' && currentStep !== 'assign'}>Configuration</TabsTrigger>
-              <TabsTrigger value="assign" disabled={currentStep !== 'assign'}>Assignment</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3 rounded-xl p-1" style={{
+              background: 'var(--vm-background)',
+              border: '1px solid var(--vm-border-subtle)'
+            }}>
+              <TabsTrigger 
+                value="details" 
+                disabled={currentStep !== 'details'}
+                className="rounded-lg font-medium transition-all duration-200"
+                style={{
+                  color: currentStep === 'details' ? 'white' : 'var(--vm-text-secondary)',
+                  background: currentStep === 'details' ? 'var(--vm-gradient-brand)' : 'transparent'
+                }}
+              >
+                Details
+              </TabsTrigger>
+              <TabsTrigger 
+                value="config" 
+                disabled={currentStep !== 'config' && currentStep !== 'assign'}
+                className="rounded-lg font-medium transition-all duration-200"
+                style={{
+                  color: currentStep === 'config' ? 'white' : 'var(--vm-text-secondary)',
+                  background: currentStep === 'config' ? 'var(--vm-gradient-brand)' : 'transparent'
+                }}
+              >
+                Configuration
+              </TabsTrigger>
+              <TabsTrigger 
+                value="assign" 
+                disabled={currentStep !== 'assign'}
+                className="rounded-lg font-medium transition-all duration-200"
+                style={{
+                  color: currentStep === 'assign' ? 'white' : 'var(--vm-text-secondary)', 
+                  background: currentStep === 'assign' ? 'var(--vm-gradient-brand)' : 'transparent'
+                }}
+              >
+                Assignment
+              </TabsTrigger>
             </TabsList>
 
             {/* Step 1: Basic Details */}
-            <TabsContent value="details" className="space-y-4 mt-6">
-              <div className="space-y-2">
-                <Label htmlFor="friendlyName">Friendly Name *</Label>
+            <TabsContent value="details" className="space-y-6 mt-6">
+              <div className="space-y-3">
+                <Label htmlFor="friendlyName" className="text-sm font-semibold vm-text-primary">
+                  Friendly Name *
+                </Label>
                 <Input
                   id="friendlyName"
                   placeholder="e.g., Main Sales Line, Support Line"
+                  className="h-12 rounded-xl transition-all duration-200 focus:shadow-lg focus:shadow-orange-500/20"
+                  style={{
+                    background: 'var(--vm-background)',
+                    border: '1px solid var(--vm-border-subtle)',
+                    color: 'var(--vm-text-primary)'
+                  }}
                   {...register('friendlyName')}
                 />
                 {errors.friendlyName && (
-                  <p className="text-sm text-destructive">{errors.friendlyName.message}</p>
+                  <p className="text-sm text-red-400">{errors.friendlyName.message}</p>
                 )}
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs vm-text-muted">
                   A name for your own reference
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="phoneNumber">Phone Number *</Label>
+              <div className="space-y-3">
+                <Label htmlFor="phoneNumber" className="text-sm font-semibold vm-text-primary">
+                  Phone Number *
+                </Label>
                 <Input
                   id="phoneNumber"
                   placeholder="+15017122661"
+                  className="h-12 rounded-xl transition-all duration-200 focus:shadow-lg focus:shadow-orange-500/20"
+                  style={{
+                    background: 'var(--vm-background)',
+                    border: '1px solid var(--vm-border-subtle)',
+                    color: 'var(--vm-text-primary)'
+                  }}
                   {...register('phoneNumber')}
                 />
                 {errors.phoneNumber && (
-                  <p className="text-sm text-destructive">{errors.phoneNumber.message}</p>
+                  <p className="text-sm text-red-400">{errors.phoneNumber.message}</p>
                 )}
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs vm-text-muted">
                   Use E.164 format (include country code)
                 </p>
               </div>
 
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>Twilio Required:</strong> You must provide your own Twilio credentials to add phone numbers for real calls.
-                </AlertDescription>
-              </Alert>
+              <div className="rounded-xl p-4 border" style={{
+                background: 'var(--vm-orange-pale)',
+                borderColor: 'var(--vm-orange-primary)',
+                borderWidth: '1px'
+              }}>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" 
+                       style={{ background: 'var(--vm-orange-primary)' }}>
+                    <AlertCircle className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm" style={{ color: 'var(--vm-orange-primary)' }}>
+                      Twilio Required
+                    </p>
+                    <p className="text-sm vm-text-secondary mt-1">
+                      You must provide your own Twilio credentials to add phone numbers for real calls.
+                    </p>
+                  </div>
+                </div>
+              </div>
 
             </TabsContent>
 
             {/* Step 2: Twilio Configuration */}
-            <TabsContent value="config" className="space-y-4 mt-6">
-              <div className="space-y-4">
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    <strong>Twilio Setup:</strong> You&apos;ll need your Twilio credentials. 
-                    Find these on your Twilio Console dashboard.
-                  </AlertDescription>
-                </Alert>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="twilioAccountSid">Twilio Account SID *</Label>
-                    <Input
-                      id="twilioAccountSid"
-                      placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                      {...register('twilioAccountSid')}
-                    />
-                    {errors.twilioAccountSid && (
-                      <p className="text-sm text-destructive">{errors.twilioAccountSid.message}</p>
-                    )}
-                    <p className="text-xs text-muted-foreground">
-                      You can find this on your main Twilio Console dashboard
+            <TabsContent value="config" className="space-y-6 mt-6">
+              <div className="rounded-xl p-4 border" style={{
+                background: 'var(--vm-orange-pale)',
+                borderColor: 'var(--vm-orange-primary)',
+                borderWidth: '1px'
+              }}>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" 
+                       style={{ background: 'var(--vm-orange-primary)' }}>
+                    <AlertCircle className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm" style={{ color: 'var(--vm-orange-primary)' }}>
+                      Twilio Setup
+                    </p>
+                    <p className="text-sm vm-text-secondary mt-1">
+                      You'll need your Twilio credentials. Find these on your Twilio Console dashboard.
                     </p>
                   </div>
+                </div>
+              </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="twilioAuthToken">Twilio Auth Token *</Label>
-                    <div className="relative">
-                      <Input
-                        id="twilioAuthToken"
-                        type={showAuthToken ? 'text' : 'password'}
-                        placeholder="Your Twilio Auth Token"
-                        {...register('twilioAuthToken')}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-0 top-0 h-full px-3"
-                        onClick={() => setShowAuthToken(!showAuthToken)}
-                      >
-                        {showAuthToken ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </Button>
-                    </div>
-                    {errors.twilioAuthToken && (
-                      <p className="text-sm text-destructive">{errors.twilioAuthToken.message}</p>
+              <div className="space-y-3">
+                <Label htmlFor="twilioAccountSid" className="text-sm font-semibold vm-text-primary">
+                  Twilio Account SID *
+                </Label>
+                <Input
+                  id="twilioAccountSid"
+                  placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                  className="h-12 rounded-xl transition-all duration-200 focus:shadow-lg focus:shadow-orange-500/20"
+                  style={{
+                    background: 'var(--vm-background)',
+                    border: '1px solid var(--vm-border-subtle)',
+                    color: 'var(--vm-text-primary)'
+                  }}
+                  {...register('twilioAccountSid')}
+                />
+                {errors.twilioAccountSid && (
+                  <p className="text-sm text-red-400">{errors.twilioAccountSid.message}</p>
+                )}
+                <p className="text-xs vm-text-muted">
+                  You can find this on your main Twilio Console dashboard
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <Label htmlFor="twilioAuthToken" className="text-sm font-semibold vm-text-primary">
+                  Twilio Auth Token *
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="twilioAuthToken"
+                    type={showAuthToken ? 'text' : 'password'}
+                    placeholder="Your Twilio Auth Token"
+                    className="h-12 rounded-xl pr-12 transition-all duration-200 focus:shadow-lg focus:shadow-orange-500/20"
+                    style={{
+                      background: 'var(--vm-background)',
+                      border: '1px solid var(--vm-border-subtle)',
+                      color: 'var(--vm-text-primary)'
+                    }}
+                    {...register('twilioAuthToken')}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                    onClick={() => setShowAuthToken(!showAuthToken)}
+                  >
+                    {showAuthToken ? (
+                      <EyeOff className="h-4 w-4" style={{ color: 'var(--vm-text-muted)' }} />
+                    ) : (
+                      <Eye className="h-4 w-4" style={{ color: 'var(--vm-text-muted)' }} />
                     )}
-                    <p className="text-xs text-muted-foreground">
-                      Found next to your Account SID. Treat this like a password.
-                    </p>
-                  </div>
+                  </Button>
+                </div>
+                {errors.twilioAuthToken && (
+                  <p className="text-sm text-red-400">{errors.twilioAuthToken.message}</p>
+                )}
+                <p className="text-xs vm-text-muted">
+                  Found next to your Account SID. Treat this like a password.
+                </p>
               </div>
             </TabsContent>
 
             {/* Step 3: Assistant Assignment */}
-            <TabsContent value="assign" className="space-y-4 mt-6">
-              <div className="space-y-2">
-                <Label htmlFor="assignedAssistantId">Assign to Assistant (Optional)</Label>
+            <TabsContent value="assign" className="space-y-6 mt-6">
+              <div className="space-y-3">
+                <Label htmlFor="assignedAssistantId" className="text-sm font-semibold vm-text-primary">
+                  Assign to Assistant (Optional)
+                </Label>
                 <Select onValueChange={(value) => setValue('assignedAssistantId', value === 'unassigned' ? undefined : value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-12 rounded-xl transition-all duration-200 focus:shadow-lg focus:shadow-orange-500/20" style={{
+                    background: 'var(--vm-background)',
+                    border: '1px solid var(--vm-border-subtle)',
+                    color: 'var(--vm-text-primary)'
+                  }}>
                     <SelectValue placeholder={assistantsLoading ? "Loading assistants..." : "Select an assistant"} />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="unassigned">
-                      <span className="text-muted-foreground">Don&apos;t assign yet</span>
+                  <SelectContent style={{
+                    background: 'var(--vm-surface)',
+                    border: '1px solid var(--vm-border-subtle)',
+                    borderRadius: '12px'
+                  }}>
+                    <SelectItem value="unassigned" className="rounded-lg">
+                      <span className="vm-text-muted">Don't assign yet</span>
                     </SelectItem>
                     {assistantsLoading ? (
-                      <SelectItem value="loading" disabled>
+                      <SelectItem value="loading" disabled className="rounded-lg">
                         <div className="flex items-center gap-2">
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                          <span className="text-muted-foreground">Loading assistants...</span>
+                          <Loader2 className="h-3 w-3 animate-spin" style={{ color: 'var(--vm-orange-primary)' }} />
+                          <span className="vm-text-muted">Loading assistants...</span>
                         </div>
                       </SelectItem>
                     ) : (
                       assistants.map((assistant) => (
-                        <SelectItem key={assistant.id} value={assistant.id}>
+                        <SelectItem key={assistant.id} value={assistant.id} className="rounded-lg">
                           <div>
-                            <div className="font-medium">{assistant.name}</div>
-                            <div className="text-xs text-muted-foreground">
+                            <div className="font-medium vm-text-primary">{assistant.name}</div>
+                            <div className="text-xs vm-text-muted">
                               {(assistant.config as any)?.companyName || 'Neural Network'} • {(assistant.config as any)?.personality || 'Professional'}
                             </div>
                           </div>
@@ -358,35 +468,63 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
                     )}
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs vm-text-muted">
                   You can assign or change this later from the phone numbers table
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="notes">Notes (Optional)</Label>
+              <div className="space-y-3">
+                <Label htmlFor="notes" className="text-sm font-semibold vm-text-primary">
+                  Notes (Optional)
+                </Label>
                 <Textarea
                   id="notes"
                   placeholder="Add any notes about this phone number..."
                   rows={3}
+                  className="rounded-xl resize-none transition-all duration-200 focus:shadow-lg focus:shadow-orange-500/20"
+                  style={{
+                    background: 'var(--vm-background)',
+                    border: '1px solid var(--vm-border-subtle)',
+                    color: 'var(--vm-text-primary)'
+                  }}
                   {...register('notes')}
                 />
               </div>
             </TabsContent>
           </Tabs>
 
-          <DialogFooter className="mt-6">
+          <DialogFooter className="mt-8 pt-6 border-t" style={{ borderColor: 'var(--vm-border-subtle)' }}>
             <div className="flex justify-between w-full">
               <div>
                 {currentStep !== 'details' && (
-                  <Button type="button" variant="outline" onClick={prevStep}>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={prevStep}
+                    className="h-12 px-6 rounded-xl font-medium"
+                    style={{
+                      borderColor: 'var(--vm-border-subtle)',
+                      color: 'var(--vm-text-secondary)',
+                      background: 'transparent'
+                    }}
+                  >
                     Previous
                   </Button>
                 )}
               </div>
               
-              <div className="flex gap-2">
-                <Button type="button" variant="outline" onClick={onClose}>
+              <div className="flex gap-3">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={onClose}
+                  className="h-12 px-6 rounded-xl font-medium"
+                  style={{
+                    borderColor: 'var(--vm-border-subtle)',
+                    color: 'var(--vm-text-secondary)',
+                    background: 'transparent'
+                  }}
+                >
                   Cancel
                 </Button>
                 
@@ -395,6 +533,12 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
                     type="button" 
                     onClick={nextStep}
                     disabled={!canProceedToConfig()}
+                    className="h-12 px-6 rounded-xl font-semibold text-white"
+                    style={{ 
+                      background: !canProceedToConfig() ? 'var(--vm-surface-elevated)' : 'var(--vm-gradient-brand)',
+                      border: 'none',
+                      opacity: !canProceedToConfig() ? 0.5 : 1
+                    }}
                   >
                     Next
                   </Button>
@@ -405,13 +549,28 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
                     type="button" 
                     onClick={nextStep}
                     disabled={!canProceedToAssign()}
+                    className="h-12 px-6 rounded-xl font-semibold text-white"
+                    style={{ 
+                      background: !canProceedToAssign() ? 'var(--vm-surface-elevated)' : 'var(--vm-gradient-brand)',
+                      border: 'none',
+                      opacity: !canProceedToAssign() ? 0.5 : 1
+                    }}
                   >
                     Next
                   </Button>
                 )}
                 
                 {currentStep === 'assign' && (
-                  <Button type="submit" disabled={isLoading}>
+                  <Button 
+                    type="submit" 
+                    disabled={isLoading}
+                    className="h-12 px-6 rounded-xl font-semibold text-white"
+                    style={{ 
+                      background: isLoading ? 'var(--vm-surface-elevated)' : 'var(--vm-gradient-brand)',
+                      border: 'none',
+                      opacity: isLoading ? 0.8 : 1
+                    }}
+                  >
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Save & Connect
                   </Button>

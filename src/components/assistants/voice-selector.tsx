@@ -112,29 +112,33 @@ export function VoiceSelector({ selectedVoice, onVoiceSelect, className }: Voice
     <div className={className}>
       {/* Voice Selector Dropdown */}
       <div className="relative" ref={dropdownRef}>
-        {/* Selected Voice Display - Compact */}
+        {/* Selected Voice Display - Voice Matrix Styled */}
         <div
-          className="w-full p-3 border border-gray-700 rounded-lg bg-gray-900 cursor-pointer flex items-center justify-between hover:border-orange-400 transition-all duration-200 group"
+          className="w-full p-3 rounded-xl cursor-pointer flex items-center justify-between transition-all duration-200 group hover:shadow-lg hover:shadow-orange-500/20"
+          style={{
+            background: 'var(--vm-background)',
+            border: '1px solid var(--vm-border-subtle)'
+          }}
           onClick={() => setIsOpen(!isOpen)}
         >
           <div className="flex items-center gap-3 flex-1 min-w-0">
             {selectedVoiceData ? (
               <>
-                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center flex-shrink-0 shadow-sm">
-                  <span className="text-white text-xs">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm" style={{ background: 'var(--vm-gradient-brand)' }}>
+                  <span className="text-white text-sm">
                     {selectedVoiceData.gender === 'Male' ? '👨' : '👩'}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <span className="font-medium text-sm text-white block truncate">{selectedVoiceData.name}</span>
-                  <span className="text-xs text-gray-400 truncate">{selectedVoiceData.accent}</span>
+                  <span className="font-medium text-sm vm-text-primary block truncate">{selectedVoiceData.name}</span>
+                  <span className="text-xs vm-text-muted truncate">{selectedVoiceData.accent}</span>
                 </div>
               </>
             ) : (
-              <span className="text-gray-400 text-sm">Select a voice...</span>
+              <span className="vm-text-muted text-sm">Select a voice...</span>
             )}
           </div>
-          <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform group-hover:text-orange-400 ${isOpen ? 'rotate-180' : ''}`} />
+          <ChevronDown className={`w-4 h-4 vm-text-muted transition-transform ${isOpen ? 'rotate-180' : ''}`} style={{ color: isOpen ? 'var(--vm-orange-primary)' : undefined }} />
         </div>
 
         {/* Dropdown Content - Voice Matrix Design System */}
