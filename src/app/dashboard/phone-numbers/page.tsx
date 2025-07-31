@@ -27,7 +27,7 @@ import { EditPhoneNumberModal } from '@/components/phone-numbers/edit-phone-numb
 import { StatsCard } from '@/components/dashboard/stats-card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/hooks/use-toast'
-import type { Database } from '@/types/database'
+import type { Database } from '@/types/database-simplified'
 
 type PhoneNumber = Database['public']['Tables']['user_phone_numbers']['Row'] & {
   user_assistants?: {
