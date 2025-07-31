@@ -35,8 +35,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       // Handle successful sign in
       if (event === 'SIGNED_IN' && session?.user) {
-        // Only redirect if we're on the auth callback page
-        if (window.location.pathname === '/auth/callback') {
+        // Redirect from auth callback or login pages
+        if (window.location.pathname === '/auth/callback' || 
+            window.location.pathname === '/login' || 
+            window.location.pathname === '/signup') {
           window.location.href = '/dashboard'
         }
       }

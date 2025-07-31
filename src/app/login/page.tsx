@@ -21,7 +21,14 @@ function LoginContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClientSupabaseClient()
-  const { signInWithGoogle } = useAuth()
+  const { signInWithGoogle, user, loading } = useAuth()
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!loading && user) {
+      router.push('/dashboard')
+    }
+  }, [user, loading, router])
 
   useEffect(() => {
     // Check for error messages in URL params

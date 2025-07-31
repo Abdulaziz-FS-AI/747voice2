@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClientSupabaseClient } from '@/lib/supabase'
@@ -23,7 +23,14 @@ export default function SignUpPage() {
   const [error, setError] = useState('')
   const router = useRouter()
   const supabase = createClientSupabaseClient()
-  const { signInWithGoogle } = useAuth()
+  const { signInWithGoogle, user, loading } = useAuth()
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!loading && user) {
+      router.push('/dashboard')
+    }
+  }, [user, loading, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

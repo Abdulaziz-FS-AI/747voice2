@@ -115,16 +115,14 @@ const BassBars = ({ mousePosition, count = 50, variant = 'default' }: {
               boxShadow: variant === 'social' ? '0 0 8px rgba(255, 107, 53, 0.3)' : undefined
             }}
             animate={{
-              height: `${10 + Math.sin((index + Date.now() * 0.0008) * 0.6) * maxHeight * heightMultiplier + 
-                      Math.cos((centerDistance + Date.now() * 0.0004) * 0.3) * 10 + 
-                      mousePosition.y * 0.2}px`
+              height: `${8 + Math.sin((index + Date.now() * 0.003) * 1.2) * (maxHeight * 0.4) * heightMultiplier + 
+                      Math.cos((centerDistance + Date.now() * 0.004) * 1.8) * 3 + 
+                      Math.sin((index + Date.now() * 0.006) * 2.1) * 2 +
+                      mousePosition.y * 0.1}px`
             }}
             transition={{
-              duration: 1.5 + (index % 5) * 0.2,
-              repeat: Infinity,
-              repeatType: "reverse",
-              ease: "easeInOut",
-              delay: index * 0.05
+              duration: 0.1,
+              ease: "linear"
             }}
           />
         )
@@ -271,8 +269,34 @@ const Header = () => {
 
 export default function HomePage() {
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
   const mousePosition = useSimpleMouseTracking()
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (!loading && user) {
+      router.push('/dashboard')
+    }
+  }, [user, loading, router])
+
+  // Show loading state while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--vm-background)' }}>
+        <div className="text-center">
+          <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: 'var(--vm-gradient-brand)' }}>
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            >
+              <Zap className="h-8 w-8 text-white" />
+            </motion.div>
+          </div>
+          <p className="vm-text-secondary">Loading Voice Matrix...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--vm-background)' }}>

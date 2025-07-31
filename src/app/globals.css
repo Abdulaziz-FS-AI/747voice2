@@ -8,25 +8,27 @@
      ============================================== */
   
   /* ===== MATRIX CORE COLORS ===== */
-  --vm-void: #000000;               /* Deep space, dramatic backgrounds */
-  --vm-matrix-black: #0A0B0E;      /* Primary void background */
-  --vm-surface: #111827;           /* Card backgrounds, elevated surfaces */
-  --vm-surface-elevated: #1F2937;  /* Hover states, active surfaces */
-  --vm-pure: #FFFFFF;              /* Quantum white, pure clarity */
+  --vm-void: #000000;               /* Deep space, dramatic backgrounds */  
+  --vm-background: #0a0a0b;         /* Primary background - very dark */
+  --vm-surface: #1a1b1e;           /* Card backgrounds, elevated surfaces */
+  --vm-surface-elevated: #22242a;  /* Hover states, active surfaces */
+  --vm-surface-subtle: #151619;    /* Subtle surfaces */
+  --vm-pure: #ffffff;              /* Pure white for high contrast text */
   
-  /* ===== NEURAL BRAND COLORS ===== */
-  --vm-orange-primary: #FF6B35;    /* Neural orange - primary brand */
-  --vm-orange-light: #FF8757;      /* Energy orange - hover states */
-  --vm-orange-dark: #E5521C;       /* Deep orange - active states */
-  --vm-orange-pale: rgba(255, 107, 53, 0.1); /* Subtle backgrounds */
+  /* ===== VIBRANT BRAND COLORS (Bass Bars Inspired) ===== */
+  --vm-orange: #ff6b35;            /* Primary orange - main brand */
+  --vm-cyan: #00d4ff;              /* Electric cyan - data streams */
+  --vm-violet: #8b5cf6;            /* Deep violet - neural networks */
+  --vm-emerald: #10b981;           /* Matrix green - success states */
+  --vm-yellow: #fbbf24;            /* Bright yellow - warnings/highlights */
+  --vm-pink: #ec4899;              /* Electric pink - accents */
   
-  /* ===== VOICE SPECTRUM COLORS ===== */
-  --vm-violet: #8B5CF6;            /* Voice violet - neural processing */
-  --vm-violet-light: #A78BFA;      /* Light violet - secondary accents */
-  --vm-cyan: #06B6D4;              /* Tech cyan - data flow */
-  --vm-emerald: #10B981;           /* Matrix green - success states */
-  --vm-pulse-purple: #7C3AED;      /* Pulse purple - interactive elements */
-  --vm-signal-blue: #3B82F6;       /* Signal blue - information */
+  /* ===== ACCENT VARIATIONS ===== */
+  --vm-orange-light: #ff8757;      /* Lighter orange for hover states */
+  --vm-orange-dark: #e5521c;       /* Darker orange for active states */
+  --vm-cyan-light: #22d3ee;        /* Light cyan for secondary elements */
+  --vm-violet-light: #a78bfa;      /* Light violet for backgrounds */
+  --vm-emerald-light: #34d399;     /* Light emerald for success highlights */
   
   /* ===== ULTRA-VIBRANT MATRIX COLORS ===== */
   --vm-matrix-neon-green: #00FF41; /* Classic matrix neon green */
@@ -56,14 +58,13 @@
   --vm-gray-800: #1F2937;          /* Dark surface */
   --vm-gray-900: #111827;          /* Primary dark surface */
   
-  /* ===== NEURAL GRADIENTS ===== */
-  --vm-gradient-brand: linear-gradient(135deg, #FF6B35 0%, #E5521C 100%);
-  --vm-gradient-neural: linear-gradient(135deg, #FF6B35 0%, #8B5CF6 100%);
-  --vm-gradient-voice: linear-gradient(90deg, #06B6D4 0%, #10B981 100%);
-  --vm-gradient-matrix: linear-gradient(45deg, #8B5CF6 0%, #7C3AED 100%);
-  --vm-gradient-surface: linear-gradient(145deg, #111827 0%, #1F2937 100%);
-  --vm-gradient-void: linear-gradient(180deg, #000000 0%, #0A0B0E 100%);
-  --vm-gradient-glow: radial-gradient(circle, rgba(255, 107, 53, 0.3) 0%, transparent 70%);
+  /* ===== MODERN GRADIENTS ===== */
+  --vm-gradient-brand: linear-gradient(135deg, var(--vm-orange) 0%, var(--vm-orange-dark) 100%);
+  --vm-gradient-neural: linear-gradient(135deg, var(--vm-orange) 0%, var(--vm-violet) 100%);
+  --vm-gradient-voice: linear-gradient(90deg, var(--vm-cyan) 0%, var(--vm-emerald) 100%);
+  --vm-gradient-matrix: linear-gradient(45deg, var(--vm-violet) 0%, var(--vm-cyan) 100%);
+  --vm-gradient-surface: linear-gradient(145deg, var(--vm-surface) 0%, var(--vm-surface-elevated) 100%);
+  --vm-gradient-primary: radial-gradient(circle, var(--vm-orange) 0%, transparent 70%);
   
   /* ===== ULTRA-VIBRANT GRADIENTS ===== */
   --vm-gradient-matrix-flow: linear-gradient(135deg, #00FF41 0%, #00FFFF 50%, #00D4FF 100%);
@@ -132,24 +133,25 @@
   --vm-duration-slow: 400ms;
   
   /* ===== ENHANCED TEXT COLORS FOR BETTER VISIBILITY ===== */
-  --vm-text-primary: #ffffff;
-  --vm-text-secondary: #e2e8f0;
-  --vm-text-muted: #cbd5e1;
+  --vm-text-primary: #ffffff;      /* Pure white for maximum contrast */
+  --vm-text-secondary: #e2e8f0;    /* Light gray for secondary text */
+  --vm-text-muted: #9ca3af;        /* Muted gray for less important text */
+  --vm-text-accent: var(--vm-orange); /* Accent color for highlights */
 }
 
 @theme inline {
-  --color-background: var(--vm-void);
-  --color-foreground: var(--vm-pure);
-  --color-primary: var(--vm-orange-primary);
+  --color-background: var(--vm-background);
+  --color-foreground: var(--vm-text-primary);
+  --color-primary: var(--vm-orange);
   --color-secondary: var(--vm-surface);
   --color-accent: var(--vm-violet);
-  --color-muted: var(--vm-gray-400);
-  --color-muted-foreground: var(--vm-gray-300);
+  --color-muted: var(--vm-text-muted);
+  --color-muted-foreground: var(--vm-text-secondary);
   --color-card: var(--vm-surface);
-  --color-card-foreground: var(--vm-pure);
-  --color-border: var(--vm-border-subtle);
+  --color-card-foreground: var(--vm-text-primary);
+  --color-border: rgba(255, 255, 255, 0.1);
   --color-input: var(--vm-surface);
-  --color-ring: var(--vm-orange-primary);
+  --color-ring: var(--vm-orange);
   --font-sans: var(--vm-font-body);
   --font-mono: var(--vm-font-mono);
 }
@@ -171,8 +173,8 @@ html {
 }
 
 body {
-  background: var(--vm-void);
-  color: var(--vm-pure);
+  background: var(--vm-background);
+  color: var(--vm-text-primary);
   font-family: var(--vm-font-body);
   font-weight: 400;
   line-height: 1.6;

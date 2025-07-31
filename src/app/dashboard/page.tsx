@@ -2,14 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Phone, BarChart3, Clock, Users, Mic, Zap, Activity, TrendingUp, Target, Brain, Sparkles, Radio, Cpu, Globe, Shield } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Plus, Phone, Clock, Activity, Brain } from 'lucide-react'
 import { AssistantCard } from '@/components/dashboard/assistant-card'
-import { StatsCard } from '@/components/dashboard/stats-card'
 import { DashboardLayout } from '@/components/dashboard/layout'
-import { Skeleton } from '@/components/ui/skeleton'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion } from 'framer-motion'
 import type { Database } from '@/types/database'
 
 type Assistant = Database['public']['Tables']['assistants']['Row']
@@ -97,607 +93,298 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8 relative">
-        {/* Advanced Background Effects */}
-        <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-20 -left-40 w-80 h-80 rounded-full opacity-20 animate-pulse"
-               style={{ background: 'radial-gradient(circle, var(--vm-orange-primary) 0%, transparent 70%)' }} />
-          <div className="absolute bottom-40 -right-20 w-96 h-96 rounded-full opacity-15 animate-pulse"
-               style={{ background: 'radial-gradient(circle, var(--vm-violet) 0%, transparent 70%)', animationDelay: '2s' }} />
-          <div className="absolute top-1/2 left-1/3 w-64 h-64 rounded-full opacity-10 animate-pulse"
-               style={{ background: 'radial-gradient(circle, var(--vm-cyan) 0%, transparent 70%)', animationDelay: '4s' }} />
+      <div className="space-y-8">
+        {/* Subtle Background Pattern */}
+        <div className="fixed inset-0 pointer-events-none overflow-hidden opacity-5">
+          <div className="absolute inset-0" 
+               style={{ 
+                 backgroundImage: 'radial-gradient(circle at 20% 80%, var(--vm-cyan) 0%, transparent 50%), radial-gradient(circle at 80% 20%, var(--vm-violet) 0%, transparent 50%)',
+                 backgroundSize: '600px 600px'
+               }} />
         </div>
 
-        {/* Futuristic Header */}
+        {/* Clean Modern Header */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="relative"
         >
-          {/* Neural Network Pattern Background */}
-          <div className="absolute inset-0 opacity-5">
-            <svg className="w-full h-full" viewBox="0 0 400 200">
-              <defs>
-                <pattern id="neural" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-                  <circle cx="20" cy="20" r="2" fill="var(--vm-orange-primary)" opacity="0.3" />
-                  <line x1="0" y1="20" x2="40" y2="20" stroke="var(--vm-orange-primary)" strokeWidth="0.5" opacity="0.2" />
-                  <line x1="20" y1="0" x2="20" y2="40" stroke="var(--vm-orange-primary)" strokeWidth="0.5" opacity="0.2" />
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#neural)" />
-            </svg>
-          </div>
-          
-          <div className="relative flex flex-col lg:flex-row lg:justify-between lg:items-center gap-8 p-8 rounded-2xl"
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6 p-6 rounded-2xl border"
                style={{ 
-                 background: 'linear-gradient(135deg, rgba(255, 107, 53, 0.03) 0%, rgba(139, 92, 246, 0.03) 100%)',
-                 border: '1px solid var(--vm-border-brand)',
-                 backdropFilter: 'blur(10px)'
+                 backgroundColor: 'var(--vm-surface)',
+                 borderColor: 'rgba(255, 255, 255, 0.1)'
                }}>
             <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <motion.div 
-                  animate={{ scale: [1, 1.05, 1], rotate: [0, 5, 0] }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                  className="flex items-center gap-3 px-4 py-2 rounded-full"
-                  style={{ 
-                    background: 'linear-gradient(135deg, var(--vm-success), var(--vm-emerald))',
-                    boxShadow: '0 0 20px rgba(16, 185, 129, 0.3)'
-                  }}
-                >
-                  <Radio className="h-4 w-4 text-white animate-pulse" />
-                  <span className="text-sm font-bold text-white">
-                    NEURAL MATRIX ONLINE
-                  </span>
-                  <div className="w-2 h-2 rounded-full bg-white animate-ping" />
-                </motion.div>
+              {/* Status Indicator */}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 px-3 py-1 rounded-full" 
+                     style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)' }}>
+                  <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: 'var(--vm-emerald)' }} />
+                  <span className="text-sm font-medium" style={{ color: 'var(--vm-emerald)' }}>Online</span>
+                </div>
               </div>
               
-              <motion.h1 
+              {/* Main Title */}
+              <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2, duration: 0.8 }}
-                className="text-5xl lg:text-6xl font-bold tracking-tight leading-tight"
               >
-                <span className="bg-gradient-to-r from-white via-white to-white/60 bg-clip-text text-transparent">
-                  Voice Matrix
-                </span>
-                <br />
-                <span className="bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600 bg-clip-text text-transparent">
-                  Neural Command
-                </span>
-              </motion.h1>
-              
-              <motion.p 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4, duration: 0.8 }}
-                className="text-xl vm-text-muted max-w-2xl leading-relaxed"
-              >
-                Advanced AI orchestration platform with quantum-level voice intelligence, 
-                real-time neural processing, and predictive analytics integration.
-              </motion.p>
+                <h1 className="text-4xl lg:text-5xl font-bold tracking-tight" style={{ color: 'var(--vm-text-primary)' }}>
+                  Voice Matrix Dashboard
+                </h1>
+                <p className="text-lg mt-2" style={{ color: 'var(--vm-text-muted)' }}>
+                  Manage your AI voice agents and monitor performance
+                </p>
+              </motion.div>
             </div>
             
+            {/* Action Buttons */}
             <motion.div 
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.6, duration: 0.6 }}
-              className="flex flex-col sm:flex-row gap-4"
+              transition={{ delay: 0.4, duration: 0.6 }}
+              className="flex flex-col sm:flex-row gap-3"
             >
               <motion.button 
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 rounded-2xl font-semibold text-sm transition-all duration-300 backdrop-blur-sm relative overflow-hidden group"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="px-6 py-3 rounded-xl font-medium text-sm transition-all duration-200 border"
                 style={{ 
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid var(--vm-border-brand)',
-                  color: 'var(--vm-pure)'
+                  backgroundColor: 'transparent',
+                  borderColor: 'rgba(255, 255, 255, 0.2)',
+                  color: 'var(--vm-text-primary)'
                 }}
                 onClick={() => router.push('/dashboard/assistants')}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                <Brain className="mr-3 h-5 w-5 inline" />
-                Neural Fleet Management
+                <Brain className="mr-2 h-4 w-4 inline" />
+                Manage Assistants
               </motion.button>
               
               <motion.button 
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 rounded-2xl font-semibold text-sm relative overflow-hidden group"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="px-6 py-3 rounded-xl font-medium text-sm transition-all duration-200"
                 style={{ 
-                  background: 'var(--vm-gradient-brand)',
-                  color: 'white',
-                  boxShadow: '0 8px 32px rgba(255, 107, 53, 0.3)'
+                  backgroundColor: 'var(--vm-orange)',
+                  color: 'white'
                 }}
                 onClick={() => router.push('/dashboard/assistants/new')}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                <Sparkles className="mr-3 h-5 w-5 inline animate-pulse" />
-                Deploy New AI Agent
+                <Plus className="mr-2 h-4 w-4 inline" />
+                Create Assistant
               </motion.button>
             </motion.div>
           </div>
         </motion.div>
 
-        {/* Quantum Analytics Grid */}
+        {/* Stats Overview */}
         <motion.div 
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8, duration: 0.8 }}
+          transition={{ delay: 0.6, duration: 0.8 }}
           className="grid gap-6 md:grid-cols-2 lg:grid-cols-4"
         >
-          {/* Neural Assistants Card */}
+          {/* AI Assistants */}
           <motion.div 
-            whileHover={{ y: -8, scale: 1.02 }}
-            className="relative p-6 rounded-2xl backdrop-blur-sm border overflow-hidden group cursor-pointer"
+            whileHover={{ y: -4 }}
+            className="p-6 rounded-xl border transition-all duration-200"
             style={{ 
-              background: 'linear-gradient(135deg, rgba(255, 107, 53, 0.05) 0%, rgba(255, 107, 53, 0.02) 100%)',
-              border: '1px solid var(--vm-border-brand)',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+              backgroundColor: 'var(--vm-surface)',
+              borderColor: 'rgba(255, 255, 255, 0.1)'
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-transparent to-violet-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <motion.div 
-                    whileHover={{ rotate: 360, scale: 1.1 }}
-                    transition={{ duration: 0.6 }}
-                    className="h-14 w-14 rounded-2xl flex items-center justify-center relative"
-                    style={{ background: 'var(--vm-gradient-brand)', boxShadow: '0 0 20px rgba(255, 107, 53, 0.4)' }}
-                  >
-                    <Brain className="h-7 w-7 text-white" />
-                    <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-green-400 animate-pulse" />
-                  </motion.div>
-                  <div>
-                    <p className="text-sm font-semibold mb-1" style={{ color: 'var(--vm-gray-300)' }}>
-                      Neural Agents
-                    </p>
-                    <motion.p 
-                      key={stats.totalAssistants}
-                      initial={{ scale: 1.2, color: 'var(--vm-orange-primary)' }}
-                      animate={{ scale: 1, color: 'var(--vm-pure)' }}
-                      className="text-3xl font-bold"
-                    >
-                      {loading ? (
-                        <div className="w-8 h-8 rounded bg-gray-700 animate-pulse" />
-                      ) : (
-                        stats.totalAssistants
-                      )}
-                    </motion.p>
-                  </div>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(255, 107, 53, 0.1)' }}>
+                  <Brain className="h-5 w-5" style={{ color: 'var(--vm-orange)' }} />
                 </div>
-                <motion.div
-                  animate={{ rotate: [0, 10, -10, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  <Cpu className="h-6 w-6" style={{ color: 'var(--vm-success)' }} />
-                </motion.div>
-              </div>
-              
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium" style={{ color: 'var(--vm-gray-400)' }}>
-                    Processing Power
-                  </span>
-                  <span className="text-xs font-bold" style={{ color: 'var(--vm-orange-primary)' }}>
-                    {Math.min(100, (stats.totalAssistants / 10) * 100)}%
-                  </span>
-                </div>
-                <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--vm-surface-elevated)' }}>
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${Math.min(100, (stats.totalAssistants / 10) * 100)}%` }}
-                    transition={{ delay: 1, duration: 1, ease: "easeOut" }}
-                    className="h-2 rounded-full"
-                    style={{ background: 'var(--vm-gradient-brand)' }}
-                  />
+                <div>
+                  <p className="text-sm font-medium" style={{ color: 'var(--vm-text-muted)' }}>AI Assistants</p>
+                  <p className="text-2xl font-bold" style={{ color: 'var(--vm-text-primary)' }}>
+                    {loading ? <div className="w-8 h-6 bg-gray-700 rounded animate-pulse" /> : stats.totalAssistants}
+                  </p>
                 </div>
               </div>
             </div>
-          </motion.div>
-
-          {/* Quantum Communications Card */}
-          <motion.div 
-            whileHover={{ y: -8, scale: 1.02 }}
-            className="relative p-6 rounded-2xl backdrop-blur-sm border overflow-hidden group cursor-pointer"
-            style={{ 
-              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(6, 182, 212, 0.02) 100%)',
-              border: '1px solid rgba(16, 185, 129, 0.2)',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
-            }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <motion.div 
-                    animate={{ scale: [1, 1.1, 1], boxShadow: ['0 0 20px rgba(16, 185, 129, 0.4)', '0 0 30px rgba(16, 185, 129, 0.6)', '0 0 20px rgba(16, 185, 129, 0.4)'] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="h-14 w-14 rounded-2xl flex items-center justify-center relative"
-                    style={{ background: 'linear-gradient(135deg, var(--vm-success), var(--vm-cyan))' }}
-                  >
-                    <Radio className="h-7 w-7 text-white" />
-                    <motion.div 
-                      animate={{ scale: [1, 1.5, 1], opacity: [1, 0, 1] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                      className="absolute inset-0 rounded-2xl border-2 border-white/30"
-                    />
-                  </motion.div>
-                  <div>
-                    <p className="text-sm font-semibold mb-1" style={{ color: 'var(--vm-gray-300)' }}>
-                      Live Channels
-                    </p>
-                    <motion.p 
-                      key={stats.activeCalls}
-                      initial={{ scale: 1.2, color: 'var(--vm-success)' }}
-                      animate={{ scale: 1, color: 'var(--vm-pure)' }}
-                      className="text-3xl font-bold"
-                    >
-                      {loading ? (
-                        <div className="w-8 h-8 rounded bg-gray-700 animate-pulse" />
-                      ) : (
-                        stats.activeCalls
-                      )}
-                    </motion.p>
-                  </div>
-                </div>
-                <div className="flex flex-col items-center gap-1">
-                  <motion.div 
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                    className="h-3 w-3 rounded-full"
-                    style={{ background: 'var(--vm-success)', boxShadow: '0 0 10px var(--vm-success)' }}
-                  />
-                  <span className="text-xs font-bold" style={{ color: 'var(--vm-success)' }}>LIVE</span>
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between text-xs">
-                <span style={{ color: 'var(--vm-gray-400)' }}>Quantum Sync Active</span>
-                <div className="flex items-center gap-2">
-                  <Globe className="h-3 w-3" style={{ color: 'var(--vm-cyan)' }} />
-                  <span style={{ color: 'var(--vm-cyan)' }}>Global Network</span>
-                </div>
-              </div>
+            <div className="text-xs" style={{ color: 'var(--vm-text-muted)' }}>
+              Active neural networks
             </div>
           </motion.div>
 
-          {/* Temporal Analytics Card */}
+          {/* Active Calls */}
           <motion.div 
-            whileHover={{ y: -8, scale: 1.02 }}
-            className="relative p-6 rounded-2xl backdrop-blur-sm border overflow-hidden group cursor-pointer"
+            whileHover={{ y: -4 }}
+            className="p-6 rounded-xl border transition-all duration-200"
             style={{ 
-              background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(255, 107, 53, 0.02) 100%)',
-              border: '1px solid rgba(245, 158, 11, 0.2)',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+              backgroundColor: 'var(--vm-surface)',
+              borderColor: 'rgba(255, 255, 255, 0.1)'
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <motion.div 
-                    animate={{ rotate: [0, 360] }}
-                    transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                    className="h-14 w-14 rounded-2xl flex items-center justify-center relative"
-                    style={{ background: 'linear-gradient(135deg, var(--vm-warning), var(--vm-orange-primary))', boxShadow: '0 0 20px rgba(245, 158, 11, 0.4)' }}
-                  >
-                    <Clock className="h-7 w-7 text-white" />
-                  </motion.div>
-                  <div>
-                    <p className="text-sm font-semibold mb-1" style={{ color: 'var(--vm-gray-300)' }}>
-                      Neural Minutes
-                    </p>
-                    <motion.p 
-                      key={stats.totalMinutes}
-                      initial={{ scale: 1.2, color: 'var(--vm-warning)' }}
-                      animate={{ scale: 1, color: 'var(--vm-pure)' }}
-                      className="text-3xl font-bold"
-                    >
-                      {loading ? (
-                        <div className="w-12 h-8 rounded bg-gray-700 animate-pulse" />
-                      ) : (
-                        stats.totalMinutes.toLocaleString()
-                      )}
-                    </motion.p>
-                  </div>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)' }}>
+                  <Phone className="h-5 w-5" style={{ color: 'var(--vm-emerald)' }} />
                 </div>
-                <motion.div
-                  animate={{ scale: [1, 1.2, 1], rotate: [0, 15, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  <Target className="h-6 w-6" style={{ color: 'var(--vm-warning)' }} />
-                </motion.div>
+                <div>
+                  <p className="text-sm font-medium" style={{ color: 'var(--vm-text-muted)' }}>Active Calls</p>
+                  <p className="text-2xl font-bold" style={{ color: 'var(--vm-text-primary)' }}>
+                    {loading ? <div className="w-8 h-6 bg-gray-700 rounded animate-pulse" /> : stats.activeCalls}
+                  </p>
+                </div>
               </div>
-              
-              <div className="text-xs" style={{ color: 'var(--vm-gray-400)' }}>
-                <span>Temporal Processing • </span>
-                <span style={{ color: 'var(--vm-warning)' }}>Quantum Efficiency: 99.7%</span>
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: 'var(--vm-emerald)' }} />
+                <span className="text-xs font-medium" style={{ color: 'var(--vm-emerald)' }}>Live</span>
               </div>
+            </div>
+            <div className="text-xs" style={{ color: 'var(--vm-text-muted)' }}>
+              Real-time conversations
             </div>
           </motion.div>
 
-          {/* System Integrity Card */}
+          {/* Total Minutes */}
           <motion.div 
-            whileHover={{ y: -8, scale: 1.02 }}
-            className="relative p-6 rounded-2xl backdrop-blur-sm border overflow-hidden group cursor-pointer"
+            whileHover={{ y: -4 }}
+            className="p-6 rounded-xl border transition-all duration-200"
             style={{ 
-              background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(16, 185, 129, 0.02) 100%)',
-              border: '1px solid rgba(139, 92, 246, 0.2)',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+              backgroundColor: 'var(--vm-surface)',
+              borderColor: 'rgba(255, 255, 255, 0.1)'
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-transparent to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <motion.div 
-                    animate={{ 
-                      boxShadow: [
-                        '0 0 20px rgba(139, 92, 246, 0.4)', 
-                        '0 0 30px rgba(16, 185, 129, 0.4)', 
-                        '0 0 20px rgba(139, 92, 246, 0.4)'
-                      ] 
-                    }}
-                    transition={{ duration: 3, repeat: Infinity }}
-                    className="h-14 w-14 rounded-2xl flex items-center justify-center relative"
-                    style={{ background: 'linear-gradient(135deg, var(--vm-violet), var(--vm-success))' }}
-                  >
-                    <Shield className="h-7 w-7 text-white" />
-                    <motion.div 
-                      animate={{ rotate: [0, 360] }}
-                      transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                      className="absolute inset-1 rounded-xl border border-white/20"
-                    />
-                  </motion.div>
-                  <div>
-                    <p className="text-sm font-semibold mb-1" style={{ color: 'var(--vm-gray-300)' }}>
-                      System Health
-                    </p>
-                    <motion.p 
-                      initial={{ scale: 1.2, color: 'var(--vm-success)' }}
-                      animate={{ scale: 1, color: 'var(--vm-pure)' }}
-                      className="text-3xl font-bold"
-                    >
-                      {loading ? (
-                        <div className="w-12 h-8 rounded bg-gray-700 animate-pulse" />
-                      ) : (
-                        '99.9%'
-                      )}
-                    </motion.p>
-                  </div>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(0, 212, 255, 0.1)' }}>
+                  <Clock className="h-5 w-5" style={{ color: 'var(--vm-cyan)' }} />
                 </div>
-                <div className="flex flex-col items-center gap-1">
-                  {[0, 1, 2].map((i) => (
-                    <motion.div
-                      key={i}
-                      animate={{ 
-                        scale: [1, 1.5, 1],
-                        opacity: [1, 0.5, 1]
-                      }}
-                      transition={{ 
-                        duration: 1.5, 
-                        repeat: Infinity,
-                        delay: i * 0.2
-                      }}
-                      className="h-1.5 w-1.5 rounded-full"
-                      style={{ background: 'var(--vm-success)' }}
-                    />
-                  ))}
+                <div>
+                  <p className="text-sm font-medium" style={{ color: 'var(--vm-text-muted)' }}>Total Minutes</p>
+                  <p className="text-2xl font-bold" style={{ color: 'var(--vm-text-primary)' }}>
+                    {loading ? <div className="w-12 h-6 bg-gray-700 rounded animate-pulse" /> : stats.totalMinutes.toLocaleString()}
+                  </p>
                 </div>
               </div>
-              
-              <div className="text-xs" style={{ color: 'var(--vm-gray-400)' }}>
-                <span>Neural Security • </span>
-                <span style={{ color: 'var(--vm-success)' }}>Quantum Encryption Active</span>
+            </div>
+            <div className="text-xs" style={{ color: 'var(--vm-text-muted)' }}>
+              Voice processing time
+            </div>
+          </motion.div>
+
+          {/* System Status */}
+          <motion.div 
+            whileHover={{ y: -4 }}
+            className="p-6 rounded-xl border transition-all duration-200"
+            style={{ 
+              backgroundColor: 'var(--vm-surface)',
+              borderColor: 'rgba(255, 255, 255, 0.1)'
+            }}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(139, 92, 246, 0.1)' }}>
+                  <Activity className="h-5 w-5" style={{ color: 'var(--vm-violet)' }} />
+                </div>
+                <div>
+                  <p className="text-sm font-medium" style={{ color: 'var(--vm-text-muted)' }}>System Health</p>
+                  <p className="text-2xl font-bold" style={{ color: 'var(--vm-text-primary)' }}>
+                    {loading ? <div className="w-12 h-6 bg-gray-700 rounded animate-pulse" /> : '99.9%'}
+                  </p>
+                </div>
               </div>
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--vm-emerald)' }} />
+                <span className="text-xs font-medium" style={{ color: 'var(--vm-emerald)' }}>Optimal</span>
+              </div>
+            </div>
+            <div className="text-xs" style={{ color: 'var(--vm-text-muted)' }}>
+              All systems operational
             </div>
           </motion.div>
         </motion.div>
 
-        {/* Neural Fleet Command Center */}
+        {/* AI Assistants Section */}
         <motion.div 
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.2, duration: 0.8 }}
-          className="space-y-8"
+          transition={{ delay: 0.8, duration: 0.8 }}
+          className="space-y-6"
         >
-          <div className="relative">
-            {/* Section Background Pattern */}
-            <div className="absolute inset-0 opacity-5 rounded-3xl overflow-hidden">
-              <div className="w-full h-full" 
-                   style={{ 
-                     backgroundImage: `radial-gradient(circle at 25% 25%, var(--vm-orange-primary) 0%, transparent 50%), 
-                                      radial-gradient(circle at 75% 75%, var(--vm-violet) 0%, transparent 50%)`,
-                     backgroundSize: '400px 400px'
-                   }} />
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-bold" style={{ color: 'var(--vm-text-primary)' }}>
+                AI Assistants
+              </h2>
+              <p className="text-sm" style={{ color: 'var(--vm-text-muted)' }}>
+                Manage and monitor your voice AI agents
+              </p>
             </div>
-            
-            <div className="relative flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 p-6 rounded-3xl backdrop-blur-sm"
-                 style={{ 
-                   background: 'linear-gradient(135deg, rgba(255, 107, 53, 0.02) 0%, rgba(139, 92, 246, 0.02) 100%)',
-                   border: '1px solid var(--vm-border-subtle)'
-                 }}>
-              <div className="space-y-3">
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 1.4, duration: 0.6 }}
-                  className="flex items-center gap-3"
-                >
-                  <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: 'var(--vm-orange-primary)' }} />
-                  <span className="text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--vm-orange-primary)' }}>
-                    Neural Fleet Management
-                  </span>
-                </motion.div>
-                
-                <motion.h2 
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 1.5, duration: 0.6 }}
-                  className="text-4xl lg:text-5xl font-bold leading-tight"
-                >
-                  <span className="bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
-                    AI Agent
-                  </span>
-                  <br />
-                  <span className="bg-gradient-to-r from-orange-400 to-violet-400 bg-clip-text text-transparent">
-                    Command Fleet
-                  </span>
-                </motion.h2>
-                
-                <motion.p 
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 1.6, duration: 0.6 }}
-                  className="text-lg vm-text-muted max-w-2xl"
-                >
-                  Deploy, monitor, and orchestrate your quantum-enabled AI voice agents with neural precision.
-                </motion.p>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full" 
+                   style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)' }}>
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--vm-emerald)' }} />
+                <span className="text-sm font-medium" style={{ color: 'var(--vm-emerald)' }}>
+                  {stats.totalAssistants} Active
+                </span>
               </div>
-              
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 1.7, duration: 0.6 }}
-                className="flex items-center gap-4"
-              >
-                <div className="flex items-center gap-3 px-4 py-3 rounded-2xl backdrop-blur-sm" 
-                     style={{ 
-                       background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%)',
-                       border: '1px solid rgba(16, 185, 129, 0.2)'
-                     }}>
-                  <motion.div 
-                    animate={{ rotate: [0, 360] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                    className="w-6 h-6 rounded-full flex items-center justify-center"
-                    style={{ background: 'var(--vm-success)', boxShadow: '0 0 10px var(--vm-success)' }}
-                  >
-                    <div className="w-2 h-2 rounded-full bg-white" />
-                  </motion.div>
-                  <span className="text-sm font-bold" style={{ color: 'var(--vm-success)' }}>
-                    QUANTUM MATRIX ONLINE
-                  </span>
-                </div>
-              </motion.div>
             </div>
           </div>
           
           {loading ? (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {[1, 2, 3].map(i => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 * i, duration: 0.6 }}
-                  className="p-6 rounded-2xl backdrop-blur-sm"
-                  style={{ 
-                    background: 'var(--vm-gradient-surface)',
-                    border: '1px solid var(--vm-border-subtle)',
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
-                  }}
-                >
+                <div key={i} className="p-6 rounded-xl border" 
+                     style={{ backgroundColor: 'var(--vm-surface)', borderColor: 'rgba(255, 255, 255, 0.1)' }}>
                   <div className="space-y-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-gray-700 animate-pulse" />
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-gray-700 animate-pulse" />
                       <div className="space-y-2 flex-1">
                         <div className="h-4 bg-gray-700 rounded animate-pulse" />
                         <div className="h-3 bg-gray-800 rounded animate-pulse w-2/3" />
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <div className="h-16 bg-gray-800 rounded animate-pulse" />
-                      <div className="flex gap-2">
-                        <div className="h-6 bg-gray-700 rounded animate-pulse flex-1" />
-                        <div className="h-6 bg-gray-700 rounded animate-pulse flex-1" />
-                      </div>
-                    </div>
+                    <div className="h-12 bg-gray-800 rounded animate-pulse" />
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
           ) : assistants.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 1.8, duration: 0.8 }}
-              className="text-center py-16 px-8 rounded-3xl relative overflow-hidden"
-              style={{ 
-                background: 'linear-gradient(135deg, rgba(255, 107, 53, 0.02) 0%, rgba(139, 92, 246, 0.02) 100%)',
-                border: '1px solid var(--vm-border-subtle)'
-              }}
-            >
-              <div className="absolute inset-0 opacity-10">
-                <svg className="w-full h-full" viewBox="0 0 200 200">
-                  <defs>
-                    <pattern id="empty-grid" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-                      <circle cx="10" cy="10" r="1" fill="var(--vm-orange-primary)" opacity="0.3" />
-                    </pattern>
-                  </defs>
-                  <rect width="100%" height="100%" fill="url(#empty-grid)" />
-                </svg>
-              </div>
-              
-              <div className="relative space-y-6">
-                <motion.div
-                  animate={{ 
-                    scale: [1, 1.1, 1],
-                    rotate: [0, 5, -5, 0]
-                  }}
-                  transition={{ duration: 4, repeat: Infinity }}
-                  className="w-24 h-24 mx-auto rounded-3xl flex items-center justify-center"
-                  style={{ 
-                    background: 'var(--vm-gradient-brand)',
-                    boxShadow: '0 0 40px rgba(255, 107, 53, 0.3)'
-                  }}
-                >
-                  <Brain className="w-12 h-12 text-white" />
-                </motion.div>
+            <div className="text-center py-12 px-6 rounded-xl border"
+                 style={{ backgroundColor: 'var(--vm-surface)', borderColor: 'rgba(255, 255, 255, 0.1)' }}>
+              <div className="space-y-4">
+                <div className="w-16 h-16 mx-auto rounded-xl flex items-center justify-center"
+                     style={{ backgroundColor: 'rgba(255, 107, 53, 0.1)' }}>
+                  <Brain className="w-8 h-8" style={{ color: 'var(--vm-orange)' }} />
+                </div>
                 
-                <div className="space-y-3">
-                  <h3 className="text-2xl font-bold" style={{ color: 'var(--vm-pure)' }}>
-                    Neural Fleet Awaiting Deployment
+                <div className="space-y-2">
+                  <h3 className="text-xl font-semibold" style={{ color: 'var(--vm-text-primary)' }}>
+                    No AI Assistants Yet  
                   </h3>
-                  <p className="text-lg vm-text-muted max-w-md mx-auto">
-                    Initialize your first quantum AI agent to begin neural voice processing operations
+                  <p className="text-sm max-w-md mx-auto" style={{ color: 'var(--vm-text-muted)' }}>
+                    Create your first AI assistant to start processing voice conversations
                   </p>
                 </div>
                 
-                <motion.button
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-8 py-4 rounded-2xl font-bold text-sm relative overflow-hidden group"
-                  style={{ 
-                    background: 'var(--vm-gradient-brand)',
-                    color: 'white',
-                    boxShadow: '0 8px 32px rgba(255, 107, 53, 0.3)'
-                  }}
+                <button
+                  className="px-6 py-3 rounded-xl font-medium text-sm transition-all duration-200"
+                  style={{ backgroundColor: 'var(--vm-orange)', color: 'white' }}
                   onClick={() => router.push('/dashboard/assistants/new')}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                  <Sparkles className="mr-3 h-5 w-5 inline animate-pulse" />
-                  Deploy First Neural Agent
-                </motion.button>
+                  <Plus className="mr-2 h-4 w-4 inline" />
+                  Create Your First Assistant
+                </button>
               </div>
-            </motion.div>
+            </div>
           ) : (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.8, duration: 0.8 }}
-              className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
-            >
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {assistants.map((assistant, index) => (
                 <motion.div
                   key={assistant.id}
-                  initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 * index, duration: 0.6 }}
-                  whileHover={{ y: -8, scale: 1.02 }}
+                  whileHover={{ y: -4 }}
                 >
                   <AssistantCard
                     assistant={assistant}
@@ -708,7 +395,7 @@ export default function DashboardPage() {
                   />
                 </motion.div>
               ))}
-            </motion.div>
+            </div>
           )}
         </motion.div>
       </div>
