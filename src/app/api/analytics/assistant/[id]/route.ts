@@ -21,7 +21,7 @@ export async function GET(
 
     // Verify user owns this assistant
     const { data: assistant, error: assistantError } = await supabase
-      .from('user_assistants')
+      .from('assistants')
       .select('id, user_id')
       .eq('id', assistantId)
       .eq('user_id', user.id)
