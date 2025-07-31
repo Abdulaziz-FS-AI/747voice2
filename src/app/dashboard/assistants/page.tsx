@@ -197,6 +197,10 @@ export default function AssistantsPage() {
     })
   }
 
+  const handleRefresh = () => {
+    fetchAssistants(true)
+  }
+
   const getStatusBadge = (isActive: boolean) => (
     <Badge variant={isActive ? 'default' : 'secondary'}>
       {isActive ? 'Active' : 'Inactive'}

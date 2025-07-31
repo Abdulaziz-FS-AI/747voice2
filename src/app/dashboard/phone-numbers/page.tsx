@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
-import { Plus, Phone, MoreVertical, Edit, Trash2, Users, PhoneCall, Clock, TrendingUp } from 'lucide-react'
+import { Plus, Phone, MoreVertical, Edit, Trash2, Users, PhoneCall, Clock, TrendingUp, RefreshCw, Sync } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -57,6 +57,8 @@ export default function PhoneNumbersPage() {
   const [showAddModal, setShowAddModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [editingNumber, setEditingNumber] = useState<PhoneNumber | null>(null)
+  const [refreshing, setRefreshing] = useState(false)
+  const [syncing, setSyncing] = useState(false)
 
   useEffect(() => {
     if (!user) {
@@ -67,14 +69,30 @@ export default function PhoneNumbersPage() {
     fetchPhoneNumbers()
   }, [user])
 
-  const fetchPhoneNumbers = async () => {
+  const fetchPhoneNumbers = async (showRefreshingState = false) => {
+    if (showRefreshingState) {
+      setRefreshing(true)
+    }
+    
     try {
-      const response = await fetch('/api/phone-numbers')
+      const response = await fetch('/api/phone-numbers', {
+        cache: 'no-store', // Force fresh data
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      })
       const data = await response.json()
       
       if (data.success) {
         setPhoneNumbers(data.data || [])
         calculateStats(data.data || [])
+        
+        if (showRefreshingState) {
+          toast({
+            title: 'Refreshed',
+            description: 'Phone numbers updated successfully'
+          })
+        }
       }
     } catch (error) {
       console.error('Failed to fetch phone numbers:', error)
@@ -85,6 +103,9 @@ export default function PhoneNumbersPage() {
       })
     } finally {
       setLoading(false)
+      if (showRefreshingState) {
+        setRefreshing(false)
+      }
     }
   }
 
@@ -208,6 +229,35 @@ export default function PhoneNumbersPage() {
     setEditingNumber(null)
   }
 
+  const handleSync = async () => {
+    setSyncing(true)
+    try {
+      const response = await fetch('/api/sync', {
+        method: 'POST'
+      })
+      const data = await response.json()
+      
+      if (data.success) {
+        // Refresh data after sync
+        await fetchPhoneNumbers(false)
+        toast({
+          title: 'Sync Complete',
+          description: data.message
+        })
+      } else {
+        throw new Error(data.error?.message || 'Sync failed')
+      }
+    } catch (error) {
+      toast({
+        title: 'Sync Error',
+        description: error instanceof Error ? error.message : 'Failed to sync with VAPI',
+        variant: 'destructive'
+      })
+    } finally {
+      setSyncing(false)
+    }
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-8">
@@ -219,13 +269,33 @@ export default function PhoneNumbersPage() {
               Manage your phone numbers and connect them to assistants
             </p>
           </div>
-          <Button 
-            onClick={() => setShowAddModal(true)}
-            size="lg"
-          >
-            <Plus className="mr-2 h-5 w-5" />
-            Add Number
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline"
+              onClick={() => fetchPhoneNumbers(true)}
+              disabled={refreshing || syncing}
+              size="lg"
+            >
+              <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+              {refreshing ? 'Refreshing...' : 'Refresh'}
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={handleSync}
+              disabled={refreshing || syncing}
+              size="lg"
+            >
+              <Sync className={`mr-2 h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
+              {syncing ? 'Syncing...' : 'Sync VAPI'}
+            </Button>
+            <Button 
+              onClick={() => setShowAddModal(true)}
+              size="lg"
+            >
+              <Plus className="mr-2 h-5 w-5" />
+              Add Number
+            </Button>
+          </div>
         </div>
 
         {/* Stats Grid */}
