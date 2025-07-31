@@ -242,10 +242,10 @@ export class VAPIService {
     })
 
     try {
-      // Use client-selected message types, fallback to transcript-only if none selected
+      // Use client-selected message types, fallback to system default if none selected
       const clientMessageTypes = payload.clientMessages && payload.clientMessages.length > 0 
         ? payload.clientMessages 
-        : ['transcript'] // Default to transcript-only (post-call message)
+        : ['end-of-call-report'] // Default system message (includes transcript)
 
       // Server messages are always end-of-call-report for webhook
       const serverMessageTypes = ['end-of-call-report']

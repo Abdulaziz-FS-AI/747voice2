@@ -18,7 +18,7 @@ import { VoiceSelector } from '@/components/assistants/voice-selector'
 import { PersonalitySelector } from '@/components/assistants/personality-selector'
 import { StructuredQuestions } from '@/components/assistants/structured-questions'
 import { EvaluationSelector } from '@/components/assistants/evaluation-selector'
-import { ClientMessagesSelector, MessageType } from '@/components/assistants/client-messages-selector'
+import { MessageType } from '@/components/assistants/client-messages-selector'
 import { StructuredQuestion, EvaluationRubric } from '@/lib/structured-data'
 
 // Form data interface
@@ -72,7 +72,7 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
       background_sound: templateData?.config?.background_sound || 'office',
       structured_questions: templateData?.config?.structured_questions || [],
       evaluation_rubric: templateData?.config?.evaluation_rubric || null,
-      client_messages: templateData?.config?.client_messages || [] // Default to empty array (nothing selected)
+      client_messages: templateData?.config?.client_messages || ['end-of-call-report'] // Default system messages
     }
   })
 
@@ -392,30 +392,6 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
             </div>
           </div>
 
-          {/* Client Messages Section */}
-          <div className="rounded-xl p-6" style={{ background: 'var(--vm-surface)', border: '1px solid var(--vm-border-subtle)' }}>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center" 
-                   style={{ background: 'linear-gradient(135deg, var(--vm-accent-blue), var(--vm-accent-teal))' }}>
-                <span className="text-white text-sm font-semibold">4</span>
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold" style={{ color: 'var(--vm-pure)' }}>
-                  Webhook Configuration
-                </h2>
-                <p className="text-sm" style={{ color: 'var(--vm-gray-400)' }}>
-                  Configure which message types to receive from your assistant
-                </p>
-              </div>
-            </div>
-
-            <div className="p-4 rounded-lg" style={{ background: 'var(--vm-void)', border: '1px solid var(--vm-border-subtle)' }}>
-              <ClientMessagesSelector
-                selectedMessages={formValues.client_messages || []}
-                onMessagesChange={(messages) => setValue('client_messages', messages)}
-              />
-            </div>
-          </div>
 
           {/* Action Buttons */}
           <div className="flex justify-between items-center pt-6" style={{ borderTop: '1px solid var(--vm-border-subtle)' }}>
