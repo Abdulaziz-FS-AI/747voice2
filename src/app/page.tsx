@@ -446,11 +446,10 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: index * 0.1 }}
                 whileHover={{ y: -10, scale: 1.02 }}
-                className={`p-8 rounded-2xl relative ${plan.popular ? 'ring-2' : ''}`}
+                className={`p-8 rounded-2xl relative ${plan.popular ? 'ring-2 ring-orange-500' : ''}`}
                 style={{ 
                   background: 'var(--vm-surface)', 
-                  border: '1px solid var(--vm-border-subtle)',
-                  ringColor: plan.popular ? 'var(--vm-orange-primary)' : 'transparent'
+                  border: '1px solid var(--vm-border-subtle)'
                 }}
               >
                 {plan.popular && (

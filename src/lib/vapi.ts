@@ -125,6 +125,7 @@ class VapiClient {
       headers?: Record<string, string>;
     };
     serverMessages?: string[];
+    clientMessages?: string[];
     endCallMessage?: string;
     recordingEnabled?: boolean;
     fillersEnabled?: boolean;
@@ -148,7 +149,8 @@ class VapiClient {
         voiceId: 'Elliot',
       },
       transcriber: assistantData.transcriber || {
-        provider: 'assembly-ai',
+        provider: 'deepgram',
+        model: 'nova-3-general',
         language: 'en',
       },
       ...(assistantData.firstMessage && {
@@ -177,6 +179,9 @@ class VapiClient {
       }),
       ...(assistantData.serverMessages && {
         serverMessages: assistantData.serverMessages,
+      }),
+      ...(assistantData.clientMessages !== undefined && {
+        clientMessages: assistantData.clientMessages,
       }),
       ...(assistantData.endCallMessage && {
         endCallMessage: assistantData.endCallMessage,
@@ -380,9 +385,10 @@ export async function createVapiAssistant(assistantData: {
       voiceId: assistantData.voiceId || 'Elliot',
     };
 
-    // Transcriber configuration
+    // Transcriber configuration - Fixed to Deepgram Nova 3 General
     const transcriberConfig: VapiTranscriber = {
-      provider: 'assembly-ai',
+      provider: 'deepgram',
+      model: 'nova-3-general',
       language: 'en',
     };
 
@@ -432,27 +438,19 @@ export async function createVapiAssistant(assistantData: {
       };
     }
 
-    // Create server configuration with minimal headers as requested
+    // Create server configuration with updated header format
     const serverConfig = {
       url: process.env.MAKE_WEBHOOK_URL || 'https://hook.eu2.make.com/m3olq7ealo40xevpjdar7573j2cst9uk',
-      secret: process.env.MAKE_WEBHOOK_SECRET || 'k8sP2hGfD8jL5vZbN4pRqWcVfHjG5dEmP7sTzXyA1bC3eF6gHjKl',
+      secret: process.env.MAKE_WEBHOOK_SECRET,
       headers: {
-        'X-API-Key': process.env.MAKE_WEBHOOK_SECRET || 'k8sP2hGfD8jL5vZbN4pRqWcVfHjG5dEmP7sTzXyA1bC3eF6gHjKl',
+        'x-make-apikey': process.env.MAKE_WEBHOOK_SECRET,
         'Content-Type': 'application/json'
       }
     };
 
-    // Enhanced server messages for comprehensive webhook coverage
+    // Minimal server messages - only end-of-call report
     const serverMessages = [
-      'conversation-update',      // Real-time conversation updates
-      'function-call',           // Function calls (requires response)
-      'end-of-call-report',      // Call analytics and summary  
-      'tool-calls',              // Tool invocations (requires response)
-      'transfer-destination-request', // Call transfers (requires response)
-      'status-update',           // Call status changes
-      'user-interrupted',        // When user interrupts assistant
-      'speech-update',           // Speech recognition updates
-      'hang'                     // When call is hung up
+      'end-of-call-report'      // Call analytics and summary only
     ];
 
     const result = await vapiClient.createAssistant({
@@ -468,6 +466,7 @@ export async function createVapiAssistant(assistantData: {
       // Use new VAPI server format with headers
       server: serverConfig,
       serverMessages: serverMessages,
+      clientMessages: [], // No client messages
       endCallMessage: "Thank you for calling! Have a great day!",
       recordingEnabled: true,
       fillersEnabled: true,
