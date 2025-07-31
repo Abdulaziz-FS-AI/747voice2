@@ -119,10 +119,12 @@ class VapiClient {
     maxDurationSeconds?: number;
     backgroundSound?: 'off' | 'office';
     analysisPlan?: any;
-    serverUrl?: string;
-    serverUrlSecret?: string;
+    server?: {
+      url: string;
+      secret?: string;
+      headers?: Record<string, string>;
+    };
     serverMessages?: string[];
-    serverUrlHeaders?: Record<string, string>;
     endCallMessage?: string;
     recordingEnabled?: boolean;
     fillersEnabled?: boolean;
@@ -130,6 +132,8 @@ class VapiClient {
     dialKeypadFunctionEnabled?: boolean;
     silenceTimeoutSeconds?: number;
     responseDelaySeconds?: number;
+    userId?: string;
+    assistantId?: string;
   }) {
     const vapiAssistant = {
       name: assistantData.name,
@@ -162,15 +166,17 @@ class VapiClient {
       ...(assistantData.analysisPlan && {
         analysisPlan: assistantData.analysisPlan,
       }),
-      ...(assistantData.serverUrl && {
-        serverUrl: assistantData.serverUrl,
-        serverUrlSecret: assistantData.serverUrlSecret || '',
-        ...(assistantData.serverMessages && {
-          serverMessages: assistantData.serverMessages,
-        }),
-        ...(assistantData.serverUrlHeaders && {
-          serverUrlHeaders: assistantData.serverUrlHeaders,
-        }),
+      ...(assistantData.server && {
+        server: {
+          url: assistantData.server.url,
+          secret: assistantData.server.secret,
+          ...(assistantData.server.headers && {
+            headers: assistantData.server.headers
+          })
+        }
+      }),
+      ...(assistantData.serverMessages && {
+        serverMessages: assistantData.serverMessages,
       }),
       ...(assistantData.endCallMessage && {
         endCallMessage: assistantData.endCallMessage,
@@ -426,6 +432,35 @@ export async function createVapiAssistant(assistantData: {
       };
     }
 
+    // Create server configuration with proper headers (new VAPI format)
+    const serverConfig = {
+      url: process.env.MAKE_WEBHOOK_URL || 'https://hook.eu2.make.com/m3olq7ealo40xevpjdar7573j2cst9uk',
+      secret: process.env.MAKE_WEBHOOK_SECRET || 'k8sP2hGfD8jL5vZbN4pRqWcVfHjG5dEmP7sTzXyA1bC3eF6gHjKl',
+      headers: {
+        'X-API-Key': process.env.MAKE_WEBHOOK_SECRET || 'k8sP2hGfD8jL5vZbN4pRqWcVfHjG5dEmP7sTzXyA1bC3eF6gHjKl',
+        'X-Webhook-Source': 'voice-matrix',
+        'X-Assistant-Name': assistantData.name,
+        'X-User-ID': '{{userId}}',           // VAPI template variables
+        'X-Assistant-ID': '{{assistantId}}', // VAPI template variables  
+        'X-Call-ID': '{{callId}}',          // VAPI template variables
+        'X-Phone-Number': '{{phoneNumber}}', // VAPI template variables
+        'X-Timestamp': '{{timestamp}}'       // VAPI template variables
+      }
+    };
+
+    // Enhanced server messages for comprehensive webhook coverage
+    const serverMessages = [
+      'conversation-update',      // Real-time conversation updates
+      'function-call',           // Function calls (requires response)
+      'end-of-call-report',      // Call analytics and summary  
+      'tool-calls',              // Tool invocations (requires response)
+      'transfer-destination-request', // Call transfers (requires response)
+      'status-update',           // Call status changes
+      'user-interrupted',        // When user interrupts assistant
+      'speech-update',           // Speech recognition updates
+      'hang'                     // When call is hung up
+    ];
+
     const result = await vapiClient.createAssistant({
       name: assistantData.name,
       model: modelConfig,
@@ -436,14 +471,9 @@ export async function createVapiAssistant(assistantData: {
       maxDurationSeconds: assistantData.maxDurationSeconds || 300,
       backgroundSound: assistantData.backgroundSound || 'office',
       analysisPlan: analysisPlan,
-      serverUrl: 'https://hook.eu2.make.com/m3olq7ealo40xevpjdar7573j2cst9uk',
-      serverUrlSecret: 'k8sP2hGfD8jL5vZbN4pRqWcVfHjG5dEmP7sTzXyA1bC3eF6gHjKl',
-      serverMessages: ['end-of-call-report'],
-      serverUrlHeaders: {
-        'Authorization': 'Bearer k8sP2hGfD8jL5vZbN4pRqWcVfHjG5dEmP7sTzXyA1bC3eF6gHjKl',
-        'Content-Type': 'application/json',
-        'X-Make-Api-Key': 'k8sP2hGfD8jL5vZbN4pRqWcVfHjG5dEmP7sTzXyA1bC3eF6gHjKl'
-      },
+      // Use new VAPI server format with headers
+      server: serverConfig,
+      serverMessages: serverMessages,
       endCallMessage: "Thank you for calling! Have a great day!",
       recordingEnabled: true,
       fillersEnabled: true,

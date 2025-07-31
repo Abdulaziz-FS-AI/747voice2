@@ -93,6 +93,18 @@ export async function POST(request: NextRequest) {
   try {
     console.log('[Assistant API] Starting POST request');
     
+    // Check for required environment variables
+    if (!process.env.VAPI_API_KEY) {
+      console.error('[Assistant API] Missing VAPI_API_KEY environment variable');
+      return NextResponse.json({
+        success: false,
+        error: { 
+          code: 'CONFIGURATION_ERROR', 
+          message: 'VAPI API key is not configured' 
+        }
+      }, { status: 500 });
+    }
+    
     const { user } = await requirePermission('basic');
     console.log('[Assistant API] User authenticated:', user.id);
     
@@ -196,6 +208,17 @@ export async function POST(request: NextRequest) {
     console.log('[Assistant API] Creating assistant in VAPI...');
     let vapiAssistantId: string;
     try {
+      // Log the data being sent to VAPI (without sensitive info)
+      console.log('[Assistant API] VAPI creation data:', {
+        name: validatedData.name,
+        modelId: validatedData.model_id,
+        voiceId: validatedData.voice_id,
+        maxDurationSeconds: validatedData.max_call_duration,
+        backgroundSound: validatedData.background_sound,
+        hasStructuredQuestions: validatedData.structured_questions?.length > 0,
+        evaluationRubric: validatedData.evaluation_rubric
+      });
+
       vapiAssistantId = await createVapiAssistant({
         name: validatedData.name,
         modelId: validatedData.model_id,
@@ -208,9 +231,22 @@ export async function POST(request: NextRequest) {
         structuredQuestions: validatedData.structured_questions,
         evaluationRubric: validatedData.evaluation_rubric,
       });
-      console.log('[Assistant API] VAPI assistant created:', vapiAssistantId);
+      console.log('[Assistant API] VAPI assistant created successfully:', vapiAssistantId);
     } catch (vapiError) {
       console.error('[Assistant API] VAPI creation failed:', vapiError);
+      
+      // Log more detailed error information
+      if (vapiError instanceof Error) {
+        console.error('[Assistant API] VAPI error name:', vapiError.name);
+        console.error('[Assistant API] VAPI error message:', vapiError.message);
+        console.error('[Assistant API] VAPI error stack:', vapiError.stack);
+      }
+      
+      // Check if it's a specific VAPI error with details
+      if (vapiError && typeof vapiError === 'object' && 'details' in vapiError) {
+        console.error('[Assistant API] VAPI error details:', vapiError.details);
+      }
+      
       throw new Error('Failed to create assistant in VAPI: ' + (vapiError instanceof Error ? vapiError.message : 'Unknown error'));
     }
 
