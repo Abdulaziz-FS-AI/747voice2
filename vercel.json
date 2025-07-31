@@ -1,0 +1,19 @@
+{
+  "functions": {
+    "src/app/api/webhooks/vapi/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/webhooks/make/call-reports/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/sync/route.ts": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "framework": "nextjs"
+}
