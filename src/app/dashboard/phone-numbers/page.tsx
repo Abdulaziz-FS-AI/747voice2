@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
-import { Plus, Phone, MoreVertical, Trash2, Users, PhoneCall, Clock, TrendingUp, RefreshCw, RotateCcw, Trash } from 'lucide-react'
+import { Plus, Phone, MoreVertical, Trash2, Users, Clock, TrendingUp, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -37,7 +37,6 @@ type PhoneNumber = Database['public']['Tables']['user_phone_numbers']['Row'] & {
 
 interface PhoneNumberStats {
   totalNumbers: number
-  activeNumbers: number
   totalCalls: number
   totalMinutes: number
 }
@@ -48,16 +47,12 @@ export default function PhoneNumbersPage() {
   const [phoneNumbers, setPhoneNumbers] = useState<PhoneNumber[]>([])
   const [stats, setStats] = useState<PhoneNumberStats>({
     totalNumbers: 0,
-    activeNumbers: 0,
     totalCalls: 0,
     totalMinutes: 0
   })
   const [loading, setLoading] = useState(true)
   const [showAddModal, setShowAddModal] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
-  const [syncing, setSyncing] = useState(false)
-  const [cleaning, setCleaning] = useState(false)
-  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null)
 
   useEffect(() => {
     if (!user) {
@@ -66,7 +61,6 @@ export default function PhoneNumbersPage() {
     }
 
     fetchPhoneNumbers()
-    fetchSyncStatus()
   }, [user])
 
   const fetchPhoneNumbers = async (showRefreshingState = false) => {
@@ -110,20 +104,13 @@ export default function PhoneNumbersPage() {
   }
 
   const calculateStats = (numbers: PhoneNumber[]) => {
-    const stats = numbers.reduce((acc, number) => {
-      acc.totalNumbers += 1
-      if (number.is_active) acc.activeNumbers += 1
+    const stats = {
+      totalNumbers: numbers.length,
       // Note: total_calls and total_minutes would need to be fetched from calls table
       // For now, setting to 0 until we implement call aggregation
-      acc.totalCalls += 0
-      acc.totalMinutes += 0
-      return acc
-    }, {
-      totalNumbers: 0,
-      activeNumbers: 0,
       totalCalls: 0,
       totalMinutes: 0
-    })
+    }
     
     setStats(stats)
   }
@@ -159,31 +146,6 @@ export default function PhoneNumbersPage() {
     }
   }
 
-  const handleToggleActive = async (numberId: string, isActive: boolean) => {
-    try {
-      const response = await fetch(`/api/phone-numbers/${numberId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_active: !isActive })
-      })
-
-      if (response.ok) {
-        setPhoneNumbers(prev => 
-          prev.map(n => n.id === numberId ? { ...n, is_active: !isActive } : n)
-        )
-        toast({
-          title: 'Success',
-          description: `Phone number ${!isActive ? 'activated' : 'deactivated'}`
-        })
-      }
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to update phone number',
-        variant: 'destructive'
-      })
-    }
-  }
 
   const formatPhoneNumber = (phoneNumber: string | null | undefined) => {
     if (!phoneNumber) return 'N/A'
@@ -221,21 +183,8 @@ export default function PhoneNumbersPage() {
     })
   }
 
-
-  const fetchSyncStatus = async () => {
-    try {
-      const response = await fetch('/api/sync/status')
-      const data = await response.json()
-      if (data.success && data.data.lastSync) {
-        setLastSyncTime(data.data.lastSync)
-      }
-    } catch (error) {
-      console.error('Failed to fetch sync status:', error)
-    }
-  }
-
-  const handleSync = async () => {
-    setSyncing(true)
+  const handleRefresh = async () => {
+    setRefreshing(true)
     try {
       const response = await fetch('/api/sync', {
         method: 'POST'
@@ -243,78 +192,35 @@ export default function PhoneNumbersPage() {
       const data = await response.json()
       
       if (data.success) {
-        // Refresh data after sync
+        // Refresh phone numbers list
         await fetchPhoneNumbers(false)
-        await fetchSyncStatus()
         
-        // Show detailed sync results
+        // Show sync results
         const details = data.data
         let description = data.message
         
         if (details.phoneNumbers.details.length > 0) {
-          description += '\n\nRemoved phone numbers:'
+          description += '\n\nUpdated:'
           details.phoneNumbers.details.forEach((item: any) => {
             description += `\n• ${item.number} - ${item.action}`
           })
         }
         
         toast({
-          title: 'Sync Complete',
+          title: 'Refreshed',
           description: description
         })
       } else {
-        throw new Error(data.error?.message || 'Sync failed')
+        throw new Error(data.error?.message || 'Refresh failed')
       }
     } catch (error) {
       toast({
-        title: 'Sync Error',
-        description: error instanceof Error ? error.message : 'Failed to sync with VAPI',
+        title: 'Refresh Error',
+        description: error instanceof Error ? error.message : 'Failed to refresh phone numbers',
         variant: 'destructive'
       })
     } finally {
-      setSyncing(false)
-    }
-  }
-
-  const handleCleanup = async () => {
-    if (!confirm('This will remove phone numbers that no longer exist in VAPI. Continue?')) {
-      return
-    }
-
-    setCleaning(true)
-    try {
-      const response = await fetch('/api/phone-numbers/cleanup', {
-        method: 'POST'
-      })
-      const data = await response.json()
-      
-      if (data.success) {
-        // Refresh data after cleanup
-        await fetchPhoneNumbers(false)
-        
-        let description = data.message
-        if (data.details && data.details.length > 0) {
-          description += '\n\nCleaned up:'
-          data.details.forEach((item: any) => {
-            description += `\n• ${item.number} (${item.name})`
-          })
-        }
-        
-        toast({
-          title: 'Cleanup Complete',
-          description: description
-        })
-      } else {
-        throw new Error(data.error?.message || 'Cleanup failed')
-      }
-    } catch (error) {
-      toast({
-        title: 'Cleanup Error',
-        description: error instanceof Error ? error.message : 'Failed to clean up phone numbers',
-        variant: 'destructive'
-      })
-    } finally {
-      setCleaning(false)
+      setRefreshing(false)
     }
   }
 
@@ -332,32 +238,12 @@ export default function PhoneNumbersPage() {
           <div className="flex gap-2">
             <Button 
               variant="outline"
-              onClick={() => fetchPhoneNumbers(true)}
-              disabled={refreshing || syncing}
+              onClick={handleRefresh}
+              disabled={refreshing}
               size="lg"
             >
               <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
               {refreshing ? 'Refreshing...' : 'Refresh'}
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={handleSync}
-              disabled={refreshing || syncing || cleaning}
-              size="lg"
-              title={lastSyncTime ? `Last sync: ${new Date(lastSyncTime).toLocaleString()}` : 'Never synced'}
-            >
-              <RotateCcw className={`mr-2 h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
-              {syncing ? 'Syncing...' : 'Sync VAPI'}
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={handleCleanup}
-              disabled={refreshing || syncing || cleaning}
-              size="lg"
-              title="Remove phone numbers that don't exist in VAPI"
-            >
-              <Trash className={`mr-2 h-4 w-4 ${cleaning ? 'animate-pulse' : ''}`} />
-              {cleaning ? 'Cleaning...' : 'Cleanup'}
             </Button>
             <Button 
               onClick={() => setShowAddModal(true)}
@@ -370,17 +256,11 @@ export default function PhoneNumbersPage() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-3">
           <StatsCard
             title="Total Numbers"
             value={stats.totalNumbers}
             icon={Phone}
-            loading={loading}
-          />
-          <StatsCard
-            title="Active Numbers"
-            value={stats.activeNumbers}
-            icon={PhoneCall}
             loading={loading}
           />
           <StatsCard
@@ -445,7 +325,6 @@ export default function PhoneNumbersPage() {
                     <TableHead>Label</TableHead>
                     <TableHead>Phone Number</TableHead>
                     <TableHead>Provider</TableHead>
-                    <TableHead>Status</TableHead>
                     <TableHead>Assistant</TableHead>
                     <TableHead>Calls</TableHead>
                     <TableHead>Last Activity</TableHead>
@@ -463,16 +342,6 @@ export default function PhoneNumbersPage() {
                       </TableCell>
                       <TableCell>
                         {getProviderBadge(number.provider)}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Badge 
-                            variant={number.is_active ? "default" : "secondary"}
-                            className={number.is_active ? "bg-green-500" : ""}
-                          >
-                            {number.is_active ? "Active" : "Inactive"}
-                          </Badge>
-                        </div>
                       </TableCell>
                       <TableCell>
                         {number.user_assistants ? (
@@ -503,11 +372,6 @@ export default function PhoneNumbersPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem 
-                              onClick={() => handleToggleActive(number.id, number.is_active)}
-                            >
-                              {number.is_active ? 'Deactivate' : 'Activate'}
-                            </DropdownMenuItem>
                             <DropdownMenuItem 
                               onClick={() => handleDeleteNumber(number.id)}
                               className="text-destructive focus:text-destructive"

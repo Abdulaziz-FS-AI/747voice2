@@ -17,7 +17,6 @@ const createPhoneNumberSchema = z.object({
 
 const updatePhoneNumberSchema = z.object({
   friendly_name: z.string().min(1).max(255).optional(),
-  is_active: z.boolean().optional(),
   assigned_assistant_id: z.string().uuid().optional().nullable(),
   notes: z.string().optional().nullable(),
 })

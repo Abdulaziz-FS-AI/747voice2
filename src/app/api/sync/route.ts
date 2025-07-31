@@ -35,7 +35,6 @@ export async function POST(request: NextRequest) {
       .from('user_assistants')
       .select('id, vapi_assistant_id, name')
       .eq('user_id', user.id)
-      .eq('is_active', true)
 
     if (localAssistants && localAssistants.length > 0) {
       results.assistants.checked = localAssistants.length
@@ -50,16 +49,23 @@ export async function POST(request: NextRequest) {
         // Process each local assistant
         for (const assistant of localAssistants) {
           if (!vapiIds.has(assistant.vapi_assistant_id)) {
-            // Assistant doesn't exist in VAPI anymore
-            console.log(`Assistant ${assistant.name} (${assistant.vapi_assistant_id}) not found in VAPI`)
+            // Assistant doesn't exist in VAPI anymore - delete completely
+            console.log(`Assistant ${assistant.name} (${assistant.vapi_assistant_id}) not found in VAPI - removing from database`)
             
-            // Soft delete the assistant
-            const { error } = await supabase
-              .from('user_assistants')
+            // Remove phone number assignments first
+            await supabase
+              .from('user_phone_numbers')
               .update({ 
-                is_active: false,
+                assigned_assistant_id: null,
+                assigned_at: null,
                 updated_at: new Date().toISOString()
               })
+              .eq('assigned_assistant_id', assistant.id)
+            
+            // Delete the assistant completely
+            const { error } = await supabase
+              .from('user_assistants')
+              .delete()
               .eq('id', assistant.id)
             
             if (!error) {
@@ -67,21 +73,11 @@ export async function POST(request: NextRequest) {
               results.assistants.details.push({
                 id: assistant.id,
                 name: assistant.name,
-                action: 'removed - not found in VAPI'
+                action: 'deleted - not found in VAPI'
               })
-              
-              // Also remove any phone number assignments
-              await supabase
-                .from('user_phone_numbers')
-                .update({ 
-                  assigned_assistant_id: null,
-                  assigned_at: null,
-                  updated_at: new Date().toISOString()
-                })
-                .eq('assigned_assistant_id', assistant.id)
             } else {
               results.assistants.errors++
-              console.error('Error soft deleting assistant:', error)
+              console.error('Error deleting assistant:', error)
             }
           }
         }
@@ -98,7 +94,6 @@ export async function POST(request: NextRequest) {
       .from('user_phone_numbers')  
       .select('id, vapi_phone_id, phone_number, friendly_name')
       .eq('user_id', user.id)
-      .eq('is_active', true)
 
     if (localPhones && localPhones.length > 0) {
       results.phoneNumbers.checked = localPhones.length
@@ -113,15 +108,12 @@ export async function POST(request: NextRequest) {
           })
 
           if (response.status === 404) {
-            // Phone number doesn't exist in VAPI
-            console.log(`Phone ${phone.phone_number} (${phone.vapi_phone_id}) not found in VAPI`)
+            // Phone number doesn't exist in VAPI - delete completely
+            console.log(`Phone ${phone.phone_number} (${phone.vapi_phone_id}) not found in VAPI - removing from database`)
             
             const { error } = await supabase
               .from('user_phone_numbers')
-              .update({ 
-                is_active: false,
-                updated_at: new Date().toISOString()
-              })
+              .delete()
               .eq('id', phone.id)
             
             if (!error) {
@@ -129,11 +121,11 @@ export async function POST(request: NextRequest) {
               results.phoneNumbers.details.push({
                 id: phone.id,
                 number: phone.phone_number,
-                action: 'removed - not found in VAPI'
+                action: 'deleted - not found in VAPI'
               })
             } else {
               results.phoneNumbers.errors++
-              console.error('Error soft deleting phone number:', error)
+              console.error('Error deleting phone number:', error)
             }
           } else if (!response.ok && response.status !== 404) {
             // Other error - log but don't delete

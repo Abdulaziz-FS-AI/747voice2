@@ -6,7 +6,6 @@ import { createServiceRoleClient } from '@/lib/supabase'
 
 const updatePhoneNumberSchema = z.object({
   friendly_name: z.string().min(1).max(255).optional(),
-  is_active: z.boolean().optional(),
   assigned_assistant_id: z.string().uuid().optional().nullable(),
   notes: z.string().optional().nullable(),
 })
@@ -184,7 +183,7 @@ export async function DELETE(
     // Get phone number details before deletion
     const { data: phoneNumber, error: fetchError } = await supabase
       .from('user_phone_numbers')
-      .select('id, user_id, phone_number, friendly_name, vapi_phone_id, is_active')
+      .select('id, user_id, phone_number, friendly_name, vapi_phone_id')
       .eq('id', params.id)
       .eq('user_id', user.id)
       .single()
@@ -205,7 +204,7 @@ export async function DELETE(
       }, { status: 404 })
     }
 
-    console.log(`Found phone number: ${phoneNumber.phone_number} (${phoneNumber.friendly_name}), active: ${phoneNumber.is_active}`)
+    console.log(`Found phone number: ${phoneNumber.phone_number} (${phoneNumber.friendly_name})`)
 
     // Delete from VAPI first if it has a vapi_phone_id
     const vapiDeletionStatus = { success: false, error: null as any }
@@ -239,25 +238,17 @@ export async function DELETE(
       vapiDeletionStatus.success = true // Consider it successful if no VAPI ID
     }
 
-    // Soft delete in database (preserves call history and analytics)
-    const { error: updateError } = await supabase
+    // Delete from database completely
+    const { error: deleteError } = await supabase
       .from('user_phone_numbers')
-      .update({
-        is_active: false,
-        assigned_assistant_id: null,
-        assigned_at: null,
-        sync_status: 'deleted',
-        sync_error: vapiDeletionStatus.success ? null : `VAPI deletion failed: ${vapiDeletionStatus.error}`,
-        last_synced_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      })
+      .delete()
       .eq('id', params.id)
 
-    if (updateError) {
-      console.error('Error updating phone number:', updateError)
+    if (deleteError) {
+      console.error('Error deleting phone number from database:', deleteError)
       return NextResponse.json({
         success: false,
-        error: { code: 'UPDATE_ERROR', message: `Failed to delete: ${updateError.message}` }
+        error: { code: 'DELETE_ERROR', message: `Failed to delete: ${deleteError.message}` }
       }, { status: 500 })
     }
 

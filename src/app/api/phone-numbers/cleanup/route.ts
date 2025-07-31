@@ -13,12 +13,11 @@ export async function POST(request: NextRequest) {
 
     console.log(`Cleanup request for user: ${user.id}`)
 
-    // Get all active phone numbers for this user
+    // Get all phone numbers for this user
     const { data: phoneNumbers } = await supabase
       .from('user_phone_numbers')
       .select('id, vapi_phone_id, phone_number, friendly_name')
       .eq('user_id', user.id)
-      .eq('is_active', true)
 
     if (!phoneNumbers || phoneNumbers.length === 0) {
       return NextResponse.json({
@@ -43,18 +42,12 @@ export async function POST(request: NextRequest) {
         })
 
         if (response.status === 404) {
-          // Phone number doesn't exist in VAPI - soft delete it
-          console.log(`Phone ${phone.phone_number} not found in VAPI, marking as inactive`)
+          // Phone number doesn't exist in VAPI - delete it completely
+          console.log(`Phone ${phone.phone_number} not found in VAPI, deleting from database`)
           
           const { error } = await supabase
             .from('user_phone_numbers')
-            .update({
-              is_active: false,
-              sync_status: 'deleted',
-              sync_error: 'Not found in VAPI during cleanup',
-              last_synced_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            })
+            .delete()
             .eq('id', phone.id)
 
           if (!error) {
@@ -66,16 +59,8 @@ export async function POST(request: NextRequest) {
             })
           }
         } else if (response.ok) {
-          // Phone exists - update sync status
-          await supabase
-            .from('user_phone_numbers')
-            .update({
-              sync_status: 'active',
-              sync_error: null,
-              last_synced_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', phone.id)
+          // Phone exists - no action needed
+          console.log(`Phone ${phone.phone_number} exists in VAPI`)
         }
       } catch (error) {
         console.error(`Error checking phone ${phone.id}:`, error)
