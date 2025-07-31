@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
     };
     
     const missingEnvVars = Object.entries(requiredEnvVars)
-      .filter(([_, value]) => !value)
+      .filter(([, value]) => !value)
       .map(([key]) => key);
     
     if (missingEnvVars.length > 0) {
@@ -212,8 +212,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 7: Build system prompt
-    let systemPrompt: string;
     const firstMessage: string = validatedData.first_message;
+    let systemPrompt: string;
 
     // For now, use a simple default prompt without template dependency
     const personalityDescription = validatedData.personality_traits?.length > 0 
