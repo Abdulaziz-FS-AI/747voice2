@@ -207,14 +207,48 @@ export async function DELETE(
 
     console.log(`Found phone number: ${phoneNumber.phone_number} (${phoneNumber.friendly_name}), active: ${phoneNumber.is_active}`)
 
-    // Soft delete (set is_active to false) rather than hard delete
-    // This preserves call history and analytics
+    // Delete from VAPI first if it has a vapi_phone_id
+    const vapiDeletionStatus = { success: false, error: null as any }
+    
+    if (phoneNumber.vapi_phone_id) {
+      try {
+        console.log(`Deleting phone number ${phoneNumber.vapi_phone_id} from VAPI`)
+        
+        const response = await fetch(`https://api.vapi.ai/phone-number/${phoneNumber.vapi_phone_id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${process.env.VAPI_API_KEY}`
+          }
+        })
+
+        if (response.ok || response.status === 404) {
+          // 404 means already deleted, which is fine
+          vapiDeletionStatus.success = true
+          console.log(`Successfully deleted phone number from VAPI`)
+        } else {
+          const errorData = await response.text()
+          console.error(`VAPI deletion failed: ${response.status} - ${errorData}`)
+          vapiDeletionStatus.error = `VAPI API error: ${response.status} - ${errorData}`
+        }
+      } catch (vapiError) {
+        console.error('Error deleting from VAPI:', vapiError)
+        vapiDeletionStatus.error = vapiError
+      }
+    } else {
+      console.log('No VAPI phone ID, skipping VAPI deletion')
+      vapiDeletionStatus.success = true // Consider it successful if no VAPI ID
+    }
+
+    // Soft delete in database (preserves call history and analytics)
     const { error: updateError } = await supabase
       .from('user_phone_numbers')
       .update({
         is_active: false,
         assigned_assistant_id: null,
         assigned_at: null,
+        sync_status: 'deleted',
+        sync_error: vapiDeletionStatus.success ? null : `VAPI deletion failed: ${vapiDeletionStatus.error}`,
+        last_synced_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       })
       .eq('id', params.id)
@@ -227,11 +261,25 @@ export async function DELETE(
       }, { status: 500 })
     }
 
-    console.log(`Successfully soft-deleted phone number ${params.id}`)
+    console.log(`Successfully deleted phone number ${params.id} (VAPI: ${vapiDeletionStatus.success ? 'success' : 'failed'})`)
+
+    // Build response message
+    let message = 'Phone number deleted successfully'
+    if (!vapiDeletionStatus.success) {
+      message += ` (Warning: VAPI deletion failed - ${vapiDeletionStatus.error})`
+    }
 
     return NextResponse.json({
       success: true,
-      message: 'Phone number deleted successfully'
+      message,
+      details: {
+        vapiDeletion: vapiDeletionStatus,
+        phoneNumber: {
+          id: phoneNumber.id,
+          number: phoneNumber.phone_number,
+          name: phoneNumber.friendly_name
+        }
+      }
     })
   } catch (error) {
     console.error('DELETE phone number error:', error)
