@@ -321,18 +321,23 @@ export async function POST(request: NextRequest) {
     }
 
     // Log audit event
-    await logAuditEvent({
-      user_id: user.id,
-      action: 'assistant_created',
-      resource_type: 'assistant',
-      resource_id: assistant.id,
-      new_values: {
-        name: assistant.name,
-        vapi_assistant_id: vapiAssistantId
-      },
-      ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
-      user_agent: request.headers.get('user-agent') || undefined,
-    });
+    try {
+      await logAuditEvent({
+        user_id: user.id,
+        action: 'assistant_created',
+        resource_type: 'assistant',
+        resource_id: assistant.id,
+        new_values: {
+          name: assistant.name,
+          vapi_assistant_id: vapiAssistantId
+        },
+        ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
+        user_agent: request.headers.get('user-agent') || undefined,
+      });
+    } catch (auditError) {
+      console.warn('[Assistant API] Failed to log audit event:', auditError);
+      // Don't throw error as this is not critical
+    }
 
     return NextResponse.json({
       success: true,
