@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
 import { ArrowRight, Play, Mic, Shield, BarChart3, Users, CheckCircle, Star, Menu, X, Phone, Zap, Globe, Headphones } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -98,8 +99,8 @@ const BassBars = ({ mousePosition, count = 50, variant = 'default' }: {
     <div className={containerClass}>
       {bars.map((bar, index) => {
         const centerDistance = Math.abs(index - count / 2)
-        const heightMultiplier = variant === 'social' ? 2.5 : variant === 'wide' ? 2 : 1
-        const maxHeight = variant === 'social' ? 80 : variant === 'wide' ? 60 : 40
+        const heightMultiplier = variant === 'social' ? 1.5 : variant === 'wide' ? 1.2 : 1
+        const maxHeight = variant === 'social' ? 40 : variant === 'wide' ? 35 : 25
         
         return (
           <motion.div
@@ -114,16 +115,16 @@ const BassBars = ({ mousePosition, count = 50, variant = 'default' }: {
               boxShadow: variant === 'social' ? '0 0 8px rgba(255, 107, 53, 0.3)' : undefined
             }}
             animate={{
-              height: `${10 + Math.sin((index + Date.now() * 0.002) * 0.8) * maxHeight * heightMultiplier + 
-                      Math.cos((centerDistance + Date.now() * 0.001) * 0.5) * 15 + 
-                      mousePosition.y * 0.3}px`
+              height: `${10 + Math.sin((index + Date.now() * 0.0008) * 0.6) * maxHeight * heightMultiplier + 
+                      Math.cos((centerDistance + Date.now() * 0.0004) * 0.3) * 10 + 
+                      mousePosition.y * 0.2}px`
             }}
             transition={{
-              duration: 0.8 + (index % 5) * 0.1,
+              duration: 1.5 + (index % 5) * 0.2,
               repeat: Infinity,
               repeatType: "reverse",
               ease: "easeInOut",
-              delay: index * 0.02
+              delay: index * 0.05
             }}
           />
         )
@@ -181,8 +182,16 @@ const Header = () => {
             className="flex items-center gap-3"
             whileHover={{ scale: 1.05 }}
           >
-            <div className="p-2 rounded-xl" style={{ background: 'var(--vm-gradient-brand)' }}>
-              <Mic className="h-6 w-6 text-white" />
+            <div className="w-10 h-10 rounded-xl overflow-hidden" style={{ background: 'var(--vm-gradient-brand)' }}>
+              <svg className="w-full h-full p-1" viewBox="0 0 100 100" fill="none">
+                <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="3" className="text-yellow-400"/>
+                <rect x="25" y="45" width="50" height="10" rx="5" fill="currentColor" className="text-yellow-400"/>
+                <text x="50" y="35" textAnchor="middle" className="text-white text-xs font-bold" fontSize="8">ARTIFICIAL</text>
+                <text x="50" y="75" textAnchor="middle" className="text-white text-xs font-bold" fontSize="8">INTELLIGENCE</text>
+                <circle cx="50" cy="50" r="8" fill="currentColor" className="text-yellow-400"/>
+                <rect x="47" y="30" width="6" height="40" fill="currentColor" className="text-yellow-400"/>
+                <circle cx="50" cy="30" r="4" fill="currentColor" className="text-yellow-400"/>
+              </svg>
             </div>
             <div>
               <h1 className="text-xl font-bold vm-text-primary">Voice Matrix</h1>
@@ -332,8 +341,8 @@ export default function HomePage() {
               transition={{ delay: 1, duration: 0.8 }}
             >
               {/* Enhanced Bass Bars Animation */}
-              <div className="relative w-full max-w-2xl h-24 mb-4">
-                <BassBars mousePosition={mousePosition} count={60} variant="social" />
+              <div className="relative w-full max-w-3xl h-16 mb-8">
+                <BassBars mousePosition={mousePosition} count={50} variant="social" />
               </div>
               
               {/* Social Proof Text */}
