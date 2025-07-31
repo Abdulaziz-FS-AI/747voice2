@@ -28,11 +28,11 @@ export async function GET(request: NextRequest) {
 
     const supabase = createServiceRoleClient()
 
-    // Get all assistants for the user - with error handling
+    // Get all assistants for the user - use correct table name
     let assistants: Array<{ id: string, name: string }> = []
     try {
       const { data: assistantsData, error: assistantsError } = await supabase
-        .from('assistants')
+        .from('user_assistants')
         .select('id, name')
         .eq('user_id', user.id)
 
@@ -66,24 +66,7 @@ export async function GET(request: NextRequest) {
 
     const assistantIds = assistants.map(a => a.id)
 
-    // Get call logs for all user assistants - with robust error handling
-    let allCallLogs: any[] = []
-    try {
-      const { data: callLogs, error: logsError } = await supabase
-        .from('call_logs')
-        .select('*')
-        .in('assistant_id', assistantIds)
-        .order('started_at', { ascending: false })
-        .limit(100)
-      
-      if (!logsError && callLogs) {
-        allCallLogs = callLogs
-      }
-    } catch (error) {
-      console.log('call_logs table not found or inaccessible, skipping:', error)
-    }
-
-    // Get calls from calls table as fallback - with error handling
+    // Get calls data - using the correct table
     let calls: any[] = []
     try {
       const { data: callsData, error: callsError } = await supabase
@@ -100,52 +83,28 @@ export async function GET(request: NextRequest) {
         calls = callsData || []
       }
     } catch (error) {
-      console.error('calls table not found or inaccessible, skipping:', error)
+      console.error('calls table not found or inaccessible:', error)
       calls = []
     }
 
-    // Combine all call data
-    const allCalls = [...allCallLogs, ...calls]
+    // Use only calls table data
+    const allCalls = calls
     
     // Calculate overall statistics
     const totalCalls = allCalls.length
     const totalCost = allCalls.reduce((sum, call) => sum + (call.cost || 0), 0)
-    const totalDuration = allCalls.reduce((sum, call) => sum + (call.duration_seconds || call.duration || 0), 0)
+    const totalDuration = allCalls.reduce((sum, call) => sum + (call.duration || 0), 0)
     const avgDuration = totalCalls > 0 ? totalDuration / totalCalls : 0
 
-    // Calculate success rate
-    const successfulCalls = allCalls.filter(call => {
-      if (call.success_evaluation) {
-        try {
-          const evaluation = typeof call.success_evaluation === 'string' 
-            ? JSON.parse(call.success_evaluation) 
-            : call.success_evaluation
-          return evaluation.success === true || evaluation.overall_success === true
-        } catch {
-          return false
-        }
-      }
-      return call.status === 'completed'
-    })
+    // Calculate success rate based on call status
+    const successfulCalls = allCalls.filter(call => call.status === 'completed')
     const successRate = totalCalls > 0 ? (successfulCalls.length / totalCalls) * 100 : 0
 
     // Calculate assistant performance
     const assistantStats = assistants.map(assistant => {
       const assistantCalls = allCalls.filter(call => call.assistant_id === assistant.id)
       const assistantCost = assistantCalls.reduce((sum, call) => sum + (call.cost || 0), 0)
-      const assistantSuccessful = assistantCalls.filter(call => {
-        if (call.success_evaluation) {
-          try {
-            const evaluation = typeof call.success_evaluation === 'string' 
-              ? JSON.parse(call.success_evaluation) 
-              : call.success_evaluation
-            return evaluation.success === true || evaluation.overall_success === true
-          } catch {
-            return false
-          }
-        }
-        return call.status === 'completed'
-      })
+      const assistantSuccessful = assistantCalls.filter(call => call.status === 'completed')
       const assistantSuccessRate = assistantCalls.length > 0 ? (assistantSuccessful.length / assistantCalls.length) * 100 : 0
 
       return {
@@ -160,26 +119,13 @@ export async function GET(request: NextRequest) {
     // Recent activity
     const recentActivity = allCalls.slice(0, 10).map(call => {
       const assistant = assistants.find(a => a.id === call.assistant_id)
-      let success = false
-      
-      if (call.success_evaluation) {
-        try {
-          const evaluation = typeof call.success_evaluation === 'string' 
-            ? JSON.parse(call.success_evaluation) 
-            : call.success_evaluation
-          success = evaluation.success === true || evaluation.overall_success === true
-        } catch {
-          success = false
-        }
-      } else {
-        success = call.status === 'completed'
-      }
+      const success = call.status === 'completed'
 
       return {
         id: call.id,
         assistantName: assistant?.name || 'Unknown Assistant',
         callerNumber: call.caller_number,
-        duration: call.duration_seconds || call.duration || 0,
+        duration: call.duration || 0,
         cost: call.cost || 0,
         success,
         timestamp: call.started_at || call.created_at
@@ -201,7 +147,7 @@ export async function GET(request: NextRequest) {
       })
       
       const dayCost = dayCalls.reduce((sum, call) => sum + (call.cost || 0), 0)
-      const dayDuration = dayCalls.reduce((sum, call) => sum + (call.duration_seconds || call.duration || 0), 0)
+      const dayDuration = dayCalls.reduce((sum, call) => sum + (call.duration || 0), 0)
       const dayAvgDuration = dayCalls.length > 0 ? dayDuration / dayCalls.length : 0
       
       dailyStats.push({

@@ -25,6 +25,7 @@ import { DashboardLayout } from '@/components/dashboard/layout'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { SimpleBarChart, SimpleLineChart } from '@/components/analytics/simple-bar-chart'
 
 interface AnalyticsSummary {
   totalCalls: number
@@ -81,40 +82,119 @@ const MetricSkeleton = () => (
 )
 
 // Empty state for new users
-const EmptyAnalytics = () => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    className="text-center py-16"
-  >
-    <div className="mx-auto w-24 h-24 rounded-full flex items-center justify-center mb-6" 
-         style={{ background: 'var(--vm-gradient-brand)' }}>
-      <BarChart3 className="h-12 w-12 text-white" />
-    </div>
-    <h3 className="text-2xl font-bold mb-4 vm-text-primary">Welcome to Analytics</h3>
-    <p className="text-lg vm-text-secondary mb-8 max-w-2xl mx-auto">
-      Start making calls with your voice agents to see detailed analytics, performance metrics, and insights.
-    </p>
-    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-      <Button 
-        className="px-6 py-3"
-        style={{ background: 'var(--vm-gradient-brand)' }}
-        onClick={() => window.location.href = '/dashboard/assistants/new'}
+const EmptyAnalytics = ({ onGenerateSampleData }: { onGenerateSampleData?: () => void }) => (
+  <div className="space-y-8">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="text-center py-8"
+    >
+      <div className="mx-auto w-24 h-24 rounded-full flex items-center justify-center mb-6" 
+           style={{ background: 'var(--vm-gradient-brand)' }}>
+        <BarChart3 className="h-12 w-12 text-white" />
+      </div>
+      <h3 className="text-2xl font-bold mb-4 vm-text-primary">Welcome to Analytics</h3>
+      <p className="text-lg vm-text-secondary mb-8 max-w-2xl mx-auto">
+        Start making calls with your voice agents to see detailed analytics, performance metrics, and insights.
+      </p>
+      <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <Button 
+          className="px-6 py-3"
+          style={{ background: 'var(--vm-gradient-brand)' }}
+          onClick={() => window.location.href = '/dashboard/assistants/new'}
+        >
+          <Zap className="mr-2 h-5 w-5" />
+          Create Your First Agent
+        </Button>
+        <Button 
+          variant="outline" 
+          className="px-6 py-3"
+          style={{ borderColor: 'var(--vm-orange-primary)', color: 'var(--vm-orange-primary)' }}
+          onClick={() => window.location.href = '/dashboard/assistants'}
+        >
+          <PlayCircle className="mr-2 h-5 w-5" />
+          View Existing Agents
+        </Button>
+        {process.env.NODE_ENV === 'development' && onGenerateSampleData && (
+          <Button 
+            variant="outline" 
+            className="px-6 py-3"
+            style={{ borderColor: 'var(--vm-violet)', color: 'var(--vm-violet)' }}
+            onClick={onGenerateSampleData}
+          >
+            <BarChart3 className="mr-2 h-5 w-5" />
+            Generate Sample Data
+          </Button>
+        )}
+      </div>
+    </motion.div>
+
+    {/* Sample Charts - Always visible even with no data */}
+    <div className="grid gap-6 md:grid-cols-2">
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.2 }}
       >
-        <Zap className="mr-2 h-5 w-5" />
-        Create Your First Agent
-      </Button>
-      <Button 
-        variant="outline" 
-        className="px-6 py-3"
-        style={{ borderColor: 'var(--vm-orange-primary)', color: 'var(--vm-orange-primary)' }}
-        onClick={() => window.location.href = '/dashboard/assistants'}
+        <Card>
+          <CardHeader>
+            <CardTitle className="vm-text-primary">Weekly Call Volume</CardTitle>
+            <CardDescription className="vm-text-secondary">
+              Your call activity will appear here
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <SimpleBarChart
+              data={[
+                { label: 'Mon', value: 0 },
+                { label: 'Tue', value: 0 },
+                { label: 'Wed', value: 0 },
+                { label: 'Thu', value: 0 },
+                { label: 'Fri', value: 0 },
+                { label: 'Sat', value: 0 },
+                { label: 'Sun', value: 0 }
+              ]}
+              height={200}
+              showValues={false}
+            />
+            <p className="text-center mt-4 text-sm vm-text-muted">
+              No data yet - charts will populate when you start making calls
+            </p>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.3 }}
       >
-        <PlayCircle className="mr-2 h-5 w-5" />
-        View Existing Agents
-      </Button>
+        <Card>
+          <CardHeader>
+            <CardTitle className="vm-text-primary">Performance Metrics</CardTitle>
+            <CardDescription className="vm-text-secondary">
+              Success rate and quality indicators
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <SimpleBarChart
+              data={[
+                { label: 'Success', value: 0, color: 'var(--vm-emerald)' },
+                { label: 'Duration', value: 0, color: 'var(--vm-violet)' },
+                { label: 'Cost', value: 0, color: 'var(--vm-orange-primary)' },
+                { label: 'Quality', value: 0, color: 'var(--vm-gradient-brand)' }
+              ]}
+              height={200}
+              showValues={false}
+            />
+            <p className="text-center mt-4 text-sm vm-text-muted">
+              Metrics will be calculated from your actual call data
+            </p>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
-  </motion.div>
+  </div>
 )
 
 // Error state for API failures
@@ -194,6 +274,7 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [hasData, setHasData] = useState(false)
+  const [generatingData, setGeneratingData] = useState(false)
 
   // Always allow access to analytics page
   useEffect(() => {
@@ -235,6 +316,31 @@ export default function AnalyticsPage() {
       // Still show the page, just with error state for that section
     } finally {
       setLoading(false)
+    }
+  }
+
+  const generateSampleData = async () => {
+    if (!user || generatingData) return
+    
+    try {
+      setGeneratingData(true)
+      const response = await fetch('/api/analytics/generate-sample-data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      
+      const data = await response.json()
+      
+      if (data.success) {
+        // Refresh analytics after generating data
+        fetchAnalytics()
+      } else {
+        console.error('Failed to generate sample data:', data.error)
+      }
+    } catch (err) {
+      console.error('Generate sample data error:', err)
+    } finally {
+      setGeneratingData(false)
     }
   }
 
@@ -308,7 +414,7 @@ export default function AnalyticsPage() {
           </div>
         ) : !user || !hasData ? (
           // Empty State for new users or users without data
-          <EmptyAnalytics />
+          <EmptyAnalytics onGenerateSampleData={generateSampleData} />
         ) : error ? (
           // Error State - still shows page structure
           <div className="space-y-8">
@@ -499,26 +605,60 @@ export default function AnalyticsPage() {
               </ErrorBoundary>
             </div>
 
-            {/* Daily Statistics */}
-            {analytics?.dailyStats && analytics.dailyStats.length > 0 && (
-              <ErrorBoundary fallback={null}>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                >
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 vm-text-primary">
-                        <CalendarDays className="h-5 w-5" />
-                        Daily Performance
-                      </CardTitle>
-                      <CardDescription className="vm-text-secondary">
-                        Call volume and costs over the past week
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
+            {/* Daily Statistics with Charts */}
+            <ErrorBoundary fallback={null}>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 vm-text-primary">
+                      <CalendarDays className="h-5 w-5" />
+                      Daily Performance
+                    </CardTitle>
+                    <CardDescription className="vm-text-secondary">
+                      Call volume and costs over the past week
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {/* Call Volume Chart */}
+                    <div>
+                      <h4 className="text-sm font-medium vm-text-primary mb-3">Call Volume</h4>
+                      <SimpleBarChart
+                        data={analytics?.dailyStats?.map(day => ({
+                          label: new Date(day.date).toLocaleDateString('en', { weekday: 'short' }),
+                          value: day.calls
+                        })) || [
+                          { label: 'Mon', value: 0 },
+                          { label: 'Tue', value: 0 },
+                          { label: 'Wed', value: 0 },
+                          { label: 'Thu', value: 0 },
+                          { label: 'Fri', value: 0 },
+                          { label: 'Sat', value: 0 },
+                          { label: 'Sun', value: 0 }
+                        ]}
+                        height={150}
+                      />
+                    </div>
+                    
+                    {/* Cost Trend Chart */}
+                    <div>
+                      <h4 className="text-sm font-medium vm-text-primary mb-3">Cost Trend</h4>
+                      <SimpleLineChart
+                        data={analytics?.dailyStats?.map(day => ({
+                          date: new Date(day.date).toLocaleDateString(),
+                          value: day.cost
+                        })) || []}
+                        height={150}
+                      />
+                    </div>
+                    
+                    {/* Detailed Stats */}
+                    {analytics?.dailyStats && analytics.dailyStats.length > 0 && (
+                      <div className="space-y-3 pt-4 border-t" style={{ borderColor: 'var(--vm-border-subtle)' }}>
+                        <h4 className="text-sm font-medium vm-text-primary mb-3">Detailed Breakdown</h4>
                         {analytics.dailyStats.map((day, index) => (
                           <motion.div
                             key={day.date}
@@ -543,11 +683,11 @@ export default function AnalyticsPage() {
                           </motion.div>
                         ))}
                       </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              </ErrorBoundary>
-            )}
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </ErrorBoundary>
           </div>
         )}
       </div>
