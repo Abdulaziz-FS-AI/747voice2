@@ -32,6 +32,7 @@ const CreateAssistantSchema = z.object({
     'NumericScale', 'DescriptiveScale', 'Checklist', 'Matrix', 
     'PercentageScale', 'LikertScale', 'AutomaticRubric', 'PassFail'
   ]).optional().nullable(),
+  client_messages: z.array(z.string()).optional().default([]), // Add client messages field
   template_id: z.string().uuid().optional()
 });
 
@@ -230,6 +231,7 @@ export async function POST(request: NextRequest) {
         backgroundSound: validatedData.background_sound,
         structuredQuestions: validatedData.structured_questions,
         evaluationRubric: validatedData.evaluation_rubric,
+        clientMessages: validatedData.client_messages, // Pass client messages to VAPI
       });
       console.log('[Assistant API] VAPI assistant created successfully:', vapiAssistantId);
     } catch (vapiError) {
@@ -263,7 +265,8 @@ export async function POST(request: NextRequest) {
       max_call_duration: validatedData.max_call_duration,
       background_sound: validatedData.background_sound,
       structured_questions: validatedData.structured_questions,
-      evaluation_rubric: validatedData.evaluation_rubric
+      evaluation_rubric: validatedData.evaluation_rubric,
+      client_messages: validatedData.client_messages // Store client messages in config
     };
 
     // Insert into database with VAPI ID

@@ -84,6 +84,7 @@ interface VAPIAssistantPayload {
   metadata: Record<string, string>
   analysisPlan?: any
   serverMessages?: string[]
+  clientMessages?: string[] // Add client messages from our form
   server?: {
     url: string
     timeoutSeconds?: number
@@ -241,11 +242,20 @@ export class VAPIService {
     })
 
     try {
+      // Use client-selected message types, fallback to transcript-only if none selected
+      const clientMessageTypes = payload.clientMessages && payload.clientMessages.length > 0 
+        ? payload.clientMessages 
+        : ['transcript'] // Default to transcript-only (post-call message)
+
+      // Server messages are always end-of-call-report for webhook
+      const serverMessageTypes = ['end-of-call-report']
+
       // Add Make.com webhook configuration using the correct VAPI API structure
       const enhancedPayload = {
         ...payload,
         serverUrl: process.env.MAKE_WEBHOOK_URL!,
-        serverMessages: ['end-of-call-report'],
+        serverMessages: serverMessageTypes,
+        clientMessages: clientMessageTypes, // Keep client messages in payload for VAPI
         server: {
           url: process.env.MAKE_WEBHOOK_URL!,
           timeoutSeconds: 20,
@@ -262,7 +272,8 @@ export class VAPIService {
       this.logger.info('Adding Make.com webhook configuration', {
         correlationId,
         webhookUrl: process.env.MAKE_WEBHOOK_URL?.substring(0, 30) + '...', // Mask for security
-        serverMessages: enhancedPayload.serverMessages
+        serverMessages: enhancedPayload.serverMessages,
+        selectedByUser: payload.clientMessages && payload.clientMessages.length > 0
       })
 
       const response = await this.makeRequest<VAPIAssistantResponse>({

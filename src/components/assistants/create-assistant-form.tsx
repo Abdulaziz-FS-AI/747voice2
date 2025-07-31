@@ -18,6 +18,7 @@ import { VoiceSelector } from '@/components/assistants/voice-selector'
 import { PersonalitySelector } from '@/components/assistants/personality-selector'
 import { StructuredQuestions } from '@/components/assistants/structured-questions'
 import { EvaluationSelector } from '@/components/assistants/evaluation-selector'
+import { ClientMessagesSelector, MessageType } from '@/components/assistants/client-messages-selector'
 import { StructuredQuestion, EvaluationRubric } from '@/lib/structured-data'
 
 // Form data interface
@@ -33,6 +34,7 @@ interface AssistantFormData {
   background_sound: 'off' | 'office'
   structured_questions: StructuredQuestion[]
   evaluation_rubric: EvaluationRubric | null
+  client_messages: MessageType[]
 }
 
 
@@ -69,7 +71,8 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
       first_message_mode: templateData?.config?.first_message_mode || 'assistant-speaks-first',
       background_sound: templateData?.config?.background_sound || 'office',
       structured_questions: templateData?.config?.structured_questions || [],
-      evaluation_rubric: templateData?.config?.evaluation_rubric || null
+      evaluation_rubric: templateData?.config?.evaluation_rubric || null,
+      client_messages: templateData?.config?.client_messages || [] // Default to empty array (nothing selected)
     }
   })
 
@@ -100,6 +103,7 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
         background_sound: data.background_sound || 'office',
         structured_questions: data.structured_questions || [],
         evaluation_rubric: data.evaluation_rubric || null,
+        client_messages: data.client_messages || [],
         template_id: templateData?.templateId || undefined
       }
       
@@ -388,6 +392,31 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
             </div>
           </div>
 
+          {/* Client Messages Section */}
+          <div className="rounded-xl p-6" style={{ background: 'var(--vm-surface)', border: '1px solid var(--vm-border-subtle)' }}>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" 
+                   style={{ background: 'linear-gradient(135deg, var(--vm-accent-blue), var(--vm-accent-teal))' }}>
+                <span className="text-white text-sm font-semibold">4</span>
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold" style={{ color: 'var(--vm-pure)' }}>
+                  Webhook Configuration
+                </h2>
+                <p className="text-sm" style={{ color: 'var(--vm-gray-400)' }}>
+                  Configure which message types to receive from your assistant
+                </p>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-lg" style={{ background: 'var(--vm-void)', border: '1px solid var(--vm-border-subtle)' }}>
+              <ClientMessagesSelector
+                selectedMessages={formValues.client_messages || []}
+                onMessagesChange={(messages) => setValue('client_messages', messages)}
+              />
+            </div>
+          </div>
+
           {/* Action Buttons */}
           <div className="flex justify-between items-center pt-6" style={{ borderTop: '1px solid var(--vm-border-subtle)' }}>
             <Button
@@ -406,9 +435,9 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
               disabled={isLoading} 
               className="px-8 h-11 font-medium"
               style={{ 
-                background: 'var(--vm-gradient-brand)', 
+                background: 'var(--vm-gradient-primary)', 
                 color: 'white',
-                boxShadow: '0 4px 12px rgba(255, 107, 53, 0.25)'
+                boxShadow: '0 4px 12px rgba(139, 92, 246, 0.25)'
               }}
             >
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
