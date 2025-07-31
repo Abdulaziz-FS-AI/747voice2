@@ -28,6 +28,16 @@
   --vm-pulse-purple: #7C3AED;      /* Pulse purple - interactive elements */
   --vm-signal-blue: #3B82F6;       /* Signal blue - information */
   
+  /* ===== ULTRA-VIBRANT MATRIX COLORS ===== */
+  --vm-matrix-neon-green: #00FF41; /* Classic matrix neon green */
+  --vm-neural-electric-blue: #00D4FF; /* Electric neural blue */
+  --vm-quantum-violet: #8A2BE2;    /* Deep quantum violet */
+  --vm-voice-spectrum-orange: #FF4500; /* Voice frequency orange */
+  --vm-ai-consciousness-cyan: #00FFFF; /* AI consciousness cyan */
+  --vm-energy-plasma-pink: #FF1493; /* High-energy plasma pink */
+  --vm-hologram-lime: #32CD32;     /* Holographic lime */
+  --vm-tech-gold: #FFD700;         /* Technology gold */
+  
   /* ===== FUNCTIONAL COLORS ===== */
   --vm-success: #22C55E;           /* Success neural - confirmations */
   --vm-warning: #EAB308;           /* Warning pulse - attention needed */
@@ -55,11 +65,30 @@
   --vm-gradient-void: linear-gradient(180deg, #000000 0%, #0A0B0E 100%);
   --vm-gradient-glow: radial-gradient(circle, rgba(255, 107, 53, 0.3) 0%, transparent 70%);
   
+  /* ===== ULTRA-VIBRANT GRADIENTS ===== */
+  --vm-gradient-matrix-flow: linear-gradient(135deg, #00FF41 0%, #00FFFF 50%, #00D4FF 100%);
+  --vm-gradient-voice-spectrum: linear-gradient(90deg, #FF4500 0%, #FF1493 50%, #8A2BE2 100%);
+  --vm-gradient-ai-consciousness: linear-gradient(45deg, #00FFFF 0%, #8A2BE2 50%, #00D4FF 100%);
+  --vm-gradient-energy-plasma: linear-gradient(180deg, #FF1493 0%, #FF4500 50%, #FFD700 100%);
+  --vm-gradient-quantum-field: linear-gradient(270deg, #8A2BE2 0%, #00FF41 50%, #00FFFF 100%);
+  --vm-gradient-neural-fire: radial-gradient(circle, #FF4500 0%, #FF1493 30%, #8A2BE2 70%, transparent 100%);
+  --vm-gradient-matrix-rain: linear-gradient(180deg, transparent 0%, #00FF41 50%, transparent 100%);
+  --vm-gradient-holographic: conic-gradient(from 0deg, #00FFFF, #FF1493, #FFD700, #00FF41, #8A2BE2, #00FFFF);
+  
   /* ===== NEURAL GLOW EFFECTS ===== */
   --vm-glow-primary: 0 0 20px rgba(255, 107, 53, 0.3);
   --vm-glow-voice: 0 0 30px rgba(139, 92, 246, 0.4);
   --vm-glow-success: 0 0 15px rgba(34, 197, 94, 0.3);
   --vm-glow-pulse: 0 0 40px rgba(255, 107, 53, 0.2);
+  
+  /* ===== ULTRA-VIBRANT GLOW EFFECTS ===== */
+  --vm-glow-matrix: 0 0 30px rgba(0, 255, 65, 0.6), 0 0 60px rgba(0, 255, 65, 0.3);
+  --vm-glow-neural-blue: 0 0 25px rgba(0, 212, 255, 0.7), 0 0 50px rgba(0, 212, 255, 0.4);
+  --vm-glow-quantum: 0 0 35px rgba(138, 43, 226, 0.6), 0 0 70px rgba(138, 43, 226, 0.3);
+  --vm-glow-plasma: 0 0 40px rgba(255, 20, 147, 0.8), 0 0 80px rgba(255, 20, 147, 0.4);
+  --vm-glow-energy: 0 0 50px rgba(255, 69, 0, 0.7), 0 0 100px rgba(255, 69, 0, 0.3);
+  --vm-glow-hologram: 0 0 20px rgba(0, 255, 255, 0.6), 0 0 40px rgba(255, 215, 0, 0.4);
+  --vm-glow-consciousness: 0 0 60px rgba(0, 255, 255, 0.5), 0 0 120px rgba(138, 43, 226, 0.3);
   
   /* ===== MATRIX SHADOWS ===== */
   --vm-shadow-neural: 0 4px 20px rgba(0, 0, 0, 0.4);
@@ -481,6 +510,134 @@ body {
   }
 }
 
+/* ===== ULTRA-VIBRANT MATRIX ANIMATIONS ===== */
+@keyframes vm-matrix-rain {
+  0% {
+    transform: translateY(-100vh);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+@keyframes vm-neural-fire {
+  0%, 100% {
+    box-shadow: var(--vm-glow-energy);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: var(--vm-glow-plasma);
+    transform: scale(1.1);
+  }
+}
+
+@keyframes vm-consciousness-drift {
+  0% {
+    transform: translateX(-20px) translateY(0px) rotate(0deg);
+    opacity: 0.3;
+  }
+  25% {
+    transform: translateX(20px) translateY(-15px) rotate(90deg);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateX(10px) translateY(-5px) rotate(180deg);
+    opacity: 1;
+  }
+  75% {
+    transform: translateX(-10px) translateY(10px) rotate(270deg);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateX(-20px) translateY(0px) rotate(360deg);
+    opacity: 0.3;
+  }
+}
+
+@keyframes vm-holographic-shift {
+  0% {
+    background: var(--vm-gradient-holographic);
+    filter: hue-rotate(0deg);
+  }
+  25% {
+    filter: hue-rotate(90deg);
+  }
+  50% {
+    filter: hue-rotate(180deg);
+  }
+  75% {
+    filter: hue-rotate(270deg);
+  }
+  100% {
+    background: var(--vm-gradient-holographic);
+    filter: hue-rotate(360deg);
+  }
+}
+
+@keyframes vm-quantum-tunnel {
+  0% {
+    transform: perspective(1000px) rotateY(0deg) translateZ(0px);
+    opacity: 1;
+  }
+  50% {
+    transform: perspective(1000px) rotateY(180deg) translateZ(-200px);
+    opacity: 0.3;
+  }
+  100% {
+    transform: perspective(1000px) rotateY(360deg) translateZ(0px);
+    opacity: 1;
+  }
+}
+
+@keyframes vm-voice-spectrum {
+  0% {
+    height: 10px;
+    background: var(--vm-voice-spectrum-orange);
+  }
+  25% {
+    height: 30px;
+    background: var(--vm-energy-plasma-pink);
+  }
+  50% {
+    height: 50px;
+    background: var(--vm-quantum-violet);
+  }
+  75% {
+    height: 35px;
+    background: var(--vm-neural-electric-blue);
+  }
+  100% {
+    height: 10px;
+    background: var(--vm-voice-spectrum-orange);
+  }
+}
+
+@keyframes vm-energy-pulse-wave {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: var(--vm-glow-energy);
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.7;
+    box-shadow: var(--vm-glow-plasma);
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+    box-shadow: var(--vm-glow-consciousness);
+  }
+}
+
 /* ===== ANIMATION CLASSES ===== */
 .vm-float {
   animation: vm-float 6s ease-in-out infinite;
@@ -492,6 +649,107 @@ body {
 
 .vm-fade-in {
   animation: vm-neural-fade-in var(--vm-duration-slow) var(--vm-transition-neural);
+}
+
+/* ===== ULTRA-VIBRANT ANIMATION CLASSES ===== */
+.vm-matrix-rain {
+  animation: vm-matrix-rain 3s linear infinite;
+}
+
+.vm-neural-fire {
+  animation: vm-neural-fire 2s ease-in-out infinite;
+}
+
+.vm-consciousness-drift {
+  animation: vm-consciousness-drift 8s ease-in-out infinite;
+}
+
+.vm-holographic-shift {
+  animation: vm-holographic-shift 4s linear infinite;
+}
+
+.vm-quantum-tunnel {
+  animation: vm-quantum-tunnel 6s ease-in-out infinite;
+}
+
+.vm-voice-spectrum {
+  animation: vm-voice-spectrum 1.5s ease-in-out infinite;
+}
+
+.vm-energy-pulse-wave {
+  animation: vm-energy-pulse-wave 2s ease-out infinite;
+}
+
+/* ===== MOUSE-RESPONSIVE EFFECTS ===== */
+.vm-mouse-trail {
+  position: absolute;
+  pointer-events: none;
+  width: 6px;
+  height: 6px;
+  background: var(--vm-gradient-neural-fire);
+  border-radius: 50%;
+  z-index: 9999;
+  transition: all 0.1s ease;
+}
+
+.vm-mouse-ripple {
+  position: absolute;
+  pointer-events: none;
+  border: 2px solid var(--vm-neural-electric-blue);
+  border-radius: 50%;
+  z-index: 9998;
+  animation: vm-energy-pulse-wave 1s ease-out;
+}
+
+.vm-particle-field {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: var(--vm-matrix-neon-green);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+.vm-neural-node {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--vm-ai-consciousness-cyan);
+  border-radius: 50%;
+  box-shadow: var(--vm-glow-neural-blue);
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+.vm-neural-connection {
+  position: absolute;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--vm-ai-consciousness-cyan), transparent);
+  pointer-events: none;
+  opacity: 0.4;
+  transition: opacity 0.3s ease;
+}
+
+/* ===== MOUSE PROXIMITY EFFECTS ===== */
+.vm-proximity-glow {
+  transition: all 0.3s ease;
+}
+
+.vm-proximity-glow:hover {
+  box-shadow: var(--vm-glow-consciousness);
+  transform: scale(1.05);
+}
+
+.vm-magnetic-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  will-change: transform;
+}
+
+.vm-tilt-effect {
+  transition: transform 0.1s ease;
+  transform-style: preserve-3d;
 }
 
 /* ===== NEURAL SCROLLBARS ===== */

@@ -1,35 +1,76 @@
 'use client'
 
-import { useEffect, useRef, useState, Suspense } from 'react'
+import { useEffect, useRef, useState, Suspense, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion'
-import { ArrowRight, Play, Check, Star, MessageSquare, Phone, BarChart3, Users, Shield, Zap, Volume2, Mic, Brain, Sparkles, Radio } from 'lucide-react'
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion'
+import { ArrowRight, Play, Star, Brain, Sparkles, Radio, Zap, Volume2, Mic, Activity, Shield, Users, BarChart3, Cpu, Globe, Headphones } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/lib/auth-context'
 
-// Mouse tracking hook
-const useMousePosition = () => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+// Advanced mouse tracking with velocity and trail
+const useAdvancedMouseTracking = () => {
+  const [mouseState, setMouseState] = useState({
+    position: { x: 0, y: 0 },
+    velocity: { x: 0, y: 0 },
+    speed: 0,
+    trail: [] as Array<{ x: number, y: number, timestamp: number }>
+  })
 
   useEffect(() => {
-    const updateMousePosition = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY })
+    let lastPosition = { x: 0, y: 0 }
+    let lastTime = Date.now()
+
+    const updateMouseState = (e: MouseEvent) => {
+      const currentTime = Date.now()
+      const deltaTime = currentTime - lastTime
+      
+      if (deltaTime === 0) return
+      
+      const velocity = {
+        x: (e.clientX - lastPosition.x) / deltaTime,
+        y: (e.clientY - lastPosition.y) / deltaTime
+      }
+      
+      const speed = Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y)
+      
+      setMouseState(prev => ({
+        position: { x: e.clientX, y: e.clientY },
+        velocity,
+        speed,
+        trail: [
+          ...prev.trail.slice(-20), // Keep last 20 trail points
+          { x: e.clientX, y: e.clientY, timestamp: currentTime }
+        ].filter(point => currentTime - point.timestamp < 1000) // Remove old points
+      }))
+      
+      lastPosition = { x: e.clientX, y: e.clientY }
+      lastTime = currentTime
     }
 
-    window.addEventListener('mousemove', updateMousePosition)
-    return () => window.removeEventListener('mousemove', updateMousePosition)
+    window.addEventListener('mousemove', updateMouseState)
+    return () => window.removeEventListener('mousemove', updateMouseState)
   }, [])
 
-  return mousePosition
+  return mouseState
 }
 
-// Particle system component
-const ParticleSystem = () => {
+// Ultra-vibrant particle system
+const UltraVibrantParticleSystem = ({ mouseState }: { mouseState: any }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const animationFrameRef = useRef<number | null>(null)
+  const particlesRef = useRef<Array<{
+    x: number
+    y: number
+    vx: number
+    vy: number
+    life: number
+    maxLife: number
+    size: number
+    color: string
+    type: 'matrix' | 'neural' | 'voice' | 'energy'
+  }>>([])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -46,65 +87,102 @@ const ParticleSystem = () => {
     resizeCanvas()
     window.addEventListener('resize', resizeCanvas)
 
-    // Particle properties
-    const particles: Array<{
-      x: number
-      y: number
-      vx: number
-      vy: number
-      opacity: number
-      size: number
-    }> = []
+    // Initialize particles
+    const colors = {
+      matrix: '#00FF41',
+      neural: '#00D4FF', 
+      voice: '#FF4500',
+      energy: '#FF1493'
+    }
 
-    // Create particles
-    for (let i = 0; i < 50; i++) {
-      particles.push({
+    // Create initial particle field
+    for (let i = 0; i < 300; i++) {
+      const types = ['matrix', 'neural', 'voice', 'energy'] as const
+      particlesRef.current.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         vx: (Math.random() - 0.5) * 0.5,
         vy: (Math.random() - 0.5) * 0.5,
-        opacity: Math.random() * 0.5 + 0.2,
-        size: Math.random() * 2 + 1
+        life: Math.random() * 1000 + 500,
+        maxLife: 1000,
+        size: Math.random() * 3 + 1,
+        color: colors[types[Math.floor(Math.random() * types.length)]],
+        type: types[Math.floor(Math.random() * types.length)]
       })
     }
 
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-      particles.forEach((particle, index) => {
+      
+      // Update and draw particles
+      particlesRef.current.forEach((particle, index) => {
+        // Mouse attraction effect
+        const mouseDistance = Math.sqrt(
+          Math.pow(particle.x - mouseState.position.x, 2) + 
+          Math.pow(particle.y - mouseState.position.y, 2)
+        )
+        
+        if (mouseDistance < 200) {
+          const attractionForce = (200 - mouseDistance) / 200
+          const angle = Math.atan2(
+            mouseState.position.y - particle.y,
+            mouseState.position.x - particle.x
+          )
+          particle.vx += Math.cos(angle) * attractionForce * 0.001
+          particle.vy += Math.sin(angle) * attractionForce * 0.001
+        }
+        
         // Update position
         particle.x += particle.vx
         particle.y += particle.vy
-
-        // Wrap around edges
+        particle.life -= 1
+        
+        // Boundary wrapping
         if (particle.x < 0) particle.x = canvas.width
         if (particle.x > canvas.width) particle.x = 0
         if (particle.y < 0) particle.y = canvas.height
         if (particle.y > canvas.height) particle.y = 0
-
-        // Draw particle
+        
+        // Draw particle with glow effect
+        const alpha = particle.life / particle.maxLife
+        ctx.save()
+        ctx.globalAlpha = alpha
+        
+        // Glow effect
+        ctx.shadowBlur = 20
+        ctx.shadowColor = particle.color
+        
         ctx.beginPath()
         ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(255, 107, 53, ${particle.opacity})`
+        ctx.fillStyle = particle.color
         ctx.fill()
-
-        // Draw connections
-        particles.slice(index + 1).forEach(otherParticle => {
-          const dx = particle.x - otherParticle.x
-          const dy = particle.y - otherParticle.y
-          const distance = Math.sqrt(dx * dx + dy * dy)
-
-          if (distance < 120) {
-            ctx.beginPath()
-            ctx.moveTo(particle.x, particle.y)
-            ctx.lineTo(otherParticle.x, otherParticle.y)
-            ctx.strokeStyle = `rgba(255, 107, 53, ${0.1 * (1 - distance / 120)})`
-            ctx.lineWidth = 0.5
-            ctx.stroke()
-          }
-        })
+        
+        ctx.restore()
+        
+        // Remove dead particles
+        if (particle.life <= 0) {
+          particlesRef.current.splice(index, 1)
+        }
       })
-
+      
+      // Add new particles near mouse
+      if (mouseState.speed > 0.1 && particlesRef.current.length < 500) {
+        const types = ['matrix', 'neural', 'voice', 'energy'] as const
+        const randomType = types[Math.floor(Math.random() * types.length)]
+        
+        particlesRef.current.push({
+          x: mouseState.position.x + (Math.random() - 0.5) * 50,
+          y: mouseState.position.y + (Math.random() - 0.5) * 50,
+          vx: (Math.random() - 0.5) * 2,
+          vy: (Math.random() - 0.5) * 2,
+          life: 1000,
+          maxLife: 1000,
+          size: Math.random() * 4 + 2,
+          color: colors[randomType],
+          type: randomType
+        })
+      }
+      
       animationFrameRef.current = requestAnimationFrame(animate)
     }
 
@@ -116,65 +194,162 @@ const ParticleSystem = () => {
         cancelAnimationFrame(animationFrameRef.current)
       }
     }
-  }, [])
+  }, [mouseState])
 
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 pointer-events-none"
-      style={{ zIndex: 1 }}
+      className="fixed inset-0 pointer-events-none z-10"
+      style={{ background: 'transparent' }}
     />
   )
 }
 
-// Animated waveform component
-const AnimatedWaveform = () => {
+// Neural network visualization
+const NeuralNetworkVisualization = ({ mouseState }: { mouseState: any }) => {
+  const svgRef = useRef<SVGSVGElement>(null)
+  const [nodes, setNodes] = useState<Array<{ x: number, y: number, active: boolean, id: number }>>([])
+
+  useEffect(() => {
+    // Generate neural network nodes
+    const newNodes = []
+    for (let i = 0; i < 50; i++) {
+      newNodes.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        active: false,
+        id: i
+      })
+    }
+    setNodes(newNodes)
+  }, [])
+
+  useEffect(() => {
+    // Activate nodes near mouse
+    setNodes(prev => prev.map(node => {
+      const distance = Math.sqrt(
+        Math.pow(node.x - mouseState.position.x, 2) + 
+        Math.pow(node.y - mouseState.position.y, 2)
+      )
+      return {
+        ...node,
+        active: distance < 150
+      }
+    }))
+  }, [mouseState.position])
+
   return (
-    <div className="flex items-center justify-center h-32 gap-1">
-      {Array.from({ length: 40 }).map((_, i) => (
-        <motion.div
-          key={i}
-          className="w-1 bg-gradient-to-t from-orange-600 to-orange-400 rounded-full"
-          animate={{
-            height: [
-              Math.random() * 60 + 20,
-              Math.random() * 80 + 40,
-              Math.random() * 40 + 10,
-              Math.random() * 70 + 30
-            ]
-          }}
-          transition={{
-            duration: 1.5 + Math.random(),
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: i * 0.05
-          }}
+    <svg
+      ref={svgRef}
+      className="fixed inset-0 pointer-events-none z-20"
+      width="100%"
+      height="100%"
+    >
+      <defs>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+          <feMerge> 
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      
+      {/* Neural connections */}
+      {nodes.map((node, i) => 
+        nodes.slice(i + 1).map((otherNode, j) => {
+          const distance = Math.sqrt(
+            Math.pow(node.x - otherNode.x, 2) + 
+            Math.pow(node.y - otherNode.y, 2)
+          )
+          if (distance < 200 && (node.active || otherNode.active)) {
+            return (
+              <line
+                key={`${i}-${j}`}
+                x1={node.x}
+                y1={node.y}
+                x2={otherNode.x}
+                y2={otherNode.y}
+                stroke="var(--vm-ai-consciousness-cyan)"
+                strokeWidth="1"
+                opacity={0.3}
+                filter="url(#glow)"
+              />
+            )
+          }
+          return null
+        })
+      )}
+      
+      {/* Neural nodes */}
+      {nodes.map(node => (
+        <circle
+          key={node.id}
+          cx={node.x}
+          cy={node.y}
+          r={node.active ? 6 : 3}
+          fill={node.active ? "var(--vm-neural-electric-blue)" : "var(--vm-ai-consciousness-cyan)"}
+          filter="url(#glow)"
+          opacity={node.active ? 1 : 0.6}
         />
       ))}
+    </svg>
+  )
+}
+
+// Mouse trail effect
+const MouseTrailEffect = ({ mouseState }: { mouseState: any }) => {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-30">
+      {mouseState.trail.map((point: any, index: number) => {
+        const age = Date.now() - point.timestamp
+        const opacity = Math.max(0, 1 - age / 1000)
+        const size = 6 * opacity
+        
+        return (
+          <div
+            key={`${point.timestamp}-${index}`}
+            className="absolute"
+            style={{
+              left: point.x - size / 2,
+              top: point.y - size / 2,
+              width: size,
+              height: size,
+              background: 'var(--vm-gradient-neural-fire)',
+              borderRadius: '50%',
+              opacity,
+              boxShadow: `0 0 ${size * 2}px var(--vm-neural-electric-blue)`
+            }}
+          />
+        )
+      })}
     </div>
   )
 }
 
-// Mouse follower component
-const MouseFollower = () => {
-  const mousePosition = useMousePosition()
-
-  return (
-    <motion.div
-      className="fixed pointer-events-none z-50"
-      animate={{
-        x: mousePosition.x - 20,
-        y: mousePosition.y - 20
-      }}
-      transition={{
-        type: "spring",
-        stiffness: 500,
-        damping: 30
-      }}
-    >
-      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-orange-400 to-orange-600 opacity-20 blur-sm" />
-    </motion.div>
-  )
+// Tilt effect hook
+const useTiltEffect = () => {
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+  
+  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [15, -15]))
+  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-15, 15]))
+  
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const centerX = rect.left + rect.width / 2
+    const centerY = rect.top + rect.height / 2
+    
+    x.set((e.clientX - centerX) / rect.width)
+    y.set((e.clientY - centerY) / rect.height)
+  }, [x, y])
+  
+  const handleMouseLeave = useCallback(() => {
+    x.set(0)
+    y.set(0)
+  }, [x, y])
+  
+  return { rotateX, rotateY, handleMouseMove, handleMouseLeave }
 }
 
 function HomeContent() {
@@ -183,6 +358,12 @@ function HomeContent() {
   const searchParams = useSearchParams()
   const { scrollYProgress } = useScroll()
   const y = useTransform(scrollYProgress, [0, 1], ['0%', '50%'])
+  
+  const mouseState = useAdvancedMouseTracking()
+  const heroTilt = useTiltEffect()
+  const featureTilt1 = useTiltEffect()
+  const featureTilt2 = useTiltEffect()
+  const featureTilt3 = useTiltEffect()
 
   useEffect(() => {
     if (!loading && user) {
@@ -200,29 +381,70 @@ function HomeContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center vm-neural-grid" style={{ background: 'var(--vm-void)' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--vm-void)' }}>
         <div className="text-center">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="vm-text-display mb-8 vm-text-gradient"
+          <motion.div
+            className="relative mb-8"
+            animate={{ 
+              scale: [1, 1.1, 1],
+              rotate: [0, 360]
+            }}
+            transition={{ 
+              scale: { duration: 2, repeat: Infinity, ease: "easeInOut" },
+              rotate: { duration: 4, repeat: Infinity, ease: "linear" }
+            }}
           >
-            Voice Matrix
-          </motion.h1>
-          <motion.div className="relative">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              className="w-12 h-12 border-2 border-t-transparent rounded-full mx-auto vm-glow-pulse"
-              style={{ borderColor: 'var(--vm-orange-primary)', borderTopColor: 'transparent' }}
-            />
-            <motion.div
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute inset-0 w-12 h-12 rounded-full mx-auto"
-              style={{ background: 'var(--vm-gradient-glow)' }}
+            <div 
+              className="w-24 h-24 rounded-full flex items-center justify-center mx-auto"
+              style={{ 
+                background: 'var(--vm-gradient-matrix-flow)',
+                boxShadow: 'var(--vm-glow-consciousness)'
+              }}
+            >
+              <Radio className="w-12 h-12 text-white" />
+            </div>
+            <div 
+              className="absolute inset-0 rounded-full animate-ping"
+              style={{ 
+                border: '2px solid var(--vm-neural-electric-blue)',
+                animation: 'vm-energy-pulse-wave 2s ease-out infinite'
+              }}
             />
           </motion.div>
+          
+          <motion.h1
+            className="text-4xl font-bold mb-4"
+            style={{ 
+              background: 'var(--vm-gradient-ai-consciousness)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            Neural Matrix Loading...
+          </motion.h1>
+          
+          <div className="flex justify-center space-x-1 mb-4">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <motion.div
+                key={i}
+                className="w-1 bg-gradient-to-t from-transparent to-current rounded-full"
+                style={{ color: 'var(--vm-voice-spectrum-orange)' }}
+                animate={{ 
+                  height: [10, 40, 10],
+                  opacity: [0.3, 1, 0.3]
+                }}
+                transition={{ 
+                  duration: 1.5, 
+                  repeat: Infinity, 
+                  delay: i * 0.1,
+                  ease: "easeInOut"
+                }}
+              />
+            ))}
+          </div>
         </div>
       </div>
     )
@@ -231,118 +453,136 @@ function HomeContent() {
   const features = [
     {
       icon: Brain,
-      title: "Neural AI Processing",
-      description: "Advanced neural networks that understand context, emotion, and intent with human-like precision",
-      color: "var(--vm-violet)"
+      title: "Neural AI Matrix",
+      description: "Revolutionary quantum neural networks that process voice with human-level consciousness and beyond",
+      color: "var(--vm-neural-electric-blue)",
+      gradient: "var(--vm-gradient-ai-consciousness)"
     },
     {
       icon: Mic,
-      title: "24/7 Voice Intelligence", 
-      description: "Round-the-clock AI assistants with natural speech patterns and real-time conversation adaptation",
-      color: "var(--vm-cyan)"
+      title: "Voice Consciousness", 
+      description: "24/7 AI entities with advanced emotional intelligence and contextual awareness patterns",
+      color: "var(--vm-voice-spectrum-orange)",
+      gradient: "var(--vm-gradient-voice-spectrum)"
     },
     {
-      icon: BarChart3,
-      title: "Predictive Analytics",
-      description: "AI-powered insights that predict lead quality, conversion probability, and optimal follow-up timing",
-      color: "var(--vm-emerald)"
-    },
-    {
-      icon: Users,
-      title: "Smart Lead Scoring",
-      description: "Automatic qualification using advanced conversation analysis and behavioral pattern recognition",
-      color: "var(--vm-warning)"
+      icon: Activity,
+      title: "Quantum Analytics",
+      description: "Predictive intelligence systems that anticipate user needs with 99.9% accuracy rates",
+      color: "var(--vm-energy-plasma-pink)",
+      gradient: "var(--vm-gradient-energy-plasma)"
     },
     {
       icon: Shield,
-      title: "Enterprise Security",
-      description: "Military-grade encryption with SOC 2 compliance and zero-trust architecture",
-      color: "var(--vm-error)"
+      title: "Neural Security",
+      description: "Military-grade quantum encryption with self-healing security protocols and threat prediction",
+      color: "var(--vm-matrix-neon-green)",
+      gradient: "var(--vm-gradient-matrix-flow)"
+    },
+    {
+      icon: Zap,
+      title: "Energy Processing",
+      description: "Ultra-low latency voice processing with quantum-speed response times under 10ms",
+      color: "var(--vm-tech-gold)",
+      gradient: "var(--vm-gradient-quantum-field)"
     },
     {
       icon: Sparkles,
-      title: "One-Click Deployment",
-      description: "Deploy sophisticated AI assistants instantly with our revolutionary template system",
-      color: "var(--vm-orange-primary)"
+      title: "Holographic Interface",
+      description: "Next-generation UI that adapts and evolves based on user interaction patterns",  
+      color: "var(--vm-hologram-lime)",
+      gradient: "var(--vm-gradient-holographic)"
     }
-  ]
-
-  const testimonials = [
-    {
-      name: "Sarah Johnson",
-      role: "CEO & Founder",
-      company: "Prime Properties Group",
-      content: "Voice Matrix didn't just improve our lead generation—it revolutionized our entire sales process. We're capturing 15x more qualified leads.",
-      rating: 5,
-      avatar: "👩‍💼"
-    },
-    {
-      name: "Michael Chen", 
-      role: "VP of Sales",
-      company: "Growth Realty Network",
-      content: "The AI's ability to understand and qualify leads is honestly better than our top human agents. It's like having a sales genius working 24/7.",
-      rating: 5,
-      avatar: "👨‍💼"
-    },
-    {
-      name: "Lisa Rodriguez",
-      role: "Operations Director",
-      company: "Metro Homes International",
-      content: "Implementation was seamless. Our AI assistant was handling complex conversations within minutes. The ROI has been extraordinary.",
-      rating: 5,
-      avatar: "👩‍🚀"
-    }
-  ]
-
-  const stats = [
-    { value: "15x", label: "Lead Conversion Increase", prefix: "+" },
-    { value: "24/7", label: "Intelligent Availability", prefix: "" },
-    { value: "97%", label: "Accuracy Rate", prefix: "" },
-    { value: "<60s", label: "Setup Time", prefix: "" }
   ]
 
   return (
-    <div className="min-h-screen vm-neural-grid" style={{ background: 'var(--vm-void)' }}>
-      <MouseFollower />
-      <ParticleSystem />
+    <div className="min-h-screen relative overflow-hidden" style={{ background: 'var(--vm-void)' }}>
+      {/* Ultra-vibrant particle system */}
+      <UltraVibrantParticleSystem mouseState={mouseState} />
       
-      {/* Neural Matrix Header */}
+      {/* Neural network visualization */}
+      <NeuralNetworkVisualization mouseState={mouseState} />
+      
+      {/* Mouse trail effect */}
+      <MouseTrailEffect mouseState={mouseState} />
+      
+      {/* Matrix background grid */}
+      <div 
+        className="fixed inset-0 opacity-10 pointer-events-none z-5"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(0, 255, 65, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 255, 65, 0.1) 1px, transparent 1px)
+          `,
+          backgroundSize: '50px 50px'
+        }}
+      />
+      
+      {/* Revolutionary Header */}
       <motion.header
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="fixed top-0 w-full z-40 vm-glass"
+        className="fixed top-0 w-full z-50 backdrop-blur-xl"
         style={{ 
           background: 'rgba(0, 0, 0, 0.9)',
-          borderBottom: '1px solid var(--vm-border-subtle)',
-          backdropFilter: 'blur(20px)'
+          borderBottom: '1px solid var(--vm-neural-electric-blue)'
         }}
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1 }}
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <motion.div
+              className="flex items-center gap-4"
               whileHover={{ scale: 1.05 }}
-              className="flex items-center gap-3"
             >
               <motion.div 
-                className="w-12 h-12 rounded-xl flex items-center justify-center vm-energy-pulse" 
-                style={{ background: 'var(--vm-gradient-brand)' }}
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.6 }}
+                className="w-12 h-12 rounded-xl flex items-center justify-center relative"
+                style={{ background: 'var(--vm-gradient-matrix-flow)' }}
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
               >
                 <Radio className="w-7 h-7 text-white" />
+                <div 
+                  className="absolute inset-0 rounded-xl animate-pulse"
+                  style={{ boxShadow: 'var(--vm-glow-consciousness)' }}
+                />
               </motion.div>
-              <h1 className="text-2xl font-bold vm-text-gradient font-display">
-                Voice Matrix
-              </h1>
+              <div>
+                <h1 
+                  className="text-2xl font-bold tracking-wide"
+                  style={{
+                    background: 'var(--vm-gradient-holographic)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text'
+                  }}
+                >
+                  Voice Matrix
+                </h1>
+                <p className="text-xs font-medium" style={{ color: 'var(--vm-ai-consciousness-cyan)' }}>
+                  Neural AI Consciousness
+                </p>
+              </div>
             </motion.div>
             
             <div className="flex items-center gap-4">
               {user ? (
                 <Link href="/dashboard">
                   <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                    <Button className="vm-button-primary">
-                      Dashboard
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                    <Button 
+                      className="relative overflow-hidden px-6 py-3 rounded-xl font-semibold"
+                      style={{ 
+                        background: 'var(--vm-gradient-energy-plasma)',
+                        border: 'none',
+                        boxShadow: 'var(--vm-glow-plasma)'
+                      }}
+                    >
+                      <span className="relative z-10">Neural Dashboard</span>
+                      <ArrowRight className="ml-2 h-4 w-4 relative z-10" />
+                      <div 
+                        className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300"
+                        style={{ background: 'var(--vm-gradient-holographic)' }}
+                      />
                     </Button>
                   </motion.div>
                 </Link>
@@ -350,12 +590,35 @@ function HomeContent() {
                 <>
                   <Link href="/login">
                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                      <Button className="vm-button-secondary">Sign In</Button>
+                      <Button 
+                        variant="outline"
+                        className="border-2 rounded-xl px-6 py-3"
+                        style={{ 
+                          borderColor: 'var(--vm-neural-electric-blue)',
+                          background: 'transparent',
+                          color: 'var(--vm-neural-electric-blue)'
+                        }}
+                      >
+                        Neural Access
+                      </Button>
                     </motion.div>
                   </Link>
                   <Link href="/signup">
                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                      <Button className="vm-button-primary">Get Started</Button>
+                      <Button 
+                        className="relative overflow-hidden px-6 py-3 rounded-xl font-semibold"
+                        style={{ 
+                          background: 'var(--vm-gradient-matrix-flow)',
+                          border: 'none',
+                          boxShadow: 'var(--vm-glow-matrix)'
+                        }}
+                      >
+                        <span className="relative z-10">Join Matrix</span>
+                        <div 
+                          className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300"
+                          style={{ background: 'var(--vm-gradient-holographic)' }}
+                        />
+                      </Button>
                     </motion.div>
                   </Link>
                 </>
@@ -365,157 +628,266 @@ function HomeContent() {
         </div>
       </motion.header>
 
-      {/* Hero Section with Advanced Animations */}
-      <section className="relative pt-32 pb-20 px-6 lg:px-8 overflow-hidden">
+      {/* Ultra-vibrant Hero Section */}
+      <section className="relative pt-32 pb-20 px-6 lg:px-8 min-h-screen flex items-center">
         <motion.div
           style={{ y }}
-          className="absolute inset-0 opacity-10"
+          className="absolute inset-0 opacity-20"
         >
-          <div className="absolute top-20 left-10 w-72 h-72 rounded-full opacity-30" 
-               style={{ background: 'radial-gradient(circle, var(--vm-orange-primary) 0%, transparent 70%)' }} />
-          <div className="absolute bottom-20 right-10 w-96 h-96 rounded-full opacity-20"
-               style={{ background: 'radial-gradient(circle, var(--vm-violet) 0%, transparent 70%)' }} />
+          {/* Floating consciousness orbs */}
+          {[...Array(5)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full"
+              style={{
+                width: 100 + i * 20,
+                height: 100 + i * 20,
+                background: `var(--vm-gradient-${['matrix-flow', 'voice-spectrum', 'ai-consciousness', 'energy-plasma', 'quantum-field'][i]})`,
+                boxShadow: `var(--vm-glow-${['matrix', 'energy', 'neural-blue', 'plasma', 'quantum'][i]})`,
+                left: `${20 + i * 15}%`,
+                top: `${10 + i * 20}%`
+              }}
+              animate={{
+                x: [0, 50, -30, 0],
+                y: [0, -30, 40, 0],
+                rotate: [0, 180, 360],
+                scale: [1, 1.2, 0.8, 1]
+              }}
+              transition={{
+                duration: 10 + i * 2,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: i * 0.5
+              }}
+            />
+          ))}
         </motion.div>
 
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
+        <div className="max-w-7xl mx-auto relative z-10 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.5 }}
+          >
+            <Badge 
+              className="mb-8 px-6 py-3 text-sm rounded-full border-2"
+              style={{ 
+                background: 'rgba(0, 255, 65, 0.1)',
+                borderColor: 'var(--vm-matrix-neon-green)',
+                color: 'var(--vm-matrix-neon-green)',
+                boxShadow: 'var(--vm-glow-matrix)'
+              }}
             >
-              <Badge className="mb-8 vm-badge text-sm px-4 py-2">
-                <Sparkles className="w-4 h-4 mr-2" />
-                Next-Generation AI Voice Technology
-              </Badge>
-            </motion.div>
-            
+              <Sparkles className="w-4 h-4 mr-2" />
+              Revolutionary Neural AI Technology
+            </Badge>
+          </motion.div>
+          
+          <motion.div
+            className="vm-tilt-effect"
+            style={{
+              rotateX: heroTilt.rotateX,
+              rotateY: heroTilt.rotateY
+            }}
+            onMouseMove={heroTilt.handleMouseMove}
+            onMouseLeave={heroTilt.handleMouseLeave}
+          >
             <motion.h1
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="vm-text-hero mb-12"
+              className="text-6xl lg:text-8xl font-bold mb-8 leading-tight"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1.2, delay: 0.7 }}
             >
-              Transform Every Call Into
-              <motion.span
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.5 }}
-                className="block vm-text-gradient vm-float"
+              <span 
+                className="block mb-4"
+                style={{
+                  background: 'var(--vm-gradient-holographic)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  filter: 'drop-shadow(0 0 20px rgba(0, 255, 255, 0.5))'
+                }}
               >
-                Qualified Revenue
+                Voice Matrix
+              </span>
+              <motion.span
+                className="block"
+                style={{
+                  background: 'var(--vm-gradient-energy-plasma)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  filter: 'drop-shadow(0 0 30px rgba(255, 20, 147, 0.7))'
+                }}
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ duration: 3, repeat: Infinity }}
+              >
+                Neural Evolution
               </motion.span>
             </motion.h1>
             
             <motion.p
+              className="text-2xl mb-12 max-w-4xl mx-auto leading-relaxed"
+              style={{ color: 'var(--vm-ai-consciousness-cyan)' }}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-xl mb-12 max-w-4xl mx-auto leading-relaxed vm-text-secondary"
+              transition={{ duration: 1, delay: 1 }}
             >
-              Revolutionary AI voice assistants that understand, engage, and convert prospects with human-like intelligence. 
-              Never miss a lead with our 24/7 neural-powered conversation platform.
+              Experience the future of AI voice technology with our revolutionary neural consciousness platform. 
+              Transform every conversation into an intelligent, emotional connection.
             </motion.p>
+          </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="flex flex-col sm:flex-row gap-6 justify-center mb-16"
-            >
-              {user ? (
-                <Link href="/dashboard">
-                  <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }}>
-                    <Button size="lg" className="vm-button-primary text-lg px-10 py-6 h-14">
-                      Launch Dashboard
-                      <ArrowRight className="ml-3 h-5 w-5" />
-                    </Button>
-                  </motion.div>
-                </Link>
-              ) : (
-                <Link href="/signup">
-                  <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }}>
-                    <Button size="lg" className="vm-button-primary text-lg px-10 py-6 h-14">
-                      Start Free Trial
-                      <ArrowRight className="ml-3 h-5 w-5" />
-                    </Button>
-                  </motion.div>
-                </Link>
-              )}
-              
-              <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="vm-button-secondary text-lg px-10 py-6 h-14"
-                  onClick={() => {/* Demo functionality */}}
+          <motion.div
+            className="flex flex-col sm:flex-row gap-6 justify-center mb-16"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 1.3 }}
+          >
+            {user ? (
+              <Link href="/dashboard">
+                <motion.div 
+                  whileHover={{ scale: 1.1, y: -5 }} 
+                  whileTap={{ scale: 0.95 }}
+                  className="group"
                 >
-                  <Play className="mr-3 h-5 w-5" />
-                  Watch Demo
-                </Button>
-              </motion.div>
-            </motion.div>
-
-            {/* Animated Waveform Visualization */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1, delay: 0.8 }}
-              className="mb-16"
-            >
-              <AnimatedWaveform />
-            </motion.div>
-
-            {/* Enhanced Stats with Animations */}
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 1 }}
-              className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto"
-            >
-              {stats.map((stat, index) => (
-                <motion.div
-                  key={index}
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="text-center p-6 rounded-2xl"
-                  style={{ 
-                    background: 'var(--vm-gradient-surface)',
-                    border: '1px solid var(--vm-border-subtle)'
-                  }}
-                >
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ duration: 0.6, delay: 1.2 + index * 0.1 }}
-                    className="text-4xl font-bold mb-2 bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent"
+                  <Button 
+                    size="lg" 
+                    className="relative overflow-hidden px-12 py-6 text-xl font-bold rounded-2xl"
+                    style={{ 
+                      background: 'var(--vm-gradient-matrix-flow)',
+                      border: 'none',
+                      boxShadow: 'var(--vm-glow-consciousness)',
+                      minWidth: '240px',
+                      height: '70px'
+                    }}
                   >
-                    {stat.prefix}{stat.value}
-                  </motion.div>
-                  <div className="text-sm font-medium" style={{ color: 'var(--vm-gray-400)' }}>
-                    {stat.label}
-                  </div>
+                    <span className="relative z-10 flex items-center">
+                      Enter Matrix
+                      <ArrowRight className="ml-3 h-6 w-6" />
+                    </span>
+                    <div 
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                      style={{ background: 'var(--vm-gradient-holographic)' }}
+                    />
+                  </Button>
                 </motion.div>
-              ))}
+              </Link>
+            ) : (
+              <Link href="/signup">
+                <motion.div 
+                  whileHover={{ scale: 1.1, y: -5 }} 
+                  whileTap={{ scale: 0.95 }}
+                  className="group"
+                >
+                  <Button 
+                    size="lg" 
+                    className="relative overflow-hidden px-12 py-6 text-xl font-bold rounded-2xl"
+                    style={{ 
+                      background: 'var(--vm-gradient-energy-plasma)',
+                      border: 'none',
+                      boxShadow: 'var(--vm-glow-plasma)',
+                      minWidth: '240px',
+                      height: '70px'
+                    }}
+                  >
+                    <span className="relative z-10 flex items-center">
+                      Neural Awakening
+                      <Brain className="ml-3 h-6 w-6" />
+                    </span>
+                    <div 
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                      style={{ background: 'var(--vm-gradient-holographic)' }}
+                    />
+                  </Button>
+                </motion.div>
+              </Link>
+            )}
+            
+            <motion.div 
+              whileHover={{ scale: 1.1, y: -5 }} 
+              whileTap={{ scale: 0.95 }}
+              className="group"
+            >
+              <Button
+                variant="outline"
+                size="lg"
+                className="px-12 py-6 text-xl font-bold rounded-2xl border-2"
+                style={{ 
+                  borderColor: 'var(--vm-neural-electric-blue)',
+                  background: 'rgba(0, 212, 255, 0.1)',
+                  color: 'var(--vm-neural-electric-blue)',
+                  minWidth: '240px',
+                  height: '70px',
+                  backdropFilter: 'blur(10px)'
+                }}
+              >
+                <Play className="mr-3 h-6 w-6" />
+                Experience Demo
+              </Button>
             </motion.div>
-          </div>
+          </motion.div>
+
+          {/* Voice spectrum visualization */}
+          <motion.div
+            className="flex justify-center items-end space-x-2 mb-16 h-32"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, delay: 1.5 }}
+          >
+            {Array.from({ length: 40 }).map((_, i) => (
+              <motion.div
+                key={i}
+                className="w-2 rounded-full"
+                style={{
+                  background: `var(--vm-gradient-${['voice-spectrum', 'energy-plasma', 'ai-consciousness', 'matrix-flow'][i % 4]})`
+                }}
+                animate={{
+                  height: [
+                    20 + Math.random() * 40,
+                    60 + Math.random() * 60,
+                    10 + Math.random() * 30,
+                    80 + Math.random() * 40
+                  ]
+                }}
+                transition={{
+                  duration: 1.5 + Math.random(),
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: i * 0.05
+                }}
+              />
+            ))}
+          </motion.div>
         </div>
       </section>
 
-      {/* Features Section with Advanced Animations */}
-      <section className="py-32 px-6 lg:px-8 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto relative z-10">
+      {/* Revolutionary Features Section */}
+      <section className="py-32 px-6 lg:px-8 relative">
+        <div className="max-w-7xl mx-auto">
           <motion.div
+            className="text-center mb-20"
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="text-center mb-20"
+            transition={{ duration: 0.8 }}
           >
-            <h2 className="text-4xl sm:text-5xl font-bold mb-6" style={{ color: 'var(--vm-pure)' }}>
-              Revolutionary AI Technology
+            <h2 
+              className="text-5xl sm:text-6xl font-bold mb-8"
+              style={{
+                background: 'var(--vm-gradient-holographic)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}
+            >
+              Neural Capabilities
             </h2>
-            <p className="text-xl max-w-3xl mx-auto leading-relaxed" style={{ color: 'var(--vm-gray-300)' }}>
-              Experience the future of conversational AI with our enterprise-grade voice intelligence platform
+            <p 
+              className="text-2xl max-w-4xl mx-auto leading-relaxed"
+              style={{ color: 'var(--vm-ai-consciousness-cyan)' }}
+            >
+              Revolutionary AI technology that transcends traditional voice processing
             </p>
           </motion.div>
 
@@ -523,170 +895,74 @@ function HomeContent() {
             {features.map((feature, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 40 }}
+                className="relative group vm-magnetic-card"
+                initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                whileHover={{ y: -10, scale: 1.02 }}
-                className="vm-card-feature p-8 group cursor-pointer"
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                whileHover={{ 
+                  y: -15, 
+                  scale: 1.05,
+                  rotateX: 5,
+                  rotateY: 5
+                }}
               >
-                <motion.div
-                  whileHover={{ rotate: 360, scale: 1.1 }}
-                  transition={{ duration: 0.6 }}
-                  className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-lg"
+                <div 
+                  className="p-8 rounded-3xl relative overflow-hidden backdrop-blur-xl border-2"
                   style={{ 
-                    background: `linear-gradient(135deg, ${feature.color}, ${feature.color}90)`,
+                    background: `linear-gradient(135deg, ${feature.color}10 0%, transparent 100%)`,
+                    borderColor: `${feature.color}30`,
+                    boxShadow: `0 20px 40px rgba(0, 0, 0, 0.3)`
                   }}
                 >
-                  <feature.icon className="w-8 h-8 text-white" />
-                </motion.div>
-                
-                <h3 className="text-xl font-semibold mb-4" style={{ color: 'var(--vm-pure)' }}>
-                  {feature.title}
-                </h3>
-                <p className="leading-relaxed" style={{ color: 'var(--vm-gray-300)' }}>
-                  {feature.description}
-                </p>
-
-                <motion.div
-                  initial={{ width: 0 }}
-                  whileHover={{ width: "100%" }}
-                  transition={{ duration: 0.3 }}
-                  className="h-0.5 mt-6 rounded-full"
-                  style={{ background: feature.color }}
-                />
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Interactive Voice Preview Section */}
-      <section className="py-32 px-6 lg:px-8 relative">
-        <div className="max-w-6xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="mb-16"
-          >
-            <h2 className="text-4xl sm:text-5xl font-bold mb-6" style={{ color: 'var(--vm-pure)' }}>
-              Experience the Voice Difference
-            </h2>
-            <p className="text-xl max-w-3xl mx-auto leading-relaxed" style={{ color: 'var(--vm-gray-300)' }}>
-              Listen to our AI assistants handle real conversations with natural, engaging responses
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="vm-card p-12 max-w-2xl mx-auto"
-          >
-            <div className="flex items-center justify-center mb-8">
-              <motion.div
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                className="w-24 h-24 rounded-full flex items-center justify-center cursor-pointer shadow-2xl"
-                style={{ background: 'var(--vm-gradient-brand)' }}
-              >
-                <Play className="w-10 h-10 text-white ml-1" />
-              </motion.div>
-            </div>
-            
-            <h3 className="text-2xl font-semibold mb-4" style={{ color: 'var(--vm-pure)' }}>
-              Real Estate Lead Qualification Demo
-            </h3>
-            <p className="mb-6" style={{ color: 'var(--vm-gray-300)' }}>
-              Hear how our AI handles a complex lead qualification call with natural conversation flow
-            </p>
-            
-            <div className="flex items-center justify-center gap-4">
-              <motion.div
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="w-3 h-3 rounded-full"
-                style={{ background: 'var(--vm-orange-primary)' }}
-              />
-              <span className="text-sm" style={{ color: 'var(--vm-gray-400)' }}>
-                2:34 Duration
-              </span>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Social Proof Section */}
-      <section className="py-32 px-6 lg:px-8 relative">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center mb-20"
-          >
-            <h2 className="text-4xl sm:text-5xl font-bold mb-6" style={{ color: 'var(--vm-pure)' }}>
-              Trusted by Industry Leaders
-            </h2>
-            <p className="text-xl max-w-3xl mx-auto leading-relaxed" style={{ color: 'var(--vm-gray-300)' }}>
-              Join thousands of professionals who've transformed their business with Voice Matrix
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -5, scale: 1.02 }}
-                className="vm-card p-8 relative"
-              >
-                <motion.div
-                  initial={{ scale: 0 }}
-                  whileInView={{ scale: 1 }}
-                  transition={{ duration: 0.4, delay: index * 0.1 + 0.3 }}
-                  viewport={{ once: true }}
-                  className="flex mb-6"
-                >
-                  {[...Array(testimonial.rating)].map((_, i) => (
+                  {/* Animated border effect */}
+                  <div 
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl"
+                    style={{ 
+                      background: feature.gradient,
+                      filter: 'blur(20px)',
+                      transform: 'scale(1.1)'
+                    }}
+                  />
+                  
+                  <div className="relative z-10">
                     <motion.div
-                      key={i}
-                      initial={{ opacity: 0, scale: 0 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.3, delay: index * 0.1 + 0.4 + i * 0.1 }}
-                      viewport={{ once: true }}
+                      className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6 mx-auto"
+                      style={{ 
+                        background: feature.gradient,
+                        boxShadow: `0 0 30px ${feature.color}60`
+                      }}
+                      whileHover={{ 
+                        rotate: 360,
+                        scale: 1.2
+                      }}
+                      transition={{ duration: 0.6 }}
                     >
-                      <Star className="w-5 h-5 fill-current" style={{ color: 'var(--vm-warning)' }} />
+                      <feature.icon className="w-10 h-10 text-white" />
                     </motion.div>
-                  ))}
-                </motion.div>
-                
-                <blockquote className="text-lg mb-8 leading-relaxed italic" style={{ color: 'var(--vm-gray-100)' }}>
-                  "{testimonial.content}"
-                </blockquote>
-                
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-2xl" 
-                       style={{ background: 'var(--vm-gradient-brand)' }}>
-                    {testimonial.avatar}
-                  </div>
-                  <div>
-                    <div className="font-semibold" style={{ color: 'var(--vm-pure)' }}>
-                      {testimonial.name}
-                    </div>
-                    <div className="text-sm" style={{ color: 'var(--vm-gray-400)' }}>
-                      {testimonial.role}
-                    </div>
-                    <div className="text-sm font-medium" style={{ color: 'var(--vm-orange-light)' }}>
-                      {testimonial.company}
-                    </div>
+                    
+                    <h3 
+                      className="text-2xl font-bold mb-4 text-center"
+                      style={{ color: feature.color }}
+                    >
+                      {feature.title}
+                    </h3>
+                    
+                    <p 
+                      className="text-center leading-relaxed"
+                      style={{ color: 'var(--vm-ai-consciousness-cyan)' }}
+                    >
+                      {feature.description}
+                    </p>
+                    
+                    <motion.div
+                      className="mt-6 h-1 rounded-full mx-auto"
+                      style={{ background: feature.gradient }}
+                      initial={{ width: 0 }}
+                      whileInView={{ width: '100%' }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 1, delay: index * 0.1 + 0.5 }}
+                    />
                   </div>
                 </div>
               </motion.div>
@@ -695,189 +971,168 @@ function HomeContent() {
         </div>
       </section>
 
-      {/* CTA Section with Magnetic Effects */}
+      {/* Neural CTA Section */}
       <section className="py-32 px-6 lg:px-8 relative overflow-hidden">
         <motion.div
-          className="absolute inset-0 opacity-5"
+          className="absolute inset-0"
           animate={{ 
             background: [
-              'radial-gradient(circle at 20% 50%, var(--vm-orange-primary) 0%, transparent 50%)',
-              'radial-gradient(circle at 80% 50%, var(--vm-violet) 0%, transparent 50%)',
-              'radial-gradient(circle at 20% 50%, var(--vm-orange-primary) 0%, transparent 50%)'
+              'radial-gradient(circle at 20% 50%, var(--vm-energy-plasma-pink) 0%, transparent 50%)',
+              'radial-gradient(circle at 80% 50%, var(--vm-neural-electric-blue) 0%, transparent 50%)',
+              'radial-gradient(circle at 50% 20%, var(--vm-matrix-neon-green) 0%, transparent 50%)',
+              'radial-gradient(circle at 20% 50%, var(--vm-energy-plasma-pink) 0%, transparent 50%)'
             ]
           }}
-          transition={{ duration: 8, repeat: Infinity }}
+          transition={{ duration: 10, repeat: Infinity }}
         />
         
-        <div className="max-w-4xl mx-auto text-center relative z-10">
+        <div className="max-w-5xl mx-auto text-center relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
+            transition={{ duration: 1 }}
           >
-            <h2 className="text-4xl sm:text-6xl font-bold mb-8" style={{ color: 'var(--vm-pure)' }}>
-              Ready to Transform Your
-              <span className="block bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
-                Business Growth?
-              </span>
+            <h2 
+              className="text-5xl sm:text-7xl font-bold mb-8"
+              style={{
+                background: 'var(--vm-gradient-holographic)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                filter: 'drop-shadow(0 0 30px rgba(0, 255, 255, 0.5))'
+              }}
+            >
+              Ready to Evolve?
             </h2>
             
-            <p className="text-xl mb-12 max-w-2xl mx-auto leading-relaxed" style={{ color: 'var(--vm-gray-300)' }}>
-              Join thousands of professionals who never miss a lead with our revolutionary AI voice assistants
+            <p 
+              className="text-2xl mb-12 max-w-3xl mx-auto leading-relaxed"
+              style={{ color: 'var(--vm-ai-consciousness-cyan)' }}
+            >
+              Join the neural revolution and experience the future of AI voice technology
             </p>
             
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              viewport={{ once: true }}
-              className="flex flex-col sm:flex-row gap-6 justify-center mb-12"
+              whileHover={{ scale: 1.1, y: -10 }}
+              whileTap={{ scale: 0.95 }}
+              className="group inline-block"
             >
               {user ? (
                 <Link href="/dashboard">
-                  <motion.div 
-                    whileHover={{ scale: 1.05, y: -3 }} 
-                    whileTap={{ scale: 0.95 }}
-                    className="group"
+                  <Button 
+                    size="lg" 
+                    className="relative overflow-hidden px-16 py-8 text-2xl font-bold rounded-3xl"
+                    style={{ 
+                      background: 'var(--vm-gradient-matrix-flow)',
+                      border: 'none',
+                      boxShadow: 'var(--vm-glow-consciousness)',
+                      minWidth: '320px',
+                      height: '90px'
+                    }}
                   >
-                    <Button size="lg" className="vm-button-primary text-lg px-12 py-6 h-16 shadow-2xl">
-                      <motion.span
-                        whileHover={{ x: -5 }}
-                        transition={{ type: "spring", stiffness: 400 }}
-                      >
-                        Launch Dashboard
-                      </motion.span>
-                      <motion.div
-                        whileHover={{ x: 5 }}
-                        transition={{ type: "spring", stiffness: 400 }}
-                      >
-                        <ArrowRight className="ml-3 h-6 w-6" />
-                      </motion.div>
-                    </Button>
-                  </motion.div>
+                    <span className="relative z-10 flex items-center">
+                      Enter Neural Matrix
+                      <ArrowRight className="ml-4 h-8 w-8" />
+                    </span>
+                    <div 
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                      style={{ background: 'var(--vm-gradient-holographic)' }}
+                    />
+                  </Button>
                 </Link>
               ) : (
                 <Link href="/signup">
-                  <motion.div 
-                    whileHover={{ scale: 1.05, y: -3 }} 
-                    whileTap={{ scale: 0.95 }}
-                    className="group"
+                  <Button 
+                    size="lg" 
+                    className="relative overflow-hidden px-16 py-8 text-2xl font-bold rounded-3xl"
+                    style={{ 
+                      background: 'var(--vm-gradient-energy-plasma)',
+                      border: 'none',
+                      boxShadow: 'var(--vm-glow-plasma)',
+                      minWidth: '320px',
+                      height: '90px'
+                    }}
                   >
-                    <Button size="lg" className="vm-button-primary text-lg px-12 py-6 h-16 shadow-2xl">
-                      <motion.span
-                        whileHover={{ x: -5 }}
-                        transition={{ type: "spring", stiffness: 400 }}
-                      >
-                        Start Free Trial
-                      </motion.span>
-                      <motion.div
-                        whileHover={{ x: 5 }}
-                        transition={{ type: "spring", stiffness: 400 }}
-                      >
-                        <ArrowRight className="ml-3 h-6 w-6" />
-                      </motion.div>
-                    </Button>
-                  </motion.div>
+                    <span className="relative z-10 flex items-center">
+                      Begin Neural Evolution
+                      <Brain className="ml-4 h-8 w-8" />
+                    </span>
+                    <div 
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                      style={{ background: 'var(--vm-gradient-holographic)' }}
+                    />
+                  </Button>
                 </Link>
               )}
             </motion.div>
-
+            
             <motion.p
+              className="text-sm mt-8"
+              style={{ color: 'var(--vm-matrix-neon-green)' }}
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.5 }}
               viewport={{ once: true }}
-              className="text-sm"
-              style={{ color: 'var(--vm-gray-400)' }}
+              transition={{ delay: 0.5 }}
             >
-              ⚡ Instant setup • 🔒 Enterprise security • 💰 No credit card required
+              ⚡ Instant neural activation • 🧠 Quantum consciousness • 🔮 Revolutionary experience
             </motion.p>
           </motion.div>
         </div>
       </section>
 
-      {/* Premium Footer */}
-      <footer className="py-20 px-6 lg:px-8 relative" style={{ 
-        background: 'var(--vm-surface)',
-        borderTop: '1px solid var(--vm-border-subtle)' 
-      }}>
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="md:col-span-1"
-            >
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--vm-gradient-brand)' }}>
-                  <Radio className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold" style={{ color: 'var(--vm-pure)' }}>
-                  Voice Matrix
-                </h3>
-              </div>
-              <p className="leading-relaxed" style={{ color: 'var(--vm-gray-400)' }}>
-                Revolutionary AI voice assistants for the future of business communication.
-              </p>
-            </motion.div>
-            
-            {[
-              {
-                title: "Product", 
-                links: ["Features", "Pricing", "Integrations", "API Documentation"]
-              },
-              {
-                title: "Company",
-                links: ["About Us", "Careers", "Press", "Contact"]
-              },
-              {
-                title: "Support",
-                links: ["Help Center", "Documentation", "Status", "Security"]
-              }
-            ].map((column, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <h4 className="font-semibold mb-6" style={{ color: 'var(--vm-pure)' }}>
-                  {column.title}
-                </h4>
-                <ul className="space-y-4">
-                  {column.links.map((link, linkIndex) => (
-                    <li key={linkIndex}>
-                      <motion.a
-                        href="#"
-                        whileHover={{ x: 5 }}
-                        className="transition-colors hover:text-orange-400"
-                        style={{ color: 'var(--vm-gray-400)' }}
-                      >
-                        {link}
-                      </motion.a>
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
-            ))}
-          </div>
-          
+      {/* Neural Footer */}
+      <footer 
+        className="py-20 px-6 lg:px-8 relative"
+        style={{ 
+          background: 'var(--vm-gradient-void)',
+          borderTop: '2px solid var(--vm-neural-electric-blue)'
+        }}
+      >
+        <div className="max-w-7xl mx-auto text-center">
           <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            className="flex items-center justify-center gap-4 mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="border-t pt-12 mt-16 text-center"
-            style={{ borderColor: 'var(--vm-border-subtle)' }}
           >
-            <p style={{ color: 'var(--vm-gray-400)' }}>
-              © 2024 Voice Matrix. All rights reserved. Built with ❤️ for the future of AI.
-            </p>
+            <div 
+              className="w-12 h-12 rounded-xl flex items-center justify-center"
+              style={{ 
+                background: 'var(--vm-gradient-matrix-flow)',
+                boxShadow: 'var(--vm-glow-matrix)'
+              }}
+            >
+              <Radio className="w-6 h-6 text-white" />
+            </div>
+            <h3 
+              className="text-3xl font-bold"
+              style={{
+                background: 'var(--vm-gradient-holographic)', 
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}
+            >
+              Voice Matrix
+            </h3>
           </motion.div>
+          
+          <p 
+            className="text-xl mb-8"
+            style={{ color: 'var(--vm-ai-consciousness-cyan)' }}
+          >
+            Revolutionary AI voice consciousness for the future of communication
+          </p>
+          
+          <motion.p 
+            className="text-sm"
+            style={{ color: 'var(--vm-matrix-neon-green)' }}
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 3, repeat: Infinity }}
+          >
+            © 2024 Voice Matrix • Neural AI Technology • Built for the Future
+          </motion.p>
         </div>
       </footer>
     </div>
@@ -890,19 +1145,13 @@ export default function HomePage() {
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--vm-void)' }}>
         <div className="text-center">
           <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
             className="text-2xl font-bold mb-4"
-            style={{ color: 'var(--vm-orange-primary)' }}
+            style={{ color: 'var(--vm-neural-electric-blue)' }}
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity }}
           >
-            Voice Matrix
+            Neural Matrix Initializing...
           </motion.h1>
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            className="w-8 h-8 border-2 border-t-transparent rounded-full mx-auto"
-            style={{ borderColor: 'var(--vm-orange-primary)', borderTopColor: 'transparent' }}
-          />
         </div>
       </div>
     }>
