@@ -145,6 +145,12 @@ export class PhoneNumberService {
         throw new ValidationError('Assistant not found or not owned by user')
       }
       
+      // Additional validation: Ensure the assistant has a proper VAPI ID (not fallback)
+      if (assistant.vapi_assistant_id?.startsWith('fallback_')) {
+        console.error('🎯 [PHONE SERVICE] ❌ Assistant has fallback VAPI ID:', assistant.vapi_assistant_id)
+        throw new ValidationError('This assistant was not properly created with VAPI integration. Please create a new assistant.')
+      }
+      
       const vapiAssistantId = assistant.vapi_assistant_id
       console.log('🎯 [PHONE SERVICE] ✅ Assistant found, VAPI ID:', vapiAssistantId)
       
