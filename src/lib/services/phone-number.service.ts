@@ -18,7 +18,7 @@ const PhoneNumberSchema = z.object({
   friendlyName: z.string().min(1).max(100, 'Friendly name must be 1-100 characters'),
   twilioAccountSid: z.string().min(1, 'Twilio Account SID is required'),
   twilioAuthToken: z.string().min(1, 'Twilio Auth Token is required'),
-  assistantId: z.string().uuid().nullable().optional()
+  assistantId: z.string().uuid('Assistant ID must be a valid UUID')
 })
 
 const AssignmentSchema = z.object({
@@ -49,7 +49,7 @@ export interface CreatePhoneNumberRequest {
   friendlyName: string
   twilioAccountSid: string
   twilioAuthToken: string
-  assistantId?: string | null
+  assistantId: string
 }
 
 export interface AssignAssistantRequest {
@@ -109,20 +109,19 @@ export class PhoneNumberService {
       // Create phone number in VAPI first
       const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/phone/${userId}`
       
-      // Get assistant's VAPI ID if assigned
-      let vapiAssistantId: string | null = null
-      if (request.assistantId) {
-        const { data: assistant } = await supabase
-          .from('user_assistants')
-          .select('vapi_assistant_id')
-          .eq('id', request.assistantId)
-          .eq('user_id', userId)
-          .single()
-        
-        if (assistant) {
-          vapiAssistantId = assistant.vapi_assistant_id
-        }
+      // Get assistant's VAPI ID (required)
+      const { data: assistant, error: assistantError } = await supabase
+        .from('user_assistants')
+        .select('vapi_assistant_id')
+        .eq('id', request.assistantId)
+        .eq('user_id', userId)
+        .single()
+      
+      if (assistantError || !assistant) {
+        throw new ValidationError('Assistant not found or not owned by user')
       }
+      
+      const vapiAssistantId = assistant.vapi_assistant_id
       
       // Common server configuration for Make.com webhook
       const serverConfig = {
@@ -174,7 +173,7 @@ export class PhoneNumberService {
           twilio_account_sid: validatedData.twilioAccountSid,
           twilio_auth_token: validatedData.twilioAuthToken, // Store encrypted in production
           webhook_url: webhookUrl,
-          assigned_assistant_id: request.assistantId || null,
+          assigned_assistant_id: request.assistantId,
           is_active: true
         })
         .select('*')
