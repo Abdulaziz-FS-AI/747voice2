@@ -532,15 +532,7 @@ export async function createVapiAssistant(assistantData: {
       maxDurationSeconds: assistantData.maxDurationSeconds || 300,
       backgroundSound: assistantData.backgroundSound || 'office',
       analysisPlan: analysisPlan,
-      clientMessages: assistantData.clientMessages && assistantData.clientMessages.length > 0 
-        ? assistantData.clientMessages.filter(msg => [
-            'conversation-update', 'function-call', 'function-call-result', 'hang', 
-            'language-changed', 'metadata', 'model-output', 'speech-update', 
-            'status-update', 'transcript', 'tool-calls', 'tool-calls-result', 
-            'tool-completed', 'transfer-update', 'user-interrupted', 'voice-input', 
-            'workflow-node-started'
-          ].includes(msg))
-        : ['transcript', 'hang'], // Default to basic client messages
+      clientMessages: ['transcript'], // Only transcript for client messages
       endCallMessage: "Thank you for calling! Have a great day!",
       recordingEnabled: true,
       fillersEnabled: true,
