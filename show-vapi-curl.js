@@ -55,7 +55,11 @@ const assistantPayload = {
   responseDelaySeconds: 0.4,
   server: {
     url: process.env.MAKE_WEBHOOK_URL || "https://hook.eu2.make.com/example",
-    secret: process.env.MAKE_WEBHOOK_SECRET || "webhook-secret"
+    secret: process.env.MAKE_WEBHOOK_SECRET || "webhook-secret",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Webhook-Source": "vapi-assistant"
+    }
   },
   serverMessages: ["end-of-call-report"] // Fixed backend value
 }

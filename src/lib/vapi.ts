@@ -496,7 +496,11 @@ export async function createVapiAssistant(assistantData: {
       const webhookSecret = process.env.MAKE_WEBHOOK_SECRET || '';
       serverConfig = {
         url: process.env.MAKE_WEBHOOK_URL,
-        ...(webhookSecret && { secret: webhookSecret })
+        ...(webhookSecret && { secret: webhookSecret }),
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Webhook-Source': 'vapi-assistant'
+        }
       };
       
       console.log('[VAPI] Using webhook configuration:', process.env.MAKE_WEBHOOK_URL);
