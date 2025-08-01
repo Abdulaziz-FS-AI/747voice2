@@ -66,7 +66,7 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
     defaultValues: {
       friendlyName: '',
       phoneNumber: '',
-      assignedAssistantId: '',
+      assignedAssistantId: undefined,
       notes: '',
       twilioAccountSid: '',
       twilioAuthToken: '',
@@ -123,7 +123,7 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
         friendlyName: data.friendlyName,
         twilioAccountSid: data.twilioAccountSid,
         twilioAuthToken: data.twilioAuthToken,
-        assistantId: data.assignedAssistantId || null
+        assistantId: data.assignedAssistantId && data.assignedAssistantId !== '' ? data.assignedAssistantId : null
       }
 
       console.log('Sending phone number creation request:', {
@@ -431,7 +431,10 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
                 <Label htmlFor="assignedAssistantId" className="text-sm font-semibold vm-text-primary">
                   Assign to Assistant (Optional)
                 </Label>
-                <Select onValueChange={(value) => setValue('assignedAssistantId', value === 'unassigned' ? undefined : value)}>
+                <Select 
+                  value={watch('assignedAssistantId') || 'unassigned'} 
+                  onValueChange={(value) => setValue('assignedAssistantId', value === 'unassigned' ? undefined : value)}
+                >
                   <SelectTrigger className="h-12 rounded-xl transition-all duration-200 focus:shadow-lg focus:shadow-orange-500/20" style={{
                     background: 'var(--vm-background)',
                     border: '1px solid var(--vm-border-subtle)',
