@@ -2,58 +2,80 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  console.log('🔒 [MIDDLEWARE] Request:', request.nextUrl.pathname);
+  
   const response = NextResponse.next({
     request: {
       headers: request.headers,
     },
   })
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value
+  try {
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            const cookie = request.cookies.get(name)?.value;
+            console.log('🔒 [MIDDLEWARE] Getting cookie:', name, cookie ? 'present' : 'missing');
+            return cookie;
+          },
+          set(name: string, value: string, options: CookieOptions) {
+            console.log('🔒 [MIDDLEWARE] Setting cookie:', name);
+            response.cookies.set({
+              name,
+              value,
+              ...options,
+            })
+          },
+          remove(name: string, options: CookieOptions) {
+            console.log('🔒 [MIDDLEWARE] Removing cookie:', name);
+            response.cookies.set({
+              name,
+              value: '',
+              ...options,
+            })
+          },
         },
-        set(name: string, value: string, options: CookieOptions) {
-          response.cookies.set({
-            name,
-            value,
-            ...options,
-          })
-        },
-        remove(name: string, options: CookieOptions) {
-          response.cookies.set({
-            name,
-            value: '',
-            ...options,
-          })
-        },
-      },
+      }
+    )
+
+    const { data: { user }, error } = await supabase.auth.getUser();
+    console.log('🔒 [MIDDLEWARE] Auth check:', {
+      hasUser: !!user,
+      userId: user?.id,
+      error: error?.message
+    });
+
+    // Allow auth callback route without authentication
+    if (request.nextUrl.pathname === '/auth/callback') {
+      console.log('🔒 [MIDDLEWARE] Allowing auth callback');
+      return response
     }
-  )
 
-  const { data: { user } } = await supabase.auth.getUser()
+    // Protect dashboard routes
+    if (request.nextUrl.pathname.startsWith('/dashboard')) {
+      if (!user) {
+        console.log('🔒 [MIDDLEWARE] Redirecting to login - no user');
+        return NextResponse.redirect(new URL('/login', request.url))
+      }
+      console.log('🔒 [MIDDLEWARE] User authenticated, allowing dashboard access');
+    }
 
-  // Allow auth callback route without authentication
-  if (request.nextUrl.pathname === '/auth/callback') {
+    // Redirect authenticated users away from auth pages
+    if (user && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/signup')) {
+      console.log('🔒 [MIDDLEWARE] Redirecting authenticated user to dashboard');
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+
+    console.log('🔒 [MIDDLEWARE] Request allowed');
+    return response
+  } catch (error) {
+    console.error('❌ [MIDDLEWARE] Error:', error);
+    // Allow request to continue on middleware error
     return response
   }
-
-  // Protect dashboard routes
-  if (request.nextUrl.pathname.startsWith('/dashboard')) {
-    if (!user) {
-      return NextResponse.redirect(new URL('/login', request.url))
-    }
-  }
-
-  // Redirect authenticated users away from auth pages
-  if (user && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/signup')) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
-  }
-
-  return response
 }
 
 export const config = {

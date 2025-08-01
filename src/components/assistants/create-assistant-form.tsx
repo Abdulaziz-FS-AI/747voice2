@@ -80,7 +80,7 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
   const formValues = watch()
 
   const onSubmit = async (data: AssistantFormData) => {
-    console.log('Form submitted with data:', data)
+    console.log('🚀 [FORM] Form submitted with data:', data)
     setIsLoading(true)
     
     try {
@@ -107,7 +107,9 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
         template_id: templateData?.templateId || undefined
       }
       
-      console.log('Submitting assistant data:', submitData)
+      console.log('📤 [FORM] Submitting assistant data:', submitData)
+      console.log('📤 [FORM] Current URL:', window.location.href)
+      console.log('📤 [FORM] Making fetch request to /api/assistants')
       
       const response = await fetch('/api/assistants', {
         method: 'POST',
@@ -117,11 +119,27 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
         body: JSON.stringify(submitData)
       })
 
-      const result = await response.json()
-      console.log('API Response:', result)
+      console.log('📥 [FORM] Response received:', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries()),
+        ok: response.ok
+      })
+
+      let result
+      try {
+        const responseText = await response.text()
+        console.log('📥 [FORM] Raw response text:', responseText)
+        result = JSON.parse(responseText)
+        console.log('📥 [FORM] Parsed response:', result)
+      } catch (parseError) {
+        console.error('❌ [FORM] Failed to parse response as JSON:', parseError)
+        throw new Error(`Invalid response from server. Status: ${response.status}, Text: ${await response.text()}`)
+      }
 
       // Check if assistant was created (even if VAPI failed)
       if (result.success || (result.error?.assistantId)) {
+        console.log('✅ [FORM] Assistant creation successful!')
         toast({
           title: 'Assistant Created!',
           description: 'Your assistant has been created successfully and saved to the database.',
@@ -131,13 +149,26 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
           router.push('/dashboard/assistants')
         }, 1000)
       } else {
+        console.error('❌ [FORM] Assistant creation failed:', result)
+        console.error('❌ [FORM] Error details:', {
+          success: result.success,
+          error: result.error,
+          errorCode: result.error?.code,
+          errorMessage: result.error?.message,
+          errorDetails: result.error?.details
+        })
         throw new Error(result.error?.message || 'Failed to create assistant')
       }
     } catch (error) {
-      console.error('Error creating assistant:', error)
+      console.error('❌ [FORM] Error creating assistant:', error)
+      console.error('❌ [FORM] Error type:', typeof error)
+      console.error('❌ [FORM] Error name:', error instanceof Error ? error.name : 'Unknown')
+      console.error('❌ [FORM] Error message:', error instanceof Error ? error.message : String(error))
+      console.error('❌ [FORM] Error stack:', error instanceof Error ? error.stack : 'No stack')
+      
       toast({
         title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to create assistant',
+        description: error instanceof Error ? error.message : 'An unexpected error occurred',
         variant: 'destructive',
       })
     } finally {

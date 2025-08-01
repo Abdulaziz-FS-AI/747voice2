@@ -25,50 +25,77 @@ export class SubscriptionError extends Error {
 }
 
 export async function authenticateRequest() {
-  const supabase = await createServerSupabaseClient()
+  console.log('🔐 [AUTH] Starting authentication request');
   
-  const { data: { user }, error } = await supabase.auth.getUser()
-  
-  if (error || !user) {
-    throw new AuthError('Authentication required', 401)
-  }
+  try {
+    const supabase = await createServerSupabaseClient()
+    console.log('🔐 [AUTH] Supabase client created');
+    
+    // Add timeout to auth request
+    const authPromise = supabase.auth.getUser();
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Authentication timeout')), 10000)
+    );
+    
+    const { data: { user }, error } = await Promise.race([authPromise, timeoutPromise]) as any;
+    
+    console.log('🔐 [AUTH] Auth result:', {
+      hasUser: !!user,
+      userId: user?.id,
+      error: error?.message
+    });
+    
+    if (error || !user) {
+      console.log('🔐 [AUTH] Authentication failed');
+      throw new AuthError('Authentication required', 401)
+    }
 
-  // Get user profile from profiles table
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
+    console.log('🔐 [AUTH] Getting user profile');
 
-  if (profileError && profileError.code !== 'PGRST116') {
-    // If profile doesn't exist, create it
-    const { data: newProfile, error: createError } = await supabase
+    // Get user profile from profiles table
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .insert({
-        id: user.id,
-        email: user.email!,
-        onboarding_completed: false
-      })
-      .select()
+      .select('*')
+      .eq('id', user.id)
       .single()
 
-    if (createError) {
-      throw new AuthError('Failed to create user profile', 500)
+    if (profileError && profileError.code !== 'PGRST116') {
+      console.log('🔐 [AUTH] Creating missing profile');
+      // If profile doesn't exist, create it
+      const { data: newProfile, error: createError } = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          email: user.email!,
+          onboarding_completed: false
+        })
+        .select()
+        .single()
+
+      if (createError) {
+        console.error('❌ [AUTH] Failed to create user profile:', createError)
+        throw new AuthError('Failed to create user profile', 500)
+      }
+
+      console.log('🔐 [AUTH] Authentication successful with new profile');
+      return {
+        user,
+        profile: newProfile
+      }
     }
 
+    console.log('🔐 [AUTH] Authentication successful with existing profile');
     return {
       user,
-      profile: newProfile
+      profile: profile || { 
+        id: user.id, 
+        email: user.email,
+        onboarding_completed: false 
+      }
     }
-  }
-
-  return {
-    user,
-    profile: profile || { 
-      id: user.id, 
-      email: user.email,
-      onboarding_completed: false 
-    }
+  } catch (error) {
+    console.error('❌ [AUTH] Authentication error:', error);
+    throw error instanceof AuthError ? error : new AuthError('Authentication failed', 401);
   }
 }
 

@@ -56,7 +56,12 @@ export const VAPIError = VapiError;
 
 // API error handling
 export function handleAPIError(error: unknown): NextResponse {
-  console.error('API Error:', error);
+  console.error('❌ [ERROR HANDLER] ===== HANDLING API ERROR =====');
+  console.error('❌ [ERROR HANDLER] Error type:', typeof error);
+  console.error('❌ [ERROR HANDLER] Error name:', error instanceof Error ? error.name : 'Unknown');
+  console.error('❌ [ERROR HANDLER] Error message:', error instanceof Error ? error.message : String(error));
+  console.error('❌ [ERROR HANDLER] Error stack:', error instanceof Error ? error.stack : 'No stack');
+  console.error('❌ [ERROR HANDLER] Full error object:', error);
 
   // Handle known error types
   if (error instanceof AuthError) {
@@ -203,13 +208,22 @@ export function handleAPIError(error: unknown): NextResponse {
   }
 
   // Generic error fallback
+  console.error('❌ [ERROR HANDLER] Using generic error fallback');
   return NextResponse.json(
     {
       success: false,
       error: {
         code: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred',
-        details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : String(error)) : undefined
+        message: process.env.NODE_ENV === 'development' 
+          ? `Development Error: ${error instanceof Error ? error.message : String(error)}`
+          : 'An unexpected error occurred',
+        details: process.env.NODE_ENV === 'development' ? {
+          errorType: typeof error,
+          errorName: error instanceof Error ? error.name : 'Unknown',
+          errorMessage: error instanceof Error ? error.message : String(error),
+          errorStack: error instanceof Error ? error.stack : 'No stack',
+          timestamp: new Date().toISOString()
+        } : undefined
       }
     },
     { status: 500 }

@@ -95,7 +95,10 @@ export async function POST(request: NextRequest) {
   let assistantCreated = false;
   
   try {
-    console.log('[Assistant API] Starting POST request');
+    console.log('🚀 [API] ===== STARTING ASSISTANT CREATION =====');
+    console.log('🚀 [API] Request method:', request.method);
+    console.log('🚀 [API] Request URL:', request.url);
+    console.log('🚀 [API] Request headers:', Object.fromEntries(request.headers.entries()));
     
     // Step 1: Validate environment configuration
     const requiredEnvVars = {
@@ -415,11 +418,17 @@ export async function POST(request: NextRequest) {
     }, { status: 201 });
     
   } catch (error) {
-    console.error('[Assistant API] Unhandled error in POST:', error);
-    console.error('[Assistant API] Error stack:', error instanceof Error ? error.stack : 'No stack');
+    console.error('❌ [API] ===== UNHANDLED ERROR IN ASSISTANT CREATION =====');
+    console.error('❌ [API] Error type:', typeof error);
+    console.error('❌ [API] Error name:', error instanceof Error ? error.name : 'Unknown');
+    console.error('❌ [API] Error message:', error instanceof Error ? error.message : String(error));
+    console.error('❌ [API] Error stack:', error instanceof Error ? error.stack : 'No stack');
+    console.error('❌ [API] Assistant created?', assistantCreated);
+    console.error('❌ [API] VAPI Assistant ID:', vapiAssistantId);
     
     // If we created an assistant but something failed after, include the ID in the response
     if (assistantCreated) {
+      console.log('⚠️  [API] Returning partial success response');
       return NextResponse.json({
         success: false,
         error: {
@@ -430,6 +439,7 @@ export async function POST(request: NextRequest) {
       }, { status: 207 }); // 207 Multi-Status
     }
     
+    console.log('❌ [API] Calling handleAPIError with:', error);
     return handleAPIError(error);
   }
 }
