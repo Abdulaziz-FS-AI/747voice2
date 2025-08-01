@@ -486,21 +486,24 @@ export async function createVapiAssistant(assistantData: {
       };
     }
 
-    // Create server configuration with updated header format
-    const webhookSecret = process.env.MAKE_WEBHOOK_SECRET || '';
-    const serverConfig = {
-      url: process.env.MAKE_WEBHOOK_URL || 'https://hook.eu2.make.com/m3olq7ealo40xevpjdar7573j2cst9uk',
-      secret: webhookSecret,
-      headers: {
-        'x-make-apikey': webhookSecret,
-        'Content-Type': 'application/json'
-      }
-    };
-
-    // Minimal server messages - only end-of-call report
-    const serverMessages = [
-      'end-of-call-report'      // Call analytics and summary only
-    ];
+    // Create server configuration - simplified for reliability
+    let serverConfig = null;
+    let serverMessages: string[] = [];
+    
+    // Only add server config if webhook URL is properly configured
+    if (process.env.MAKE_WEBHOOK_URL && process.env.MAKE_WEBHOOK_URL.startsWith('https://')) {
+      const webhookSecret = process.env.MAKE_WEBHOOK_SECRET || '';
+      serverConfig = {
+        url: process.env.MAKE_WEBHOOK_URL,
+        ...(webhookSecret && { secret: webhookSecret })
+      };
+      
+      // Only add server messages if we have server config
+      serverMessages = ['end-of-call-report'];
+      console.log('[VAPI] Using webhook configuration:', process.env.MAKE_WEBHOOK_URL);
+    } else {
+      console.log('[VAPI] No webhook configuration - creating assistant without server integration');
+    }
 
     console.log('[VAPI] Creating assistant with config:', {
       name: assistantData.name,
@@ -516,7 +519,8 @@ export async function createVapiAssistant(assistantData: {
       webhookUrl: process.env.MAKE_WEBHOOK_URL
     });
 
-    console.log('[VAPI] Full assistant payload being sent:', {
+    // Build the assistant payload
+    const assistantPayload: any = {
       name: assistantData.name,
       model: modelConfig,
       voice: voiceConfig,
@@ -526,28 +530,7 @@ export async function createVapiAssistant(assistantData: {
       maxDurationSeconds: assistantData.maxDurationSeconds || 300,
       backgroundSound: assistantData.backgroundSound || 'office',
       analysisPlan: analysisPlan,
-      server: {
-        ...serverConfig,
-        secret: serverConfig.secret ? '[REDACTED]' : 'NOT_SET'
-      },
-      serverMessages: serverMessages,
-      clientMessages: assistantData.clientMessages || []
-    });
-
-    const result = await vapiClient.createAssistant({
-      name: assistantData.name,
-      model: modelConfig,
-      voice: voiceConfig,
-      transcriber: transcriberConfig,
-      firstMessage: assistantData.firstMessage || 'Hello! How can I help you today?',
-      firstMessageMode: assistantData.firstMessageMode || 'assistant-speaks-first',
-      maxDurationSeconds: assistantData.maxDurationSeconds || 300,
-      backgroundSound: assistantData.backgroundSound || 'office',
-      analysisPlan: analysisPlan,
-      // Use new VAPI server format with headers
-      server: serverConfig,
-      serverMessages: serverMessages,
-      clientMessages: assistantData.clientMessages || [], // Use provided client messages or default to empty
+      clientMessages: assistantData.clientMessages || [],
       endCallMessage: "Thank you for calling! Have a great day!",
       recordingEnabled: true,
       fillersEnabled: true,
@@ -555,7 +538,20 @@ export async function createVapiAssistant(assistantData: {
       dialKeypadFunctionEnabled: false,
       silenceTimeoutSeconds: 30,
       responseDelaySeconds: 0.4,
+    };
+
+    // Only add server config if it exists
+    if (serverConfig) {
+      assistantPayload.server = serverConfig;
+      assistantPayload.serverMessages = serverMessages;
+    }
+
+    console.log('[VAPI] Full assistant payload being sent:', {
+      ...assistantPayload,
+      server: serverConfig ? { ...serverConfig, secret: '[REDACTED]' } : null
     });
+
+    const result = await vapiClient.createAssistant(assistantPayload);
 
     if (!result || !result.id) {
       throw new Error('VAPI returned invalid response - no assistant ID');

@@ -231,7 +231,7 @@ export async function POST(request: NextRequest) {
         : '') +
       `\n\nAlways maintain a ${personalityDescription} tone throughout the conversation.`;
 
-    console.log('[Assistant API] System prompt generated');
+    console.log('[Assistant API] System prompt generated, length:', systemPrompt.length);
 
     // Step 8: Create assistant in VAPI (with error handling)
     console.log('[Assistant API] VAPI_API_KEY present:', !!process.env.VAPI_API_KEY);
@@ -240,6 +240,15 @@ export async function POST(request: NextRequest) {
     if (process.env.VAPI_API_KEY) {
       try {
         console.log('[Assistant API] Creating assistant in VAPI...');
+        // Validate required fields before sending to VAPI
+        if (!validatedData.name || validatedData.name.trim().length === 0) {
+          throw new Error('Assistant name is required and cannot be empty');
+        }
+        
+        if (!firstMessage || firstMessage.trim().length === 0) {
+          throw new Error('First message is required and cannot be empty');
+        }
+        
         console.log('[Assistant API] VAPI payload preview:', {
           name: validatedData.name,
           modelId: validatedData.model_id,
