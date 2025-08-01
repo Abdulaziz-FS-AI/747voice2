@@ -532,7 +532,15 @@ export async function createVapiAssistant(assistantData: {
       maxDurationSeconds: assistantData.maxDurationSeconds || 300,
       backgroundSound: assistantData.backgroundSound || 'office',
       analysisPlan: analysisPlan,
-      clientMessages: assistantData.clientMessages || [],
+      clientMessages: assistantData.clientMessages && assistantData.clientMessages.length > 0 
+        ? assistantData.clientMessages.filter(msg => [
+            'conversation-update', 'function-call', 'function-call-result', 'hang', 
+            'language-changed', 'metadata', 'model-output', 'speech-update', 
+            'status-update', 'transcript', 'tool-calls', 'tool-calls-result', 
+            'tool-completed', 'transfer-update', 'user-interrupted', 'voice-input', 
+            'workflow-node-started'
+          ].includes(msg))
+        : ['transcript', 'hang'], // Default to basic client messages
       endCallMessage: "Thank you for calling! Have a great day!",
       recordingEnabled: true,
       fillersEnabled: true,
@@ -548,10 +556,17 @@ export async function createVapiAssistant(assistantData: {
       assistantPayload.serverMessages = serverMessages;
     }
 
-    console.log('[VAPI] Full assistant payload being sent:', {
+    console.log('[VAPI] ===== COMPLETE ASSISTANT PAYLOAD BEING SENT TO VAPI =====');
+    console.log('[VAPI] URL: https://api.vapi.ai/assistant');
+    console.log('[VAPI] Method: POST');
+    console.log('[VAPI] Headers:', {
+      'Authorization': 'Bearer [REDACTED]',
+      'Content-Type': 'application/json'
+    });
+    console.log('[VAPI] Full Payload:', JSON.stringify({
       ...assistantPayload,
       server: serverConfig ? { ...serverConfig, secret: serverConfig.secret ? '[REDACTED]' : undefined } : null
-    });
+    }, null, 2));
 
     const result = await vapiClient.createAssistant(assistantPayload);
 
