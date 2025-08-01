@@ -26,13 +26,16 @@ export async function GET(request: NextRequest) {
       return acc;
     }, { free: 0, pro: 0 });
     
-    // Get users approaching limits
-    const { data: usersNearLimit } = await supabase
+    // Get all users and filter those approaching limits
+    const { data: allUsers } = await supabase
       .from('profiles')
       .select('id, email, full_name, current_usage_minutes, max_minutes_monthly, subscription_type')
-      .gte('current_usage_minutes', supabase.raw('max_minutes_monthly * 0.8'))
-      .order('current_usage_minutes', { ascending: false })
-      .limit(20);
+      .order('current_usage_minutes', { ascending: false });
+    
+    // Filter users approaching limits (80% or more usage)
+    const usersNearLimit = allUsers?.filter(user => 
+      user.current_usage_minutes >= (user.max_minutes_monthly * 0.8)
+    ).slice(0, 20) || [];
     
     // Get recent subscription changes
     const { data: recentEvents } = await supabase

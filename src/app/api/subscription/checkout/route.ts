@@ -20,16 +20,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = CheckoutSchema.parse(body);
     
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || request.headers.get('origin') || '';
-    const successUrl = validatedData.successUrl || `${baseUrl}/settings/subscription?success=true`;
-    const cancelUrl = validatedData.cancelUrl || `${baseUrl}/settings/subscription`;
-    
     const checkoutUrl = await paymentService.createCheckoutSession(
       user.id,
       user.email || '',
-      validatedData.planId,
-      successUrl,
-      cancelUrl
+      validatedData.planId
     );
     
     return NextResponse.json({

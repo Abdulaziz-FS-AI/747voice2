@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSession, authOptions } from '@/lib/auth/next-auth-compat';
 import { PaymentService } from '@/lib/services/payment.service';
 import { handleApiError } from '@/lib/utils/api-utils';
-import { authOptions } from '@/lib/auth';
 
 const paymentService = new PaymentService();
 

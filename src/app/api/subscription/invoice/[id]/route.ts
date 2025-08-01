@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSession, authOptions } from '@/lib/auth/next-auth-compat';
 import { PaymentService } from '@/lib/services/payment.service';
 import { handleApiError } from '@/lib/utils/api-utils';
-import { authOptions } from '@/lib/auth';
 
 const paymentService = new PaymentService();
 
 // GET /api/subscription/invoice/[id] - Generate invoice for payment
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const params = await context.params;
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
