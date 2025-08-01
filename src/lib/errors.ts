@@ -209,20 +209,25 @@ export function handleAPIError(error: unknown): NextResponse {
 
   // Generic error fallback
   console.error('❌ [ERROR HANDLER] Using generic error fallback');
+  
+  // Show detailed errors in production for debugging (temporarily)
+  const showDetailedErrors = true; // Always show for debugging
+  
   return NextResponse.json(
     {
       success: false,
       error: {
         code: 'INTERNAL_ERROR',
-        message: process.env.NODE_ENV === 'development' 
-          ? `Development Error: ${error instanceof Error ? error.message : String(error)}`
+        message: showDetailedErrors 
+          ? `Error: ${error instanceof Error ? error.message : String(error)}`
           : 'An unexpected error occurred',
-        details: process.env.NODE_ENV === 'development' ? {
+        details: showDetailedErrors ? {
           errorType: typeof error,
           errorName: error instanceof Error ? error.name : 'Unknown',
           errorMessage: error instanceof Error ? error.message : String(error),
-          errorStack: error instanceof Error ? error.stack : 'No stack',
-          timestamp: new Date().toISOString()
+          errorStack: error instanceof Error ? error.stack?.split('\n').slice(0, 5).join('\n') : 'No stack',
+          timestamp: new Date().toISOString(),
+          environment: process.env.NODE_ENV || 'unknown'
         } : undefined
       }
     },

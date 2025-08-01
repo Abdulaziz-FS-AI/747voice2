@@ -108,18 +108,31 @@ export async function POST(request: NextRequest) {
       SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY
     };
     
+    console.log('🚀 [API] Environment check:', {
+      VAPI_API_KEY: !!process.env.VAPI_API_KEY,
+      NEXT_PUBLIC_SUPABASE_URL: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      SUPABASE_SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+      NODE_ENV: process.env.NODE_ENV,
+      VERCEL: process.env.VERCEL
+    });
+    
     const missingEnvVars = Object.entries(requiredEnvVars)
       .filter(([, value]) => !value)
       .map(([key]) => key);
     
     if (missingEnvVars.length > 0) {
-      console.error('[Assistant API] Missing environment variables:', missingEnvVars);
+      console.error('🚀 [API] Missing environment variables:', missingEnvVars);
       return NextResponse.json({
         success: false,
         error: { 
           code: 'CONFIGURATION_ERROR', 
-          message: 'Server configuration is incomplete. Please contact support.',
-          details: process.env.NODE_ENV === 'development' ? { missing: missingEnvVars } : undefined
+          message: `Server configuration is incomplete. Missing: ${missingEnvVars.join(', ')}`,
+          details: { 
+            missing: missingEnvVars,
+            environment: process.env.NODE_ENV,
+            platform: process.env.VERCEL ? 'Vercel' : 'Local'
+          }
         }
       }, { status: 500 });
     }

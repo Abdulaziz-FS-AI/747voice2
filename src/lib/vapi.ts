@@ -81,7 +81,9 @@ class VapiClient {
       
       // Create timeout with AbortController for compatibility
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      // Reduce timeout for serverless functions (Vercel has 60s max)
+      const timeoutMs = process.env.VERCEL ? 25000 : 30000;
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
       
       const response = await fetch(url, {
         ...options,
