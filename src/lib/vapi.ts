@@ -514,8 +514,8 @@ export async function createVapiAssistant(assistantData: {
       backgroundSound: assistantData.backgroundSound,
       hasStructuredQuestions: !!analysisPlan.structuredDataPlan,
       hasEvaluation: !!analysisPlan.successEvaluationPlan,
-      serverUrl: serverConfig.url,
-      hasServerSecret: !!serverConfig.secret,
+      serverUrl: serverConfig?.url || 'None',
+      hasServerSecret: !!(serverConfig?.secret),
       webhookUrl: process.env.MAKE_WEBHOOK_URL
     });
 
@@ -548,7 +548,7 @@ export async function createVapiAssistant(assistantData: {
 
     console.log('[VAPI] Full assistant payload being sent:', {
       ...assistantPayload,
-      server: serverConfig ? { ...serverConfig, secret: '[REDACTED]' } : null
+      server: serverConfig ? { ...serverConfig, secret: serverConfig.secret ? '[REDACTED]' : undefined } : null
     });
 
     const result = await vapiClient.createAssistant(assistantPayload);
