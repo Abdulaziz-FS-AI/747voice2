@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Plus, Phone, Clock, Activity, Brain } from 'lucide-react'
 import { AssistantCard } from '@/components/dashboard/assistant-card'
 import { DashboardLayout } from '@/components/dashboard/layout'
+import { SubscriptionCard } from '@/components/subscription/subscription-card'
 import { motion } from 'framer-motion'
 import type { Database } from '@/types/database'
 
@@ -301,6 +302,15 @@ export default function DashboardPage() {
               All systems operational
             </div>
           </motion.div>
+        </motion.div>
+
+        {/* Subscription Overview */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7, duration: 0.8 }}
+        >
+          <SubscriptionCard variant="compact" />
         </motion.div>
 
         {/* AI Assistants Section */}

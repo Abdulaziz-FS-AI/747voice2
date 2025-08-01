@@ -15,7 +15,8 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:all": "node scripts/test-runner.js --e2e",
-    "test:ci": "node scripts/test-runner.js --e2e --coverage"
+    "test:ci": "node scripts/test-runner.js --e2e --coverage",
+    "setup:paypal": "tsx src/scripts/setup-paypal.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
@@ -62,6 +63,7 @@
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "tailwindcss": "^4",
+    "tsx": "^4.7.1",
     "typescript": "^5"
   }
 }

@@ -4,6 +4,8 @@ import { handleAPIError } from '@/lib/errors';
 import { createServiceRoleClient } from '@/lib/supabase';
 import { createVapiAssistant } from '@/lib/vapi';
 import { z } from 'zod';
+import { enforceUsageLimits } from '@/lib/middleware/usage-enforcement';
+import { UsageService } from '@/lib/services/usage.service';
 
 // Structured question schema
 const StructuredQuestionSchema = z.object({
@@ -218,13 +220,27 @@ export async function POST(request: NextRequest) {
       console.warn('[Assistant API] Profile check failed, continuing:', profileError);
     }
     
-    // Step 6: Check subscription limits
+    // Step 6: Check subscription limits using new enforcement
+    const usageService = new UsageService();
     try {
-      await checkSubscriptionLimits(user.id, 'assistants', 1);
-      console.log('[Assistant API] Subscription limits checked');
+      await usageService.canCreateAssistant(user.id);
+      console.log('[Assistant API] Subscription limits checked - user can create assistant');
     } catch (limitError) {
-      console.warn('[Assistant API] Subscription check failed, continuing:', limitError);
-      // Continue anyway - don't block assistant creation
+      console.error('[Assistant API] Usage limit exceeded:', limitError);
+      if (limitError instanceof Error && limitError.message.includes('limit')) {
+        return NextResponse.json({
+          success: false,
+          error: { 
+            code: 'USAGE_LIMIT_EXCEEDED', 
+            message: limitError.message,
+            details: {
+              type: 'assistants',
+              upgradeUrl: '/settings/subscription'
+            }
+          }
+        }, { status: 403 });
+      }
+      throw limitError;
     }
 
     // Step 7: Build system prompt

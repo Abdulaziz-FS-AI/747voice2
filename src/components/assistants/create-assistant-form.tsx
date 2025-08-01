@@ -20,6 +20,7 @@ import { StructuredQuestions } from '@/components/assistants/structured-question
 import { EvaluationSelector } from '@/components/assistants/evaluation-selector'
 import { MessageType } from '@/components/assistants/client-messages-selector'
 import { StructuredQuestion, EvaluationRubric } from '@/lib/structured-data'
+import { useEnforcedAction } from '@/hooks/use-enforced-action'
 
 // Form data interface
 interface AssistantFormData {
@@ -58,6 +59,12 @@ interface CreateAssistantFormProps {
 export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  
+  // Usage enforcement for assistant creation
+  const { executeAction, UpgradeModal } = useEnforcedAction({
+    actionType: 'assistants',
+    onSuccess: () => {} // Will be handled in form submit
+  })
 
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<AssistantFormData>({
     defaultValues: {
@@ -81,6 +88,13 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
 
   const onSubmit = async (data: AssistantFormData) => {
     console.log('🚀 [FORM] Form submitted with data:', data)
+    
+    // Check if user can create assistant
+    const canProceed = await executeAction();
+    if (!canProceed) {
+      return; // Upgrade modal will be shown
+    }
+    
     setIsLoading(true)
     
     try {
@@ -178,6 +192,7 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--vm-void)' }}>
+      <UpgradeModal />
       {/* Professional Header */}
       <div className="border-b" style={{ borderColor: 'var(--vm-border-subtle)', background: 'var(--vm-surface)' }}>
         <div className="max-w-6xl mx-auto px-8 py-6">

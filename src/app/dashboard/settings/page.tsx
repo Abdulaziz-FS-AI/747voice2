@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useAuth } from '@/lib/auth-context'
-import { Settings, User, Bell, Database, Shield, Sparkles, Zap, Activity } from 'lucide-react'
+import { Settings, User, Bell, Database, Shield, Sparkles, Zap, Activity, CreditCard } from 'lucide-react'
 // Card components replaced with neural design system
 import { DashboardLayout } from '@/components/dashboard/layout'
 import { Badge } from '@/components/ui/badge'
@@ -113,6 +113,58 @@ export default function SettingsPage() {
                     </Badge>
                   </motion.div>
                 </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Billing & Subscription */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.15 }}
+            whileHover={{ y: -5, scale: 1.02 }}
+            className="vm-card-feature p-8 group cursor-pointer"
+            onClick={() => router.push('/dashboard/settings/billing')}
+          >
+            <div className="flex items-center gap-4 mb-6">
+              <motion.div
+                className="w-12 h-12 rounded-xl flex items-center justify-center"
+                style={{ background: 'var(--vm-gradient-primary)' }}
+                whileHover={{ rotate: 360, scale: 1.1 }}
+                transition={{ duration: 0.6 }}
+              >
+                <CreditCard className="w-6 h-6 text-white" />
+              </motion.div>
+              <div>
+                <h3 className="text-xl font-semibold vm-text-gradient">Billing Matrix</h3>
+                <p className="vm-text-secondary text-sm">Subscription & usage management</p>
+              </div>
+            </div>
+            
+            <div className="space-y-6">
+              <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--vm-surface)' }}>
+                <div>
+                  <div className="font-medium" style={{ color: 'var(--vm-pure)' }}>Current Plan</div>
+                  <div className="text-sm vm-text-secondary">Manage your subscription</div>
+                </div>
+                <motion.div whileHover={{ scale: 1.05 }}>
+                  <Badge className="vm-badge" style={{ background: 'var(--vm-gradient-primary)', color: '#FFFFFF' }}>
+                    <Zap className="w-3 h-3 mr-1" />
+                    Manage
+                  </Badge>
+                </motion.div>
+              </div>
+              <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--vm-surface)' }}>
+                <div>
+                  <div className="font-medium" style={{ color: 'var(--vm-pure)' }}>Usage Analytics</div>
+                  <div className="text-sm vm-text-secondary">Track minutes and assistants</div>
+                </div>
+                <motion.div whileHover={{ scale: 1.05 }}>
+                  <Badge className="vm-badge bg-cyan-500/10 text-cyan-400 border-cyan-500/20">
+                    <Activity className="w-3 h-3 mr-1" />
+                    View
+                  </Badge>
+                </motion.div>
               </div>
             </div>
           </motion.div>
