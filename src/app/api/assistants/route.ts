@@ -234,9 +234,27 @@ export async function POST(request: NextRequest) {
     console.log('[Assistant API] System prompt generated');
 
     // Step 8: Create assistant in VAPI (with error handling)
+    console.log('[Assistant API] VAPI_API_KEY present:', !!process.env.VAPI_API_KEY);
+    console.log('[Assistant API] VAPI_API_KEY length:', process.env.VAPI_API_KEY?.length || 0);
+    
     if (process.env.VAPI_API_KEY) {
       try {
         console.log('[Assistant API] Creating assistant in VAPI...');
+        console.log('[Assistant API] VAPI payload preview:', {
+          name: validatedData.name,
+          modelId: validatedData.model_id,
+          hasSystemPrompt: !!systemPrompt,
+          systemPromptLength: systemPrompt?.length || 0,
+          firstMessage: firstMessage,
+          firstMessageMode: validatedData.first_message_mode,
+          voiceId: validatedData.voice_id,
+          maxDurationSeconds: validatedData.max_call_duration,
+          backgroundSound: validatedData.background_sound,
+          hasStructuredQuestions: !!validatedData.structured_questions?.length,
+          evaluationRubric: validatedData.evaluation_rubric,
+          clientMessages: validatedData.client_messages
+        });
+        
         vapiAssistantId = await createVapiAssistant({
           name: validatedData.name,
           modelId: validatedData.model_id,
@@ -250,17 +268,26 @@ export async function POST(request: NextRequest) {
           evaluationRubric: validatedData.evaluation_rubric,
           clientMessages: validatedData.client_messages,
         });
-        console.log('[Assistant API] VAPI assistant created successfully:', vapiAssistantId);
+        console.log('[Assistant API] ✅ VAPI assistant created successfully:', vapiAssistantId);
       } catch (vapiError) {
-        console.error('[Assistant API] VAPI creation failed:', vapiError);
-        // Generate a fallback ID so we can still save the assistant
-        vapiAssistantId = `fallback_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-        console.log('[Assistant API] Using fallback VAPI ID:', vapiAssistantId);
+        console.error('[Assistant API] ❌ VAPI creation failed with detailed error:');
+        console.error('[Assistant API] Error type:', typeof vapiError);
+        console.error('[Assistant API] Error name:', vapiError instanceof Error ? vapiError.name : 'Unknown');
+        console.error('[Assistant API] Error message:', vapiError instanceof Error ? vapiError.message : String(vapiError));
+        console.error('[Assistant API] Error stack:', vapiError instanceof Error ? vapiError.stack : 'No stack');
+        
+        // Check if it's a VapiError with additional details
+        if (vapiError && typeof vapiError === 'object' && 'statusCode' in vapiError) {
+          console.error('[Assistant API] VAPI status code:', (vapiError as any).statusCode);
+          console.error('[Assistant API] VAPI details:', (vapiError as any).details);
+        }
+        
+        // Don't use fallback - throw the error so we can fix it
+        throw new Error(`VAPI integration failed: ${vapiError instanceof Error ? vapiError.message : String(vapiError)}`);
       }
     } else {
-      // No VAPI key, use fallback
-      vapiAssistantId = `fallback_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-      console.log('[Assistant API] No VAPI API key, using fallback ID:', vapiAssistantId);
+      console.error('[Assistant API] ❌ No VAPI API key configured!');
+      throw new Error('VAPI API key is not configured. Assistant creation requires VAPI integration.');
     }
 
     // Step 9: Build config object with all settings

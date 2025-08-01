@@ -142,9 +142,17 @@ export async function POST(request: NextRequest) {
     const phoneNumberService = new PhoneNumberService()
     
     step = 'calling phone number service'
-    console.log('Calling phoneNumberService.createPhoneNumber...')
+    console.log('🔥 [API ROUTE] Calling phoneNumberService.createPhoneNumber...')
+    console.log('🔥 [API ROUTE] Service call parameters:', {
+      userId: user.id,
+      validatedData: {
+        ...validatedData,
+        twilioAuthToken: '[REDACTED]'
+      }
+    })
+    
     const result = await phoneNumberService.createPhoneNumber(user.id, validatedData)
-    console.log('Phone number created successfully:', result.id)
+    console.log('🔥 [API ROUTE] ✅ Phone number created successfully:', result.id)
     
     return NextResponse.json({
       success: true,
@@ -152,18 +160,25 @@ export async function POST(request: NextRequest) {
       message: 'Phone number created successfully'
     })
   } catch (error) {
-    console.error(`Phone number creation error at step "${step}":`, error)
+    console.error(`🔥 [API ROUTE] ❌ Phone number creation error at step "${step}":`, error)
     
     // Log more detailed error information
     if (error instanceof Error) {
-      console.error('Error name:', error.name)
-      console.error('Error message:', error.message)
-      console.error('Error stack:', error.stack)
+      console.error('🔥 [API ROUTE] Error name:', error.name)
+      console.error('🔥 [API ROUTE] Error message:', error.message)
+      console.error('🔥 [API ROUTE] Error stack:', error.stack)
     }
     
     // If it's a known error type, log additional details
     if (error && typeof error === 'object') {
-      console.error('Error details:', JSON.stringify(error, null, 2))
+      console.error('🔥 [API ROUTE] Error details:', JSON.stringify(error, null, 2))
+    }
+    
+    // Check if it's a Supabase/PostgreSQL error
+    if (error && typeof error === 'object' && 'code' in error) {
+      console.error('🔥 [API ROUTE] Database error code:', (error as any).code)
+      console.error('🔥 [API ROUTE] Database error message:', (error as any).message)
+      console.error('🔥 [API ROUTE] Database error details:', (error as any).details)
     }
     
     return handleAPIError(error)

@@ -53,6 +53,7 @@ class VapiClient {
 
   private async request(endpoint: string, options: RequestInit = {}) {
     if (!this.apiKey) {
+      console.error('[VAPI] ❌ API key not configured');
       throw new VapiError('Vapi API key not configured', 500);
     }
 
@@ -64,7 +65,19 @@ class VapiClient {
     };
 
     try {
-      console.log(`[VAPI] Making request to: ${endpoint}`);
+      console.log(`[VAPI] 🚀 Making ${options.method || 'GET'} request to: ${endpoint}`);
+      console.log(`[VAPI] 🚀 Full URL: ${url}`);
+      console.log(`[VAPI] 🚀 Headers (auth redacted):`, {
+        ...headers,
+        'Authorization': 'Bearer [REDACTED]'
+      });
+      
+      if (options.body) {
+        console.log(`[VAPI] 🚀 Request body length:`, options.body.toString().length);
+        // Log first 500 chars of body for debugging
+        const bodyPreview = options.body.toString().substring(0, 500);
+        console.log(`[VAPI] 🚀 Request body preview:`, bodyPreview + (options.body.toString().length > 500 ? '...' : ''));
+      }
       
       // Create timeout with AbortController for compatibility
       const controller = new AbortController();
@@ -78,16 +91,24 @@ class VapiClient {
       
       clearTimeout(timeoutId);
 
+      console.log(`[VAPI] 📥 Response status: ${response.status} ${response.statusText}`);
+      console.log(`[VAPI] 📥 Response headers:`, Object.fromEntries(response.headers.entries()));
+
       let data;
       try {
-        data = await response.json();
+        const responseText = await response.text();
+        console.log(`[VAPI] 📥 Raw response text length:`, responseText.length);
+        console.log(`[VAPI] 📥 Raw response preview:`, responseText.substring(0, 500));
+        
+        data = JSON.parse(responseText);
+        console.log(`[VAPI] 📥 Parsed response data:`, data);
       } catch (jsonError) {
-        console.error('[VAPI] Failed to parse response as JSON:', jsonError);
+        console.error('[VAPI] ❌ Failed to parse response as JSON:', jsonError);
         data = { message: 'Invalid response format from VAPI' };
       }
 
       if (!response.ok) {
-        console.error(`[VAPI] API error response: ${response.status}`, data);
+        console.error(`[VAPI] ❌ API error response: ${response.status}`, data);
         throw new VapiError(
           data.message || data.error?.message || `Vapi API error: ${response.status}`,
           response.status,
@@ -95,19 +116,21 @@ class VapiClient {
         );
       }
 
+      console.log(`[VAPI] ✅ Request successful`);
       return data;
     } catch (error) {
       if (error instanceof VapiError) {
+        console.error('[VAPI] ❌ VapiError thrown:', error.message, error.statusCode);
         throw error;
       }
       
       // Handle timeout errors
       if (error instanceof Error && error.name === 'AbortError') {
-        console.error('[VAPI] Request timed out');
+        console.error('[VAPI] ❌ Request timed out');
         throw new VapiError('VAPI request timed out', 504);
       }
       
-      console.error('[VAPI] Network error:', error);
+      console.error('[VAPI] ❌ Network error:', error);
       throw new VapiError(
         `Network error: ${error instanceof Error ? error.message : 'Unknown error'}`,
         500
@@ -488,7 +511,27 @@ export async function createVapiAssistant(assistantData: {
       backgroundSound: assistantData.backgroundSound,
       hasStructuredQuestions: !!analysisPlan.structuredDataPlan,
       hasEvaluation: !!analysisPlan.successEvaluationPlan,
-      serverUrl: serverConfig.url
+      serverUrl: serverConfig.url,
+      hasServerSecret: !!serverConfig.secret,
+      webhookUrl: process.env.MAKE_WEBHOOK_URL
+    });
+
+    console.log('[VAPI] Full assistant payload being sent:', {
+      name: assistantData.name,
+      model: modelConfig,
+      voice: voiceConfig,
+      transcriber: transcriberConfig,
+      firstMessage: assistantData.firstMessage || 'Hello! How can I help you today?',
+      firstMessageMode: assistantData.firstMessageMode || 'assistant-speaks-first',
+      maxDurationSeconds: assistantData.maxDurationSeconds || 300,
+      backgroundSound: assistantData.backgroundSound || 'office',
+      analysisPlan: analysisPlan,
+      server: {
+        ...serverConfig,
+        secret: serverConfig.secret ? '[REDACTED]' : 'NOT_SET'
+      },
+      serverMessages: serverMessages,
+      clientMessages: assistantData.clientMessages || []
     });
 
     const result = await vapiClient.createAssistant({

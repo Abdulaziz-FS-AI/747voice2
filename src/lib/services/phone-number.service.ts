@@ -119,18 +119,34 @@ export class PhoneNumberService {
       const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/phone/${userId}`
       
       // Get assistant's VAPI ID (required)
+      console.log('🎯 [PHONE SERVICE] Looking up assistant:', {
+        correlationId,
+        assistantId: request.assistantId,
+        userId: userId
+      })
+      
       const { data: assistant, error: assistantError } = await supabase
         .from('user_assistants')
-        .select('vapi_assistant_id')
+        .select('id, vapi_assistant_id')
         .eq('id', request.assistantId)
         .eq('user_id', userId)
         .single()
       
+      console.log('🎯 [PHONE SERVICE] Assistant lookup result:', {
+        correlationId,
+        assistant: assistant,
+        assistantError: assistantError,
+        hasAssistant: !!assistant
+      })
+      
       if (assistantError || !assistant) {
+        console.error('🎯 [PHONE SERVICE] ❌ Assistant not found or not owned by user')
+        console.error('🎯 [PHONE SERVICE] Assistant error details:', assistantError)
         throw new ValidationError('Assistant not found or not owned by user')
       }
       
       const vapiAssistantId = assistant.vapi_assistant_id
+      console.log('🎯 [PHONE SERVICE] ✅ Assistant found, VAPI ID:', vapiAssistantId)
       
       // Common server configuration for Make.com webhook
       const serverConfig = {
@@ -170,23 +186,44 @@ export class PhoneNumberService {
       })
 
       // Begin database transaction
+      const insertData = {
+        user_id: userId,
+        phone_number: validatedData.phoneNumber,
+        friendly_name: validatedData.friendlyName,  
+        provider: 'twilio',
+        vapi_phone_id: vapiPhone.id,
+        vapi_credential_id: vapiPhone.credentialId || 'auto_generated',
+        twilio_account_sid: validatedData.twilioAccountSid,
+        twilio_auth_token: validatedData.twilioAuthToken,
+        webhook_url: webhookUrl,
+        assigned_assistant_id: request.assistantId,
+        is_active: true
+      }
+      
+      console.log('🎯 [PHONE SERVICE] About to insert into database:', {
+        correlationId,
+        insertData: {
+          ...insertData,
+          twilio_auth_token: '[REDACTED]'
+        },
+        assigned_assistant_id: insertData.assigned_assistant_id,
+        assigned_assistant_id_type: typeof insertData.assigned_assistant_id
+      })
+      
       const { data: dbPhone, error: dbError } = await supabase
         .from('user_phone_numbers')
-        .insert({
-          user_id: userId,
-          phone_number: validatedData.phoneNumber,
-          friendly_name: validatedData.friendlyName,  
-          provider: 'twilio',
-          vapi_phone_id: vapiPhone.id,
-          vapi_credential_id: vapiPhone.credentialId || 'auto_generated',
-          twilio_account_sid: validatedData.twilioAccountSid,
-          twilio_auth_token: validatedData.twilioAuthToken, // Store encrypted in production
-          webhook_url: webhookUrl,
-          assigned_assistant_id: request.assistantId,
-          is_active: true
-        })
+        .insert(insertData)
         .select('*')
         .single()
+        
+      console.log('🎯 [PHONE SERVICE] Database insert result:', {
+        correlationId,
+        success: !!dbPhone,
+        error: dbError,
+        errorCode: dbError?.code,
+        errorMessage: dbError?.message,
+        errorDetails: dbError?.details
+      })
 
       if (dbError) {
         // Rollback: Delete from VAPI if database insert fails
