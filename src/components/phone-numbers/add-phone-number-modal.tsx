@@ -37,7 +37,7 @@ type Assistant = Database['public']['Tables']['user_assistants']['Row']
 const phoneNumberSchema = z.object({
   friendlyName: z.string().min(1, 'Friendly name is required').max(255),
   phoneNumber: z.string().regex(/^\+[1-9]\d{1,14}$/, 'Invalid phone number format (use E.164 format like +15551234567)'),
-  assignedAssistantId: z.string().optional(),
+  assignedAssistantId: z.string().min(1, 'Assistant assignment is required'),
   notes: z.string().optional(),
   
   // Required Twilio credentials
@@ -66,7 +66,7 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
     defaultValues: {
       friendlyName: '',
       phoneNumber: '',
-      assignedAssistantId: undefined,
+      assignedAssistantId: '',
       notes: '',
       twilioAccountSid: '',
       twilioAuthToken: '',
@@ -123,7 +123,7 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
         friendlyName: data.friendlyName,
         twilioAccountSid: data.twilioAccountSid,
         twilioAuthToken: data.twilioAuthToken,
-        assistantId: data.assignedAssistantId && data.assignedAssistantId !== '' ? data.assignedAssistantId : null
+        assistantId: data.assignedAssistantId
       }
 
       console.log('Sending phone number creation request:', {
@@ -429,27 +429,24 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
             <TabsContent value="assign" className="space-y-6 mt-6">
               <div className="space-y-3">
                 <Label htmlFor="assignedAssistantId" className="text-sm font-semibold vm-text-primary">
-                  Assign to Assistant (Optional)
+                  Assign to Assistant *
                 </Label>
                 <Select 
-                  value={watch('assignedAssistantId') || 'unassigned'} 
-                  onValueChange={(value) => setValue('assignedAssistantId', value === 'unassigned' ? undefined : value)}
+                  value={watch('assignedAssistantId') || ''} 
+                  onValueChange={(value) => setValue('assignedAssistantId', value)}
                 >
                   <SelectTrigger className="h-12 rounded-xl transition-all duration-200 focus:shadow-lg focus:shadow-orange-500/20" style={{
                     background: 'var(--vm-background)',
                     border: '1px solid var(--vm-border-subtle)',
                     color: 'var(--vm-text-primary)'
                   }}>
-                    <SelectValue placeholder={assistantsLoading ? "Loading assistants..." : "Select an assistant"} />
+                    <SelectValue placeholder={assistantsLoading ? "Loading assistants..." : "Choose an assistant *"} />
                   </SelectTrigger>
                   <SelectContent style={{
                     background: 'var(--vm-surface)',
                     border: '1px solid var(--vm-border-subtle)',
                     borderRadius: '12px'
                   }}>
-                    <SelectItem value="unassigned" className="rounded-lg">
-                      <span className="vm-text-muted">Don't assign yet</span>
-                    </SelectItem>
                     {assistantsLoading ? (
                       <SelectItem value="loading" disabled className="rounded-lg">
                         <div className="flex items-center gap-2">
@@ -471,8 +468,11 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
                     )}
                   </SelectContent>
                 </Select>
+                {errors.assignedAssistantId && (
+                  <p className="text-sm text-red-400">{errors.assignedAssistantId.message}</p>
+                )}
                 <p className="text-xs vm-text-muted">
-                  You can assign or change this later from the phone numbers table
+                  Assistant assignment is required to create a phone number
                 </p>
               </div>
 

@@ -12,7 +12,7 @@ const createPhoneNumberSchema = z.object({
   friendlyName: z.string().min(1).max(255),
   twilioAccountSid: z.string().regex(/^AC[a-fA-f0-9]{32}$/, 'Invalid Twilio Account SID format'),
   twilioAuthToken: z.string().min(32, 'Twilio Auth Token is required'),
-  assistantId: z.string().uuid().optional().nullable()
+  assistantId: z.string().uuid('Assistant assignment is required')
 })
 
 const updatePhoneNumberSchema = z.object({
