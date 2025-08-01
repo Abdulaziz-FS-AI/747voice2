@@ -532,7 +532,29 @@ export async function createVapiAssistant(assistantData: {
       maxDurationSeconds: assistantData.maxDurationSeconds || 300,
       backgroundSound: assistantData.backgroundSound || 'office',
       analysisPlan: analysisPlan,
-      clientMessages: ['transcript'], // Only transcript for client messages
+      clientMessages: assistantData.clientMessages && assistantData.clientMessages.length > 0 
+        ? assistantData.clientMessages.map(msg => {
+            // Map our custom MessageTypes to VAPI client message types
+            const messageMapping: Record<string, string> = {
+              'conversation-update': 'transcript',
+              'function-call': 'function-call',
+              'hang': 'hang',
+              'function-call-result': 'function-call-result',
+              'metadata': 'metadata',
+              'model-output': 'model-output',
+              'speech-update': 'speech-update',
+              'status-update': 'status-update',
+              'user-interrupted': 'user-interrupted'
+            };
+            return messageMapping[msg] || msg;
+          }).filter(msg => [
+            'conversation-update', 'function-call', 'function-call-result', 'hang', 
+            'language-changed', 'metadata', 'model-output', 'speech-update', 
+            'status-update', 'transcript', 'tool-calls', 'tool-calls-result', 
+            'tool-completed', 'transfer-update', 'user-interrupted', 'voice-input', 
+            'workflow-node-started'
+          ].includes(msg))
+        : ['transcript'], // Default to transcript for client messages
       endCallMessage: "Thank you for calling! Have a great day!",
       recordingEnabled: true,
       fillersEnabled: true,

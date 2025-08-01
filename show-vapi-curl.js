@@ -45,7 +45,7 @@ const assistantPayload = {
       timeoutSeconds: 30
     }
   },
-  clientMessages: ["transcript"],
+  clientMessages: ["transcript"], // Maps from conversation-update
   endCallMessage: "Thank you for calling! Have a great day!",
   recordingEnabled: true,
   fillersEnabled: true,
