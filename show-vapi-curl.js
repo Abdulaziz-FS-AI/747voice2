@@ -58,7 +58,6 @@ const assistantPayload = {
     secret: process.env.MAKE_WEBHOOK_SECRET || "webhook-secret",
     headers: {
       "Content-Type": "application/json",
-      "X-Webhook-Source": "vapi-assistant",
       "x-make-apikey": process.env.MAKE_WEBHOOK_SECRET || "webhook-secret"
     }
   },

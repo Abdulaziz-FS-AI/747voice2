@@ -499,7 +499,6 @@ export async function createVapiAssistant(assistantData: {
         ...(webhookSecret && { secret: webhookSecret }),
         headers: {
           'Content-Type': 'application/json',
-          'X-Webhook-Source': 'vapi-assistant',
           ...(webhookSecret && { 'x-make-apikey': webhookSecret })
         }
       };
