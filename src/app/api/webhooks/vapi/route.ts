@@ -75,7 +75,7 @@ async function handleCallEnd(supabase: Awaited<Awaited<ReturnType<typeof createS
   // Check if call record already exists
   let callRecord;
   const { data: existingCall } = await supabase
-    .from('calls')
+    .from('call_logs')
     .select('*')
     .eq('vapi_call_id', call.id)
     .single();
@@ -83,7 +83,7 @@ async function handleCallEnd(supabase: Awaited<Awaited<ReturnType<typeof createS
   if (existingCall) {
     // Update existing call record
     const { data: updatedCall, error: updateError } = await supabase
-      .from('calls')
+      .from('call_logs')
       .update({
         status: call.status,
         ended_at: call.endedAt ? new Date(call.endedAt).toISOString() : new Date().toISOString(),
@@ -104,7 +104,7 @@ async function handleCallEnd(supabase: Awaited<Awaited<ReturnType<typeof createS
   } else {
     // Create new call record (end-to-end report)
     const { data: newCall, error: insertError } = await supabase
-      .from('calls')
+      .from('call_logs')
       .insert({
         vapi_call_id: call.id,
         assistant_id: assistant.id,
@@ -129,78 +129,94 @@ async function handleCallEnd(supabase: Awaited<Awaited<ReturnType<typeof createS
   }
 
   // Process lead information if available
-  if (call.analysis?.structuredData) {
-    await createLeadFromCall(supabase, callRecord, call.analysis.structuredData);
-  }
+  // TODO: Implement lead management when leads table is added
+  // if (call.analysis?.structuredData) {
+  //   await createLeadFromCall(supabase, callRecord, call.analysis.structuredData);
+  // }
 
   // Store transcript if available
-  if (call.transcript) {
-    await storeTranscript(supabase, callRecord.id, call.transcript);
-  }
+  // TODO: Implement transcript storage when call_transcripts table is added
+  // if (call.transcript) {
+  //   await storeTranscript(supabase, callRecord.id, call.transcript);
+  // }
 
   console.log('Call end report processed successfully:', call.id);
 }
 
 
+// TODO: Implement lead management when leads table is added
 // Create lead from call analysis
-async function createLeadFromCall(
-  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
-  call: Database['public']['Tables']['call_logs']['Row'],
-  structuredData: Record<string, unknown>
-) {
-  if (!structuredData) return;
+// async function createLeadFromCall(
+//   supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
+//   call: Database['public']['Tables']['call_logs']['Row'],
+//   structuredData: Record<string, unknown>
+// ) {
+//   if (!structuredData) return;
 
-  // Create lead record (removed team_id for single-user architecture)
-  const { error } = await supabase
-    .from('leads')
-    .insert({
-      call_id: call.id,
-      user_id: call.user_id,
-      first_name: typeof structuredData.firstName === 'string' ? structuredData.firstName : null,
-      last_name: typeof structuredData.lastName === 'string' ? structuredData.lastName : null,
-      email: typeof structuredData.email === 'string' ? structuredData.email : null,
-      phone: typeof structuredData.phone === 'string' ? structuredData.phone : call.caller_number,
-      lead_type: typeof structuredData.leadType === 'string' && ['buyer', 'seller', 'investor', 'renter'].includes(structuredData.leadType) ? structuredData.leadType as 'buyer' | 'seller' | 'investor' | 'renter' : null,
-      lead_source: 'voice_call',
-      status: 'new',
-      property_type: Array.isArray(structuredData.propertyType) ? structuredData.propertyType as string[] : null,
-      budget_min: typeof structuredData.budgetMin === 'number' ? structuredData.budgetMin : null,
-      budget_max: typeof structuredData.budgetMax === 'number' ? structuredData.budgetMax : null,
-      preferred_locations: Array.isArray(structuredData.location) ? structuredData.location as string[] : null,
-      timeline: typeof structuredData.timeline === 'string' ? structuredData.timeline : null,
-      notes: typeof structuredData.notes === 'string' ? structuredData.notes : null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    });
+//   // Get user_id from the assistant
+//   const { data: assistant } = await supabase
+//     .from('user_assistants')
+//     .select('user_id')
+//     .eq('id', call.assistant_id)
+//     .single();
 
-  if (error) {
-    console.error('Error creating lead:', error);
-  } else {
-    console.log('Lead created successfully for call:', call.id);
-  }
-}
+//   if (!assistant) {
+//     console.error('Assistant not found for call:', call.id);
+//     return;
+//   }
 
+//   // Create lead record (removed team_id for single-user architecture)
+//   const { error } = await supabase
+//     .from('leads')
+//     .insert({
+//       call_id: call.id,
+//       user_id: assistant.user_id,
+//       first_name: typeof structuredData.firstName === 'string' ? structuredData.firstName : null,
+//       last_name: typeof structuredData.lastName === 'string' ? structuredData.lastName : null,
+//       email: typeof structuredData.email === 'string' ? structuredData.email : null,
+//       phone: typeof structuredData.phone === 'string' ? structuredData.phone : call.caller_number,
+//       lead_type: typeof structuredData.leadType === 'string' && ['buyer', 'seller', 'investor', 'renter'].includes(structuredData.leadType) ? structuredData.leadType as 'buyer' | 'seller' | 'investor' | 'renter' : null,
+//       lead_source: 'voice_call',
+//       status: 'new',
+//       property_type: Array.isArray(structuredData.propertyType) ? structuredData.propertyType as string[] : null,
+//       budget_min: typeof structuredData.budgetMin === 'number' ? structuredData.budgetMin : null,
+//       budget_max: typeof structuredData.budgetMax === 'number' ? structuredData.budgetMax : null,
+//       preferred_locations: Array.isArray(structuredData.location) ? structuredData.location as string[] : null,
+//       timeline: typeof structuredData.timeline === 'string' ? structuredData.timeline : null,
+//       notes: typeof structuredData.notes === 'string' ? structuredData.notes : null,
+//       created_at: new Date().toISOString(),
+//       updated_at: new Date().toISOString(),
+//     });
+
+//   if (error) {
+//     console.error('Error creating lead:', error);
+//   } else {
+//     console.log('Lead created successfully for call:', call.id);
+//   }
+// }
+
+// TODO: Implement transcript storage when call_transcripts table is added
 // Store call transcript
-async function storeTranscript(supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>, callId: string, transcript: string) {
-  // Parse transcript and store as individual entries
-  // For now, we'll store the entire transcript as one entry
-  const { error } = await supabase
-    .from('call_transcripts')
-    .insert({
-      call_id: callId,
-      transcript_text: transcript,
-      speakers: {},
-      word_timestamps: {},
-      language: 'en',
-      processing_status: 'completed',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    });
+// async function storeTranscript(supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>, callId: string, transcript: string) {
+//   // Parse transcript and store as individual entries
+//   // For now, we'll store the entire transcript as one entry
+//   const { error } = await supabase
+//     .from('call_transcripts')
+//     .insert({
+//       call_id: callId,
+//       transcript_text: transcript,
+//       speakers: {},
+//       word_timestamps: {},
+//       language: 'en',
+//       processing_status: 'completed',
+//       created_at: new Date().toISOString(),
+//       updated_at: new Date().toISOString(),
+//     });
 
-  if (error) {
-    console.error('Error storing transcript:', error);
-  }
-}
+//   if (error) {
+//     console.error('Error storing transcript:', error);
+//   }
+// }
 
 // GET method for webhook verification (some services require this)
 export async function GET() {
