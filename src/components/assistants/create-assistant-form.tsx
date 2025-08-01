@@ -46,7 +46,7 @@ const backgroundSoundOptions = [
 
 interface CreateAssistantFormProps {
   templateData?: {
-    templateId: string
+    templateId?: string
     name: string
     category: string
     config: any
