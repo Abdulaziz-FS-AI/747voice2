@@ -32,7 +32,7 @@ const CreateAssistantSchema = z.object({
     'NumericScale', 'DescriptiveScale', 'Checklist', 'Matrix', 
     'PercentageScale', 'LikertScale', 'AutomaticRubric', 'PassFail'
   ]).optional().nullable(),
-  client_messages: z.array(z.string()).optional().default(['end-of-call-report']),
+  // client_messages removed - handled by backend with fixed values
   template_id: z.string().uuid().optional().nullable()
 });
 
@@ -291,7 +291,7 @@ export async function POST(request: NextRequest) {
           backgroundSound: validatedData.background_sound,
           structuredQuestions: validatedData.structured_questions,
           evaluationRubric: validatedData.evaluation_rubric,
-          clientMessages: validatedData.client_messages,
+          // clientMessages handled by backend with fixed values
         });
         console.log('[Assistant API] ✅ VAPI assistant created successfully:', vapiAssistantId);
       } catch (vapiError) {
@@ -329,7 +329,7 @@ export async function POST(request: NextRequest) {
       background_sound: validatedData.background_sound,
       structured_questions: validatedData.structured_questions,
       evaluation_rubric: validatedData.evaluation_rubric,
-      client_messages: validatedData.client_messages
+      // client_messages: Fixed backend values - transcript (client), end-of-call-report (server)
     };
 
     // Step 10: Insert into database

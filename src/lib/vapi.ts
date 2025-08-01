@@ -490,7 +490,6 @@ export async function createVapiAssistant(assistantData: {
 
     // Create server configuration - simplified for reliability
     let serverConfig = null;
-    let serverMessages: string[] = [];
     
     // Only add server config if webhook URL is properly configured
     if (process.env.MAKE_WEBHOOK_URL && process.env.MAKE_WEBHOOK_URL.startsWith('https://')) {
@@ -500,8 +499,6 @@ export async function createVapiAssistant(assistantData: {
         ...(webhookSecret && { secret: webhookSecret })
       };
       
-      // Only add server messages if we have server config
-      serverMessages = ['end-of-call-report'];
       console.log('[VAPI] Using webhook configuration:', process.env.MAKE_WEBHOOK_URL);
     } else {
       console.log('[VAPI] No webhook configuration - creating assistant without server integration');
@@ -532,29 +529,7 @@ export async function createVapiAssistant(assistantData: {
       maxDurationSeconds: assistantData.maxDurationSeconds || 300,
       backgroundSound: assistantData.backgroundSound || 'office',
       analysisPlan: analysisPlan,
-      clientMessages: assistantData.clientMessages && assistantData.clientMessages.length > 0 
-        ? assistantData.clientMessages.map(msg => {
-            // Map our custom MessageTypes to VAPI client message types
-            const messageMapping: Record<string, string> = {
-              'conversation-update': 'transcript',
-              'function-call': 'function-call',
-              'hang': 'hang',
-              'function-call-result': 'function-call-result',
-              'metadata': 'metadata',
-              'model-output': 'model-output',
-              'speech-update': 'speech-update',
-              'status-update': 'status-update',
-              'user-interrupted': 'user-interrupted'
-            };
-            return messageMapping[msg] || msg;
-          }).filter(msg => [
-            'conversation-update', 'function-call', 'function-call-result', 'hang', 
-            'language-changed', 'metadata', 'model-output', 'speech-update', 
-            'status-update', 'transcript', 'tool-calls', 'tool-calls-result', 
-            'tool-completed', 'transfer-update', 'user-interrupted', 'voice-input', 
-            'workflow-node-started'
-          ].includes(msg))
-        : ['transcript'], // Default to transcript for client messages
+      clientMessages: ['transcript'], // Fixed: Always transcript for client messages
       endCallMessage: "Thank you for calling! Have a great day!",
       recordingEnabled: true,
       fillersEnabled: true,
@@ -564,10 +539,10 @@ export async function createVapiAssistant(assistantData: {
       responseDelaySeconds: 0.4,
     };
 
-    // Only add server config if it exists
+    // Always add server config and messages
     if (serverConfig) {
       assistantPayload.server = serverConfig;
-      assistantPayload.serverMessages = serverMessages;
+      assistantPayload.serverMessages = ['end-of-call-report']; // Fixed: Always end-of-call-report for server messages
     }
 
     console.log('[VAPI] ===== COMPLETE ASSISTANT PAYLOAD BEING SENT TO VAPI =====');

@@ -45,7 +45,7 @@ const assistantPayload = {
       timeoutSeconds: 30
     }
   },
-  clientMessages: ["transcript"], // Maps from conversation-update
+  clientMessages: ["transcript"], // Fixed backend value
   endCallMessage: "Thank you for calling! Have a great day!",
   recordingEnabled: true,
   fillersEnabled: true,
@@ -57,7 +57,7 @@ const assistantPayload = {
     url: process.env.MAKE_WEBHOOK_URL || "https://hook.eu2.make.com/example",
     secret: process.env.MAKE_WEBHOOK_SECRET || "webhook-secret"
   },
-  serverMessages: ["end-of-call-report"]
+  serverMessages: ["end-of-call-report"] // Fixed backend value
 }
 
 console.log('🚀 EXACT CURL COMMAND THAT GETS SENT TO VAPI:')

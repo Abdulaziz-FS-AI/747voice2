@@ -72,7 +72,7 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
       background_sound: templateData?.config?.background_sound || 'office',
       structured_questions: templateData?.config?.structured_questions || [],
       evaluation_rubric: templateData?.config?.evaluation_rubric || null,
-      client_messages: ['conversation-update'] // Real-time conversation updates
+      // client_messages removed - handled by backend with fixed values
     }
   })
 
@@ -103,7 +103,7 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
         background_sound: data.background_sound || 'office',
         structured_questions: data.structured_questions || [],
         evaluation_rubric: data.evaluation_rubric || null,
-        client_messages: ['conversation-update'],
+        // client_messages removed - handled by backend with fixed values
         template_id: templateData?.templateId || undefined
       }
       
