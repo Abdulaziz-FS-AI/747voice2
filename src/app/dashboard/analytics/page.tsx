@@ -362,6 +362,15 @@ export default function AnalyticsPage() {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            <Button
+              onClick={() => router.push('/dashboard/analytics/assistant')}
+              variant="outline"
+              size="sm"
+              disabled={!user}
+            >
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Assistant Analytics
+            </Button>
             <Badge 
               variant="outline" 
               className="flex items-center gap-1"
