@@ -145,7 +145,7 @@ async function handleCallEnd(supabase: Awaited<Awaited<ReturnType<typeof createS
 // Create lead from call analysis
 async function createLeadFromCall(
   supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
-  call: Database['public']['Tables']['calls']['Row'],
+  call: Database['public']['Tables']['call_logs']['Row'],
   structuredData: Record<string, unknown>
 ) {
   if (!structuredData) return;
