@@ -89,8 +89,17 @@ export class PhoneNumberService {
     })
 
     try {
+      console.log('🎯 [PHONE SERVICE] Received request:', {
+        correlationId,
+        assistantId: request.assistantId,
+        assistantIdType: typeof request.assistantId,
+        assistantIdLength: request.assistantId?.length
+      })
+      
       // Validate input
+      console.log('🎯 [PHONE SERVICE] Starting PhoneNumberSchema validation...')
       const validatedData = PhoneNumberSchema.parse(request)
+      console.log('🎯 [PHONE SERVICE] ✅ PhoneNumberSchema validation passed!')
       
       const supabase = createServiceRoleClient()
 

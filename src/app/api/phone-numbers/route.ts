@@ -94,13 +94,19 @@ export async function POST(request: NextRequest) {
     step = 'parsing request body'
     const body = await request.json()
 
-    console.log('Phone number creation request:', {
+    console.log('🔥 [API ROUTE] Raw request body received:', {
       userId: user.id,
       step,
-      requestBody: {
+      body: {
         ...body,
         twilioAuthToken: body.twilioAuthToken ? '[REDACTED]' : undefined
-      }
+      },
+      assistantId: body.assistantId,
+      assistantIdType: typeof body.assistantId,
+      assistantIdLength: body.assistantId?.length,
+      isAssistantIdEmpty: body.assistantId === '',
+      isAssistantIdUndefined: body.assistantId === undefined,
+      isAssistantIdNull: body.assistantId === null
     })
 
     // User is already authenticated, skip permission check for now
@@ -108,9 +114,27 @@ export async function POST(request: NextRequest) {
 
     // Validate input
     step = 'validating input schema'
-    console.log('Validating input data...')
+    console.log('🔥 [API ROUTE] Starting Zod validation...')
+    console.log('🔥 [API ROUTE] Schema expects assistantId as:', createPhoneNumberSchema.shape.assistantId._def)
+    
+    try {
+      const validatedData = createPhoneNumberSchema.parse(body)
+      console.log('🔥 [API ROUTE] ✅ Zod validation passed!')
+      console.log('🔥 [API ROUTE] Validated assistantId:', {
+        value: validatedData.assistantId,
+        type: typeof validatedData.assistantId,
+        length: validatedData.assistantId?.length
+      })
+    } catch (zodError) {
+      console.error('🔥 [API ROUTE] ❌ Zod validation failed!')
+      console.error('🔥 [API ROUTE] Zod error details:', {
+        error: zodError,
+        issues: zodError instanceof z.ZodError ? zodError.issues : 'Not a ZodError'
+      })
+      throw zodError
+    }
+    
     const validatedData = createPhoneNumberSchema.parse(body)
-    console.log('Input validation passed')
     
     // Use the PhoneNumberService instead of direct implementation
     step = 'creating phone number service'

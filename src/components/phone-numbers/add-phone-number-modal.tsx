@@ -77,9 +77,18 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
 
   useEffect(() => {
     if (open) {
-      reset()
+      console.log('🚀 [FRONTEND] Modal opened, resetting form...')
+      reset({
+        friendlyName: '',
+        phoneNumber: '',
+        assignedAssistantId: '', // Explicitly set to empty string
+        notes: '',
+        twilioAccountSid: '',
+        twilioAuthToken: '',
+      })
       setCurrentStep('details')
       setAssistantsFetched(false) // Reset fetch status when modal opens
+      console.log('🚀 [FRONTEND] Form reset completed')
     }
   }, [open, reset])
 
@@ -113,10 +122,48 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
   }
 
   const onSubmit = async (data: PhoneNumberFormData) => {
+    console.log('🚀 [FRONTEND] Form submission started')
+    console.log('🚀 [FRONTEND] Raw form data:', {
+      friendlyName: data.friendlyName,
+      phoneNumber: data.phoneNumber,
+      assignedAssistantId: data.assignedAssistantId,
+      assignedAssistantIdType: typeof data.assignedAssistantId,
+      assignedAssistantIdLength: data.assignedAssistantId?.length,
+      isAssistantIdEmpty: data.assignedAssistantId === '',
+      isAssistantIdUndefined: data.assignedAssistantId === undefined,
+      isAssistantIdNull: data.assignedAssistantId === null
+    })
+    
     setIsLoading(true)
     let result: any = null
     
     try {
+      // Critical validation check before API call
+      if (!data.assignedAssistantId || data.assignedAssistantId.trim() === '') {
+        console.error('🚀 [FRONTEND] ❌ AssistantId is empty or missing!')
+        toast({
+          title: 'Error',
+          description: 'Please select an assistant before creating the phone number.',
+          variant: 'destructive',
+        })
+        return
+      }
+      
+      // UUID format validation
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+      if (!uuidRegex.test(data.assignedAssistantId)) {
+        console.error('🚀 [FRONTEND] ❌ AssistantId is not a valid UUID format!')
+        console.error('🚀 [FRONTEND] Invalid UUID value:', data.assignedAssistantId)
+        toast({
+          title: 'Error',
+          description: 'Selected assistant ID is not valid. Please select a different assistant.',
+          variant: 'destructive',
+        })
+        return
+      }
+      
+      console.log('🚀 [FRONTEND] ✅ AssistantId validation passed')
+      
       // Prepare the payload for Twilio-only setup
       const payload = {
         phoneNumber: data.phoneNumber,
@@ -126,9 +173,12 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
         assistantId: data.assignedAssistantId
       }
 
-      console.log('Sending phone number creation request:', {
+      console.log('🚀 [FRONTEND] Final payload being sent:', {
         ...payload,
-        twilioAuthToken: '[REDACTED]' // Don't log sensitive data
+        twilioAuthToken: '[REDACTED]',
+        assistantIdType: typeof payload.assistantId,
+        assistantIdValue: payload.assistantId,
+        assistantIdLength: payload.assistantId?.length
       })
 
       const response = await fetch('/api/phone-numbers', {
@@ -433,7 +483,14 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
                 </Label>
                 <Select 
                   value={watch('assignedAssistantId') || ''} 
-                  onValueChange={(value) => setValue('assignedAssistantId', value)}
+                  onValueChange={(value) => {
+                    console.log('🚀 [FRONTEND] Assistant selected:', {
+                      selectedValue: value,
+                      valueType: typeof value,
+                      valueLength: value?.length
+                    })
+                    setValue('assignedAssistantId', value)
+                  }}
                 >
                   <SelectTrigger className="h-12 rounded-xl transition-all duration-200 focus:shadow-lg focus:shadow-orange-500/20" style={{
                     background: 'var(--vm-background)',
