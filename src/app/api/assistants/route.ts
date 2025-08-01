@@ -276,8 +276,7 @@ export async function POST(request: NextRequest) {
           maxDurationSeconds: validatedData.max_call_duration,
           backgroundSound: validatedData.background_sound,
           hasStructuredQuestions: !!validatedData.structured_questions?.length,
-          evaluationRubric: validatedData.evaluation_rubric,
-          clientMessages: validatedData.client_messages
+          evaluationRubric: validatedData.evaluation_rubric
         });
         
         vapiAssistantId = await createVapiAssistant({
