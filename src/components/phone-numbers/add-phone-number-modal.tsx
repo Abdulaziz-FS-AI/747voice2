@@ -463,7 +463,7 @@ export function AddPhoneNumberModal({ open, onClose, onSuccess }: AddPhoneNumber
                           <div>
                             <div className="font-medium vm-text-primary">{assistant.name}</div>
                             <div className="text-xs vm-text-muted">
-                              {(assistant.config as any)?.companyName || 'Neural Network'} • {(assistant.config as any)?.personality || 'Professional'}
+                              {(assistant.config as any)?.companyName || 'AI Voice Agent'} • {(assistant.config as any)?.personality || 'Professional'}
                             </div>
                           </div>
                         </SelectItem>
