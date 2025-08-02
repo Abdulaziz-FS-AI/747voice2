@@ -99,7 +99,9 @@ export function PlanSelector({ selectedPlan, onPlanSelect, onPlanContinue, class
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => {
+              console.log('🔥 Free plan button clicked!')
               onPlanSelect('free')
+              console.log('🔥 Calling onPlanContinue with free')
               onPlanContinue?.('free')
             }}
             className="w-full py-3 px-6 rounded-xl font-semibold transition-all duration-300 vm-button-primary flex items-center justify-center gap-2"
@@ -181,7 +183,9 @@ export function PlanSelector({ selectedPlan, onPlanSelect, onPlanContinue, class
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => {
+              console.log('🔥 Pro plan button clicked!')
               onPlanSelect('pro')
+              console.log('🔥 Calling onPlanContinue with pro')
               onPlanContinue?.('pro')
             }}
             className="w-full py-3 px-6 rounded-xl font-semibold transition-all duration-300 vm-button-primary flex items-center justify-center gap-2"

@@ -46,24 +46,50 @@ function SignUpContent() {
 
   // ROUTING PROTECTION: Enforce plan selection flow
   useEffect(() => {
-    // If user tries to access details/payment step without selecting a plan
-    if (step !== 'plan' && !planFromUrl) {
-      console.log('🚫 Direct access blocked - redirecting to plan selection')
-      router.replace('/signup?step=plan')
-      setStep('plan')
-    }
+    // Add a small delay to avoid interfering with programmatic navigation
+    const timeout = setTimeout(() => {
+      // If user tries to access details/payment step without selecting a plan
+      if (step !== 'plan' && !planFromUrl && !selectedPlan) {
+        console.log('🚫 Direct access blocked - redirecting to plan selection')
+        router.replace('/signup?step=plan')
+        setStep('plan')
+      }
+      
+      // If user tries to access payment step without selecting Pro plan
+      if (step === 'payment' && selectedPlan !== 'pro') {
+        console.log('🚫 Payment access blocked - redirecting to details')
+        router.replace(`/signup?plan=${selectedPlan}&step=details`)
+        setStep('details')
+      }
+    }, 100) // Small delay to allow state updates
     
-    // If user tries to access payment step without selecting Pro plan
-    if (step === 'payment' && selectedPlan !== 'pro') {
-      console.log('🚫 Payment access blocked - redirecting to details')
-      router.replace(`/signup?plan=${selectedPlan}&step=details`)
-      setStep('details')
-    }
+    return () => clearTimeout(timeout)
   }, [step, planFromUrl, selectedPlan, router])
 
-  const handlePlanNext = () => {
-    router.push(`/signup?plan=${selectedPlan}&step=details`)
-    setStep('details')
+  const handlePlanNext = (plan?: SubscriptionType) => {
+    const planToUse = plan || selectedPlan
+    console.log('🚀 handlePlanNext called with plan:', planToUse)
+    console.log('🚀 Current step:', step)
+    console.log('🚀 Router available:', !!router)
+    
+    try {
+      // Update selected plan immediately if a specific plan was passed
+      if (plan && plan !== selectedPlan) {
+        console.log('🚀 Updating selected plan from', selectedPlan, 'to', plan)
+        setSelectedPlan(plan)
+      }
+      
+      const newUrl = `/signup?plan=${planToUse}&step=details`
+      console.log('🚀 Navigating to:', newUrl)
+      
+      // Use replace instead of push to avoid issues with routing protection
+      router.replace(newUrl)
+      setStep('details')
+      
+      console.log('🚀 Navigation completed successfully')
+    } catch (error) {
+      console.error('❌ Error in handlePlanNext:', error)
+    }
   }
 
   const handleDetailsSubmit = async (e: React.FormEvent) => {
