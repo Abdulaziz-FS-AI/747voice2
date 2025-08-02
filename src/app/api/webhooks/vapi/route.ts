@@ -117,17 +117,16 @@ async function handleCallEnd(supabase: Awaited<Awaited<ReturnType<typeof createS
     const { data: newCall, error: insertError } = await supabase
       .from('call_logs')
       .insert({
-        vapi_call_id: call.id,
         assistant_id: assistant.id,
-        phone_number_id: event.phoneNumberId || null,
-        caller_number: 'unknown',
-        call_status: call.status,
-        started_at: call.startedAt ? new Date(call.startedAt).toISOString() : new Date().toISOString(),
-        ended_at: call.endedAt ? new Date(call.endedAt).toISOString() : new Date().toISOString(),
         duration_seconds: call.endedAt && call.startedAt ? 
           Math.floor((new Date(call.endedAt).getTime() - new Date(call.startedAt).getTime()) / 1000) : 0,
-        cost_cents: Math.round((call.cost || 0) * 100),
-        created_at: new Date().toISOString(),
+        cost: call.cost || 0,
+        caller_number: 'unknown',
+        started_at: call.startedAt ? new Date(call.startedAt).toISOString() : new Date().toISOString(),
+        transcript: null,
+        structured_data: {},
+        success_evaluation: null,
+        summary: null
       })
       .select('*')
       .single();
@@ -167,6 +166,7 @@ async function handleCallEnd(supabase: Awaited<Awaited<ReturnType<typeof createS
   // }
 
   console.log('Call end report processed successfully:', call.id);
+  console.log(`Call duration: ${callRecord.duration_seconds}s - Usage tracking trigger should fire automatically`);
 }
 
 
