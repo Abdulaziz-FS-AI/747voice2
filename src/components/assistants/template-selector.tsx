@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
-import type { Database } from '@/types/database-simplified'
+import type { Database } from '@/types/database'
 
 type Template = Database['public']['Tables']['templates']['Row']
 
@@ -62,8 +62,8 @@ const getColorStyles = (color: string) => {
 }
 
 function TemplateCard({ template, onClick }: TemplateCardProps) {
-  const categoryInfo = getCategoryIcon(template.category)
-  const categoryColor = getCategoryColor(template.category)
+  const categoryInfo = getCategoryIcon('general')
+  const categoryColor = getCategoryColor('general')
   const colorStyles = getColorStyles(categoryColor)
   const IconComponent = categoryInfo.icon
 
@@ -93,7 +93,7 @@ function TemplateCard({ template, onClick }: TemplateCardProps) {
               border: `1px solid ${colorStyles.border}`
             }}
           >
-            {template.category}
+            Template
           </Badge>
         </div>
 
@@ -112,7 +112,7 @@ function TemplateCard({ template, onClick }: TemplateCardProps) {
           <div className="flex items-center gap-2">
             <IconComponent className="w-4 h-4" style={{ color: colorStyles.text }} />
             <span className="text-xs font-medium" style={{ color: colorStyles.text }}>
-              Pre-configured for {template.category.toLowerCase()}
+              Pre-configured template
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -187,10 +187,11 @@ export function TemplateSelector() {
 
   // Group templates by category
   const templatesByCategory = templates.reduce((acc, template) => {
-    if (!acc[template.category]) {
-      acc[template.category] = []
+    const category = 'general'
+    if (!acc[category]) {
+      acc[category] = []
     }
-    acc[template.category].push(template)
+    acc[category].push(template)
     return acc
   }, {} as Record<string, Template[]>)
 

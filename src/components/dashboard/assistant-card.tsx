@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import type { Database } from '@/types/database'
 
-type Assistant = Database['public']['Tables']['assistants']['Row']
+type Assistant = Database['public']['Tables']['user_assistants']['Row']
 
 interface AssistantCardProps {
   assistant: Assistant
@@ -65,16 +65,16 @@ export function AssistantCard({
               {assistant.name}
             </h3>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              {assistant.agent_name && (
+              {assistant.vapi_assistant_id && (
                 <span className="flex items-center gap-1">
                   <Phone className="h-3 w-3" />
-                  {assistant.agent_name}
+                  {assistant.vapi_assistant_id.slice(0, 8)}
                 </span>
               )}
-              {assistant.company_name && (
+              {false && (
                 <span className="flex items-center gap-1">
                   <Building className="h-3 w-3" />
-                  {assistant.company_name}
+                  {assistant.name}
                 </span>
               )}
             </div>
@@ -108,17 +108,17 @@ export function AssistantCard({
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Badge variant={assistant.is_active ? "default" : "secondary"}>
-              {assistant.is_active ? "Enabled" : "Disabled"}
+            <Badge variant={!assistant.is_disabled ? "default" : "secondary"}>
+              {!assistant.is_disabled ? "Enabled" : "Disabled"}
             </Badge>
-            {assistant.tone && (
+            {false && (
               <Badge variant="outline" className="capitalize">
-                {assistant.tone}
+                Professional
               </Badge>
             )}
           </div>
           <Switch
-            checked={assistant.is_active}
+            checked={!assistant.is_disabled}
             onCheckedChange={handleToggle}
             disabled={isToggling}
             className="data-[state=checked]:bg-green-500"
@@ -129,13 +129,13 @@ export function AssistantCard({
           <div className="flex items-center justify-between text-muted-foreground">
             <span>Language</span>
             <span className="font-medium text-foreground">
-              {assistant.language || 'en'}
+              English
             </span>
           </div>
           <div className="flex items-center justify-between text-muted-foreground">
             <span>Max Duration</span>
             <span className="font-medium text-foreground">
-              {assistant.max_call_duration}s
+              300s
             </span>
           </div>
           {assistant.vapi_assistant_id && (

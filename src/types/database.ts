@@ -74,6 +74,11 @@ export interface Database {
           config: Json
           created_at: string
           updated_at: string
+          is_disabled: boolean | null
+          disabled_at: string | null
+          disabled_reason: string | null
+          original_vapi_config: Json | null
+          assistant_state: 'active' | 'disabled_usage' | 'disabled_payment' | 'deleted' | null
         }
         Insert: {
           id?: string
@@ -84,6 +89,11 @@ export interface Database {
           config?: Json
           created_at?: string
           updated_at?: string
+          is_disabled?: boolean | null
+          disabled_at?: string | null
+          disabled_reason?: string | null
+          original_vapi_config?: Json | null
+          assistant_state?: 'active' | 'disabled_usage' | 'disabled_payment' | 'deleted' | null
         }
         Update: {
           id?: string
@@ -94,6 +104,11 @@ export interface Database {
           config?: Json
           created_at?: string
           updated_at?: string
+          is_disabled?: boolean | null
+          disabled_at?: string | null
+          disabled_reason?: string | null
+          original_vapi_config?: Json | null
+          assistant_state?: 'active' | 'disabled_usage' | 'disabled_payment' | 'deleted' | null
         }
       }
       structured_questions: {

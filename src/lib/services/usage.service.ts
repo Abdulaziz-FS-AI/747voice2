@@ -64,11 +64,20 @@ export class UsageService {
 
     const minutes = Math.ceil(durationSeconds / 60);
 
+    // Get current usage first
+    const { data: profile } = await this.supabase
+      .from('profiles')
+      .select('current_usage_minutes')
+      .eq('id', assistant.user_id)
+      .single();
+
+    if (!profile) return;
+
     // Update usage
     const { data: updatedProfile } = await this.supabase
       .from('profiles')
       .update({
-        current_usage_minutes: this.supabase.raw('current_usage_minutes + ?', [minutes])
+        current_usage_minutes: (profile.current_usage_minutes || 0) + minutes
       })
       .eq('id', assistant.user_id)
       .select()

@@ -4,9 +4,9 @@
  */
 
 import { createServiceRoleClient } from '@/lib/supabase'
-import type { Database } from '@/types/database-simplified'
+import type { Database } from '@/types/database'
 
-type LeadInteraction = Database['public']['Tables']['lead_interactions']['Insert']
+// type LeadInteraction = Database['public']['Tables']['lead_interactions']['Insert']
 
 export interface ExtractedResponse {
   questionText: string
@@ -224,7 +224,7 @@ export class LeadExtractor {
   /**
    * Store response in database
    */
-  private async storeResponse(response: LeadInteraction): Promise<void> {
+  private async storeResponse(response: any): Promise<void> {
     try {
       const { error } = await this.supabase
         .from('lead_interactions')

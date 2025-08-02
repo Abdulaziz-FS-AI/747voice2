@@ -231,7 +231,12 @@ export function useCanPerformAction(actionType: 'assistants' | 'minutes') {
 // Hook for usage warnings
 export function useUsageWarnings() {
   const { usage } = useSubscription();
-  const warnings = [];
+  const warnings: Array<{
+    type: 'minutes' | 'assistants';
+    level: 'warning' | 'critical';
+    percentage: number;
+    message: string;
+  }> = [];
 
   if (!usage) return warnings;
 

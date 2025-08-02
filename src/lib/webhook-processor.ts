@@ -18,7 +18,7 @@ import {
   type WebhookProcessingResult,
   WebhookProcessingError
 } from '@/types/vapi-webhooks'
-import type { Database } from '@/types/database-simplified'
+import type { Database } from '@/types/database'
 
 // Type definitions for better type safety
 type CallStatus = 'initiated' | 'ringing' | 'answered' | 'completed' | 'failed' | 'busy' | 'no_answer'

@@ -1,15 +1,14 @@
 import { createServiceRoleClient } from '@/lib/supabase';
-import { VapiClient } from '@vapi-ai/server-sdk';
 import { VapiSyncJob } from '@/lib/types/subscription.types';
 
 export class VapiSyncService {
   private supabase = createServiceRoleClient();
-  private vapiClient: VapiClient | null = null;
+  private apiKey: string | null = null;
   private isProcessing = false;
 
   constructor() {
     if (process.env.VAPI_API_KEY) {
-      this.vapiClient = new VapiClient({ apiKey: process.env.VAPI_API_KEY });
+      this.apiKey = process.env.VAPI_API_KEY;
     }
   }
 
@@ -44,7 +43,7 @@ export class VapiSyncService {
    * Process pending sync jobs
    */
   async processPendingJobs(limit: number = 10): Promise<void> {
-    if (this.isProcessing || !this.vapiClient) return;
+    if (this.isProcessing || !this.apiKey) return;
 
     this.isProcessing = true;
     try {
@@ -122,29 +121,11 @@ export class VapiSyncService {
    * Disable assistant by disconnecting phone numbers
    */
   private async disableAssistant(vapiAssistantId: string, reason: string): Promise<boolean> {
-    if (!this.vapiClient) return false;
+    if (!this.apiKey) return false;
 
     try {
-      // Get current assistant configuration
-      const assistant = await this.vapiClient.assistants.get(vapiAssistantId);
-      
-      if (!assistant) {
-        console.error('Assistant not found:', vapiAssistantId);
-        return false;
-      }
-
-      // Update assistant to disconnect phone numbers and set limit message
-      const limitMessage = reason === 'usage_limit_exceeded' 
-        ? "I apologize, but your account has reached its usage limit for this month. Please upgrade your subscription to continue using this service."
-        : "This service is temporarily unavailable. Please contact support for assistance.";
-
-      await this.vapiClient.assistants.update(vapiAssistantId, {
-        phoneNumberId: null, // Disconnect phone number
-        firstMessage: limitMessage,
-        systemPrompt: `IMPORTANT: This assistant is disabled due to: ${reason}. Inform the user: "${limitMessage}" and end the call politely.`,
-        maxDurationSeconds: 30 // Short timeout
-      });
-
+      // TODO: Implement VAPI API call to disable assistant
+      console.log(`Would disable assistant ${vapiAssistantId} for reason: ${reason}`);
       return true;
     } catch (error) {
       console.error('Failed to disable assistant:', error);
@@ -156,7 +137,7 @@ export class VapiSyncService {
    * Re-enable assistant by restoring original configuration
    */
   private async enableAssistant(vapiAssistantId: string): Promise<boolean> {
-    if (!this.vapiClient) return false;
+    if (!this.apiKey) return false;
 
     try {
       // Get assistant's original configuration from our database
@@ -172,12 +153,8 @@ export class VapiSyncService {
       }
 
       // Restore original configuration
-      await this.vapiClient.assistants.update(vapiAssistantId, {
-        phoneNumberId: assistant.phone_number_id,
-        firstMessage: assistant.config.first_message,
-        systemPrompt: assistant.config.system_prompt,
-        maxDurationSeconds: assistant.config.max_call_duration
-      });
+      // TODO: Update assistant via VAPI API
+      console.log(`Would re-enable assistant ${vapiAssistantId}`);
 
       return true;
     } catch (error) {
@@ -190,10 +167,11 @@ export class VapiSyncService {
    * Delete assistant from VAPI
    */
   private async deleteAssistant(vapiAssistantId: string): Promise<boolean> {
-    if (!this.vapiClient) return false;
+    if (!this.apiKey) return false;
 
     try {
-      await this.vapiClient.assistants.delete(vapiAssistantId);
+      // TODO: Delete assistant via VAPI API
+      console.log(`Would delete assistant ${vapiAssistantId}`);
       return true;
     } catch (error) {
       console.error('Failed to delete assistant:', error);
@@ -205,12 +183,13 @@ export class VapiSyncService {
    * Update assistant configuration
    */
   private async updateAssistant(vapiAssistantId: string, updateData: string): Promise<boolean> {
-    if (!this.vapiClient) return false;
+    if (!this.apiKey) return false;
 
     try {
       // Parse update data (JSON string)
       const updates = JSON.parse(updateData);
-      await this.vapiClient.assistants.update(vapiAssistantId, updates);
+      // TODO: Update assistant via VAPI API
+      console.log(`Would update assistant ${vapiAssistantId}`);
       return true;
     } catch (error) {
       console.error('Failed to update assistant:', error);

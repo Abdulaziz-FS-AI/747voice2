@@ -28,7 +28,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from '@/hooks/use-toast'
-import type { Database } from '@/types/database-simplified'
+import type { Database } from '@/types/database'
 
 type PhoneNumber = Database['public']['Tables']['user_phone_numbers']['Row']
 type Assistant = Database['public']['Tables']['user_assistants']['Row']

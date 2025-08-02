@@ -9,7 +9,7 @@ import { SubscriptionCard } from '@/components/subscription/subscription-card'
 import { motion } from 'framer-motion'
 import type { Database } from '@/types/database'
 
-type Assistant = Database['public']['Tables']['assistants']['Row']
+type Assistant = Database['public']['Tables']['user_assistants']['Row']
 
 interface DashboardStats {
   totalAssistants: number
@@ -62,12 +62,12 @@ export default function DashboardPage() {
       const res = await fetch(`/api/assistants/${assistantId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_active: !isActive })
+        body: JSON.stringify({ is_disabled: isActive })
       })
 
       if (res.ok) {
         setAssistants(prev => 
-          prev.map(a => a.id === assistantId ? { ...a, is_active: !isActive } : a)
+          prev.map(a => a.id === assistantId ? { ...a, is_disabled: isActive } : a)
         )
       }
     } catch (error) {
@@ -398,7 +398,7 @@ export default function DashboardPage() {
                 >
                   <AssistantCard
                     assistant={assistant}
-                    onToggle={() => handleAssistantToggle(assistant.id, assistant.is_active)}
+                    onToggle={() => handleAssistantToggle(assistant.id, !assistant.is_disabled)}
                     onEdit={() => router.push(`/dashboard/assistants/${assistant.id}/edit`)}
                     onDelete={() => handleAssistantDelete(assistant.id)}
                     onViewDetails={() => router.push(`/dashboard/assistants/${assistant.id}`)}

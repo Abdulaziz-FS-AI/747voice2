@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/hooks/use-toast'
-import type { Database } from '@/types/database-simplified'
+import type { Database } from '@/types/database'
 
 type PhoneNumber = Database['public']['Tables']['user_phone_numbers']['Row']
 type Assistant = Database['public']['Tables']['user_assistants']['Row']

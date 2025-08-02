@@ -26,7 +26,7 @@ import { AddPhoneNumberModal } from '@/components/phone-numbers/add-phone-number
 import { StatsCard } from '@/components/dashboard/stats-card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/hooks/use-toast'
-import type { Database } from '@/types/database-simplified'
+import type { Database } from '@/types/database'
 
 type PhoneNumber = Database['public']['Tables']['user_phone_numbers']['Row'] & {
   user_assistants?: {

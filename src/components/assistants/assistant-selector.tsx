@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { Loader2 } from 'lucide-react'
 import type { Database } from '@/types/database'
 
-type Assistant = Database['public']['Tables']['assistants']['Row']
+type Assistant = Database['public']['Tables']['user_assistants']['Row']
 
 interface AssistantSelectorProps {
   value?: string
@@ -47,7 +47,7 @@ export function AssistantSelector({
         
         // Filter out inactive assistants if not included
         if (!includeInactive) {
-          filteredAssistants = filteredAssistants.filter((a: Assistant) => a.is_active)
+          filteredAssistants = filteredAssistants.filter((a: Assistant) => !a.is_disabled)
         }
         
         setAssistants(filteredAssistants)
@@ -69,10 +69,10 @@ export function AssistantSelector({
             <div className="flex items-center gap-2">
               <span>{selectedAssistant.name}</span>
               <Badge 
-                variant={selectedAssistant.is_active ? 'default' : 'secondary'}
+                variant={!selectedAssistant.is_disabled ? 'default' : 'secondary'}
                 className="ml-auto"
               >
-                {selectedAssistant.is_active ? 'Active' : 'Inactive'}
+                {!selectedAssistant.is_disabled ? 'Active' : 'Inactive'}
               </Badge>
             </div>
           )}
@@ -95,18 +95,18 @@ export function AssistantSelector({
                 <div className="flex flex-col items-start">
                   <span className="font-medium">{assistant.name}</span>
                   <span className="text-xs text-muted-foreground">
-                    {assistant.agent_name} • {assistant.company_name}
+                    {assistant.vapi_assistant_id}
                   </span>
                 </div>
                 <div className="flex items-center gap-1 ml-2">
                   <Badge 
-                    variant={assistant.is_active ? 'default' : 'secondary'}
+                    variant={!assistant.is_disabled ? 'default' : 'secondary'}
                     className="text-xs"
                   >
-                    {assistant.is_active ? 'Active' : 'Inactive'}
+                    {!assistant.is_disabled ? 'Active' : 'Inactive'}
                   </Badge>
                   <Badge variant="outline" className="text-xs">
-                    {assistant.personality}
+                    Assistant
                   </Badge>
                 </div>
               </div>
