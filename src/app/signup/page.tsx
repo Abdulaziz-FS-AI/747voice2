@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClientSupabaseClient } from '@/lib/supabase'
@@ -15,7 +15,7 @@ import { PlanSelector } from '@/components/ui/plan-selector'
 import { PayPalCheckout } from '@/components/ui/paypal-checkout'
 import { SubscriptionType } from '@/types/subscription'
 
-export default function SignUpPage() {
+function SignUpContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   
@@ -515,5 +515,30 @@ export default function SignUpPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function SignUpPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center" 
+           style={{ background: 'var(--vm-background)' }}>
+        <div className="text-center">
+          <div className="relative">
+            <div 
+              className="h-16 w-16 rounded-full flex items-center justify-center vm-glow mx-auto mb-4"
+              style={{ background: 'var(--vm-gradient-primary)' }}
+            >
+              <div className="h-6 w-6 border-2 border-t-transparent rounded-full animate-spin"
+                   style={{ borderColor: 'var(--vm-background)', borderTopColor: 'transparent' }} />
+            </div>
+          </div>
+          <h2 className="vm-heading text-xl font-semibold mb-2">Loading signup...</h2>
+          <p className="vm-text-muted">Please wait while we prepare your signup experience.</p>
+        </div>
+      </div>
+    }>
+      <SignUpContent />
+    </Suspense>
   )
 }
