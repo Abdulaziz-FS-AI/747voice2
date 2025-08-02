@@ -8,7 +8,7 @@ import { CreateAssistantForm } from '@/components/assistants/create-assistant-fo
 import { DashboardLayout } from '@/components/dashboard/layout'
 import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
-import type { Database } from '@/types/database-simplified'
+import type { Database } from '@/types/database'
 
 type Template = Database['public']['Tables']['templates']['Row']
 
