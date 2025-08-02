@@ -3,7 +3,6 @@
 import { ReactNode } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
-import { useSubscription } from '@/contexts/subscription-context'
 import { 
   LayoutDashboard, 
   Users, 
@@ -15,13 +14,11 @@ import {
   X,
   Mic,
   Zap,
-  Activity,
-  CreditCard
+  Activity
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
-import { UsageWarningBanner } from '@/components/subscription/usage-warning-banner'
 
 interface DashboardLayoutProps {
   children: ReactNode
@@ -39,7 +36,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter()
   const pathname = usePathname()
   const { user, signOut } = useAuth()
-  const { subscription, usage } = useSubscription()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const handleSignOut = async () => {
@@ -177,56 +173,15 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <div className="flex items-center gap-2">
                   <div className="px-2 py-0.5 rounded-full text-xs font-medium"
                        style={{ 
-                         background: subscription?.type === 'pro' 
-                           ? 'var(--vm-gradient-primary)' 
-                           : 'rgba(139, 92, 246, 0.1)',
-                         color: subscription?.type === 'pro' 
-                           ? '#FFFFFF' 
-                           : 'var(--vm-secondary-purple)'
+                         background: 'var(--vm-gradient-primary)', 
+                         color: '#FFFFFF' 
                        }}>
-                    {subscription?.type === 'pro' ? 'Pro Plan' : 'Free Plan'}
+                    Pro Plan
                   </div>
-                  {subscription?.status === 'active' && (
-                    <Activity className="h-3 w-3" style={{ color: 'var(--vm-success-green)' }} />
-                  )}
+                  <Activity className="h-3 w-3" style={{ color: 'var(--vm-success-green)' }} />
                 </div>
               </div>
             </div>
-            
-            {/* Quick usage indicator */}
-            {usage && (
-              <div className="space-y-2 mt-3">
-                <div>
-                  <div className="flex items-center justify-between text-xs mb-1">
-                    <span style={{ color: 'var(--vm-text-muted)' }}>Minutes</span>
-                    <span style={{ color: 'var(--vm-text-primary)' }}>
-                      {usage.minutes.used}/{usage.minutes.limit}
-                    </span>
-                  </div>
-                  <div className="h-1 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--vm-neutral-700)' }}>
-                    <div 
-                      className="h-full rounded-full transition-all"
-                      style={{ 
-                        width: `${usage.minutes.percentage}%`,
-                        backgroundColor: usage.minutes.percentage >= 80 
-                          ? 'var(--vm-warning-amber)' 
-                          : 'var(--vm-success-green)'
-                      }}
-                    />
-                  </div>
-                </div>
-                
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start hover:bg-white/5"
-                  onClick={() => router.push('/dashboard/settings/billing')}
-                >
-                  <CreditCard className="mr-2 h-3 w-3" />
-                  <span className="text-xs">Manage Subscription</span>
-                </Button>
-              </div>
-            )}
           </div>
           
           <button 
@@ -245,7 +200,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <header 
           className="sticky top-0 z-30 flex h-16 items-center gap-4 px-6 backdrop-blur-xl"
           style={{ 
-            background: 'rgba(26, 21, 38, 0.95)',
+            background: 'rgba(15, 15, 20, 0.9)',
             borderBottom: '1px solid var(--vm-border-default)'
           }}
         >
@@ -264,9 +219,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <span className="text-sm font-medium" style={{ color: 'var(--vm-neutral-400)' }}>System Online</span>
           </div>
         </header>
-
-        {/* Usage Warning Banner */}
-        <UsageWarningBanner />
 
         {/* Enhanced Page Content */}
         <main className="p-6" style={{ background: 'var(--vm-primary-dark)' }}>

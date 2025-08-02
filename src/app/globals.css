@@ -8,8 +8,8 @@
      ============================================== */
   
   /* ===== PRIMARY COLORS ===== */
-  --vm-primary-dark: #0F0F14;      /* Deep charcoal for main backgrounds */
-  --vm-primary-surface: #1A1A1F;   /* Elevated surface color for cards and panels */
+  --vm-primary-dark: #1a1526;      /* Slightly dark purple for main backgrounds */
+  --vm-primary-surface: #241e35;   /* Elevated surface color for cards and panels with purple tint */
   --vm-primary-light: #F8F9FA;     /* Clean white for text and highlights */
   
   /* ===== SECONDARY COLORS ===== */
@@ -36,9 +36,9 @@
   --vm-neutral-400: #A1A1AA;       /* Muted text */
   --vm-neutral-500: #71717A;       /* Secondary text */
   --vm-neutral-600: #52525B;       /* Primary text in light mode */
-  --vm-neutral-700: #3F3F46;       /* Dark mode borders */
-  --vm-neutral-800: #27272A;       /* Dark mode elevated surfaces */
-  --vm-neutral-900: #18181B;       /* Dark mode primary surfaces */
+  --vm-neutral-700: #3F3046;       /* Dark mode borders with purple tint */
+  --vm-neutral-800: #2a253a;       /* Dark mode elevated surfaces with purple tint */
+  --vm-neutral-900: #1c1830;       /* Dark mode primary surfaces with purple tint */
   
   /* ===== LEGACY COMPATIBILITY ALIASES ===== */
   --vm-background: var(--vm-primary-dark);
@@ -493,7 +493,7 @@ body {
 
 /* ===== PROFESSIONAL INPUT FIELDS ===== */
 .vm-input {
-  background: var(--vm-primary-dark);
+  background: var(--vm-primary-surface);
   border: 1px solid var(--vm-neutral-800);
   border-radius: 8px;
   color: var(--vm-neutral-100);
@@ -511,7 +511,7 @@ body {
   outline: none;
   border-color: var(--vm-secondary-purple);
   box-shadow: var(--vm-glow-focus);
-  background: var(--vm-primary-dark);
+  background: var(--vm-primary-surface);
 }
 
 .vm-input::placeholder {
@@ -1030,7 +1030,7 @@ body {
 
 /* Glass Morphism */
 .vm-glass {
-  background: rgba(17, 24, 39, 0.8);
+  background: rgba(26, 21, 38, 0.8);
   backdrop-filter: blur(20px);
   border: 1px solid var(--vm-border-subtle);
   border-radius: 16px;

@@ -145,9 +145,61 @@ export async function requirePermission(userIdOrPermission?: string, permission?
   }
 }
 
-export async function checkSubscriptionLimits(userId: string, resource: string, count?: number) {
-  // For now, allow all operations - implement proper subscription limits later
-  return true
+export async function checkSubscriptionLimits(userId: string, resource: string, count?: number): Promise<boolean> {
+  try {
+    const supabase = await createServerSupabaseClient()
+    
+    // Get user's current subscription and usage
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('subscription_type, current_usage_minutes, max_minutes_monthly, max_assistants')
+      .eq('id', userId)
+      .single()
+
+    if (error || !profile) {
+      console.error('❌ [AUTH] Failed to fetch user profile for limits check:', error)
+      return false
+    }
+
+    // Check limits based on resource type
+    if (resource === 'assistants') {
+      const { count: currentCount } = await supabase
+        .from('user_assistants')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .neq('assistant_state', 'deleted')
+
+      const wouldExceedLimit = (currentCount || 0) + (count || 1) > profile.max_assistants
+      
+      if (wouldExceedLimit) {
+        console.log(`🚫 [AUTH] Assistant limit would be exceeded: ${currentCount}/${profile.max_assistants}`)
+        return false
+      }
+      
+      console.log(`✅ [AUTH] Assistant limit check passed: ${currentCount}/${profile.max_assistants}`)
+      return true
+    }
+    
+    if (resource === 'minutes') {
+      const wouldExceedLimit = profile.current_usage_minutes + (count || 1) > profile.max_minutes_monthly
+      
+      if (wouldExceedLimit) {
+        console.log(`🚫 [AUTH] Minutes limit would be exceeded: ${profile.current_usage_minutes}/${profile.max_minutes_monthly}`)
+        return false
+      }
+      
+      console.log(`✅ [AUTH] Minutes limit check passed: ${profile.current_usage_minutes}/${profile.max_minutes_monthly}`)
+      return true
+    }
+
+    // Unknown resource type, allow for now but log
+    console.warn(`⚠️ [AUTH] Unknown resource type for limits check: ${resource}`)
+    return true
+    
+  } catch (error) {
+    console.error('❌ [AUTH] Error checking subscription limits:', error)
+    return false
+  }
 }
 
 export async function logAuditEvent(params: any) {

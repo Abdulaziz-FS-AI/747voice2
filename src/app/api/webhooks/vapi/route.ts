@@ -9,10 +9,18 @@ import {
   type WebhookEvent,
   type CallEndEvent
 } from '@/types/vapi-webhooks';
+import { rateLimitWebhook } from '@/lib/middleware/rate-limiting';
+import { ErrorTracker, BusinessMetrics } from '@/lib/monitoring/sentry';
 
 // POST /api/webhooks/vapi - Handle Vapi webhook events
 export async function POST(request: NextRequest) {
   try {
+    // Apply rate limiting for webhooks
+    const rateLimitResponse = await rateLimitWebhook(request)
+    if (rateLimitResponse) {
+      console.log('🚫 [Webhook] Rate limit exceeded')
+      return rateLimitResponse
+    }
     const body = await request.text();
     const signature = request.headers.get('x-vapi-signature') || '';
     const webhookSecret = process.env.VAPI_WEBHOOK_SECRET;
@@ -51,6 +59,9 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Webhook processing error:', error);
+    ErrorTracker.captureApiError(error instanceof Error ? error : 'Webhook processing failed', request, undefined, {
+      operation: 'vapi_webhook'
+    })
     return handleAPIError(error);
   }
 }
@@ -126,6 +137,21 @@ async function handleCallEnd(supabase: Awaited<Awaited<ReturnType<typeof createS
       return;
     }
     callRecord = newCall;
+  }
+
+  // Track business metrics for call completion
+  const duration = callRecord.duration_seconds || 0
+  const cost = callRecord.cost_cents ? callRecord.cost_cents / 100 : 0
+  
+  // Get user ID from assistant for metrics
+  const { data: assistantData } = await supabase
+    .from('user_assistants')
+    .select('user_id')
+    .eq('id', assistant.id)
+    .single()
+  
+  if (assistantData?.user_id) {
+    BusinessMetrics.trackCallCompleted(assistantData.user_id, assistant.id, duration, cost)
   }
 
   // Process lead information if available

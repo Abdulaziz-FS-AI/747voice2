@@ -1,19 +1,23 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createServiceRoleClient } from '@/lib/supabase'
+import { rateLimitAPI } from '@/lib/middleware/rate-limiting'
+import { ErrorTracker } from '@/lib/monitoring/sentry'
 
-export async function GET() {
-  const checks = {
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    checks: {
-      app: true,
-      database: false,
-      vapi: false,
-      environment: false
-    }
-  }
-
+export async function GET(request: NextRequest) {
   try {
+    // Apply rate limiting
+    const rateLimitResponse = await rateLimitAPI(request)
+    if (rateLimitResponse) return rateLimitResponse
+    const checks = {
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      checks: {
+        app: true,
+        database: false,
+        vapi: false,
+        environment: false
+      }
+    }
     // Check database connection
     const supabase = createServiceRoleClient()
     const { error } = await supabase.from('profiles').select('count').limit(1).single()
@@ -38,11 +42,16 @@ export async function GET() {
       status: allHealthy ? 200 : 503 
     })
   } catch (error) {
+    // Track health check failures
+    ErrorTracker.captureError(error instanceof Error ? error : 'Health check failed', {
+      endpoint: '/api/health',
+      metadata: { category: 'health_check' }
+    })
+    
     return NextResponse.json({
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
-      error: error instanceof Error ? error.message : 'Unknown error',
-      checks: checks.checks
+      error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 503 })
   }
 }
