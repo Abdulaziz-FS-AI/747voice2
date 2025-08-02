@@ -542,31 +542,23 @@ export default function HomePage() {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {[
               {
-                name: "Starter",
+                name: "Free Plan",
                 price: "Free",
-                description: "Perfect for trying out Voice Matrix",
-                features: ["500 free minutes/month", "1 voice agent", "Basic analytics", "Email support"],
+                description: "Perfect for getting started with AI voice agents",
+                features: ["1 AI voice assistant", "10 minutes/month", "Basic voice customization", "Community support", "Dashboard analytics"],
                 cta: "Start Free",
                 popular: false
               },
               {
-                name: "Professional",
-                price: "$49",
-                description: "Best for growing businesses",
-                features: ["5,000 minutes/month", "5 voice agents", "Advanced analytics", "Priority support", "Custom integrations"],
-                cta: "Start Trial",
+                name: "Pro Plan",
+                price: "$25",
+                description: "For power users and growing businesses",
+                features: ["10 AI voice assistants", "100 minutes/month", "Advanced voice customization", "Priority support & live chat", "Advanced analytics & reporting", "Custom integrations", "API access", "White-label options"],
+                cta: "Upgrade to Pro",
                 popular: true
-              },
-              {
-                name: "Enterprise",
-                price: "Custom",
-                description: "For large organizations",
-                features: ["Unlimited minutes", "Unlimited agents", "Custom AI models", "Dedicated support", "White-label options"],
-                cta: "Contact Sales",
-                popular: false
               }
             ].map((plan, index) => (
               <motion.div
@@ -610,6 +602,7 @@ export default function HomePage() {
                   className="w-full"
                   variant={plan.popular ? "default" : "outline"}
                   style={plan.popular ? { background: 'var(--vm-gradient-primary)', color: '#FFFFFF' } : { borderColor: 'var(--vm-secondary-purple)', color: 'var(--vm-secondary-purple)' }}
+                  onClick={() => router.push('/signup')}
                 >
                   {plan.cta}
                 </Button>
