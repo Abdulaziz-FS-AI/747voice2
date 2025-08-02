@@ -36,8 +36,20 @@ export default function AuthCallbackPage() {
             
             console.log('🚀 Auth callback - new user with plan selection:', selectedPlan)
             
-            // Wait for database trigger to create profile, then update if needed
-            await new Promise(resolve => setTimeout(resolve, 2000))
+            // Ensure profile exists first
+            console.log('🚀 Auth callback - ensuring profile exists for user:', data.session.user.id)
+            
+            try {
+              const { data: ensureResult } = await supabase
+                .rpc('ensure_profile_exists', { user_id: data.session.user.id })
+              
+              console.log('🚀 Auth callback - ensure profile result:', ensureResult)
+            } catch (ensureError) {
+              console.error('🚀 Auth callback - ensure profile error:', ensureError)
+            }
+            
+            // Wait a moment for profile to be created
+            await new Promise(resolve => setTimeout(resolve, 1000))
             
             // Update the subscription type if it's Pro (database trigger creates as 'free' by default)
             if (selectedPlan === 'pro') {
@@ -72,7 +84,19 @@ export default function AuthCallbackPage() {
               router.push('/dashboard?new=free')
             }
           } else {
-            // Existing user or no plan selection - wait and check profile
+            // Existing user or no plan selection - ensure profile exists
+            console.log('🚀 Auth callback - checking existing user profile')
+            
+            // First ensure profile exists
+            try {
+              const { data: ensureResult } = await supabase
+                .rpc('ensure_profile_exists', { user_id: data.session.user.id })
+              
+              console.log('🚀 Auth callback - ensure profile result:', ensureResult)
+            } catch (ensureError) {
+              console.error('🚀 Auth callback - ensure profile error:', ensureError)
+            }
+            
             await new Promise(resolve => setTimeout(resolve, 1000))
             
             const { data: profile } = await supabase

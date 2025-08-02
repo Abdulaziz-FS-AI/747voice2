@@ -161,6 +161,7 @@ function SignUpContent() {
           data: {
             first_name: firstName,
             last_name: lastName,
+            full_name: `${firstName} ${lastName}`,
             subscription_type: selectedPlan,
             setup_completed: true
           }
@@ -197,6 +198,7 @@ function SignUpContent() {
           data: {
             first_name: firstName,
             last_name: lastName,
+            full_name: `${firstName} ${lastName}`,
             subscription_type: selectedPlan,
             paypal_subscription_id: subscriptionId,
             setup_completed: true

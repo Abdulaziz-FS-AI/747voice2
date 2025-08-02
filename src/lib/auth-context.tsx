@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { createClientSupabaseClient } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
+import { ensureUserProfile } from '@/lib/profile-utils'
 
 interface AuthContextType {
   user: User | null
@@ -39,18 +40,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         // Only redirect from signin page after checking profile status
         if (window.location.pathname === '/signin') {
-          // Check if user has completed profile
-          supabase
-            .from('profiles')
-            .select('setup_completed')
-            .eq('id', session.user.id)
-            .single()
-            .then(({ data: profile, error }) => {
-              if (error && error.code === 'PGRST116') {
-                // No profile - new user needs plan selection
-                console.log('🚀 Auth context - new user, redirecting to signup')
-                window.location.href = '/signup?step=plan'
-              } else if (profile?.setup_completed) {
+          // First ensure profile exists
+          ensureUserProfile(session.user.id).then((result) => {
+            console.log('🚀 Auth context - ensure profile result:', result)
+            
+            if (result.success && result.profile) {
+              if (result.profile.setup_completed) {
                 // Existing user with complete profile
                 console.log('🚀 Auth context - existing user, redirecting to dashboard')
                 window.location.href = '/dashboard'
@@ -59,7 +54,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 console.log('🚀 Auth context - user setup incomplete, redirecting to signup')
                 window.location.href = '/signup?step=plan'
               }
-            })
+            } else {
+              // Failed to create/get profile - redirect to signup
+              console.log('🚀 Auth context - profile issue, redirecting to signup')
+              window.location.href = '/signup?step=plan'
+            }
+          })
         }
         // For auth/callback and signup pages, let them handle their own navigation
       }
