@@ -16,44 +16,86 @@ export default function AuthCallbackPage() {
         
         if (error) {
           console.error('Auth callback error:', error)
-          router.push('/login?error=' + encodeURIComponent(error.message))
+          router.push('/signin?error=' + encodeURIComponent(error.message))
           return
         }
 
         if (data.session?.user) {
-          // Check if this was a signup with plan selection
+          console.log('🚀 Auth callback - user authenticated:', data.session.user.id)
+          
+          // Check if user has an existing profile
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('setup_completed, subscription_type')
+            .eq('id', data.session.user.id)
+            .single()
+          
+          console.log('🚀 Auth callback - profile check:', { profile, profileError })
+          
+          // Check if this was a signup with plan selection from session storage
           const selectedPlan = sessionStorage.getItem('voice-matrix-selected-plan')
           const signupStep = sessionStorage.getItem('voice-matrix-signup-step')
           
+          console.log('🚀 Auth callback - stored plan:', selectedPlan)
+          console.log('🚀 Auth callback - stored step:', signupStep)
+          
           if (selectedPlan && signupStep) {
+            console.log('🚀 Auth callback - creating/updating user profile with plan:', selectedPlan)
+            
             // Clear the stored values
             sessionStorage.removeItem('voice-matrix-selected-plan')
             sessionStorage.removeItem('voice-matrix-signup-step')
             
-            // Update user profile with selected plan
-            const { error: updateError } = await supabase
-              .from('profiles')
-              .update({ 
-                subscription_type: selectedPlan,
-                max_minutes_monthly: selectedPlan === 'pro' ? 100 : 10,
-                max_assistants: selectedPlan === 'pro' ? 10 : 1
-              })
-              .eq('id', data.session.user.id)
-            
-            if (updateError) {
-              console.error('Failed to update plan:', updateError)
+            // Create or update user profile with selected plan
+            const profileData = {
+              id: data.session.user.id,
+              email: data.session.user.email!,
+              full_name: data.session.user.user_metadata?.full_name || 
+                        data.session.user.user_metadata?.name || 
+                        data.session.user.email!.split('@')[0],
+              subscription_type: selectedPlan,
+              subscription_status: 'active',
+              current_usage_minutes: 0,
+              max_minutes_monthly: selectedPlan === 'pro' ? 100 : 10,
+              max_assistants: selectedPlan === 'pro' ? 10 : 1,
+              billing_cycle_start: new Date().toISOString(),
+              billing_cycle_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+              payment_method_type: 'none',
+              onboarding_completed: false,
+              setup_completed: true
             }
+            
+            const { error: upsertError } = await supabase
+              .from('profiles')
+              .upsert(profileData)
+            
+            if (upsertError) {
+              console.error('❌ Failed to create/update profile:', upsertError)
+            } else {
+              console.log('✅ Successfully created/updated user profile with plan:', selectedPlan)
+            }
+            
+            // New user with plan selection completed - go to dashboard
+            console.log('🚀 Auth callback - new user setup complete, redirecting to dashboard')
+            router.push('/dashboard')
+            
+          } else if (profile?.setup_completed) {
+            // Existing user with completed setup - go to dashboard
+            console.log('🚀 Auth callback - existing user, redirecting to dashboard')
+            router.push('/dashboard')
+            
+          } else {
+            // New user without plan selection - redirect to plan selection
+            console.log('🚀 Auth callback - new user needs plan selection, redirecting to signup')
+            router.push('/signup?step=plan')
           }
-          
-          // Successfully authenticated, redirect to dashboard
-          router.push('/dashboard')
         } else {
           // No session found, redirect to login
-          router.push('/login')
+          router.push('/signin')
         }
       } catch (error) {
         console.error('Auth callback error:', error)
-        router.push('/login?error=authentication_failed')
+        router.push('/signin?error=authentication_failed')
       }
     }
 

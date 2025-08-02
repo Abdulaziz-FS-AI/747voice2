@@ -62,37 +62,14 @@ export async function authenticateRequest() {
     if (profileError) {
       console.log('🔐 [AUTH] Profile error:', profileError);
       
-      // If profile doesn't exist (PGRST116 = no rows returned), create it
+      // If profile doesn't exist (PGRST116 = no rows returned), this is a new user
       if (profileError.code === 'PGRST116') {
-        console.log('🔐 [AUTH] Creating missing profile for user:', user.id);
+        console.log('🔐 [AUTH] No profile found - this is a new user who needs to complete signup');
         
-        const { data: newProfile, error: createError } = await supabase
-          .from('profiles')
-          .insert({
-            id: user.id,
-            email: user.email!,
-            full_name: user.user_metadata?.full_name || user.user_metadata?.name || user.email!.split('@')[0],
-            subscription_type: 'free',
-            subscription_status: 'active',
-            current_usage_minutes: 0,
-            max_minutes_monthly: 10,
-            max_assistants: 1,
-            billing_cycle_start: new Date().toISOString(),
-            billing_cycle_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-            payment_method_type: 'none'
-          })
-          .select()
-          .single()
-
-        if (createError) {
-          console.error('❌ [AUTH] Failed to create user profile:', createError)
-          throw new AuthError('Failed to create user profile', 500)
-        }
-
-        console.log('🔐 [AUTH] Authentication successful with new profile');
+        // Return user without profile - this signals they need to complete signup
         return {
           user,
-          profile: newProfile
+          profile: null
         }
       } else {
         // Other profile errors (not missing profile)

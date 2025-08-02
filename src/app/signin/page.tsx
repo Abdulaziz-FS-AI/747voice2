@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { AlertCircle, Loader2, Mic, Zap, Mail } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 
-function LoginContent() {
+function SignInContent() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -23,12 +23,8 @@ function LoginContent() {
   const supabase = createClientSupabaseClient()
   const { signInWithGoogle, user, loading } = useAuth()
 
-  // Redirect if already logged in
-  useEffect(() => {
-    if (!loading && user) {
-      router.push('/dashboard')
-    }
-  }, [user, loading, router])
+  // Let auth context handle routing based on profile completion status
+  // Don't redirect immediately - allow system to check if user needs plan selection
 
   useEffect(() => {
     // Check for error messages in URL params
@@ -59,7 +55,7 @@ function LoginContent() {
         description: 'You have been logged in successfully.',
       })
 
-      router.push('/dashboard')
+      // Let auth context handle routing based on profile status
     } catch (error) {
       setError('An unexpected error occurred')
     } finally {
@@ -110,9 +106,9 @@ function LoginContent() {
         <div className="vm-card p-8">
           <div className="space-y-6">
             <div className="text-center space-y-2">
-              <h2 className="vm-heading text-2xl font-bold">Welcome Back</h2>
+              <h2 className="vm-heading text-2xl font-bold">Sign In</h2>
               <p className="vm-text-muted">
-                Sign in to access your AI voice assistant platform
+                Access your AI voice assistant platform
               </p>
             </div>
 
@@ -209,10 +205,10 @@ function LoginContent() {
             </form>
             
             <div className="text-center text-sm vm-text-muted">
-              Don't have an account?{' '}
+              New to Voice Matrix?{' '}
               <Link href="/signup" className="font-semibold hover:underline transition-colors" 
                     style={{ color: 'var(--vm-primary)' }}>
-                Create Account
+                Get Started
               </Link>
             </div>
           </div>
@@ -222,7 +218,7 @@ function LoginContent() {
   )
 }
 
-export default function LoginPage() {
+export default function SignInPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center" 
@@ -242,7 +238,7 @@ export default function LoginPage() {
         </div>
       </div>
     }>
-      <LoginContent />
+      <SignInContent />
     </Suspense>
   )
 }

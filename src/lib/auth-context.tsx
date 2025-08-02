@@ -33,14 +33,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null)
       setLoading(false)
       
-      // Handle successful sign in
+      // Handle successful sign in - let auth callback handle routing
       if (event === 'SIGNED_IN' && session?.user) {
-        // Redirect from auth callback or login pages
-        if (window.location.pathname === '/auth/callback' || 
-            window.location.pathname === '/login' || 
-            window.location.pathname === '/signup') {
-          window.location.href = '/dashboard'
+        console.log('🚀 Auth context - SIGNED_IN event, current path:', window.location.pathname)
+        
+        // Only redirect from signin page after checking profile status
+        if (window.location.pathname === '/signin') {
+          // Check if user has completed profile
+          supabase
+            .from('profiles')
+            .select('setup_completed')
+            .eq('id', session.user.id)
+            .single()
+            .then(({ data: profile, error }) => {
+              if (error && error.code === 'PGRST116') {
+                // No profile - new user needs plan selection
+                console.log('🚀 Auth context - new user, redirecting to signup')
+                window.location.href = '/signup?step=plan'
+              } else if (profile?.setup_completed) {
+                // Existing user with complete profile
+                console.log('🚀 Auth context - existing user, redirecting to dashboard')
+                window.location.href = '/dashboard'
+              } else {
+                // User exists but setup not complete
+                console.log('🚀 Auth context - user setup incomplete, redirecting to signup')
+                window.location.href = '/signup?step=plan'
+              }
+            })
         }
+        // For auth/callback and signup pages, let them handle their own navigation
       }
     })
 

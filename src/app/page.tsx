@@ -258,7 +258,7 @@ const Header = () => {
               </Button>
             ) : (
               <>
-                <Button variant="ghost" onClick={() => router.push('/login')} style={{ color: 'var(--vm-primary-light)' }}>
+                <Button variant="ghost" onClick={() => router.push('/signin')} style={{ color: 'var(--vm-primary-light)' }}>
                   Sign In
                 </Button>
                 <Button onClick={() => router.push('/signup?step=plan')} style={{ background: 'var(--vm-gradient-primary)', color: '#FFFFFF' }}>
@@ -298,7 +298,7 @@ const Header = () => {
                   </Button>
                 ) : (
                   <>
-                    <Button variant="outline" onClick={() => router.push('/login')} style={{ borderColor: 'var(--vm-neutral-700)', color: 'var(--vm-neutral-200)' }}>Sign In</Button>
+                    <Button variant="outline" onClick={() => router.push('/signin')} style={{ borderColor: 'var(--vm-neutral-700)', color: 'var(--vm-neutral-200)' }}>Sign In</Button>
                     <Button onClick={() => router.push('/signup?step=plan')} style={{ background: 'var(--vm-gradient-primary)', color: '#FFFFFF' }}>Get Started</Button>
                   </>
                 )}

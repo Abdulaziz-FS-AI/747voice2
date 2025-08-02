@@ -30,6 +30,7 @@ export interface Database {
           paypal_payer_id: string | null
           payment_method_type: 'none' | 'paypal' | 'card'
           onboarding_completed: boolean
+          setup_completed: boolean
         }
         Insert: {
           id: string
@@ -51,6 +52,7 @@ export interface Database {
           paypal_payer_id?: string | null
           payment_method_type?: 'none' | 'paypal' | 'card'
           onboarding_completed?: boolean
+          setup_completed?: boolean
         }
         Update: {
           id?: string
@@ -72,6 +74,7 @@ export interface Database {
           paypal_payer_id?: string | null
           payment_method_type?: 'none' | 'paypal' | 'card'
           onboarding_completed?: boolean
+          setup_completed?: boolean
         }
       }
       templates: {

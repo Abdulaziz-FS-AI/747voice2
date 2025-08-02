@@ -37,12 +37,48 @@ function SignUpContent() {
   const supabase = createClientSupabaseClient()
   const { signInWithGoogle, user, loading } = useAuth()
 
-  // Redirect if already logged in
+  // Check if user needs to complete setup before redirecting
   useEffect(() => {
-    if (!loading && user) {
-      router.push('/dashboard')
+    const checkUserSetupStatus = async () => {
+      if (!loading && user) {
+        console.log('🚀 Checking user setup status for:', user.id)
+        
+        try {
+          // Check if user has completed initial setup
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('setup_completed, subscription_type')
+            .eq('id', user.id)
+            .single()
+          
+          if (error) {
+            console.error('❌ Error checking profile:', error)
+            return
+          }
+          
+          console.log('🚀 User profile:', profile)
+          
+          // If user has completed setup, redirect to dashboard
+          if (profile?.setup_completed) {
+            console.log('🚀 User setup complete, redirecting to dashboard')
+            router.push('/dashboard')
+          } else {
+            // User needs to complete setup - let them select a plan
+            console.log('🚀 User setup incomplete, allowing plan selection')
+            // If they have a plan from URL but setup isn't complete, continue with flow
+            if (planFromUrl) {
+              console.log('🚀 Plan from URL detected:', planFromUrl)
+              setSelectedPlan(planFromUrl)
+            }
+          }
+        } catch (error) {
+          console.error('❌ Error in setup status check:', error)
+        }
+      }
     }
-  }, [user, loading, router])
+    
+    checkUserSetupStatus()
+  }, [user, loading, router, planFromUrl, supabase])
 
   // ROUTING PROTECTION: Enforce plan selection flow
   useEffect(() => {
@@ -125,7 +161,8 @@ function SignUpContent() {
           data: {
             first_name: firstName,
             last_name: lastName,
-            subscription_type: selectedPlan
+            subscription_type: selectedPlan,
+            setup_completed: true
           }
         }
       })
@@ -161,7 +198,8 @@ function SignUpContent() {
             first_name: firstName,
             last_name: lastName,
             subscription_type: selectedPlan,
-            paypal_subscription_id: subscriptionId
+            paypal_subscription_id: subscriptionId,
+            setup_completed: true
           }
         }
       })
@@ -189,8 +227,14 @@ function SignUpContent() {
   }
 
   const handleGoogleSignUp = async () => {
+    console.log('🚀 Google signup initiated')
+    console.log('🚀 Selected plan:', selectedPlan)
+    console.log('🚀 Current step:', step)
+    console.log('🚀 Is quick signup:', isQuickSignup)
+    
     // PROTECTION: Google signup must include plan selection
     if (!selectedPlan) {
+      console.error('❌ No plan selected for Google signup')
       setError('Please select a plan first')
       return
     }
@@ -200,11 +244,18 @@ function SignUpContent() {
     
     try {
       // Store plan selection in session storage for auth callback
+      console.log('🚀 Storing plan in sessionStorage:', selectedPlan)
       sessionStorage.setItem('voice-matrix-selected-plan', selectedPlan)
       sessionStorage.setItem('voice-matrix-signup-step', step)
       
+      // Verify storage
+      const storedPlan = sessionStorage.getItem('voice-matrix-selected-plan')
+      console.log('🚀 Verified stored plan:', storedPlan)
+      
+      console.log('🚀 Calling signInWithGoogle...')
       await signInWithGoogle()
     } catch (error: any) {
+      console.error('❌ Google signup error:', error)
       setError(error.message || 'Failed to sign up with Google')
     } finally {
       setIsGoogleLoading(false)
@@ -294,7 +345,7 @@ function SignUpContent() {
 
             <div className="text-center text-sm vm-text-muted">
               Already have an account?{' '}
-              <Link href="/login" className="font-semibold hover:underline transition-colors" 
+              <Link href="/signin" className="font-semibold hover:underline transition-colors" 
                     style={{ color: 'var(--vm-primary)' }}>
                 Sign In
               </Link>
