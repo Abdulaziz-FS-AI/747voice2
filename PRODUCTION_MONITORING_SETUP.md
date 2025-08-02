@@ -108,10 +108,20 @@ const RATE_LIMIT_CONFIGS = {
 
 ## 🛠️ Setup Instructions
 
-### 1. Sentry Configuration
+### 1. Sentry Configuration (Optional)
 
-1. Create Sentry account and project
-2. Add environment variables:
+The monitoring system works with optional Sentry integration. Error tracking will use console fallback if Sentry is not configured.
+
+**To enable Sentry (optional):**
+
+1. Install Sentry package:
+```bash
+npm install @sentry/nextjs
+```
+
+2. Create Sentry account and project
+
+3. Add environment variables:
 ```bash
 SENTRY_DSN=https://your_sentry_dsn@sentry.io/project_id
 NEXT_PUBLIC_SENTRY_DSN=https://your_sentry_dsn@sentry.io/project_id
@@ -120,10 +130,11 @@ SENTRY_ORG=your_sentry_organization
 SENTRY_PROJECT=your_sentry_project
 ```
 
-3. Install Sentry dependencies:
-```bash
-npm install @sentry/nextjs
-```
+**Without Sentry:**
+- Error tracking will log to console
+- Performance monitoring will still work
+- Business metrics will still be tracked
+- Rate limiting and usage enforcement work normally
 
 ### 2. Database Setup
 

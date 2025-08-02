@@ -1,7 +1,14 @@
 'use client'
 
 import { useEffect } from 'react'
-import { ErrorTracker } from '@/lib/monitoring/sentry'
+
+// Optional error tracking import
+let ErrorTracker: any = null
+try {
+  ErrorTracker = require('@/lib/monitoring/sentry').ErrorTracker
+} catch (error) {
+  console.warn('Error tracking not available')
+}
 
 export default function GlobalError({
   error,
@@ -11,14 +18,18 @@ export default function GlobalError({
   reset: () => void
 }) {
   useEffect(() => {
-    // Log the error to Sentry
-    ErrorTracker.captureError(error, {
-      metadata: {
-        category: 'global_error',
-        digest: error.digest,
-        component: 'global-error-boundary'
-      }
-    }, 'fatal')
+    // Log the error to monitoring system if available
+    if (ErrorTracker) {
+      ErrorTracker.captureError(error, {
+        metadata: {
+          category: 'global_error',
+          digest: error.digest,
+          component: 'global-error-boundary'
+        }
+      }, 'fatal')
+    } else {
+      console.error('Global error:', error)
+    }
   }, [error])
 
   return (

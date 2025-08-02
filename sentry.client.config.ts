@@ -1,6 +1,13 @@
-import * as Sentry from "@sentry/nextjs";
+// Optional Sentry import - gracefully handle when package is not installed
+let Sentry: any = null
+try {
+  Sentry = require('@sentry/nextjs')
+} catch (error) {
+  console.warn('Sentry package not installed. Client-side error tracking will be disabled.')
+}
 
-Sentry.init({
+if (Sentry && process.env.NEXT_PUBLIC_SENTRY_DSN) {
+  Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
   
   // Set tracesSampleRate to 1.0 to capture 100%
@@ -44,4 +51,5 @@ Sentry.init({
       blockAllMedia: true,
     }),
   ],
-});
+  })
+}

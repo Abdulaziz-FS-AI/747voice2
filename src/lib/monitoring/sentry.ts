@@ -1,9 +1,15 @@
 /**
  * Production Error Tracking & Monitoring System
- * Sentry integration for comprehensive error tracking
+ * Optional Sentry integration for comprehensive error tracking
  */
 
-import * as Sentry from '@sentry/nextjs'
+// Optional Sentry import - gracefully handle when package is not installed
+let Sentry: any = null
+try {
+  Sentry = require('@sentry/nextjs')
+} catch (error) {
+  console.warn('Sentry package not installed. Error tracking will use console fallback.')
+}
 
 export interface ErrorContext {
   userId?: string
@@ -26,29 +32,33 @@ export interface PerformanceMetrics {
  * Initialize Sentry with production configuration
  */
 export function initSentry() {
-  if (process.env.SENTRY_DSN && process.env.NODE_ENV === 'production') {
-    Sentry.init({
-      dsn: process.env.SENTRY_DSN,
-      environment: process.env.NODE_ENV,
-      tracesSampleRate: 0.1, // 10% of transactions
-      debug: false,
-      beforeSend(event, hint) {
-        // Filter out sensitive data
-        if (event.request?.data) {
-          // Remove passwords, API keys, etc.
-          const sanitized = { ...event.request.data }
-          delete sanitized.password
-          delete sanitized.apiKey
-          delete sanitized.token
-          event.request.data = sanitized
-        }
-        return event
-      },
-      integrations: [
-        new Sentry.Integrations.Http({ tracing: true }),
-        new Sentry.Integrations.Console(),
-      ],
-    })
+  if (Sentry && process.env.SENTRY_DSN && process.env.NODE_ENV === 'production') {
+    try {
+      Sentry.init({
+        dsn: process.env.SENTRY_DSN,
+        environment: process.env.NODE_ENV,
+        tracesSampleRate: 0.1, // 10% of transactions
+        debug: false,
+        beforeSend(event: any, hint: any) {
+          // Filter out sensitive data
+          if (event.request?.data) {
+            // Remove passwords, API keys, etc.
+            const sanitized = { ...event.request.data }
+            delete sanitized.password
+            delete sanitized.apiKey
+            delete sanitized.token
+            event.request.data = sanitized
+          }
+          return event
+        },
+        integrations: [
+          new Sentry.Integrations.Http({ tracing: true }),
+          new Sentry.Integrations.Console(),
+        ],
+      })
+    } catch (error) {
+      console.warn('Failed to initialize Sentry:', error)
+    }
   }
 }
 
@@ -63,42 +73,46 @@ export class ErrorTracker {
   ) {
     console.error('[ErrorTracker]', error, context)
 
-    if (process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
-      Sentry.withScope((scope) => {
-        scope.setLevel(level)
-        
-        if (context?.userId) {
-          scope.setUser({ id: context.userId })
-        }
-        
-        if (context?.endpoint) {
-          scope.setTag('endpoint', context.endpoint)
-        }
-        
-        if (context?.userAgent) {
-          scope.setContext('userAgent', { value: context.userAgent })
-        }
-        
-        if (context?.ip) {
-          scope.setContext('ip', { value: context.ip })
-        }
-        
-        if (context?.requestBody) {
-          scope.setContext('requestBody', context.requestBody)
-        }
-        
-        if (context?.metadata) {
-          Object.entries(context.metadata).forEach(([key, value]) => {
-            scope.setExtra(key, value)
-          })
-        }
-        
-        if (typeof error === 'string') {
-          Sentry.captureMessage(error)
-        } else {
-          Sentry.captureException(error)
-        }
-      })
+    if (Sentry && process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
+      try {
+        Sentry.withScope((scope: any) => {
+          scope.setLevel(level)
+          
+          if (context?.userId) {
+            scope.setUser({ id: context.userId })
+          }
+          
+          if (context?.endpoint) {
+            scope.setTag('endpoint', context.endpoint)
+          }
+          
+          if (context?.userAgent) {
+            scope.setContext('userAgent', { value: context.userAgent })
+          }
+          
+          if (context?.ip) {
+            scope.setContext('ip', { value: context.ip })
+          }
+          
+          if (context?.requestBody) {
+            scope.setContext('requestBody', context.requestBody)
+          }
+          
+          if (context?.metadata) {
+            Object.entries(context.metadata).forEach(([key, value]) => {
+              scope.setExtra(key, value)
+            })
+          }
+          
+          if (typeof error === 'string') {
+            Sentry.captureMessage(error)
+          } else {
+            Sentry.captureException(error)
+          }
+        })
+      } catch (sentryError) {
+        console.warn('Failed to send error to Sentry:', sentryError)
+      }
     }
   }
 
@@ -207,26 +221,30 @@ export class PerformanceTracker {
     // Log performance metrics
     console.log(`[Performance] ${operation}: ${duration}ms (${success ? 'SUCCESS' : 'FAILURE'})`)
 
-    if (process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
-      const transaction = Sentry.startTransaction({
-        name: operation,
-        op: 'function'
-      })
-
-      transaction.setData('duration', duration)
-      transaction.setData('success', success)
-      
-      if (userId) {
-        transaction.setData('userId', userId)
-      }
-      
-      if (metadata) {
-        Object.entries(metadata).forEach(([key, value]) => {
-          transaction.setData(key, value)
+    if (Sentry && process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
+      try {
+        const transaction = Sentry.startTransaction({
+          name: operation,
+          op: 'function'
         })
-      }
 
-      transaction.finish()
+        transaction.setData('duration', duration)
+        transaction.setData('success', success)
+        
+        if (userId) {
+          transaction.setData('userId', userId)
+        }
+        
+        if (metadata) {
+          Object.entries(metadata).forEach(([key, value]) => {
+            transaction.setData(key, value)
+          })
+        }
+
+        transaction.finish()
+      } catch (sentryError) {
+        console.warn('Failed to send performance data to Sentry:', sentryError)
+      }
     }
 
     // Alert on slow operations
@@ -249,17 +267,21 @@ export class PerformanceTracker {
  */
 export class BusinessMetrics {
   static trackSignup(userId: string, plan: string, source?: string) {
-    if (process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
-      Sentry.addBreadcrumb({
-        message: 'User signup completed',
-        category: 'business',
-        data: {
-          userId,
-          plan,
-          source
-        },
-        level: 'info'
-      })
+    if (Sentry && process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
+      try {
+        Sentry.addBreadcrumb({
+          message: 'User signup completed',
+          category: 'business',
+          data: {
+            userId,
+            plan,
+            source
+          },
+          level: 'info'
+        })
+      } catch (sentryError) {
+        console.warn('Failed to send signup tracking to Sentry:', sentryError)
+      }
     }
   }
 
@@ -269,32 +291,40 @@ export class BusinessMetrics {
     toPlan: string,
     revenue?: number
   ) {
-    if (process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
-      Sentry.addBreadcrumb({
-        message: 'Subscription changed',
-        category: 'business',
-        data: {
-          userId,
-          fromPlan,
-          toPlan,
-          revenue
-        },
-        level: 'info'
-      })
+    if (Sentry && process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
+      try {
+        Sentry.addBreadcrumb({
+          message: 'Subscription changed',
+          category: 'business',
+          data: {
+            userId,
+            fromPlan,
+            toPlan,
+            revenue
+          },
+          level: 'info'
+        })
+      } catch (sentryError) {
+        console.warn('Failed to send subscription tracking to Sentry:', sentryError)
+      }
     }
   }
 
   static trackAssistantCreated(userId: string, assistantId: string) {
-    if (process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
-      Sentry.addBreadcrumb({
-        message: 'Assistant created',
-        category: 'usage',
-        data: {
-          userId,
-          assistantId
-        },
-        level: 'info'
-      })
+    if (Sentry && process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
+      try {
+        Sentry.addBreadcrumb({
+          message: 'Assistant created',
+          category: 'usage',
+          data: {
+            userId,
+            assistantId
+          },
+          level: 'info'
+        })
+      } catch (sentryError) {
+        console.warn('Failed to send assistant tracking to Sentry:', sentryError)
+      }
     }
   }
 
@@ -304,18 +334,22 @@ export class BusinessMetrics {
     duration: number,
     cost: number
   ) {
-    if (process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
-      Sentry.addBreadcrumb({
-        message: 'Call completed',
-        category: 'usage',
-        data: {
-          userId,
-          assistantId,
-          duration,
-          cost
-        },
-        level: 'info'
-      })
+    if (Sentry && process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
+      try {
+        Sentry.addBreadcrumb({
+          message: 'Call completed',
+          category: 'usage',
+          data: {
+            userId,
+            assistantId,
+            duration,
+            cost
+          },
+          level: 'info'
+        })
+      } catch (sentryError) {
+        console.warn('Failed to send call tracking to Sentry:', sentryError)
+      }
     }
   }
 }

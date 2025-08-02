@@ -1,6 +1,13 @@
-import * as Sentry from "@sentry/nextjs";
+// Optional Sentry import - gracefully handle when package is not installed
+let Sentry: any = null
+try {
+  Sentry = require('@sentry/nextjs')
+} catch (error) {
+  console.warn('Sentry package not installed. Server-side error tracking will be disabled.')
+}
 
-Sentry.init({
+if (Sentry && process.env.SENTRY_DSN) {
+  Sentry.init({
   dsn: process.env.SENTRY_DSN,
   
   // Set tracesSampleRate to 1.0 to capture 100%
@@ -32,4 +39,5 @@ Sentry.init({
     
     return event
   },
-});
+  })
+}
