@@ -1,13 +1,13 @@
 // Optional Sentry import - gracefully handle when package is not installed
-let Sentry: any = null
+let SentryServer: any = null
 try {
-  Sentry = require('@sentry/nextjs')
+  SentryServer = require('@sentry/nextjs')
 } catch (error) {
   console.warn('Sentry package not installed. Server-side error tracking will be disabled.')
 }
 
-if (Sentry && process.env.SENTRY_DSN) {
-  Sentry.init({
+if (SentryServer && process.env.SENTRY_DSN) {
+  SentryServer.init({
   dsn: process.env.SENTRY_DSN,
   
   // Set tracesSampleRate to 1.0 to capture 100%
@@ -25,7 +25,7 @@ if (Sentry && process.env.SENTRY_DSN) {
   
   environment: process.env.NODE_ENV,
   
-  beforeSend(event, hint) {
+  beforeSend(event: any, hint: any) {
     // Filter out sensitive information
     if (event.request?.data) {
       const sanitized = { ...event.request.data }

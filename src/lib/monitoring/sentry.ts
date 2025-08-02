@@ -374,10 +374,15 @@ export class HealthMonitor {
   static async checkVapiHealth(): Promise<boolean> {
     try {
       // This would ping Vapi API to check connectivity
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000)
+      
       const response = await fetch('https://api.vapi.ai/health', {
         method: 'GET',
-        timeout: 5000
+        signal: controller.signal
       })
+      
+      clearTimeout(timeoutId)
       return response.ok
     } catch (error) {
       ErrorTracker.captureError('Vapi health check failed', {
@@ -390,10 +395,15 @@ export class HealthMonitor {
   static async checkPayPalHealth(): Promise<boolean> {
     try {
       // Basic connectivity check to PayPal
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000)
+      
       const response = await fetch('https://api.paypal.com/v1/oauth2/token', {
         method: 'HEAD',
-        timeout: 5000
+        signal: controller.signal
       })
+      
+      clearTimeout(timeoutId)
       return response.status !== 500 // Allow 401/403, just not 500
     } catch (error) {
       ErrorTracker.captureError('PayPal health check failed', {

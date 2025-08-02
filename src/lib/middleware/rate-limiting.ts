@@ -159,8 +159,8 @@ function getClientIP(request: NextRequest): string {
   if (realIP) return realIP
   if (clientIP) return clientIP
   
-  // Fallback
-  return request.ip || 'unknown'
+  // Fallback to unknown for NextRequest (doesn't have .ip property)
+  return 'unknown'
 }
 
 /**

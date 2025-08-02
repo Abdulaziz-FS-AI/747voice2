@@ -1,12 +1,13 @@
 'use client'
 
 import { useEffect } from 'react'
+import Link from 'next/link'
 
 // Optional error tracking import
 let ErrorTracker: any = null
 try {
   ErrorTracker = require('@/lib/monitoring/sentry').ErrorTracker
-} catch (error) {
+} catch {
   console.warn('Error tracking not available')
 }
 
@@ -78,12 +79,12 @@ export default function GlobalError({
                 >
                   Try Again
                 </button>
-                <a
+                <Link
                   href="/"
                   className="px-4 py-2 bg-gray-200 text-gray-900 text-sm font-medium rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                 >
                   Go Home
-                </a>
+                </Link>
               </div>
             </div>
           </div>

@@ -42,12 +42,14 @@ const CreateAssistantSchema = z.object({
 
 // GET /api/assistants - Get all assistants for the user
 export async function GET(request: NextRequest) {
+  let user: any = null;
   try {
     // Apply rate limiting first
     const rateLimitResponse = await rateLimitAPI(request)
     if (rateLimitResponse) return rateLimitResponse
 
-    const { user } = await authenticateRequest();
+    const authResult = await authenticateRequest();
+    user = authResult.user;
     const { searchParams } = new URL(request.url);
     
     // Query parameters
@@ -103,13 +105,13 @@ export async function POST(request: NextRequest) {
   let vapiAssistantId: string | null = null;
   let assistantCreated = false;
   const operationId = `assistant_create_${Date.now()}`
+  let user: any = null;
   
   try {
     console.log('🚀 [API] ===== STARTING ASSISTANT CREATION =====');
     PerformanceTracker.startTransaction(operationId)
     
     // Step 2: Authenticate user (moved up for rate limiting)
-    let user;
     try {
       const authResult = await requirePermission('basic');
       user = authResult.user;
