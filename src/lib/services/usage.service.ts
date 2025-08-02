@@ -235,22 +235,32 @@ export class UsageService {
     const { data: usageData } = await this.supabase
       .from('profiles')
       .select(`
+        id,
         subscription_type,
         current_usage_minutes,
-        max_minutes_monthly,
-        user_assistants!inner(count)
+        max_minutes_monthly
       `)
       .order('current_usage_minutes', { ascending: false })
       .limit(100);
 
     if (!usageData) return [];
 
-    return usageData.map(user => ({
-      subscriptionType: user.subscription_type,
-      usagePercentage: Math.round((user.current_usage_minutes / user.max_minutes_monthly) * 100),
-      minutesUsed: user.current_usage_minutes,
-      minutesLimit: user.max_minutes_monthly,
-      assistantCount: user.user_assistants?.[0]?.count || 0
-    }));
+    // Get assistant counts separately for each user
+    const summaryPromises = usageData.map(async (user) => {
+      const { count: assistantCount } = await this.supabase
+        .from('user_assistants')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+
+      return {
+        subscriptionType: user.subscription_type,
+        usagePercentage: Math.round((user.current_usage_minutes / user.max_minutes_monthly) * 100),
+        minutesUsed: user.current_usage_minutes,
+        minutesLimit: user.max_minutes_monthly,
+        assistantCount: assistantCount || 0
+      };
+    });
+
+    return Promise.all(summaryPromises);
   }
 }
