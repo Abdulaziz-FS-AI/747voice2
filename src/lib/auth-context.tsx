@@ -73,10 +73,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signInWithGoogle = async () => {
+    // Get plan selection from session storage
+    const selectedPlan = sessionStorage.getItem('voice-matrix-selected-plan')
+    
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`
+        redirectTo: `${window.location.origin}/auth/callback`,
+        // Pass plan in query params since OAuth doesn't support custom user metadata
+        queryParams: selectedPlan ? { plan: selectedPlan } : undefined
       }
     })
     

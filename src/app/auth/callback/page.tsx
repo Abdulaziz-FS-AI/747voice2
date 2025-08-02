@@ -23,79 +23,71 @@ export default function AuthCallbackPage() {
         if (data.session?.user) {
           console.log('🚀 Auth callback - user authenticated:', data.session.user.id)
           
-          // Check if user has an existing profile
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('setup_completed, subscription_type')
-            .eq('id', data.session.user.id)
-            .single()
-          
-          console.log('🚀 Auth callback - profile check:', { profile, profileError })
-          
-          // Check if this was a signup with plan selection from session storage
+          // Check if this was a signup with plan selection
           const selectedPlan = sessionStorage.getItem('voice-matrix-selected-plan')
           const signupStep = sessionStorage.getItem('voice-matrix-signup-step')
           
           console.log('🚀 Auth callback - stored plan:', selectedPlan)
-          console.log('🚀 Auth callback - stored step:', signupStep)
           
           if (selectedPlan && signupStep) {
-            console.log('🚀 Auth callback - creating/updating user profile with plan:', selectedPlan)
-            
             // Clear the stored values
             sessionStorage.removeItem('voice-matrix-selected-plan')
             sessionStorage.removeItem('voice-matrix-signup-step')
             
-            // Create or update user profile with selected plan
-            const profileData = {
-              id: data.session.user.id,
-              email: data.session.user.email!,
-              full_name: data.session.user.user_metadata?.full_name || 
-                        data.session.user.user_metadata?.name || 
-                        data.session.user.email!.split('@')[0],
-              subscription_type: selectedPlan as 'free' | 'pro',
-              subscription_status: 'active' as const,
-              current_usage_minutes: 0,
-              max_minutes_monthly: selectedPlan === 'pro' ? 100 : 10,
-              max_assistants: selectedPlan === 'pro' ? 10 : 1,
-              billing_cycle_start: new Date().toISOString(),
-              billing_cycle_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-              payment_method_type: 'none' as const,
-              onboarding_completed: false,
-              setup_completed: true,
-              // Add missing fields to prevent database errors
-              stripe_customer_id: null,
-              stripe_subscription_id: null,
-              paypal_customer_id: null,
-              paypal_subscription_id: null,
-              paypal_payer_id: null,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            }
+            console.log('🚀 Auth callback - new user with plan selection:', selectedPlan)
             
-            const { error: upsertError } = await supabase
-              .from('profiles')
-              .upsert(profileData)
+            // Wait for database trigger to create profile, then update if needed
+            await new Promise(resolve => setTimeout(resolve, 2000))
             
-            if (upsertError) {
-              console.error('❌ Failed to create/update profile:', upsertError)
+            // Update the subscription type if it's Pro (database trigger creates as 'free' by default)
+            if (selectedPlan === 'pro') {
+              const { error: updateError } = await supabase
+                .from('profiles')
+                .update({ 
+                  subscription_type: 'pro',
+                  max_minutes_monthly: 100,
+                  max_assistants: 10,
+                  setup_completed: true
+                })
+                .eq('id', data.session.user.id)
+              
+              if (updateError) {
+                console.error('🚀 Auth callback - pro plan update error:', updateError)
+              } else {
+                console.log('🚀 Auth callback - updated to pro plan')
+              }
+              
+              router.push('/dashboard?new=pro')
             } else {
-              console.log('✅ Successfully created/updated user profile with plan:', selectedPlan)
+              // For free plan, just mark as setup complete
+              const { error: updateError } = await supabase
+                .from('profiles')
+                .update({ setup_completed: true })
+                .eq('id', data.session.user.id)
+              
+              if (updateError) {
+                console.error('🚀 Auth callback - free plan update error:', updateError)
+              }
+              
+              router.push('/dashboard?new=free')
             }
-            
-            // New user with plan selection completed - go to dashboard
-            console.log('🚀 Auth callback - new user setup complete, redirecting to dashboard')
-            router.push('/dashboard')
-            
-          } else if (profile?.setup_completed) {
-            // Existing user with completed setup - go to dashboard
-            console.log('🚀 Auth callback - existing user, redirecting to dashboard')
-            router.push('/dashboard')
-            
           } else {
-            // New user without plan selection - redirect to plan selection
-            console.log('🚀 Auth callback - new user needs plan selection, redirecting to signup')
-            router.push('/signup?step=plan')
+            // Existing user or no plan selection - wait and check profile
+            await new Promise(resolve => setTimeout(resolve, 1000))
+            
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('setup_completed, subscription_type')
+              .eq('id', data.session.user.id)
+              .single()
+            
+            if (profile?.setup_completed) {
+              console.log('🚀 Auth callback - existing user, redirecting to dashboard')
+              router.push('/dashboard')
+            } else {
+              console.log('🚀 Auth callback - new user needs plan selection')
+              router.push('/signup?step=plan')
+            }
           }
         } else {
           // No session found, redirect to login
@@ -117,14 +109,20 @@ export default function AuthCallbackPage() {
         <div className="relative">
           <div 
             className="h-16 w-16 rounded-full flex items-center justify-center vm-glow mx-auto mb-4"
-            style={{ background: 'var(--vm-gradient-primary)' }}
+            style={{ 
+              background: 'var(--vm-gradient-primary)',
+              animation: 'spin 1s linear infinite'
+            }}
           >
-            <div className="h-6 w-6 border-2 border-t-transparent rounded-full animate-spin"
-                 style={{ borderColor: 'var(--vm-background)', borderTopColor: 'transparent' }} />
+            <div className="h-8 w-8 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
           </div>
         </div>
-        <h2 className="vm-heading text-xl font-semibold mb-2">Signing you in...</h2>
-        <p className="vm-text-muted">Please wait while we complete your authentication.</p>
+        <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--vm-text-primary)' }}>
+          Completing authentication...
+        </h2>
+        <p style={{ color: 'var(--vm-text-muted)' }}>
+          Please wait while we set up your account
+        </p>
       </div>
     </div>
   )

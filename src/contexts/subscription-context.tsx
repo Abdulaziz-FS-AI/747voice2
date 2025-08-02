@@ -38,14 +38,11 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     }
   }, []);
 
-  // Initial load and periodic refresh
+  // Initial load only - NO AUTO REFRESH for performance
   useEffect(() => {
     fetchSubscription();
 
-    // Refresh every 30 seconds for real-time usage updates
-    const interval = setInterval(fetchSubscription, 30000);
-
-    // Listen for subscription updates from other tabs
+    // Listen for subscription updates from other tabs only
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'subscription-updated') {
         fetchSubscription();
@@ -54,7 +51,6 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     window.addEventListener('storage', handleStorageChange);
 
     return () => {
-      clearInterval(interval);
       window.removeEventListener('storage', handleStorageChange);
     };
   }, [fetchSubscription]);
