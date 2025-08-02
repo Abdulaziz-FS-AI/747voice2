@@ -61,7 +61,7 @@ export async function ensureUserProfile(userId: string) {
     
     // Other error
     console.error('❌ Error fetching profile:', profileError)
-    return { success: false, error: profileError.message }
+    return { success: false, error: profileError?.message || 'Unknown error' }
     
   } catch (error) {
     console.error('❌ Unexpected error in ensureUserProfile:', error)
