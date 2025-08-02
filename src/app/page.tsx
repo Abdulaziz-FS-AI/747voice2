@@ -548,7 +548,7 @@ export default function HomePage() {
                 name: "Free Plan",
                 price: "Free",
                 description: "Perfect for getting started with AI voice agents",
-                features: ["1 AI voice assistant", "10 minutes/month", "Basic voice customization", "Community support", "Dashboard analytics"],
+                features: ["1 AI voice assistant", "Basic voice customization", "Community support", "Dashboard analytics"],
                 cta: "Start Free",
                 popular: false
               },
@@ -556,7 +556,7 @@ export default function HomePage() {
                 name: "Pro Plan",
                 price: "$25",
                 description: "For power users and growing businesses",
-                features: ["10 AI voice assistants", "100 minutes/month", "Advanced voice customization", "Priority support & live chat", "Advanced analytics & reporting", "Custom integrations", "API access", "White-label options"],
+                features: ["10 AI voice assistants", "Advanced voice customization", "Priority support & live chat", "Advanced analytics & reporting", "Custom integrations", "API access", "White-label options"],
                 cta: "Upgrade to Pro",
                 popular: true
               }

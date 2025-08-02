@@ -126,10 +126,10 @@ export async function checkSubscriptionLimits(userId: string, resource: string, 
   try {
     const supabase = await createServerSupabaseClient()
     
-    // Get user's current subscription and usage
+    // Get user's current subscription
     const { data: profile, error } = await supabase
       .from('profiles')
-      .select('subscription_type, current_usage_minutes, max_minutes_monthly, max_assistants')
+      .select('subscription_type, max_assistants')
       .eq('id', userId)
       .single()
 
@@ -157,15 +157,9 @@ export async function checkSubscriptionLimits(userId: string, resource: string, 
       return true
     }
     
+    // Minutes checking removed - no longer enforcing minute limits
     if (resource === 'minutes') {
-      const wouldExceedLimit = profile.current_usage_minutes + (count || 1) > profile.max_minutes_monthly
-      
-      if (wouldExceedLimit) {
-        console.log(`🚫 [AUTH] Minutes limit would be exceeded: ${profile.current_usage_minutes}/${profile.max_minutes_monthly}`)
-        return false
-      }
-      
-      console.log(`✅ [AUTH] Minutes limit check passed: ${profile.current_usage_minutes}/${profile.max_minutes_monthly}`)
+      console.log(`✅ [AUTH] Minutes limit check bypassed - unlimited usage enabled`)
       return true
     }
 

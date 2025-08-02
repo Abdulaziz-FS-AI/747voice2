@@ -15,14 +15,12 @@ export function PlanSelector({ selectedPlan, onPlanSelect, onPlanContinue, class
   const planFeatures = {
     free: [
       'Create 1 AI voice assistant',
-      '10 minutes of calls per month',
       'Basic voice customization',
       'Community support',
       'Dashboard analytics'
     ],
     pro: [
       'Create up to 10 AI assistants',
-      '100 minutes of calls per month',
       'Advanced voice customization',
       'Priority support & live chat',
       'Advanced analytics & reporting',
