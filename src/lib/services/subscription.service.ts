@@ -15,10 +15,7 @@ export class SubscriptionService {
   async getSubscription(userId: string): Promise<UserSubscription> {
     const { data: profile, error } = await this.supabase
       .from('profiles')
-      .select(`
-        *,
-        user_assistants!inner(count)
-      `)
+      .select('*')
       .eq('id', userId)
       .single();
 
@@ -262,11 +259,18 @@ export class SubscriptionService {
       (subscription.billingCycleEnd.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
     );
 
-    // Get call statistics
+    // Get call statistics from user's assistants
+    const { data: userAssistants } = await this.supabase
+      .from('user_assistants')
+      .select('id')
+      .eq('user_id', userId);
+
+    const assistantIds = userAssistants?.map(a => a.id) || [];
+    
     const { data: callStats } = await this.supabase
       .from('call_logs')
       .select('duration_seconds, cost, success_evaluation')
-      .eq('assistant_id', userId)
+      .in('assistant_id', assistantIds.length > 0 ? assistantIds : ['00000000-0000-0000-0000-000000000000'])
       .gte('started_at', subscription.billingCycleStart.toISOString());
 
     const totalCalls = callStats?.length || 0;

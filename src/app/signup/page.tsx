@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClientSupabaseClient } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth-context'
@@ -16,8 +16,15 @@ import { PayPalCheckout } from '@/components/ui/paypal-checkout'
 import { SubscriptionType } from '@/types/subscription'
 
 export default function SignUpPage() {
-  const [step, setStep] = useState<'plan' | 'details' | 'payment'>('plan')
-  const [selectedPlan, setSelectedPlan] = useState<SubscriptionType>('free')
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  
+  // Get plan from URL params (enforced routing)
+  const planFromUrl = searchParams.get('plan') as SubscriptionType | null
+  const stepFromUrl = searchParams.get('step') as 'plan' | 'details' | 'payment' | null
+  
+  const [step, setStep] = useState<'plan' | 'details' | 'payment'>(stepFromUrl || 'plan')
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionType>(planFromUrl || 'free')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -26,7 +33,6 @@ export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const [error, setError] = useState('')
-  const router = useRouter()
   const supabase = createClientSupabaseClient()
   const { signInWithGoogle, user, loading } = useAuth()
 
@@ -37,7 +43,25 @@ export default function SignUpPage() {
     }
   }, [user, loading, router])
 
+  // ROUTING PROTECTION: Enforce plan selection flow
+  useEffect(() => {
+    // If user tries to access details/payment step without selecting a plan
+    if (step !== 'plan' && !planFromUrl) {
+      console.log('🚫 Direct access blocked - redirecting to plan selection')
+      router.replace('/signup?step=plan')
+      setStep('plan')
+    }
+    
+    // If user tries to access payment step without selecting Pro plan
+    if (step === 'payment' && selectedPlan !== 'pro') {
+      console.log('🚫 Payment access blocked - redirecting to details')
+      router.replace(`/signup?plan=${selectedPlan}&step=details`)
+      setStep('details')
+    }
+  }, [step, planFromUrl, selectedPlan, router])
+
   const handlePlanNext = () => {
+    router.push(`/signup?plan=${selectedPlan}&step=details`)
     setStep('details')
   }
 
@@ -59,6 +83,7 @@ export default function SignUpPage() {
     }
 
     if (selectedPlan === 'pro') {
+      router.push(`/signup?plan=${selectedPlan}&step=payment`)
       setStep('payment')
       setIsLoading(false)
       return
@@ -137,10 +162,20 @@ export default function SignUpPage() {
   }
 
   const handleGoogleSignUp = async () => {
+    // PROTECTION: Google signup must include plan selection
+    if (!selectedPlan) {
+      setError('Please select a plan first')
+      return
+    }
+    
     setIsGoogleLoading(true)
     setError('')
     
     try {
+      // Store plan selection in session storage for auth callback
+      sessionStorage.setItem('voice-matrix-selected-plan', selectedPlan)
+      sessionStorage.setItem('voice-matrix-signup-step', step)
+      
       await signInWithGoogle()
     } catch (error: any) {
       setError(error.message || 'Failed to sign up with Google')
@@ -255,7 +290,10 @@ export default function SignUpPage() {
             <div className="space-y-6">
               <div className="flex items-center gap-4 mb-6">
                 <button
-                  onClick={() => setStep('plan')}
+                  onClick={() => {
+                    router.push('/signup?step=plan')
+                    setStep('plan')
+                  }}
                   className="vm-button-secondary p-2 hover:scale-105"
                 >
                   <ArrowLeft className="h-4 w-4" />
@@ -417,7 +455,10 @@ export default function SignUpPage() {
             <div className="space-y-6">
               <div className="flex items-center gap-4 mb-6">
                 <button
-                  onClick={() => setStep('details')}
+                  onClick={() => {
+                    router.push(`/signup?plan=${selectedPlan}&step=details`)
+                    setStep('details')
+                  }}
                   className="vm-button-secondary p-2 hover:scale-105"
                 >
                   <ArrowLeft className="h-4 w-4" />

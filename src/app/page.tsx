@@ -261,7 +261,7 @@ const Header = () => {
                 <Button variant="ghost" onClick={() => router.push('/login')} style={{ color: 'var(--vm-primary-light)' }}>
                   Sign In
                 </Button>
-                <Button onClick={() => router.push('/signup')} style={{ background: 'var(--vm-gradient-primary)', color: '#FFFFFF' }}>
+                <Button onClick={() => router.push('/signup?step=plan')} style={{ background: 'var(--vm-gradient-primary)', color: '#FFFFFF' }}>
                   Get Started
                 </Button>
               </>
@@ -299,7 +299,7 @@ const Header = () => {
                 ) : (
                   <>
                     <Button variant="outline" onClick={() => router.push('/login')} style={{ borderColor: 'var(--vm-neutral-700)', color: 'var(--vm-neutral-200)' }}>Sign In</Button>
-                    <Button onClick={() => router.push('/signup')} style={{ background: 'var(--vm-gradient-primary)', color: '#FFFFFF' }}>Get Started</Button>
+                    <Button onClick={() => router.push('/signup?step=plan')} style={{ background: 'var(--vm-gradient-primary)', color: '#FFFFFF' }}>Get Started</Button>
                   </>
                 )}
               </div>
@@ -380,7 +380,7 @@ export default function HomePage() {
                   size="lg" 
                   className="px-8 py-4 text-lg font-semibold"
                   style={{ background: 'var(--vm-gradient-primary)', border: 'none', color: '#FFFFFF' }}
-                  onClick={() => router.push(user ? '/dashboard' : '/signup')}
+                  onClick={() => router.push(user ? '/dashboard' : '/signup?step=plan')}
                 >
                   {user ? 'Go to Dashboard' : 'Start Free Trial'}
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -602,7 +602,10 @@ export default function HomePage() {
                   className="w-full"
                   variant={plan.popular ? "default" : "outline"}
                   style={plan.popular ? { background: 'var(--vm-gradient-primary)', color: '#FFFFFF' } : { borderColor: 'var(--vm-secondary-purple)', color: 'var(--vm-secondary-purple)' }}
-                  onClick={() => router.push('/signup')}
+                  onClick={() => {
+                    const planType = plan.name.toLowerCase().includes('free') ? 'free' : 'pro'
+                    router.push(`/signup?plan=${planType}&step=details`)
+                  }}
                 >
                   {plan.cta}
                 </Button>
@@ -708,7 +711,7 @@ export default function HomePage() {
                 size="lg" 
                 className="px-8 py-4 text-lg font-semibold"
                 style={{ background: 'var(--vm-gradient-primary)', border: 'none', color: '#FFFFFF' }}
-                onClick={() => router.push(user ? '/dashboard' : '/signup')}
+                onClick={() => router.push(user ? '/dashboard' : '/signup?step=plan')}
               >
                 {user ? 'Go to Dashboard' : 'Start Free Trial Today'}
                 <ArrowRight className="ml-2 h-5 w-5" />

@@ -59,36 +59,45 @@ export async function authenticateRequest() {
       .eq('id', user.id)
       .single()
 
-    if (profileError && profileError.code !== 'PGRST116') {
-      console.log('🔐 [AUTH] Creating missing profile');
-      // If profile doesn't exist, create it
-      const { data: newProfile, error: createError } = await supabase
-        .from('profiles')
-        .insert({
-          id: user.id,
-          email: user.email!,
-          onboarding_completed: false,
-          subscription_type: 'free',
-          subscription_status: 'active',
-          current_usage_minutes: 0,
-          max_minutes_monthly: 10,
-          max_assistants: 1,
-          billing_cycle_start: new Date().toISOString(),
-          billing_cycle_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          payment_method_type: 'none'
-        })
-        .select()
-        .single()
+    if (profileError) {
+      console.log('🔐 [AUTH] Profile error:', profileError);
+      
+      // If profile doesn't exist (PGRST116 = no rows returned), create it
+      if (profileError.code === 'PGRST116') {
+        console.log('🔐 [AUTH] Creating missing profile for user:', user.id);
+        
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            email: user.email!,
+            full_name: user.user_metadata?.full_name || user.user_metadata?.name || user.email!.split('@')[0],
+            subscription_type: 'free',
+            subscription_status: 'active',
+            current_usage_minutes: 0,
+            max_minutes_monthly: 10,
+            max_assistants: 1,
+            billing_cycle_start: new Date().toISOString(),
+            billing_cycle_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+            payment_method_type: 'none'
+          })
+          .select()
+          .single()
 
-      if (createError) {
-        console.error('❌ [AUTH] Failed to create user profile:', createError)
-        throw new AuthError('Failed to create user profile', 500)
-      }
+        if (createError) {
+          console.error('❌ [AUTH] Failed to create user profile:', createError)
+          throw new AuthError('Failed to create user profile', 500)
+        }
 
-      console.log('🔐 [AUTH] Authentication successful with new profile');
-      return {
-        user,
-        profile: newProfile
+        console.log('🔐 [AUTH] Authentication successful with new profile');
+        return {
+          user,
+          profile: newProfile
+        }
+      } else {
+        // Other profile errors (not missing profile)
+        console.error('❌ [AUTH] Profile lookup error:', profileError)
+        throw new AuthError('Failed to fetch user profile', 500)
       }
     }
 
@@ -98,7 +107,8 @@ export async function authenticateRequest() {
       profile: profile || { 
         id: user.id, 
         email: user.email,
-        onboarding_completed: false 
+        subscription_type: 'free',
+        subscription_status: 'active'
       }
     }
   } catch (error) {
@@ -125,7 +135,14 @@ export async function requirePermission(userIdOrPermission?: string, permission?
   }
   
   // New API: return user object when called with 0 or 1 parameters
-  return await authenticateRequest()
+  try {
+    const result = await authenticateRequest()
+    console.log('🔐 [AUTH] requirePermission successful for user:', result.user.id)
+    return result
+  } catch (error) {
+    console.error('❌ [AUTH] requirePermission failed:', error)
+    throw error
+  }
 }
 
 export async function checkSubscriptionLimits(userId: string, resource: string, count?: number) {
