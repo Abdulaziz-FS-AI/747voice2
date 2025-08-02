@@ -67,7 +67,15 @@ export async function authenticateRequest() {
         .insert({
           id: user.id,
           email: user.email!,
-          onboarding_completed: false
+          onboarding_completed: false,
+          subscription_type: 'free',
+          subscription_status: 'active',
+          current_usage_minutes: 0,
+          max_minutes_monthly: 10,
+          max_assistants: 1,
+          billing_cycle_start: new Date().toISOString(),
+          billing_cycle_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          payment_method_type: 'none'
         })
         .select()
         .single()

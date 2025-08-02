@@ -16,6 +16,20 @@ export interface Database {
           full_name: string | null
           created_at: string
           updated_at: string
+          subscription_type: 'free' | 'pro'
+          subscription_status: 'active' | 'cancelled' | 'past_due' | 'inactive'
+          current_usage_minutes: number
+          max_minutes_monthly: number
+          max_assistants: number
+          billing_cycle_start: string
+          billing_cycle_end: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          paypal_customer_id: string | null
+          paypal_subscription_id: string | null
+          paypal_payer_id: string | null
+          payment_method_type: 'none' | 'paypal' | 'card'
+          onboarding_completed: boolean
         }
         Insert: {
           id: string
@@ -23,6 +37,20 @@ export interface Database {
           full_name?: string | null
           created_at?: string
           updated_at?: string
+          subscription_type?: 'free' | 'pro'
+          subscription_status?: 'active' | 'cancelled' | 'past_due' | 'inactive'
+          current_usage_minutes?: number
+          max_minutes_monthly?: number
+          max_assistants?: number
+          billing_cycle_start?: string
+          billing_cycle_end?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          paypal_customer_id?: string | null
+          paypal_subscription_id?: string | null
+          paypal_payer_id?: string | null
+          payment_method_type?: 'none' | 'paypal' | 'card'
+          onboarding_completed?: boolean
         }
         Update: {
           id?: string
@@ -30,6 +58,20 @@ export interface Database {
           full_name?: string | null
           created_at?: string
           updated_at?: string
+          subscription_type?: 'free' | 'pro'
+          subscription_status?: 'active' | 'cancelled' | 'past_due' | 'inactive'
+          current_usage_minutes?: number
+          max_minutes_monthly?: number
+          max_assistants?: number
+          billing_cycle_start?: string
+          billing_cycle_end?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          paypal_customer_id?: string | null
+          paypal_subscription_id?: string | null
+          paypal_payer_id?: string | null
+          payment_method_type?: 'none' | 'paypal' | 'card'
+          onboarding_completed?: boolean
         }
       }
       templates: {
@@ -308,6 +350,211 @@ export interface Database {
           ip_address?: string | null
           user_agent?: string | null
           created_at?: string | null
+        }
+      }
+      subscription_events: {
+        Row: {
+          id: string
+          user_id: string
+          event_type: 'upgraded' | 'downgraded' | 'cancelled' | 'renewed' | 'payment_failed' | 'usage_limit_exceeded' | 'monthly_reset' | 'usage_warning' | 'payment_method_updated' | 'subscription_paused' | 'subscription_resumed' | 'refund_processed'
+          from_plan: string | null
+          to_plan: string | null
+          metadata: Json
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          event_type: 'upgraded' | 'downgraded' | 'cancelled' | 'renewed' | 'payment_failed' | 'usage_limit_exceeded' | 'monthly_reset' | 'usage_warning' | 'payment_method_updated' | 'subscription_paused' | 'subscription_resumed' | 'refund_processed'
+          from_plan?: string | null
+          to_plan?: string | null
+          metadata?: Json
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          event_type?: 'upgraded' | 'downgraded' | 'cancelled' | 'renewed' | 'payment_failed' | 'usage_limit_exceeded' | 'monthly_reset' | 'usage_warning' | 'payment_method_updated' | 'subscription_paused' | 'subscription_resumed' | 'refund_processed'
+          from_plan?: string | null
+          to_plan?: string | null
+          metadata?: Json
+          created_at?: string
+        }
+      }
+      vapi_sync_queue: {
+        Row: {
+          id: string
+          assistant_id: string
+          vapi_assistant_id: string
+          action: 'disable' | 'enable' | 'delete' | 'update'
+          reason: string
+          priority: number
+          retry_count: number
+          error: string | null
+          processed_at: string | null
+          last_retry_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          assistant_id: string
+          vapi_assistant_id: string
+          action: 'disable' | 'enable' | 'delete' | 'update'
+          reason: string
+          priority?: number
+          retry_count?: number
+          error?: string | null
+          processed_at?: string | null
+          last_retry_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          assistant_id?: string
+          vapi_assistant_id?: string
+          action?: 'disable' | 'enable' | 'delete' | 'update'
+          reason?: string
+          priority?: number
+          retry_count?: number
+          error?: string | null
+          processed_at?: string | null
+          last_retry_at?: string | null
+          created_at?: string
+        }
+      }
+      payment_history: {
+        Row: {
+          id: string
+          user_id: string
+          transaction_id: string
+          payment_provider: 'paypal' | 'stripe'
+          amount: number
+          currency: string
+          status: 'completed' | 'pending' | 'failed' | 'refunded'
+          payment_method: string | null
+          description: string | null
+          invoice_number: string | null
+          metadata: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          transaction_id: string
+          payment_provider: 'paypal' | 'stripe'
+          amount: number
+          currency?: string
+          status: 'completed' | 'pending' | 'failed' | 'refunded'
+          payment_method?: string | null
+          description?: string | null
+          invoice_number?: string | null
+          metadata?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          transaction_id?: string
+          payment_provider?: 'paypal' | 'stripe'
+          amount?: number
+          currency?: string
+          status?: 'completed' | 'pending' | 'failed' | 'refunded'
+          payment_method?: string | null
+          description?: string | null
+          invoice_number?: string | null
+          metadata?: Json
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      invoices: {
+        Row: {
+          id: string
+          user_id: string
+          invoice_number: string
+          transaction_id: string | null
+          amount: number
+          tax: number
+          total: number
+          currency: string
+          status: 'paid' | 'pending' | 'void'
+          due_date: string | null
+          paid_date: string | null
+          pdf_url: string | null
+          line_items: Json
+          billing_details: Json | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          invoice_number: string
+          transaction_id?: string | null
+          amount: number
+          tax?: number
+          total: number
+          currency?: string
+          status: 'paid' | 'pending' | 'void'
+          due_date?: string | null
+          paid_date?: string | null
+          pdf_url?: string | null
+          line_items?: Json
+          billing_details?: Json | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          invoice_number?: string
+          transaction_id?: string | null
+          amount?: number
+          tax?: number
+          total?: number
+          currency?: string
+          status?: 'paid' | 'pending' | 'void'
+          due_date?: string | null
+          paid_date?: string | null
+          pdf_url?: string | null
+          line_items?: Json
+          billing_details?: Json | null
+          created_at?: string
+        }
+      }
+      paypal_webhook_events: {
+        Row: {
+          id: string
+          event_type: string
+          resource_type: string | null
+          resource_id: string | null
+          summary: string | null
+          processed: boolean
+          raw_data: Json
+          created_at: string
+          processed_at: string | null
+        }
+        Insert: {
+          id: string
+          event_type: string
+          resource_type?: string | null
+          resource_id?: string | null
+          summary?: string | null
+          processed?: boolean
+          raw_data: Json
+          created_at?: string
+          processed_at?: string | null
+        }
+        Update: {
+          id?: string
+          event_type?: string
+          resource_type?: string | null
+          resource_id?: string | null
+          summary?: string | null
+          processed?: boolean
+          raw_data?: Json
+          created_at?: string
+          processed_at?: string | null
         }
       }
     }
