@@ -25,9 +25,18 @@ ALTER TABLE public.profiles
 ADD CONSTRAINT profiles_payment_method_type_check 
 CHECK (payment_method_type = ANY (ARRAY['none'::text, 'paypal'::text, 'card'::text]));
 
--- Add missing unique constraints
-ALTER TABLE public.profiles 
-ADD CONSTRAINT IF NOT EXISTS profiles_stripe_subscription_id_unique UNIQUE (stripe_subscription_id);
+-- Add missing unique constraints (PostgreSQL doesn't support IF NOT EXISTS for constraints)
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.table_constraints 
+        WHERE constraint_name = 'profiles_stripe_subscription_id_unique' 
+        AND table_name = 'profiles'
+    ) THEN
+        ALTER TABLE public.profiles 
+        ADD CONSTRAINT profiles_stripe_subscription_id_unique UNIQUE (stripe_subscription_id);
+    END IF;
+END $$;
 
 -- Update existing users to have setup_completed = true (they're already using the system)
 UPDATE public.profiles 

@@ -83,6 +83,7 @@ CREATE TRIGGER on_auth_user_deleted
 
 -- Update existing auth users who don't have profiles
 -- This fixes users who signed up before the trigger existed
+-- Only include columns that definitely exist
 INSERT INTO public.profiles (
   id,
   email,
@@ -95,8 +96,6 @@ INSERT INTO public.profiles (
   billing_cycle_start,
   billing_cycle_end,
   payment_method_type,
-  onboarding_completed,
-  setup_completed,
   created_at,
   updated_at
 )
@@ -123,14 +122,32 @@ SELECT
   NOW(),
   NOW() + INTERVAL '30 days',
   'none',
-  COALESCE((au.raw_user_meta_data->>'onboarding_completed')::boolean, false),
-  COALESCE((au.raw_user_meta_data->>'setup_completed')::boolean, true), -- Mark existing users as setup complete
   au.created_at,
   NOW()
 FROM auth.users au
 LEFT JOIN public.profiles p ON au.id = p.id
 WHERE p.id IS NULL -- Only insert for users without profiles
 ON CONFLICT (id) DO NOTHING;
+
+-- Update the newly created profiles with onboarding/setup status if columns exist
+DO $$
+BEGIN
+    -- Check if onboarding_completed column exists and update it
+    IF EXISTS (SELECT 1 FROM information_schema.columns 
+               WHERE table_name = 'profiles' AND column_name = 'onboarding_completed') THEN
+        UPDATE public.profiles 
+        SET onboarding_completed = false 
+        WHERE onboarding_completed IS NULL;
+    END IF;
+    
+    -- Check if setup_completed column exists and update it
+    IF EXISTS (SELECT 1 FROM information_schema.columns 
+               WHERE table_name = 'profiles' AND column_name = 'setup_completed') THEN
+        UPDATE public.profiles 
+        SET setup_completed = true 
+        WHERE setup_completed IS NULL;
+    END IF;
+END $$;
 
 -- Add helpful comments
 COMMENT ON FUNCTION public.handle_new_user() IS 'Automatically creates profile record when new auth user is created';
