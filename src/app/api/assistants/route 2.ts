@@ -4,10 +4,6 @@ import { handleAPIError } from '@/lib/errors';
 import { createServiceRoleClient } from '@/lib/supabase';
 import { createVapiAssistant } from '@/lib/vapi';
 import { z } from 'zod';
-import { enforceUsageLimits } from '@/lib/middleware/usage-enforcement';
-import { UsageService } from '@/lib/services/usage.service';
-import { rateLimitAPI, rateLimitAssistant } from '@/lib/middleware/rate-limiting';
-import { ErrorTracker, PerformanceTracker, BusinessMetrics } from '@/lib/monitoring/sentry';
 
 // Structured question schema
 const StructuredQuestionSchema = z.object({
@@ -43,10 +39,6 @@ const CreateAssistantSchema = z.object({
 // GET /api/assistants - Get all assistants for the user
 export async function GET(request: NextRequest) {
   try {
-    // Apply rate limiting first
-    const rateLimitResponse = await rateLimitAPI(request)
-    if (rateLimitResponse) return rateLimitResponse
-
     const { user } = await authenticateRequest();
     const { searchParams } = new URL(request.url);
     
@@ -93,7 +85,6 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    ErrorTracker.captureApiError(error instanceof Error ? error : 'GET assistants failed', request, user?.id)
     return handleAPIError(error);
   }
 }
@@ -102,35 +93,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   let vapiAssistantId: string | null = null;
   let assistantCreated = false;
-  const operationId = `assistant_create_${Date.now()}`
   
   try {
     console.log('🚀 [API] ===== STARTING ASSISTANT CREATION =====');
-    PerformanceTracker.startTransaction(operationId)
-    
-    // Step 2: Authenticate user (moved up for rate limiting)
-    let user;
-    try {
-      const authResult = await requirePermission('basic');
-      user = authResult.user;
-      console.log('[Assistant API] User authenticated:', user.id);
-    } catch (authError) {
-      console.error('[Assistant API] Authentication failed:', authError);
-      return NextResponse.json({
-        success: false,
-        error: { 
-          code: 'AUTH_ERROR', 
-          message: 'Authentication required. Please log in again.' 
-        }
-      }, { status: 401 });
-    }
-
-    // Apply rate limiting for assistant creation (more restrictive)
-    const rateLimitResponse = await rateLimitAssistant(request, user.id)
-    if (rateLimitResponse) {
-      console.log('🚫 [API] Rate limit exceeded for assistant creation')
-      return rateLimitResponse
-    }
     console.log('🚀 [API] Request method:', request.method);
     console.log('🚀 [API] Request URL:', request.url);
     console.log('🚀 [API] Request headers:', Object.fromEntries(request.headers.entries()));
@@ -172,6 +137,22 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
     
+    // Step 2: Authenticate user
+    let user;
+    try {
+      const authResult = await requirePermission('basic');
+      user = authResult.user;
+      console.log('[Assistant API] User authenticated:', user.id);
+    } catch (authError) {
+      console.error('[Assistant API] Authentication failed:', authError);
+      return NextResponse.json({
+        success: false,
+        error: { 
+          code: 'AUTH_ERROR', 
+          message: 'Authentication required. Please log in again.' 
+        }
+      }, { status: 401 });
+    }
     
     // Step 3: Parse and validate request body
     let body;
@@ -237,27 +218,13 @@ export async function POST(request: NextRequest) {
       console.warn('[Assistant API] Profile check failed, continuing:', profileError);
     }
     
-    // Step 6: Check subscription limits using new enforcement
-    const usageService = new UsageService();
+    // Step 6: Check subscription limits
     try {
-      await usageService.canCreateAssistant(user.id);
-      console.log('[Assistant API] Subscription limits checked - user can create assistant');
+      await checkSubscriptionLimits(user.id, 'assistants', 1);
+      console.log('[Assistant API] Subscription limits checked');
     } catch (limitError) {
-      console.error('[Assistant API] Usage limit exceeded:', limitError);
-      if (limitError instanceof Error && limitError.message.includes('limit')) {
-        return NextResponse.json({
-          success: false,
-          error: { 
-            code: 'USAGE_LIMIT_EXCEEDED', 
-            message: limitError.message,
-            details: {
-              type: 'assistants',
-              upgradeUrl: '/settings/subscription'
-            }
-          }
-        }, { status: 403 });
-      }
-      throw limitError;
+      console.warn('[Assistant API] Subscription check failed, continuing:', limitError);
+      // Continue anyway - don't block assistant creation
     }
 
     // Step 7: Build system prompt
@@ -403,9 +370,6 @@ export async function POST(request: NextRequest) {
     
     assistantCreated = true;
     console.log('[Assistant API] Assistant created in database:', assistant.id);
-    
-    // Track business metrics
-    BusinessMetrics.trackAssistantCreated(user.id, assistant.id)
 
     // Step 11: Save structured questions (if any)
     if (validatedData.structured_questions && validatedData.structured_questions.length > 0) {
@@ -457,12 +421,6 @@ export async function POST(request: NextRequest) {
       // Don't throw error as this is not critical
     }
 
-    // Track successful completion
-    PerformanceTracker.endTransaction(operationId, 'assistant_creation', true, user.id, {
-      assistantId: assistant.id,
-      vapiAssistantId
-    })
-
     // Success response
     return NextResponse.json({
       success: true,
@@ -479,21 +437,6 @@ export async function POST(request: NextRequest) {
     console.error('❌ [API] Error stack:', error instanceof Error ? error.stack : 'No stack');
     console.error('❌ [API] Assistant created?', assistantCreated);
     console.error('❌ [API] VAPI Assistant ID:', vapiAssistantId);
-    
-    // Track performance failure
-    const userId = user?.id || 'unknown'
-    PerformanceTracker.endTransaction(operationId, 'assistant_creation', false, userId, {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      assistantCreated,
-      vapiAssistantId
-    })
-    
-    // Capture error with context
-    ErrorTracker.captureApiError(error instanceof Error ? error : 'Assistant creation failed', request, userId, {
-      assistantCreated,
-      vapiAssistantId,
-      operation: 'assistant_creation'
-    })
     
     // If we created an assistant but something failed after, include the ID in the response
     if (assistantCreated) {
