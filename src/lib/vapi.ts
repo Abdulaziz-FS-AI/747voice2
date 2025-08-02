@@ -650,14 +650,14 @@ function getVoiceConfigForPersonality(
   // Default voice mapping based on personality and language
   const voiceMap = {
     'en-US': {
-      professional: 'en-US-JennyNeural',
-      friendly: 'en-US-AriaNeural',
-      casual: 'en-US-GuyNeural',
+      professional: 'en-US-JennyAI Voice Agent',
+      friendly: 'en-US-AriaAI Voice Agent',
+      casual: 'en-US-GuyAI Voice Agent',
     },
     'es-ES': {
-      professional: 'es-ES-ElviraNeural',
-      friendly: 'es-ES-AlvaroNeural',
-      casual: 'es-ES-AbrilNeural',
+      professional: 'es-ES-ElviraAI Voice Agent',
+      friendly: 'es-ES-AlvaroAI Voice Agent',
+      casual: 'es-ES-AbrilAI Voice Agent',
     },
   };
 

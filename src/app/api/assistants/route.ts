@@ -274,11 +274,11 @@ export async function POST(request: NextRequest) {
       `You are an AI assistant${validatedData.company_name ? ` working for ${validatedData.company_name}` : ''}. ` +
       `Your personality should be ${personalityDescription}. ` +
       (validatedData.structured_questions?.length > 0 
-        ? `\n\nIMPORTANT: During the conversation, naturally gather the following information:\n` +
+        ? `\n\nIMPORTANT: At the beginning of the conversation, or when appropriate, naturally gather the following information:\n` +
           validatedData.structured_questions.map(q => 
             `- ${q.question} (${q.required ? 'Required' : 'Optional'})`
           ).join('\n') +
-          `\n\nGather this information naturally during the conversation without sounding like an interview.`
+          `\n\nYou can start by asking if there's anything specific they need help with, then gather this information naturally without sounding like an interview.`
         : '') +
       `\n\nAlways maintain a ${personalityDescription} tone throughout the conversation.`;
 
@@ -327,9 +327,9 @@ export async function POST(request: NextRequest) {
           evaluationRubric: validatedData.evaluation_rubric,
           // clientMessages handled by backend with fixed values
         });
-        console.log('[Assistant API] ✅ VAPI assistant created successfully:', vapiAssistantId);
+        console.log('[Assistant API] ✅ Voice service assistant created successfully:', vapiAssistantId);
       } catch (vapiError) {
-        console.error('[Assistant API] ❌ VAPI creation failed with detailed error:');
+        console.error('[Assistant API] ❌ Voice service creation failed with detailed error:');
         console.error('[Assistant API] Error type:', typeof vapiError);
         console.error('[Assistant API] Error name:', vapiError instanceof Error ? vapiError.name : 'Unknown');
         console.error('[Assistant API] Error message:', vapiError instanceof Error ? vapiError.message : String(vapiError));
@@ -337,16 +337,16 @@ export async function POST(request: NextRequest) {
         
         // Check if it's a VapiError with additional details
         if (vapiError && typeof vapiError === 'object' && 'statusCode' in vapiError) {
-          console.error('[Assistant API] VAPI status code:', (vapiError as any).statusCode);
-          console.error('[Assistant API] VAPI details:', (vapiError as any).details);
+          console.error('[Assistant API] Voice service status code:', (vapiError as any).statusCode);
+          console.error('[Assistant API] Voice service details:', (vapiError as any).details);
         }
         
         // Don't use fallback - throw the error so we can fix it
-        throw new Error(`VAPI integration failed: ${vapiError instanceof Error ? vapiError.message : String(vapiError)}`);
+        throw new Error(`Voice service integration failed: ${vapiError instanceof Error ? vapiError.message : String(vapiError)}`);
       }
     } else {
-      console.error('[Assistant API] ❌ No VAPI API key configured!');
-      throw new Error('VAPI API key is not configured. Assistant creation requires VAPI integration.');
+      console.error('[Assistant API] ❌ No voice service API key configured!');
+      throw new Error('Voice service API key is not configured. Assistant creation requires voice service integration.');
     }
 
     // Step 9: Build config object with all settings

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useAuth } from '@/lib/auth-context'
 import { Settings, User, Bell, Database, Shield, Sparkles, Zap, Activity, CreditCard } from 'lucide-react'
-// Card components replaced with neural design system
+// Card components replaced with AI Voice Agent design system
 import { DashboardLayout } from '@/components/dashboard/layout'
 import { Badge } from '@/components/ui/badge'
 
@@ -27,7 +27,7 @@ export default function SettingsPage() {
   return (
     <DashboardLayout>
       <div className="space-y-8">
-        {/* Neural Header */}
+        {/* Voice Agent Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -41,7 +41,7 @@ export default function SettingsPage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
             >
-              <span className="vm-text-gradient">Neural</span> Settings
+              <span className="vm-text-gradient">Voice Agent</span> Settings
             </motion.h1>
             <motion.p 
               className="vm-text-secondary text-lg"
@@ -64,7 +64,7 @@ export default function SettingsPage() {
           </motion.div>
         </motion.div>
 
-        {/* Neural Settings Grid */}
+        {/* AI Voice Agent Settings Grid */}
         <div className="grid gap-8 md:grid-cols-2">
           {/* Account Settings */}
           <motion.div
@@ -85,13 +85,13 @@ export default function SettingsPage() {
               </motion.div>
               <div>
                 <h3 className="text-xl font-semibold vm-text-gradient">Account Matrix</h3>
-                <p className="vm-text-secondary text-sm">Neural profile configuration</p>
+                <p className="vm-text-secondary text-sm">AI Voice Agent profile configuration</p>
               </div>
             </div>
             
             <div className="space-y-6">
               <div className="space-y-3">
-                <label className="text-sm font-medium" style={{ color: 'var(--vm-pure)' }}>Neural Identity</label>
+                <label className="text-sm font-medium" style={{ color: 'var(--vm-pure)' }}>AI Voice Agent Identity</label>
                 <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--vm-surface)' }}>
                   <span className="vm-text-secondary font-mono text-sm">{user.email}</span>
                   <motion.div whileHover={{ scale: 1.05 }}>
@@ -105,7 +105,7 @@ export default function SettingsPage() {
               <div className="space-y-3">
                 <label className="text-sm font-medium" style={{ color: 'var(--vm-pure)' }}>Access Level</label>
                 <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--vm-surface)' }}>
-                  <span className="vm-text-secondary font-semibold">Pro Neural Access</span>
+                  <span className="vm-text-secondary font-semibold">Pro AI Voice Agent Access</span>
                   <motion.div whileHover={{ scale: 1.05 }}>
                     <Badge className="vm-badge">
                       <Sparkles className="w-3 h-3 mr-1" />
@@ -169,7 +169,7 @@ export default function SettingsPage() {
             </div>
           </motion.div>
 
-          {/* Neural Notifications */}
+          {/* AI Voice Agent Notifications */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -187,7 +187,7 @@ export default function SettingsPage() {
                 <Bell className="w-6 h-6 text-white" />
               </motion.div>
               <div>
-                <h3 className="text-xl font-semibold vm-text-neural">Neural Alerts</h3>
+                <h3 className="text-xl font-semibold vm-text-voice agent">AI Voice Agent Alerts</h3>
                 <p className="vm-text-secondary text-sm">Voice intelligence notifications</p>
               </div>
             </div>
@@ -195,7 +195,7 @@ export default function SettingsPage() {
             <div className="space-y-6">
               <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--vm-surface)' }}>
                 <div>
-                  <div className="font-medium" style={{ color: 'var(--vm-pure)' }}>Neural Call Alerts</div>
+                  <div className="font-medium" style={{ color: 'var(--vm-pure)' }}>AI Voice Agent Call Alerts</div>
                   <div className="text-sm vm-text-secondary">Real-time voice activity monitoring</div>
                 </div>
                 <motion.div whileHover={{ scale: 1.05 }}>
@@ -208,7 +208,7 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--vm-surface)' }}>
                 <div>
                   <div className="font-medium" style={{ color: 'var(--vm-pure)' }}>Matrix Analytics</div>
-                  <div className="text-sm vm-text-secondary">Weekly neural performance reports</div>
+                  <div className="text-sm vm-text-secondary">Weekly voice agent performance reports</div>
                 </div>
                 <motion.div whileHover={{ scale: 1.05 }}>
                   <Badge className="vm-badge bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
@@ -220,7 +220,7 @@ export default function SettingsPage() {
             </div>
           </motion.div>
 
-          {/* Neural Security */}
+          {/* AI Voice Agent Security */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -238,7 +238,7 @@ export default function SettingsPage() {
                 <Shield className="w-6 h-6 text-white" />
               </motion.div>
               <div>
-                <h3 className="text-xl font-semibold" style={{ color: 'var(--vm-emerald)' }}>Neural Vault</h3>
+                <h3 className="text-xl font-semibold" style={{ color: 'var(--vm-emerald)' }}>AI Voice Agent Vault</h3>
                 <p className="vm-text-secondary text-sm">Advanced data protection protocols</p>
               </div>
             </div>
@@ -247,18 +247,18 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--vm-surface)' }}>
                 <div>
                   <div className="font-medium" style={{ color: 'var(--vm-pure)' }}>Data Matrix Retention</div>
-                  <div className="text-sm vm-text-secondary">Neural conversation storage period</div>
+                  <div className="text-sm vm-text-secondary">AI Voice Agent conversation storage period</div>
                 </div>
                 <motion.div whileHover={{ scale: 1.05 }}>
                   <Badge className="vm-badge bg-cyan-500/10 text-cyan-400 border-cyan-500/20">
-                    90 neural cycles
+                    90 voice agent cycles
                   </Badge>
                 </motion.div>
               </div>
               <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--vm-surface)' }}>
                 <div>
                   <div className="font-medium" style={{ color: 'var(--vm-pure)' }}>Intelligence Tracking</div>
-                  <div className="text-sm vm-text-secondary">Neural pattern analysis permissions</div>
+                  <div className="text-sm vm-text-secondary">AI Voice Agent pattern analysis permissions</div>
                 </div>
                 <motion.div whileHover={{ scale: 1.05 }}>
                   <Badge className="vm-badge bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
@@ -270,7 +270,7 @@ export default function SettingsPage() {
             </div>
           </motion.div>
 
-          {/* Neural System Status */}
+          {/* AI Voice Agent System Status */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -288,7 +288,7 @@ export default function SettingsPage() {
                 <Database className="w-6 h-6 text-white" />
               </motion.div>
               <div>
-                <h3 className="text-xl font-semibold" style={{ color: 'var(--vm-signal-blue)' }}>Neural Core Status</h3>
+                <h3 className="text-xl font-semibold" style={{ color: 'var(--vm-signal-blue)' }}>AI Voice Agent Core Status</h3>
                 <p className="vm-text-secondary text-sm">System health monitoring</p>
               </div>
             </div>
@@ -296,19 +296,19 @@ export default function SettingsPage() {
             <div className="space-y-6">
               <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--vm-surface)' }}>
                 <div>
-                  <div className="font-medium" style={{ color: 'var(--vm-pure)' }}>Neural Database</div>
+                  <div className="font-medium" style={{ color: 'var(--vm-pure)' }}>AI Voice Agent Database</div>
                   <div className="text-sm vm-text-secondary">Core data matrix connectivity</div>
                 </div>
                 <motion.div whileHover={{ scale: 1.05 }}>
                   <Badge className="vm-badge bg-emerald-500/10 text-emerald-400 border-emerald-500/20 vm-glow-pulse">
                     <Activity className="w-3 h-3 mr-1" />
-                    Neural Active
+                    AI Voice Agent Active
                   </Badge>
                 </motion.div>
               </div>
               <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--vm-surface)' }}>
                 <div>
-                  <div className="font-medium" style={{ color: 'var(--vm-pure)' }}>VAPI Neural Link</div>
+                  <div className="font-medium" style={{ color: 'var(--vm-pure)' }}>Voice Intelligence Service</div>
                   <div className="text-sm vm-text-secondary">Voice intelligence service status</div>
                 </div>
                 <motion.div whileHover={{ scale: 1.05 }}>
@@ -321,7 +321,7 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--vm-surface)' }}>
                 <div>
                   <div className="font-medium" style={{ color: 'var(--vm-pure)' }}>Event Webhooks</div>
-                  <div className="text-sm vm-text-secondary">Real-time neural event processing</div>
+                  <div className="text-sm vm-text-secondary">Real-time voice agent event processing</div>
                 </div>
                 <motion.div whileHover={{ scale: 1.05 }}>
                   <Badge className="vm-badge bg-emerald-500/10 text-emerald-400 border-emerald-500/20 vm-glow-pulse">
@@ -334,7 +334,7 @@ export default function SettingsPage() {
           </motion.div>
         </div>
 
-        {/* Neural Evolution Preview */}
+        {/* AI Voice Agent Evolution Preview */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -344,15 +344,15 @@ export default function SettingsPage() {
           <div className="flex items-center gap-4 mb-8">
             <motion.div
               className="w-12 h-12 rounded-xl flex items-center justify-center"
-              style={{ background: 'var(--vm-gradient-neural)' }}
+              style={{ background: 'var(--vm-gradient-voice agent)' }}
               animate={{ rotate: [0, 360] }}
               transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
             >
               <Sparkles className="w-6 h-6 text-white" />
             </motion.div>
             <div>
-              <h3 className="text-2xl font-semibold vm-text-neural">Neural Evolution Pipeline</h3>
-              <p className="vm-text-secondary">Advanced features currently in neural development</p>
+              <h3 className="text-2xl font-semibold vm-text-voice agent">AI Voice Agent Evolution Pipeline</h3>
+              <p className="vm-text-secondary">Advanced features currently in voice agent development</p>
             </div>
           </div>
           
@@ -360,19 +360,19 @@ export default function SettingsPage() {
             {[
               {
                 title: "Quantum Analytics",
-                description: "Advanced neural conversation analysis with predictive intelligence patterns",
+                description: "Advanced voice agent conversation analysis with predictive intelligence patterns",
                 icon: "📊",
                 color: "var(--vm-violet)"
               },
               {
-                title: "Team Neural Network",
-                description: "Collaborative matrix management with distributed neural permissions", 
+                title: "Team AI Voice Agent Network",
+                description: "Collaborative matrix management with distributed voice agent permissions", 
                 icon: "👥",
                 color: "var(--vm-cyan)"
               },
               {
                 title: "Matrix Integrations",
-                description: "Neural connections to your enterprise CRM and business intelligence systems",
+                description: "AI Voice Agent connections to your enterprise CRM and business intelligence systems",
                 icon: "🔗",
                 color: "var(--vm-emerald)"
               }
@@ -406,7 +406,7 @@ export default function SettingsPage() {
                     }}
                   >
                     <Zap className="w-3 h-3 mr-1" />
-                    Neural Development
+                    AI Voice Agent Development
                   </Badge>
                 </motion.div>
               </motion.div>

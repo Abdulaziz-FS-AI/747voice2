@@ -115,11 +115,11 @@ export async function GET(request: NextRequest) {
       });
 
       results.push({
-        component: 'VAPI Connection',
+        component: 'Voice Service Connection',
         status: testResponse.ok ? 'ok' : 'error',
         message: testResponse.ok 
-          ? 'VAPI API connection successful'
-          : `VAPI API error: ${testResponse.status} ${testResponse.statusText}`,
+          ? 'Voice service API connection successful'
+          : `Voice service API error: ${testResponse.status} ${testResponse.statusText}`,
         details: {
           status: testResponse.status,
           statusText: testResponse.statusText
@@ -127,17 +127,17 @@ export async function GET(request: NextRequest) {
       });
     } else {
       results.push({
-        component: 'VAPI Connection',
+        component: 'Voice Service Connection',
         status: 'error',
-        message: 'VAPI client not initialized',
+        message: 'Voice service client not initialized',
         details: { vapiClient: null }
       });
     }
   } catch (error) {
     results.push({
-      component: 'VAPI Connection',
+      component: 'Voice Service Connection',
       status: 'error',
-      message: 'Failed to connect to VAPI',
+      message: 'Failed to connect to voice service',
       details: error
     });
   }

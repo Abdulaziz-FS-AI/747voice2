@@ -165,7 +165,7 @@ export default function PhoneNumbersPage() {
       case 'twilio':
         return <Badge variant="default">Twilio</Badge>
       case 'vapi':
-        return <Badge variant="outline">Vapi</Badge>
+        return <Badge variant="outline">Voice Service</Badge>
       case null:
       case undefined:
         return <Badge variant="secondary">Unknown</Badge>

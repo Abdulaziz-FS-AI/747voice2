@@ -72,7 +72,7 @@ export default function SystemCheckPage() {
     switch (component) {
       case 'Environment Variables': return <Shield className="h-5 w-5" />
       case 'Database Tables': return <Database className="h-5 w-5" />
-      case 'VAPI Connection': return <Globe className="h-5 w-5" />
+      case 'Voice Service Connection': return <Globe className="h-5 w-5" />
       case 'Templates': return <FileCode2 className="h-5 w-5" />
       case 'Make.com Webhook': return <Webhook className="h-5 w-5" />
       default: return <Server className="h-5 w-5" />

@@ -93,7 +93,7 @@ export function DeleteAssistantModal({
           const successfulDeletes = result.details.phoneNumbers?.filter((p: any) => p.success).length || 0
           description += `\n\nPhone numbers affected: ${result.details.totalPhoneNumbers}`
           if (successfulDeletes > 0) {
-            description += ` (${successfulDeletes} deleted from VAPI)`
+            description += ` (${successfulDeletes} removed from voice service)`
           }
         }
         
@@ -169,7 +169,7 @@ export function DeleteAssistantModal({
             </div>
             {assistant.vapi_assistant_id && (
               <div className="text-xs vm-text-muted font-mono">
-                VAPI ID: {assistant.vapi_assistant_id.slice(0, 8)}...
+                Service ID: {assistant.vapi_assistant_id.slice(0, 8)}...
               </div>
             )}
           </div>
@@ -201,7 +201,7 @@ export function DeleteAssistantModal({
                     ))}
                   </div>
                   <p className="text-sm vm-text-secondary">
-                    These phone numbers will be removed from VAPI and unassigned from your account.
+                    These phone numbers will be removed from the voice service and unassigned from your account.
                   </p>
                 </div>
               </div>
@@ -223,7 +223,7 @@ export function DeleteAssistantModal({
                 </p>
                 <div className="grid gap-2">
                   {[
-                    'Voice agent from your VAPI account',
+                    'Voice agent from your account',
                     'All connected phone numbers',
                     'Call history and conversation logs',
                     'Analytics data and performance reports'

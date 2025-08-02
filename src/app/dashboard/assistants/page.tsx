@@ -212,7 +212,7 @@ export default function AssistantsPage() {
     } catch (error) {
       toast({
         title: 'Sync Error',
-        description: error instanceof Error ? error.message : 'Failed to sync with VAPI',
+        description: error instanceof Error ? error.message : 'Failed to sync voice assistants',
         variant: 'destructive'
       })
     } finally {
@@ -229,18 +229,18 @@ export default function AssistantsPage() {
   return (
     <DashboardLayout>
       <div className="space-y-8">
-        {/* Enhanced Header with Neural Network Pattern */}
+        {/* Enhanced Header with AI Voice Agent Network Pattern */}
         <div className="relative overflow-hidden">
-          {/* Neural Network Background */}
+          {/* AI Voice Agent Network Background */}
           <div className="absolute inset-0 opacity-20">
             <svg className="w-full h-full" viewBox="0 0 800 200">
               <defs>
-                <linearGradient id="neural-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <linearGradient id="voice agent-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" style={{ stopColor: 'var(--vm-orange-primary)', stopOpacity: 0.6 }} />
                   <stop offset="100%" style={{ stopColor: 'var(--vm-violet)', stopOpacity: 0.3 }} />
                 </linearGradient>
               </defs>
-              <g stroke="url(#neural-gradient)" strokeWidth="1" fill="none">
+              <g stroke="url(#voice agent-gradient)" strokeWidth="1" fill="none">
                 <circle cx="100" cy="50" r="3" fill="var(--vm-orange-primary)" opacity="0.8" />
                 <circle cx="300" cy="80" r="2" fill="var(--vm-violet)" opacity="0.6" />
                 <circle cx="500" cy="40" r="2.5" fill="var(--vm-cyan)" opacity="0.7" />
@@ -272,7 +272,7 @@ export default function AssistantsPage() {
                   background: 'linear-gradient(135deg, var(--vm-orange-primary) 0%, var(--vm-violet) 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent'
-                }}>Neural Assistants</h1>
+                }}>AI Voice Agent Assistants</h1>
               </motion.div>
               <motion.p 
                 initial={{ opacity: 0, x: -20 }}
@@ -325,7 +325,7 @@ export default function AssistantsPage() {
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-700" />
                   <Plus className="mr-2 h-5 w-5" />
-                  <span className="font-semibold">Create Neural Assistant</span>
+                  <span className="font-semibold">Create AI Voice Agent Assistant</span>
                   <Sparkles className="ml-2 h-4 w-4" />
                 </Button>
               </motion.div>
@@ -349,7 +349,7 @@ export default function AssistantsPage() {
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
                   <Search className="h-5 w-5" style={{ color: 'var(--vm-orange-primary)' }} />
-                  Neural Search Matrix
+                  AI Voice Agent Search Matrix
                 </CardTitle>
               </div>
             </CardHeader>
@@ -358,7 +358,7 @@ export default function AssistantsPage() {
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4" style={{ color: 'var(--vm-orange-primary)' }} />
                   <Input
-                    placeholder="Search neural patterns..."
+                    placeholder="Search voice agent patterns..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10 transition-all duration-300 focus:shadow-lg focus:shadow-orange-500/20"
@@ -378,7 +378,7 @@ export default function AssistantsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Neural States</SelectItem>
+                    <SelectItem value="all">All AI Voice Agent States</SelectItem>
                     <SelectItem value="enabled">Enabled Agents</SelectItem>
                     <SelectItem value="disabled">Disabled Agents</SelectItem>
                   </SelectContent>
@@ -464,8 +464,8 @@ export default function AssistantsPage() {
                           <Bot className="h-10 w-10 text-white" />
                         </div>
                       </motion.div>
-                      <h3 className="text-2xl font-bold mb-3" style={{ color: 'var(--vm-pure)' }}>No Neural Agents Deployed</h3>
-                      <p className="mb-6 text-lg" style={{ color: 'var(--vm-gray-400)' }}>Initialize your first AI consciousness to begin the neural matrix</p>
+                      <h3 className="text-2xl font-bold mb-3" style={{ color: 'var(--vm-pure)' }}>No AI Voice Agent Agents Deployed</h3>
+                      <p className="mb-6 text-lg" style={{ color: 'var(--vm-gray-400)' }}>Initialize your first AI consciousness to begin the voice agent matrix</p>
                       <motion.div
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
@@ -491,7 +491,7 @@ export default function AssistantsPage() {
                       <div className="mx-auto w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: 'var(--vm-surface-elevated)' }}>
                         <Search className="h-8 w-8" style={{ color: 'var(--vm-orange-primary)' }} />
                       </div>
-                      <h3 className="text-xl font-semibold mb-2" style={{ color: 'var(--vm-pure)' }}>No Neural Patterns Found</h3>
+                      <h3 className="text-xl font-semibold mb-2" style={{ color: 'var(--vm-pure)' }}>No AI Voice Agent Patterns Found</h3>
                       <p style={{ color: 'var(--vm-gray-400)' }}>Adjust your search parameters to locate agents</p>
                     </>
                   )}
@@ -523,7 +523,7 @@ export default function AssistantsPage() {
                   {/* Floating Glow Effect */}
                   <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-500 to-violet-600 rounded-2xl blur opacity-0 group-hover:opacity-20 transition duration-1000 group-hover:duration-200" />
                   
-                  {/* Neural Status Indicator */}
+                  {/* AI Voice Agent Status Indicator */}
                   <div className="absolute top-3 right-3">
                     <div className={`w-3 h-3 rounded-full ${assistant.is_active ? 'bg-emerald-400' : 'bg-gray-500'} animate-pulse`} />
                   </div>
@@ -540,7 +540,7 @@ export default function AssistantsPage() {
                               {assistant.name}
                             </CardTitle>
                             <p className="text-sm" style={{ color: 'var(--vm-gray-400)' }}>
-                              {assistant.config?.companyName || 'Neural Network'}
+                              {assistant.config?.companyName || 'AI Voice Agent Network'}
                             </p>
                           </div>
                         </div>
@@ -598,7 +598,7 @@ export default function AssistantsPage() {
                   <CardContent className="relative">
                     <div className="space-y-3 text-sm">
                       <div className="flex items-center justify-between">
-                        <span className="font-medium" style={{ color: 'var(--vm-gray-300)' }}>Neural Network:</span>
+                        <span className="font-medium" style={{ color: 'var(--vm-gray-300)' }}>AI Voice Agent Network:</span>
                         <span style={{ color: 'var(--vm-gray-100)' }}>{assistant.config?.companyName || 'Unassigned'}</span>
                       </div>
                       <div className="flex items-center justify-between">
@@ -611,7 +611,7 @@ export default function AssistantsPage() {
                       </div>
                       {assistant.vapi_assistant_id && (
                         <div className="flex items-center justify-between">
-                          <span className="font-medium" style={{ color: 'var(--vm-gray-300)' }}>Neural ID:</span>
+                          <span className="font-medium" style={{ color: 'var(--vm-gray-300)' }}>AI Voice Agent ID:</span>
                           <span className="font-mono text-xs px-2 py-1 rounded" style={{ 
                             background: 'var(--vm-void)', 
                             color: 'var(--vm-orange-primary)',
@@ -626,7 +626,7 @@ export default function AssistantsPage() {
                     {/* Progress Bar */}
                     <div className="mt-4 pt-4 border-t" style={{ borderColor: 'var(--vm-border-subtle)' }}>
                       <div className="flex items-center justify-between text-xs mb-2">
-                        <span style={{ color: 'var(--vm-gray-400)' }}>Neural Activity</span>
+                        <span style={{ color: 'var(--vm-gray-400)' }}>AI Voice Agent Activity</span>
                         <span style={{ color: 'var(--vm-orange-primary)' }}>{assistant.is_active ? '98%' : '0%'}</span>
                       </div>
                       <div className="w-full bg-gray-700 rounded-full h-1.5">

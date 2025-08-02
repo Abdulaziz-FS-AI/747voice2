@@ -72,7 +72,7 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
       company_name: templateData?.placeholders?.company_name || '',
       personality_traits: templateData?.config?.personality_traits || ['professional'],
       model_id: templateData?.config?.model_id || 'gpt-4.1-mini-2025-04-14', // Default recommended model
-      voice_id: templateData?.config?.voice_id || 'Elliot', // Default VAPI voice
+      voice_id: templateData?.config?.voice_id || 'Elliot', // Default voice
       max_call_duration: templateData?.config?.max_call_duration || 300, // 5 minutes default
       first_message: templateData?.config?.first_message || 'Hello! How can I help you today?',
       first_message_mode: templateData?.config?.first_message_mode || 'assistant-speaks-first',
@@ -151,7 +151,7 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
         throw new Error(`Invalid response from server. Status: ${response.status}, Text: ${await response.text()}`)
       }
 
-      // Check if assistant was created (even if VAPI failed)
+      // Check if assistant was created (even if voice service failed)
       if (result.success || (result.error?.assistantId)) {
         console.log('✅ [FORM] Assistant creation successful!')
         toast({

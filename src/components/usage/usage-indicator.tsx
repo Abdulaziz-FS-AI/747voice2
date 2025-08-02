@@ -146,7 +146,7 @@ export default function UsageIndicator({
       console.error('Sync error:', error)
       toast({
         title: 'Sync Failed',
-        description: 'Failed to sync usage data from VAPI',
+        description: 'Failed to sync usage data from voice service',
         variant: 'destructive'
       })
     } finally {
@@ -263,7 +263,7 @@ export default function UsageIndicator({
                 size="sm"
                 onClick={handleSync}
                 disabled={syncing}
-                title={`Sync with VAPI - Last sync: ${getTimeSinceLastSync()}`}
+                title={`Sync with Voice Service - Last sync: ${getTimeSinceLastSync()}`}
               >
                 <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
               </Button>
@@ -373,7 +373,7 @@ export default function UsageIndicator({
         {showSync && lastSyncAt && (
           <div className="pt-4 border-t">
             <p className="text-xs text-gray-500">
-              Last synced with VAPI: {getTimeSinceLastSync()}
+              Last synced with voice service: {getTimeSinceLastSync()}
             </p>
           </div>
         )}

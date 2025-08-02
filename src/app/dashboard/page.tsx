@@ -210,7 +210,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="text-xs" style={{ color: 'var(--vm-text-muted)' }}>
-              Active neural networks
+              Active voice agent networks
             </div>
           </motion.div>
 
