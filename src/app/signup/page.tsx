@@ -177,7 +177,7 @@ function SignUpContent() {
         description: 'Please check your email to verify your account.',
       })
 
-      router.push('/login')
+      router.push('/signin')
     } catch (error) {
       setError('An unexpected error occurred')
     } finally {

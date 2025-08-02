@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { AuthError, SubscriptionError } from '@/lib/auth';
+import { AuthError } from '@/lib/auth';
+import { SubscriptionError } from '@/lib/services/subscription.service';
 import { ZodError } from 'zod';
 import { PostgrestError } from '@supabase/supabase-js';
 

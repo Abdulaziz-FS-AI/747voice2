@@ -1,6 +1,32 @@
 import { createServiceRoleClient } from '@/lib/supabase';
-import { SubscriptionType, SubscriptionStatus, UserSubscription, SubscriptionEvent, SubscriptionError } from '@/lib/types/subscription.types';
-import { SUBSCRIPTION_PLANS, getPlanLimits } from '@/lib/constants/subscription-plans';
+import { SubscriptionType, UserSubscription, SUBSCRIPTION_PLANS, SubscriptionStatus, UsageDetails } from '@/types/subscription';
+
+// Define SubscriptionError class
+export class SubscriptionError extends Error {
+  constructor(
+    message: string,
+    public code: string,
+    public statusCode: number = 500,
+    public details?: Record<string, any>
+  ) {
+    super(message);
+    this.name = 'SubscriptionError';
+  }
+}
+
+// Helper function to get plan limits
+function getPlanLimits(planType: SubscriptionType) {
+  return SUBSCRIPTION_PLANS[planType].features;
+}
+
+// Subscription event interface
+interface SubscriptionEvent {
+  type: 'upgraded' | 'downgraded' | 'cancelled' | 'renewed' | 'payment_failed' | 'usage_limit_exceeded' | 'monthly_reset';
+  userId: string;
+  fromPlan?: SubscriptionType;
+  toPlan?: SubscriptionType;
+  metadata?: Record<string, any>;
+}
 import { VapiSyncService } from './vapi-sync.service';
 import { EmailService } from './email.service';
 
@@ -251,7 +277,7 @@ export class SubscriptionService {
   /**
    * Get usage details for a user
    */
-  async getUsageDetails(userId: string): Promise<any> {
+  async getUsageDetails(userId: string): Promise<UsageDetails> {
     const subscription = await this.getSubscription(userId);
     
     // Calculate days until reset

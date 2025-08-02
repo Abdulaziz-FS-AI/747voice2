@@ -53,16 +53,24 @@ export default function AuthCallbackPage() {
               full_name: data.session.user.user_metadata?.full_name || 
                         data.session.user.user_metadata?.name || 
                         data.session.user.email!.split('@')[0],
-              subscription_type: selectedPlan,
-              subscription_status: 'active',
+              subscription_type: selectedPlan as 'free' | 'pro',
+              subscription_status: 'active' as const,
               current_usage_minutes: 0,
               max_minutes_monthly: selectedPlan === 'pro' ? 100 : 10,
               max_assistants: selectedPlan === 'pro' ? 10 : 1,
               billing_cycle_start: new Date().toISOString(),
               billing_cycle_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-              payment_method_type: 'none',
+              payment_method_type: 'none' as const,
               onboarding_completed: false,
-              setup_completed: true
+              setup_completed: true,
+              // Add missing fields to prevent database errors
+              stripe_customer_id: null,
+              stripe_subscription_id: null,
+              paypal_customer_id: null,
+              paypal_subscription_id: null,
+              paypal_payer_id: null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
             }
             
             const { error: upsertError } = await supabase
