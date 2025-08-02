@@ -1,8 +1,9 @@
 -- Remove minute tracking and limits from the system
 -- This migration removes all minute-based restrictions and tracking
 
--- 1. Drop the usage tracking view first (depends on minute columns)
+-- 1. Drop all views that depend on minute columns
 DROP VIEW IF EXISTS public.v_user_profile CASCADE;
+DROP VIEW IF EXISTS public.user_usage_dashboard CASCADE;
 
 -- 2. Drop usage tracking functions
 DROP FUNCTION IF EXISTS public.track_call_usage(UUID, INTEGER, UUID) CASCADE;
@@ -15,11 +16,12 @@ DROP TRIGGER IF EXISTS trigger_track_usage_on_call ON public.call_logs;
 DROP TRIGGER IF EXISTS trigger_track_usage_on_call_update ON public.call_logs;
 
 -- 4. Remove minute-related columns from profiles table
+-- Note: If this fails with dependency errors, add more views to step 1
 ALTER TABLE public.profiles 
-DROP COLUMN IF EXISTS current_usage_minutes,
-DROP COLUMN IF EXISTS max_minutes_monthly,
-DROP COLUMN IF EXISTS billing_cycle_start,
-DROP COLUMN IF EXISTS billing_cycle_end;
+DROP COLUMN IF EXISTS current_usage_minutes CASCADE,
+DROP COLUMN IF EXISTS max_minutes_monthly CASCADE,
+DROP COLUMN IF EXISTS billing_cycle_start CASCADE,
+DROP COLUMN IF EXISTS billing_cycle_end CASCADE;
 
 -- 5. Remove usage-related event types from subscription_events
 -- First, delete existing usage-related events
