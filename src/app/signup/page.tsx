@@ -22,6 +22,7 @@ function SignUpContent() {
   // Get plan from URL params (enforced routing)
   const planFromUrl = searchParams.get('plan') as SubscriptionType | null
   const stepFromUrl = searchParams.get('step') as 'plan' | 'details' | 'payment' | null
+  const isQuickSignup = searchParams.get('quick') === 'true'
   
   const [step, setStep] = useState<'plan' | 'details' | 'payment'>(stepFromUrl || 'plan')
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionType>(planFromUrl || 'free')
@@ -245,8 +246,8 @@ function SignUpContent() {
           <p className="vm-text-muted text-sm font-medium">AI Intelligence Platform</p>
         </div>
 
-        {/* Step Indicator */}
-        {renderStepIndicator()}
+        {/* Step Indicator - Hidden for quick signup */}
+        {!isQuickSignup && renderStepIndicator()}
 
         {/* Step 1: Plan Selection */}
         {step === 'plan' && (
@@ -261,18 +262,9 @@ function SignUpContent() {
             <PlanSelector 
               selectedPlan={selectedPlan}
               onPlanSelect={setSelectedPlan}
+              onPlanContinue={handlePlanNext}
               className="mb-8"
             />
-
-            <div className="flex justify-center">
-              <button
-                onClick={handlePlanNext}
-                className="vm-button-primary px-8 py-3 text-lg font-semibold flex items-center gap-2 hover:scale-105"
-              >
-                Continue
-                <ArrowRight className="h-5 w-5" />
-              </button>
-            </div>
 
             <div className="text-center text-sm vm-text-muted">
               Already have an account?{' '}
@@ -289,19 +281,28 @@ function SignUpContent() {
           <div className="vm-card p-8 max-w-md mx-auto">
             <div className="space-y-6">
               <div className="flex items-center gap-4 mb-6">
-                <button
-                  onClick={() => {
-                    router.push('/signup?step=plan')
-                    setStep('plan')
-                  }}
-                  className="vm-button-secondary p-2 hover:scale-105"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                </button>
+                {!isQuickSignup && (
+                  <button
+                    onClick={() => {
+                      router.push('/signup?step=plan')
+                      setStep('plan')
+                    }}
+                    className="vm-button-secondary p-2 hover:scale-105"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                  </button>
+                )}
                 <div className="text-center flex-1">
-                  <h2 className="vm-heading text-2xl font-bold">Account Details</h2>
+                  <h2 className="vm-heading text-2xl font-bold">
+                    {isQuickSignup ? 'Get Started Free' : 'Account Details'}
+                  </h2>
                   <p className="vm-text-muted">
-                    {selectedPlan === 'pro' ? 'Almost there! Create your Pro account' : 'Create your free account'}
+                    {isQuickSignup 
+                      ? 'Create your free Voice Matrix account in seconds'
+                      : selectedPlan === 'pro' 
+                        ? 'Almost there! Create your Pro account' 
+                        : 'Create your free account'
+                    }
                   </p>
                 </div>
               </div>

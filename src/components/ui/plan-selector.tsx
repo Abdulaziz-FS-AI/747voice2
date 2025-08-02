@@ -7,10 +7,11 @@ import { SUBSCRIPTION_PLANS, SubscriptionType } from '@/types/subscription'
 interface PlanSelectorProps {
   selectedPlan: SubscriptionType
   onPlanSelect: (plan: SubscriptionType) => void
+  onPlanContinue?: (plan: SubscriptionType) => void
   className?: string
 }
 
-export function PlanSelector({ selectedPlan, onPlanSelect, className = '' }: PlanSelectorProps) {
+export function PlanSelector({ selectedPlan, onPlanSelect, onPlanContinue, className = '' }: PlanSelectorProps) {
   const planFeatures = {
     free: [
       'Create 1 AI voice assistant',
@@ -97,13 +98,14 @@ export function PlanSelector({ selectedPlan, onPlanSelect, className = '' }: Pla
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className={`w-full py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${
-              selectedPlan === 'free'
-                ? 'vm-button-primary'
-                : 'vm-button-secondary'
-            }`}
+            onClick={() => {
+              onPlanSelect('free')
+              onPlanContinue?.('free')
+            }}
+            className="w-full py-3 px-6 rounded-xl font-semibold transition-all duration-300 vm-button-primary flex items-center justify-center gap-2"
           >
             Get Started Free
+            <ArrowRight className="h-4 w-4" />
           </motion.button>
         </motion.div>
 
@@ -178,11 +180,11 @@ export function PlanSelector({ selectedPlan, onPlanSelect, className = '' }: Pla
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className={`w-full py-3 px-6 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
-              selectedPlan === 'pro'
-                ? 'vm-button-primary'
-                : 'vm-button-secondary'
-            }`}
+            onClick={() => {
+              onPlanSelect('pro')
+              onPlanContinue?.('pro')
+            }}
+            className="w-full py-3 px-6 rounded-xl font-semibold transition-all duration-300 vm-button-primary flex items-center justify-center gap-2"
           >
             Upgrade to Pro
             <ArrowRight className="h-4 w-4" />

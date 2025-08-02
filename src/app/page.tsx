@@ -604,7 +604,12 @@ export default function HomePage() {
                   style={plan.popular ? { background: 'var(--vm-gradient-primary)', color: '#FFFFFF' } : { borderColor: 'var(--vm-secondary-purple)', color: 'var(--vm-secondary-purple)' }}
                   onClick={() => {
                     const planType = plan.name.toLowerCase().includes('free') ? 'free' : 'pro'
-                    router.push(`/signup?plan=${planType}&step=details`)
+                    // For free plan, go to simplified signup. For pro plan, go to full signup flow
+                    if (planType === 'free') {
+                      router.push(`/signup?plan=free&step=details&quick=true`)
+                    } else {
+                      router.push(`/signup?plan=${planType}&step=plan`)
+                    }
                   }}
                 >
                   {plan.cta}
