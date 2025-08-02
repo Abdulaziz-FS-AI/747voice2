@@ -1,7 +1,6 @@
 'use client'
 
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Check, Zap, Users, Clock, Star, ArrowRight } from 'lucide-react'
 import { SUBSCRIPTION_PLANS, SubscriptionType } from '@/types/subscription'
 
@@ -12,8 +11,6 @@ interface PlanSelectorProps {
 }
 
 export function PlanSelector({ selectedPlan, onPlanSelect, className = '' }: PlanSelectorProps) {
-  const [isYearly, setIsYearly] = useState(false)
-
   const planFeatures = {
     free: [
       'Create 1 AI voice assistant',
@@ -34,41 +31,9 @@ export function PlanSelector({ selectedPlan, onPlanSelect, className = '' }: Pla
     ]
   }
 
-  const getDiscountedPrice = (price: number) => {
-    return isYearly ? Math.round(price * 10) : price // 2 months free on yearly
-  }
 
   return (
     <div className={`w-full ${className}`}>
-      {/* Plan Toggle */}
-      <div className="flex items-center justify-center mb-8">
-        <div className="flex items-center gap-4 p-1 rounded-full" 
-             style={{ background: 'var(--vm-surface)' }}>
-          <button
-            onClick={() => setIsYearly(false)}
-            className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-              !isYearly 
-                ? 'vm-button-primary' 
-                : 'vm-text-muted hover:vm-text-primary'
-            }`}
-          >
-            Monthly
-          </button>
-          <button
-            onClick={() => setIsYearly(true)}
-            className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 relative ${
-              isYearly 
-                ? 'vm-button-primary' 
-                : 'vm-text-muted hover:vm-text-primary'
-            }`}
-          >
-            Yearly
-            <span className="absolute -top-2 -right-2 bg-gradient-to-r from-green-400 to-green-600 text-white text-xs px-2 py-1 rounded-full">
-              Save 20%
-            </span>
-          </button>
-        </div>
-      </div>
 
       {/* Plan Cards */}
       <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
@@ -185,18 +150,10 @@ export function PlanSelector({ selectedPlan, onPlanSelect, className = '' }: Pla
             <h3 className="vm-heading text-xl font-bold mb-2">Pro Plan</h3>
             <div className="flex items-baseline justify-center gap-1">
               <span className="text-4xl font-bold vm-text-primary">
-                ${getDiscountedPrice(SUBSCRIPTION_PLANS.pro.price)}
+                ${SUBSCRIPTION_PLANS.pro.price}
               </span>
-              <span className="vm-text-muted text-sm">
-                /{isYearly ? 'year' : 'month'}
-              </span>
+              <span className="vm-text-muted text-sm">/month</span>
             </div>
-            {isYearly && (
-              <p className="vm-text-muted text-sm mt-1">
-                <span className="line-through">${SUBSCRIPTION_PLANS.pro.price * 12}</span>
-                <span className="text-green-500 ml-2">Save $50</span>
-              </p>
-            )}
             <p className="vm-text-muted text-sm mt-2">For power users & businesses</p>
           </div>
 
