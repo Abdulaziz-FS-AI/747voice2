@@ -102,7 +102,7 @@ export default function NewAssistantWithTemplatePage() {
                     border: '1px solid var(--vm-orange-primary)'
                   }}
                 >
-                  {template.category}
+                  Template
                 </Badge>
               )}
             </div>
@@ -139,7 +139,7 @@ export default function NewAssistantWithTemplatePage() {
                   Template: {template.name}
                 </h3>
                 <p className="text-sm vm-text-secondary mt-1">
-                  This template includes pre-configured settings, structured questions, and best practices for {template.category.toLowerCase()} use cases. You can customize any aspect before creating your assistant.
+                  This template includes pre-configured settings, structured questions, and best practices. You can customize any aspect before creating your assistant.
                 </p>
               </div>
             </div>
@@ -151,9 +151,9 @@ export default function NewAssistantWithTemplatePage() {
           templateData={template ? {
             templateId: template.id,
             name: template.name,
-            category: template.category,
-            config: template.config,
-            placeholders: template.placeholders
+            category: 'Custom',
+            config: template.customizable_fields || {},
+            placeholders: { name: template.name }
           } : null}
           onCancel={() => router.push('/dashboard/assistants/new')}
         />
