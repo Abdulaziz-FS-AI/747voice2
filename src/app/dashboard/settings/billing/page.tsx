@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { DashboardLayout } from '@/components/dashboard/layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,7 +29,7 @@ import {
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
-export default function BillingSettingsPage() {
+function BillingSettingsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { 
@@ -693,5 +693,13 @@ export default function BillingSettingsPage() {
         </motion.div>
       </div>
     </DashboardLayout>
+  );
+}
+
+export default function BillingSettingsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <BillingSettingsContent />
+    </Suspense>
   );
 }
