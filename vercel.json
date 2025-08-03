@@ -29,7 +29,7 @@
     },
     {
       "path": "/api/usage/process-enforcement",
-      "schedule": "*/5 * * * *"
+      "schedule": "0 3 * * *"
     }
   ],
   "env": {
