@@ -62,15 +62,34 @@ export async function authenticateRequest() {
     if (profileError) {
       console.log('🔐 [AUTH] Profile error:', profileError);
       
-      // If profile doesn't exist (PGRST116 = no rows returned), this is a new user
+      // If profile doesn't exist (PGRST116 = no rows returned), create one automatically
       if (profileError.code === 'PGRST116') {
-        console.log('🔐 [AUTH] No profile found - this is a new user who needs to complete signup');
+        console.log('🔐 [AUTH] No profile found - creating automatic profile for user');
         
-        // Return user without profile - this signals they need to complete signup
+        // Create profile automatically
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            email: user.email || 'unknown@example.com',
+            full_name: user.user_metadata?.full_name || '',
+            current_usage_minutes: 0,
+            max_minutes_monthly: 10,
+            max_assistants: 3
+          })
+          .select()
+          .single();
+
+        if (createError) {
+          console.error('❌ [AUTH] Failed to create profile:', createError);
+          throw new AuthError('Failed to create user profile', 500);
+        }
+
+        console.log('✅ [AUTH] Profile created successfully');
         return {
           user,
-          profile: null
-        }
+          profile: newProfile
+        };
       } else {
         // Other profile errors (not missing profile)
         console.error('❌ [AUTH] Profile lookup error:', profileError)
