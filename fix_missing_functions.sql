@@ -1,7 +1,8 @@
 -- Add missing database functions for Voice Matrix
 
 -- Function to calculate monthly usage
-CREATE OR REPLACE FUNCTION calculate_monthly_usage(user_uuid uuid)
+DROP FUNCTION IF EXISTS calculate_monthly_usage(uuid);
+CREATE FUNCTION calculate_monthly_usage(user_uuid uuid)
 RETURNS NUMERIC AS $$
 DECLARE
   total_minutes NUMERIC := 0;
@@ -19,8 +20,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Function to check if user can make calls
-CREATE OR REPLACE FUNCTION can_user_make_call(user_uuid uuid)
+-- Function to check if user can make calls  
+DROP FUNCTION IF EXISTS can_user_make_call(uuid);
+CREATE FUNCTION can_user_make_call(user_uuid uuid)
 RETURNS jsonb AS $$
 DECLARE
   user_profile RECORD;
@@ -73,7 +75,8 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to get user from assistant
-CREATE OR REPLACE FUNCTION get_user_from_assistant(assistant_uuid uuid)
+DROP FUNCTION IF EXISTS get_user_from_assistant(uuid);
+CREATE FUNCTION get_user_from_assistant(assistant_uuid uuid)
 RETURNS uuid AS $$
 DECLARE
   user_uuid uuid;
@@ -87,7 +90,8 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to reset monthly usage (called by cron)
-CREATE OR REPLACE FUNCTION reset_monthly_usage()
+DROP FUNCTION IF EXISTS reset_monthly_usage();
+CREATE FUNCTION reset_monthly_usage()
 RETURNS void AS $$
 BEGIN
   UPDATE profiles
