@@ -32,34 +32,61 @@ export class UsageService {
     console.log('Profile query result:', { profile, profileError });
 
     // If no profile exists, create one with default values
-    if (!profile && profileError?.code === 'PGRST116') {
+    if (!profile && (profileError?.code === 'PGRST116' || profileError?.message?.includes('permission denied'))) {
       console.log('No profile found, creating default profile for user:', userId);
       
-      // Get user email from auth
-      const { data: authUser } = await this.supabase.auth.admin.getUserById(userId);
-      
-      const { data: newProfile, error: createError } = await this.supabase
-        .from('profiles')
-        .insert({
-          id: userId,
-          email: authUser?.user?.email || 'unknown@example.com',
-          full_name: authUser?.user?.user_metadata?.full_name || 'Unknown User',
-          current_usage_minutes: 0,
-          max_minutes_monthly: 10,
-          max_assistants: 3,  // Free users get 3 assistants as per schema
-          usage_reset_date: new Date().toISOString().split('T')[0],
-          onboarding_completed: false
-        })
-        .select('max_assistants, max_minutes_monthly, current_usage_minutes')
-        .single();
+      try {
+        // Get user email from auth using service role
+        const { data: authUser } = await this.supabase.auth.admin.getUserById(userId);
+        
+        // Use a direct SQL query to bypass RLS issues
+        const { data: newProfile, error: createError } = await this.supabase.rpc('ensure_user_profile', {
+          user_uuid: userId,
+          user_email: authUser?.user?.email || 'unknown@example.com',
+          user_name: authUser?.user?.user_metadata?.full_name || null
+        });
 
-      if (createError) {
-        console.error('Failed to create profile:', createError);
-        throw new Error('Failed to create user profile. Please try again.');
+        if (createError) {
+          console.error('Failed to create profile with function:', createError);
+          
+          // Fallback: try direct insert with service role
+          const { data: fallbackProfile, error: fallbackError } = await this.supabase
+            .from('profiles')
+            .insert({
+              id: userId,
+              email: authUser?.user?.email || 'unknown@example.com',
+              full_name: authUser?.user?.user_metadata?.full_name || 'Unknown User',
+              current_usage_minutes: 0,
+              max_minutes_monthly: 10,
+              max_assistants: 3,  // Free users get 3 assistants as per schema
+              usage_reset_date: new Date().toISOString().split('T')[0],
+              onboarding_completed: false
+            })
+            .select('max_assistants, max_minutes_monthly, current_usage_minutes')
+            .single();
+
+          if (fallbackError) {
+            console.error('Fallback profile creation also failed:', fallbackError);
+            throw new Error(`Failed to create user profile: ${fallbackError.message}`);
+          }
+          
+          profile = fallbackProfile;
+        } else {
+          // Get the created profile
+          const { data: createdProfile } = await this.supabase
+            .from('profiles')
+            .select('max_assistants, max_minutes_monthly, current_usage_minutes')
+            .eq('id', userId)
+            .single();
+          
+          profile = createdProfile;
+        }
+        
+        console.log('Created new profile:', profile);
+      } catch (profileCreationError) {
+        console.error('Profile creation process failed:', profileCreationError);
+        throw new Error('Unable to create user profile. Please try again or contact support.');
       }
-
-      profile = newProfile;
-      console.log('Created new profile:', profile);
     }
 
     // Get current assistant count  

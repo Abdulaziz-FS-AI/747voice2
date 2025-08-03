@@ -211,7 +211,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 5: Ensure user profile exists
-    const supabase = createServiceRoleClient();
+    const supabase = createServiceRoleClient('user_profile_creation');
     try {
       const { data: existingProfile } = await supabase
         .from('profiles')
@@ -221,17 +221,35 @@ export async function POST(request: NextRequest) {
       
       if (!existingProfile) {
         console.log('[Assistant API] Creating missing user profile');
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: user.id,
-            email: user.email || 'unknown@example.com',
-            full_name: user.user_metadata?.full_name || 'Unknown User'
-          });
         
-        if (profileError) {
-          console.error('[Assistant API] Failed to create profile:', profileError);
-          // Continue anyway - profile might exist
+        // Try using the database function first
+        const { error: functionError } = await supabase.rpc('ensure_user_profile', {
+          user_uuid: user.id,
+          user_email: user.email || 'unknown@example.com',
+          user_name: user.user_metadata?.full_name || null
+        });
+        
+        if (functionError) {
+          console.error('[Assistant API] Function profile creation failed:', functionError);
+          
+          // Fallback to direct insert
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert({
+              id: user.id,
+              email: user.email || 'unknown@example.com',
+              full_name: user.user_metadata?.full_name || 'Unknown User',
+              current_usage_minutes: 0,
+              max_minutes_monthly: 10,
+              max_assistants: 3,
+              usage_reset_date: new Date().toISOString().split('T')[0],
+              onboarding_completed: false
+            });
+          
+          if (profileError) {
+            console.error('[Assistant API] Fallback profile creation failed:', profileError);
+            // Continue anyway - UsageService will handle this
+          }
         }
       }
     } catch (profileError) {
