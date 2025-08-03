@@ -40,10 +40,28 @@ export default function AuthCallbackPage() {
             console.log('🚀 Auth callback - ensuring profile exists for user:', data.session.user.id)
             
             try {
-              const { data: ensureResult } = await supabase
+              const { data: ensureResult, error: ensureError } = await supabase
                 .rpc('ensure_profile_exists', { user_id: data.session.user.id })
               
-              console.log('🚀 Auth callback - ensure profile result:', ensureResult)
+              if (ensureError) {
+                console.error('🚀 Auth callback - ensure profile error:', ensureError)
+                // Try to create profile manually if function fails
+                await supabase
+                  .from('profiles')
+                  .insert({
+                    id: data.session.user.id,
+                    email: data.session.user.email || 'unknown@example.com',
+                    full_name: data.session.user.user_metadata?.full_name || '',
+                    current_usage_minutes: 0,
+                    max_minutes_monthly: 10,
+                    max_assistants: 3,
+                    onboarding_completed: false
+                  })
+                  .select()
+                  .single()
+              } else {
+                console.log('🚀 Auth callback - ensure profile result:', ensureResult)
+              }
             } catch (ensureError) {
               console.error('🚀 Auth callback - ensure profile error:', ensureError)
             }
@@ -89,10 +107,28 @@ export default function AuthCallbackPage() {
             
             // First ensure profile exists
             try {
-              const { data: ensureResult } = await supabase
+              const { data: ensureResult, error: ensureError } = await supabase
                 .rpc('ensure_profile_exists', { user_id: data.session.user.id })
               
-              console.log('🚀 Auth callback - ensure profile result:', ensureResult)
+              if (ensureError) {
+                console.error('🚀 Auth callback - ensure profile error:', ensureError)
+                // Try to create profile manually if function fails
+                await supabase
+                  .from('profiles')
+                  .insert({
+                    id: data.session.user.id,
+                    email: data.session.user.email || 'unknown@example.com',
+                    full_name: data.session.user.user_metadata?.full_name || '',
+                    current_usage_minutes: 0,
+                    max_minutes_monthly: 10,
+                    max_assistants: 3,
+                    onboarding_completed: false
+                  })
+                  .select()
+                  .single()
+              } else {
+                console.log('🚀 Auth callback - ensure profile result:', ensureResult)
+              }
             } catch (ensureError) {
               console.error('🚀 Auth callback - ensure profile error:', ensureError)
             }
