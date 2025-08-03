@@ -258,27 +258,30 @@ export async function POST(request: NextRequest) {
       console.warn('[Assistant API] Profile check failed, continuing:', profileError);
     }
     
-    // Step 6: Check subscription limits using new enforcement
-    const usageService = new UsageService();
-    try {
-      await usageService.canCreateAssistant(user.id);
-      console.log('[Assistant API] Subscription limits checked - user can create assistant');
-    } catch (limitError) {
-      console.error('[Assistant API] Usage limit exceeded:', limitError);
-      if (limitError instanceof Error && limitError.message.includes('limit')) {
-        return NextResponse.json({
-          success: false,
-          error: { 
-            code: 'USAGE_LIMIT_EXCEEDED', 
-            message: limitError.message,
-            details: {
-              type: 'assistants',
-              upgradeUrl: '/settings/subscription'
-            }
+    // Step 6: Check assistant creation limits (3 max)
+    const supabaseForCount = createServiceRoleClient('assistant_count');
+    const { count: currentCount } = await supabaseForCount
+      .from('user_assistants')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .neq('assistant_state', 'deleted');
+    
+    console.log(`[Assistant API] User has ${currentCount} assistants`);
+    
+    if (currentCount >= 3) {
+      console.log('[Assistant API] Assistant limit reached');
+      return NextResponse.json({
+        success: false,
+        error: {
+          code: 'ASSISTANT_LIMIT_REACHED',
+          message: 'You have reached the maximum of 3 assistants',
+          details: {
+            current: currentCount,
+            limit: 3,
+            suggestion: 'Delete an existing assistant to create a new one'
           }
-        }, { status: 403 });
-      }
-      throw limitError;
+        }
+      }, { status: 200 }); // 200 OK - soft limit, not an error
     }
 
     // Step 7: Build system prompt

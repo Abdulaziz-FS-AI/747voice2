@@ -213,6 +213,16 @@ async function handleCallEnd(supabase: Awaited<Awaited<ReturnType<typeof createS
 
   console.log('Call end report processed successfully:', call.id);
   console.log(`Call duration: ${callRecord.duration_seconds}s - Usage tracking trigger should fire automatically`);
+  
+  // Check and enforce usage limits
+  if (assistantData?.user_id) {
+    const { UsageLimitService } = await import('@/lib/services/usage-limit.service')
+    const limitEnforced = await UsageLimitService.checkAndEnforceLimit(assistantData.user_id)
+    
+    if (limitEnforced) {
+      console.log(`🚨 Usage limit enforced for user ${assistantData.user_id}`)
+    }
+  }
 }
 
 

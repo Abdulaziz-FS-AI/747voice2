@@ -265,8 +265,17 @@ class VapiClient {
     model: {
       provider: string;
       model: string;
+      messages?: Array<{
+        role: string;
+        content: string;
+      }>;
       maxTokens?: number;
       temperature?: number;
+    };
+    maxDurationSeconds?: number;
+    endCallAfterSpokenWords?: {
+      enabled: boolean;
+      spokenWords?: number;
     };
   }>) {
     const updateData: Record<string, unknown> = {};
@@ -276,6 +285,8 @@ class VapiClient {
     if (assistantData.firstMessage) updateData.firstMessage = assistantData.firstMessage;
     if (assistantData.voice) updateData.voice = assistantData.voice;
     if (assistantData.model) updateData.model = assistantData.model;
+    if (assistantData.maxDurationSeconds !== undefined) updateData.maxDurationSeconds = assistantData.maxDurationSeconds;
+    if (assistantData.endCallAfterSpokenWords) updateData.endCallAfterSpokenWords = assistantData.endCallAfterSpokenWords;
 
     return this.request(`/assistant/${assistantId}`, {
       method: 'PATCH',
