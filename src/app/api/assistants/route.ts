@@ -193,8 +193,10 @@ export async function POST(request: NextRequest) {
     // Step 4: Validate input data
     let validatedData;
     try {
+      console.log('[Assistant API] Raw body data:', JSON.stringify(body, null, 2));
       validatedData = CreateAssistantSchema.parse(body);
       console.log('[Assistant API] Data validated successfully');
+      console.log('[Assistant API] Validated personality:', validatedData.personality);
     } catch (validationError) {
       console.error('[Assistant API] Validation failed:', validationError);
       if (validationError instanceof z.ZodError) {
@@ -387,10 +389,13 @@ export async function POST(request: NextRequest) {
     const insertData = {
       user_id: user.id,
       name: validatedData.name,
+      personality: validatedData.personality || 'professional', // Required by NOT NULL constraint, with fallback
       template_id: validatedData.template_id || null,
       vapi_assistant_id: vapiAssistantId,
       config: config
     };
+    
+    console.log('[Assistant API] Insert data personality:', insertData.personality);
     
     console.log('[Assistant API] Inserting into database...');
     const { data: assistant, error: dbError } = await supabase
