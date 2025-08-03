@@ -22,26 +22,45 @@ export class UsageService {
   async canCreateAssistant(userId: string): Promise<void> {
     console.log(`🔍 Checking assistant limits for user: ${userId}`);
 
-    // First ensure profile exists
-    try {
-      const { error: ensureError } = await this.supabase
-        .rpc('ensure_profile_exists', { user_id: userId });
-      
-      if (ensureError) {
-        console.error('Failed to ensure profile exists:', ensureError);
-      }
-    } catch (error) {
-      console.warn('ensure_profile_exists function may not exist:', error);
-    }
-
     // Get profile with detailed selection
-    const { data: profile, error: profileError } = await this.supabase
+    let { data: profile, error: profileError } = await this.supabase
       .from('profiles')
       .select('max_assistants, max_minutes_monthly, current_usage_minutes')
       .eq('id', userId)
       .single();
 
     console.log('Profile query result:', { profile, profileError });
+
+    // If no profile exists, create one with default values
+    if (!profile && profileError?.code === 'PGRST116') {
+      console.log('No profile found, creating default profile for user:', userId);
+      
+      // Get user email from auth
+      const { data: authUser } = await this.supabase.auth.admin.getUserById(userId);
+      
+      const { data: newProfile, error: createError } = await this.supabase
+        .from('profiles')
+        .insert({
+          id: userId,
+          email: authUser?.user?.email || 'unknown@example.com',
+          full_name: authUser?.user?.user_metadata?.full_name || 'Unknown User',
+          current_usage_minutes: 0,
+          max_minutes_monthly: 10,
+          max_assistants: 3,  // Free users get 3 assistants as per schema
+          usage_reset_date: new Date().toISOString().split('T')[0],
+          onboarding_completed: false
+        })
+        .select('max_assistants, max_minutes_monthly, current_usage_minutes')
+        .single();
+
+      if (createError) {
+        console.error('Failed to create profile:', createError);
+        throw new Error('Failed to create user profile. Please try again.');
+      }
+
+      profile = newProfile;
+      console.log('Created new profile:', profile);
+    }
 
     // Get current assistant count  
     const { count, error: countError } = await this.supabase
@@ -52,13 +71,13 @@ export class UsageService {
     console.log('Assistant count query result:', { count, countError });
 
     // Enhanced error handling
-    if (profileError) {
+    if (profileError && profileError.code !== 'PGRST116') {
       console.error('Profile error:', profileError);
       throw new Error(`Profile error: ${profileError.message}`);
     }
 
     if (!profile) {
-      console.error('No profile found for user:', userId);
+      console.error('No profile found for user after creation attempt:', userId);
       throw new Error('User profile not found. Please contact support.');
     }
 
