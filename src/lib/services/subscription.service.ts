@@ -1,5 +1,6 @@
 import { createServiceRoleClient } from '@/lib/supabase';
-import { SubscriptionType, UserSubscription, SUBSCRIPTION_PLANS, SubscriptionStatus, UsageDetails } from '@/types/subscription';
+import { UserProfile, UsageDetails } from '@/types/subscription';
+// Note: Subscription service is deprecated in simplified system
 
 // Define SubscriptionError class
 export class SubscriptionError extends Error {

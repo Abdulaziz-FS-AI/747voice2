@@ -1,6 +1,6 @@
 import { createServiceRoleClient } from '@/lib/supabase';
-import { SubscriptionType, SubscriptionError } from '@/lib/types/subscription.types';
-import { SUBSCRIPTION_PLANS } from '@/lib/constants/subscription-plans';
+// Note: PayPal service is deprecated in simplified system
+// Keeping for reference but not actively used
 
 // PayPal API types
 interface PayPalAccessToken {

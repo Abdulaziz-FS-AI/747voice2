@@ -1,7 +1,6 @@
 import { createServiceRoleClient } from '@/lib/supabase';
-import { PayPalService } from './paypal.service';
-import { SubscriptionType, SubscriptionError } from '@/lib/types/subscription.types';
-import { SUBSCRIPTION_PLANS } from '@/lib/constants/subscription-plans';
+// Note: Payment service is deprecated in simplified system
+// Keeping for reference but not actively used
 
 export class PaymentService {
   private supabase = createServiceRoleClient();
