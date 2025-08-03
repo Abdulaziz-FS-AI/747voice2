@@ -1,6 +1,7 @@
 import { createBrowserClient, createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database';
+import { auditServiceRoleUsage } from '@/lib/security/service-role-guard';
 
 // Client-side Supabase client
 export function createClientSupabaseClient() {
@@ -70,8 +71,18 @@ export async function createServerSupabaseClient() {
 }
 
 // Service role client for admin operations
-export function createServiceRoleClient() {
+export function createServiceRoleClient(operation?: string) {
   console.log('🔗 [SUPABASE] Creating service role client');
+  
+  // 🔒 SECURITY: Audit service role usage
+  if (operation) {
+    auditServiceRoleUsage(operation as any, {
+      endpoint: 'createServiceRoleClient',
+      riskLevel: 'medium'
+    });
+  } else {
+    console.warn('🚨 Service role client created without operation context');
+  }
   
   console.log('🔗 [SUPABASE] Service role environment check:', {
     hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,

@@ -7,7 +7,40 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Loader2, RefreshCw, UserPlus } from 'lucide-react'
 
+// 🔒 SECURITY: Block debug page in production
+function useDebugGuard() {
+  const [isAllowed, setIsAllowed] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    // Check if debug is allowed
+    const isDebugAllowed = process.env.NODE_ENV === 'development' || 
+                          (typeof window !== 'undefined' && window.location.search.includes('debug_secret='));
+    
+    setIsAllowed(isDebugAllowed);
+    setIsLoading(false);
+    
+    if (!isDebugAllowed && process.env.NODE_ENV === 'production') {
+      // Redirect to home in production
+      window.location.href = '/';
+    }
+  }, []);
+  
+  return { isAllowed, isLoading };
+}
+
 export default function ProfileDebugPage() {
+  const { isAllowed, isLoading: guardLoading } = useDebugGuard();
+  
+  if (guardLoading) {
+    return <div className="flex items-center justify-center min-h-screen">
+      <Loader2 className="h-8 w-8 animate-spin" />
+    </div>;
+  }
+  
+  if (!isAllowed) {
+    return null; // Will redirect in useDebugGuard
+  }
   const [loading, setLoading] = useState(true)
   const [profileData, setProfileData] = useState<any>(null)
   const [creating, setCreating] = useState(false)

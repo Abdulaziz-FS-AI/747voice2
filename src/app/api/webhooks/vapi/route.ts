@@ -10,30 +10,78 @@ import {
   type CallEndEvent
 } from '@/types/vapi-webhooks';
 import { rateLimitWebhook } from '@/lib/middleware/rate-limiting';
+import { 
+  validateWebhookSecurity, 
+  verifyWebhookSignature, 
+  auditWebhookEvent,
+  getVAPIAllowedIPs,
+  getWebhookSecurityHeaders
+} from '@/lib/security/webhook-security';
 // import { ErrorTracker, BusinessMetrics } from '@/lib/monitoring/sentry';
 
 // POST /api/webhooks/vapi - Handle Vapi webhook events
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
+  let eventType = 'unknown';
+  
   try {
+    // 🔒 SECURITY: Comprehensive webhook security validation
+    const securityResult = await validateWebhookSecurity(request, {
+      maxBodySize: 512 * 1024, // 512KB for VAPI webhooks
+      timestampTolerance: 300, // 5 minutes
+      allowedIPs: getVAPIAllowedIPs(),
+      requireHTTPS: process.env.NODE_ENV === 'production'
+    });
+    
+    if (!securityResult.isValid) {
+      auditWebhookEvent('security_failed', 'vapi', false, {
+        reason: securityResult.reason,
+        userAgent: request.headers.get('user-agent'),
+        ip: request.headers.get('x-forwarded-for')
+      });
+      
+      return NextResponse.json({
+        success: false,
+        error: {
+          code: 'SECURITY_VIOLATION',
+          message: 'Webhook security validation failed',
+        },
+      }, { 
+        status: 403,
+        headers: getWebhookSecurityHeaders()
+      });
+    }
+    
+    const body = securityResult.body!;
+    
     // Apply rate limiting for webhooks
     const rateLimitResponse = await rateLimitWebhook(request)
     if (rateLimitResponse) {
       console.log('🚫 [Webhook] Rate limit exceeded')
       return rateLimitResponse
     }
-    const body = await request.text();
+    
     const signature = request.headers.get('x-vapi-signature') || '';
     const webhookSecret = process.env.VAPI_WEBHOOK_SECRET;
 
-    // Verify webhook signature
-    if (webhookSecret && !VapiClient.verifyWebhookSignature(body, signature, webhookSecret)) {
+    // 🔒 SECURITY: Enhanced signature verification
+    if (webhookSecret && !verifyWebhookSignature(body, signature, webhookSecret)) {
+      auditWebhookEvent('signature_failed', 'vapi', false, {
+        hasSignature: !!signature,
+        signatureLength: signature.length,
+        userAgent: request.headers.get('user-agent')
+      });
+      
       return NextResponse.json({
         success: false,
         error: {
           code: 'INVALID_SIGNATURE',
           message: 'Invalid webhook signature',
         },
-      }, { status: 401 });
+      }, { 
+        status: 401,
+        headers: getWebhookSecurityHeaders()
+      });
     }
 
     const parsedEvent = validateWebhookEvent(JSON.parse(body));

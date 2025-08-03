@@ -12,7 +12,7 @@ export class UsageLimitError extends Error {
 }
 
 export class UsageService {
-  private supabase = createServiceRoleClient();
+  private supabase = createServiceRoleClient('usage_enforcement');
   private vapiSync = new VapiSyncService();
   private emailService = new EmailService();
 

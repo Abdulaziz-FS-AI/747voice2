@@ -1,4 +1,5 @@
 import { VapiError } from '@/lib/errors';
+import { getVAPIFallbackManager } from '@/lib/fallback/vapi-fallback';
 import crypto from 'crypto';
 
 // VAPI API Types

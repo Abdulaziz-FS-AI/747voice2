@@ -1,7 +1,11 @@
 import { createServerSupabaseClient } from '@/lib/supabase'
 import { NextResponse } from 'next/server'
+import { debugGuard, addSecurityHeaders } from '@/lib/security/debug-guard'
 
 export async function GET() {
+  // 🔒 SECURITY: Block access in production
+  const guardResponse = debugGuard();
+  if (guardResponse) return guardResponse;
   try {
     const supabase = await createServerSupabaseClient()
     
@@ -38,7 +42,7 @@ export async function GET() {
       creationResult = { created, createError }
     }
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       user: {
         id: user.id,
         email: user.email,
@@ -51,6 +55,8 @@ export async function GET() {
       allProfilesError: allProfilesError || null,
       creationResult
     })
+    
+    return addSecurityHeaders(response)
   } catch (error) {
     console.error('Debug profile error:', error)
     return NextResponse.json({

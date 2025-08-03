@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
+import { debugGuard, addSecurityHeaders } from '@/lib/security/debug-guard'
 import { createServerSupabaseClient } from '@/lib/supabase';
 
 export async function POST() {
+  // 🔒 SECURITY: Block access in production
+  const guardResponse = debugGuard();
+  if (guardResponse) return guardResponse;
   try {
     const supabase = await createServerSupabaseClient();
     
