@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ArrowRight, Play, Mic, Shield, BarChart3, Users, CheckCircle, Star, Menu, X, Phone, Zap, Globe, Headphones } from 'lucide-react'
+import { ArrowRight, Play, Mic, Shield, BarChart3, Users, Star, Menu, X, Phone, Zap, Globe, Headphones, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/lib/auth-context'

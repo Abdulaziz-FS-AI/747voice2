@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { AuthError } from '@/lib/auth';
-import { SubscriptionError } from '@/lib/services/subscription.service';
 import { ZodError } from 'zod';
 import { PostgrestError } from '@supabase/supabase-js';
 
@@ -79,19 +78,6 @@ export function handleAPIError(error: unknown): NextResponse {
     );
   }
 
-  if (error instanceof SubscriptionError) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: 'SUBSCRIPTION_ERROR',
-          message: error.message,
-          details: error.details
-        }
-      },
-      { status: error.statusCode }
-    );
-  }
 
   if (error instanceof VapiError) {
     return NextResponse.json(

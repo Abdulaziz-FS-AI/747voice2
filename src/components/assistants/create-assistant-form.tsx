@@ -8,10 +8,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Slider } from '@/components/ui/slider'
-import { AlertCircle, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 import { ModelSelector } from '@/components/assistants/model-selector'
 import { VoiceSelector } from '@/components/assistants/voice-selector'
@@ -192,7 +191,6 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--vm-void)' }}>
-      <UpgradeModal />
       {/* Professional Header */}
       <div className="border-b" style={{ borderColor: 'var(--vm-border-subtle)', background: 'var(--vm-surface)' }}>
         <div className="max-w-6xl mx-auto px-8 py-6">

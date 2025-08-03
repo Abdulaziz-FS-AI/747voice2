@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceRoleClient } from '@/lib/supabase';
-import { USER_LIMITS } from '@/lib/constants/subscription-plans';
 
 /**
  * Real-time usage enforcement middleware using database functions

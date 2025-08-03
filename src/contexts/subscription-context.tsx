@@ -1,8 +1,42 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { UserProfile, UsageDetails, UsageContextType } from '@/types/subscription';
-import { toast } from '@/hooks/use-toast';
+
+// Simple user profile types - no subscription tiers
+export interface UserProfile {
+  userId: string;
+  currentUsageMinutes: number;
+  maxMinutesMonthly: number;
+  currentAssistantCount: number;
+  maxAssistants: number;
+}
+
+export interface UsageDetails {
+  minutes: {
+    used: number;
+    limit: number;
+    percentage: number;
+    daysUntilReset: number;
+  };
+  assistants: {
+    count: number;
+    limit: number;
+    percentage: number;
+  };
+  calls: {
+    totalThisMonth: number;
+    successRate: number;
+    averageDuration: number;
+  };
+}
+
+export interface UsageContextType {
+  profile: UserProfile | null;
+  usage: UsageDetails | null;
+  loading: boolean;
+  error: string | null;
+  refreshUsage: () => Promise<void>;
+}
 
 const UsageContext = createContext<UsageContextType | undefined>(undefined);
 

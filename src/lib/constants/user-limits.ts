@@ -1,4 +1,4 @@
-// Simple user limits - no subscription tiers
+// Basic user limits - applied to all users
 export const USER_LIMITS = {
   MAX_ASSISTANTS: 3,
   MAX_MINUTES_MONTHLY: 10,

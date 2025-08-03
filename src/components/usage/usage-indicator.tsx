@@ -1,13 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
 import { 
-  Phone, 
-  Clock, 
   RefreshCw, 
   AlertTriangle,
   Users,
@@ -52,11 +49,6 @@ export default function UsageIndicator({
     return 'text-green-600'
   }
 
-  const getProgressColor = (percentage: number) => {
-    if (percentage >= 90) return 'bg-red-500'
-    if (percentage >= 80) return 'bg-orange-500'
-    return 'bg-green-500'
-  }
 
   if (loading) {
     return (

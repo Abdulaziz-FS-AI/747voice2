@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateRequest, requirePermission, checkSubscriptionLimits, logAuditEvent } from '@/lib/auth';
+import { authenticateRequest, requirePermission, logAuditEvent } from '@/lib/auth';
 import { handleAPIError } from '@/lib/errors';
 import { createServiceRoleClient } from '@/lib/supabase';
 import { createVapiAssistant } from '@/lib/vapi';
 import { z } from 'zod';
-import { enforceUsageLimits } from '@/lib/middleware/usage-enforcement';
 import { UsageService } from '@/lib/services/usage.service';
 import { rateLimitAPI, rateLimitAssistant } from '@/lib/middleware/rate-limiting';
 import { ErrorTracker, PerformanceTracker, BusinessMetrics } from '@/lib/monitoring/sentry';

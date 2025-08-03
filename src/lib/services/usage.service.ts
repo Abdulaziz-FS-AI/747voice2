@@ -1,8 +1,15 @@
 import { createServiceRoleClient } from '@/lib/supabase';
-import { UsageLimitError } from '@/lib/types/subscription.types';
-import { USAGE_WARNING_THRESHOLDS } from '@/lib/constants/subscription-plans';
+import { USAGE_WARNING_THRESHOLDS } from '@/lib/constants/user-limits';
 import { VapiSyncService } from './vapi-sync.service';
 import { EmailService } from './email.service';
+
+// Simple usage limit error
+export class UsageLimitError extends Error {
+  constructor(public type: string, public current: number, public limit: number) {
+    super(`${type} limit exceeded: ${current}/${limit}`);
+    this.name = 'UsageLimitError';
+  }
+}
 
 export class UsageService {
   private supabase = createServiceRoleClient();

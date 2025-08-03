@@ -1,5 +1,17 @@
 import { createServiceRoleClient } from '@/lib/supabase';
-import { VapiSyncJob } from '@/lib/types/subscription.types';
+
+// Simple sync job interface
+interface VapiSyncJob {
+  id: string;
+  type: 'assistant' | 'phone_number';
+  action: 'create' | 'update' | 'delete' | 'disable' | 'enable';
+  entityId: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  createdAt: string;
+  vapiAssistantId?: string;
+  reason?: string;
+  retryCount: number;
+}
 
 export class VapiSyncService {
   private supabase = createServiceRoleClient();
@@ -77,16 +89,24 @@ export class VapiSyncService {
 
       switch (job.action) {
         case 'disable':
-          success = await this.disableAssistant(job.vapiAssistantId, job.reason);
+          if (job.vapiAssistantId) {
+            success = await this.disableAssistant(job.vapiAssistantId, job.reason || 'No reason provided');
+          }
           break;
         case 'enable':
-          success = await this.enableAssistant(job.vapiAssistantId);
+          if (job.vapiAssistantId) {
+            success = await this.enableAssistant(job.vapiAssistantId);
+          }
           break;
         case 'delete':
-          success = await this.deleteAssistant(job.vapiAssistantId);
+          if (job.vapiAssistantId) {
+            success = await this.deleteAssistant(job.vapiAssistantId);
+          }
           break;
         case 'update':
-          success = await this.updateAssistant(job.vapiAssistantId, job.reason);
+          if (job.vapiAssistantId) {
+            success = await this.updateAssistant(job.vapiAssistantId, job.reason || 'No reason provided');
+          }
           break;
       }
 
