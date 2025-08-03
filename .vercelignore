@@ -1,0 +1,29 @@
+# SQL files
+*.sql
+
+# Database migrations  
+supabase/
+migrations/
+
+# Test files
+tests/
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+
+# Scripts
+scripts/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Environment files
+.env.example
+.env.test
+
+# Debug files
+.cursor/
+.superdesign/
