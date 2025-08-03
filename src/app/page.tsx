@@ -382,7 +382,7 @@ export default function HomePage() {
                   style={{ background: 'var(--vm-gradient-primary)', border: 'none', color: '#FFFFFF' }}
                   onClick={() => router.push(user ? '/dashboard' : '/signup')}
                 >
-                  {user ? 'Go to Dashboard' : 'Start Free Trial'}
+                  {user ? 'Go to Dashboard' : 'Get Started'}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </motion.div>
@@ -619,7 +619,7 @@ export default function HomePage() {
               </Button>
             </motion.div>
             <p className="text-sm mt-4" style={{ color: 'var(--vm-neutral-400)' }}>
-              No credit card required • Free to start • Easy setup
+              No credit card required • Easy setup • Start building today
             </p>
           </motion.div>
         </div>
@@ -723,7 +723,7 @@ export default function HomePage() {
                 style={{ background: 'var(--vm-gradient-primary)', border: 'none', color: '#FFFFFF' }}
                 onClick={() => router.push(user ? '/dashboard' : '/signup')}
               >
-                {user ? 'Go to Dashboard' : 'Start Free Trial Today'}
+                {user ? 'Go to Dashboard' : 'Get Started Today'}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </motion.div>
@@ -741,7 +741,7 @@ export default function HomePage() {
           </div>
           
           <p className="text-sm" style={{ color: 'var(--vm-neutral-400)' }}>
-            No credit card required • 14-day free trial • Cancel anytime
+            No credit card required • Easy setup • Start building today
           </p>
         </motion.div>
       </section>
