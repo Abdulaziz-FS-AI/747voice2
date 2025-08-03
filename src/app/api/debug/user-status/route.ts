@@ -26,16 +26,22 @@ export async function GET() {
       .single();
 
     // Check if functions exist
-    const { data: functions, error: functionsError } = await supabase
-      .rpc('calculate_monthly_usage', { user_uuid: user.id })
-      .then(() => ({ exists: true, error: null }))
-      .catch(error => ({ exists: false, error: error.message }));
+    let functions: { exists: boolean; error: string | null };
+    try {
+      await supabase.rpc('calculate_monthly_usage', { user_uuid: user.id });
+      functions = { exists: true, error: null };
+    } catch (error) {
+      functions = { exists: false, error: error instanceof Error ? error.message : String(error) };
+    }
 
     // Try to call can_user_make_call function
-    const { data: canMakeCall, error: canMakeCallError } = await supabase
-      .rpc('can_user_make_call', { user_uuid: user.id })
-      .then(result => ({ data: result.data, error: null }))
-      .catch(error => ({ data: null, error: error.message }));
+    let canMakeCall: { data: any; error: string | null };
+    try {
+      const result = await supabase.rpc('can_user_make_call', { user_uuid: user.id });
+      canMakeCall = { data: result.data, error: null };
+    } catch (error) {
+      canMakeCall = { data: null, error: error instanceof Error ? error.message : String(error) };
+    }
 
     return NextResponse.json({
       success: true,
@@ -53,9 +59,9 @@ export async function GET() {
         functions: {
           calculate_monthly_usage: functions,
           can_user_make_call: {
-            exists: !canMakeCallError,
-            data: canMakeCall,
-            error: canMakeCallError?.message
+            exists: !canMakeCall.error,
+            data: canMakeCall.data,
+            error: canMakeCall.error
           }
         },
         databaseStatus: {
