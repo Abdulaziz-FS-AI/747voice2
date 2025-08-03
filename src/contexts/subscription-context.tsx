@@ -65,6 +65,35 @@ export function UsageProvider({ children }: { children: React.ReactNode }) {
       const message = err instanceof Error ? err.message : 'An error occurred';
       setError(message);
       console.error('Usage fetch error:', err);
+      
+      // Set reasonable defaults for new users when API fails
+      // This allows the app to function even when usage API is down
+      setProfile({
+        userId: 'unknown',
+        currentUsageMinutes: 0,
+        maxMinutesMonthly: 10,
+        currentAssistantCount: 0,
+        maxAssistants: 3
+      });
+      
+      setUsage({
+        minutes: {
+          used: 0,
+          limit: 10,
+          percentage: 0,
+          daysUntilReset: 30
+        },
+        assistants: {
+          count: 0,
+          limit: 3,
+          percentage: 0
+        },
+        calls: {
+          totalThisMonth: 0,
+          successRate: 0,
+          averageDuration: 0
+        }
+      });
     } finally {
       setLoading(false);
     }
@@ -113,10 +142,19 @@ export function useUsage() {
 
 // Utility hook for checking limits
 export function useCanPerformAction(actionType: 'assistants' | 'minutes') {
-  const { profile, usage } = useUsage();
+  const { profile, usage, error } = useUsage();
+
+  // If there's an API error, allow the action but log it
+  // This prevents blocking users when the usage API is down
+  if (error) {
+    console.warn('Usage API error, allowing action to proceed:', error);
+    return { canPerform: true, reason: null };
+  }
 
   if (!profile || !usage) {
-    return { canPerform: false, reason: 'Loading usage data...' };
+    // Still loading - allow the action for new users
+    // The backend will handle the actual limit checking
+    return { canPerform: true, reason: null };
   }
 
   if (actionType === 'assistants') {

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase';
+import { UsageService } from '@/lib/services/usage.service';
 
 export async function GET() {
   try {
@@ -14,31 +15,58 @@ export async function GET() {
       );
     }
 
-    // Use the database function for real-time accurate usage
-    const { data: usageCheck, error: usageError } = await supabase
-      .rpc('can_user_make_call', { user_uuid: user.id });
-
-    if (usageError) {
-      console.error('Usage check error:', usageError);
-      return NextResponse.json(
-        { error: { message: 'Failed to fetch usage data' } },
-        { status: 500 }
-      );
-    }
-
-    // Get user profile for additional info
-    const { data: profile, error: profileError } = await supabase
+    // Get user profile (with auto-creation if missing)
+    let { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('id, email, full_name, current_usage_minutes, max_minutes_monthly, max_assistants, usage_reset_date')
       .eq('id', user.id)
       .single();
 
-    if (profileError) {
+    // If no profile exists, create one with default values (same logic as UsageService)
+    if (!profile && profileError?.code === 'PGRST116') {
+      console.log('No profile found, creating default profile for user:', user.id);
+      
+      const { data: newProfile, error: createError } = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          email: user.email || 'unknown@example.com',
+          full_name: user.user_metadata?.full_name || 'Unknown User',
+          current_usage_minutes: 0,
+          max_minutes_monthly: 10,
+          max_assistants: 3,  // Free users get 3 assistants
+          usage_reset_date: new Date().toISOString().split('T')[0],
+          onboarding_completed: false
+        })
+        .select('id, email, full_name, current_usage_minutes, max_minutes_monthly, max_assistants, usage_reset_date')
+        .single();
+
+      if (createError) {
+        console.error('Failed to create profile:', createError);
+        return NextResponse.json(
+          { error: { message: 'Failed to create user profile' } },
+          { status: 500 }
+        );
+      }
+
+      profile = newProfile;
+      console.log('Created new profile for usage API:', profile);
+    } else if (profileError) {
       console.error('Profile fetch error:', profileError);
       return NextResponse.json(
         { error: { message: 'Failed to fetch user profile' } },
         { status: 500 }
       );
+    }
+
+    // Get current assistant count
+    const { count: assistantCount, error: assistantCountError } = await supabase
+      .from('user_assistants')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id);
+
+    if (assistantCountError) {
+      console.error('Assistant count error:', assistantCountError);
     }
 
     // Get call statistics for this month
@@ -57,12 +85,15 @@ export async function GET() {
       // Don't fail the request for call stats errors
     }
 
-    // Extract usage data from database function result
-    const usageData = usageCheck.usage;
-    const minutesUsed = usageData.minutes_used;
-    const minutesLimit = usageData.minutes_limit;
-    const assistantsUsed = usageData.assistants_count;
-    const assistantsLimit = usageData.assistants_limit;
+    // Calculate usage directly from data (no database functions needed)
+    const minutesUsed = profile.current_usage_minutes || 0;
+    const minutesLimit = profile.max_minutes_monthly || 10;
+    const assistantsUsed = assistantCount || 0;
+    const assistantsLimit = profile.max_assistants || 3;
+    
+    // Calculate permissions
+    const canMakeCall = minutesUsed < minutesLimit;
+    const canCreateAssistant = assistantsUsed < assistantsLimit;
 
     // Calculate days until reset
     const now = new Date();
@@ -84,14 +115,14 @@ export async function GET() {
         percentage: (minutesUsed / minutesLimit) * 100,
         remaining: Math.max(0, minutesLimit - minutesUsed),
         daysUntilReset,
-        canMakeCall: usageCheck.can_make_call
+        canMakeCall: canMakeCall
       },
       assistants: {
         count: assistantsUsed,
         limit: assistantsLimit,
         percentage: (assistantsUsed / assistantsLimit) * 100,
         remaining: Math.max(0, assistantsLimit - assistantsUsed),
-        canCreateAssistant: usageCheck.can_create_assistant
+        canCreateAssistant: canCreateAssistant
       },
       calls: {
         totalThisMonth: totalCalls,
@@ -119,8 +150,8 @@ export async function GET() {
         profile: userProfile,
         usage,
         canPerformActions: {
-          makeCall: usageCheck.can_make_call,
-          createAssistant: usageCheck.can_create_assistant
+          makeCall: canMakeCall,
+          createAssistant: canCreateAssistant
         },
         lastUpdated: new Date().toISOString()
       }
@@ -149,23 +180,34 @@ export async function POST() {
       );
     }
 
-    // Recalculate user usage using database function
-    const { data: recalculatedUsage, error: calcError } = await supabase
-      .rpc('calculate_monthly_usage', { user_uuid: user.id });
+    // Calculate current month usage from call logs
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
 
-    if (calcError) {
-      console.error('Usage recalculation error:', calcError);
+    const { data: calls, error: callsError } = await supabase
+      .from('call_logs')
+      .select('duration_seconds')
+      .eq('user_id', user.id)
+      .gte('created_at', startOfMonth.toISOString());
+
+    if (callsError) {
+      console.error('Failed to fetch calls for recalculation:', callsError);
       return NextResponse.json(
-        { error: { message: 'Failed to recalculate usage' } },
+        { error: { message: 'Failed to fetch call data' } },
         { status: 500 }
       );
     }
+
+    // Calculate total minutes used this month
+    const totalSeconds = calls?.reduce((sum, call) => sum + (call.duration_seconds || 0), 0) || 0;
+    const recalculatedMinutes = Math.ceil(totalSeconds / 60);
 
     // Update profile with recalculated usage
     const { error: updateError } = await supabase
       .from('profiles')
       .update({ 
-        current_usage_minutes: recalculatedUsage,
+        current_usage_minutes: recalculatedMinutes,
         updated_at: new Date().toISOString()
       })
       .eq('id', user.id);
@@ -181,7 +223,7 @@ export async function POST() {
     return NextResponse.json({
       success: true,
       data: {
-        recalculatedMinutes: recalculatedUsage,
+        recalculatedMinutes: recalculatedMinutes,
         message: 'Usage recalculated successfully'
       }
     });
