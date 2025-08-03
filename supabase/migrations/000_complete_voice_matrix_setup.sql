@@ -2,6 +2,10 @@
 -- This is a consolidated migration for new Supabase projects
 -- Includes simplified subscription system with usage limits
 
+-- Ensure public schema exists and set search path
+CREATE SCHEMA IF NOT EXISTS public;
+SET search_path TO public;
+
 -- Enable necessary extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pg_cron"; -- For scheduled tasks
@@ -524,6 +528,32 @@ GROUP BY p.id;
 
 -- Grant access to the view
 GRANT SELECT ON public.user_usage_summary TO authenticated;
+
+-- ===============================================
+-- PROFILE CREATION TRIGGER
+-- ===============================================
+
+-- Function to handle new user profile creation
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, email, full_name, current_usage_minutes, max_minutes_monthly, max_assistants)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
+    0,
+    10,
+    3
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger to automatically create profile when user signs up
+CREATE OR REPLACE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- Add helpful comments
 COMMENT ON TABLE public.profiles IS 'User profiles with usage limits - 10 minutes and 3 assistants per user';

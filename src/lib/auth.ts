@@ -84,8 +84,9 @@ export async function authenticateRequest() {
       profile: profile || { 
         id: user.id, 
         email: user.email,
-        subscription_type: 'free',
-        subscription_status: 'active'
+        current_usage_minutes: 0,
+        max_minutes_monthly: 10,
+        max_assistants: 3
       }
     }
   } catch (error) {
@@ -126,10 +127,10 @@ export async function checkSubscriptionLimits(userId: string, resource: string, 
   try {
     const supabase = await createServerSupabaseClient()
     
-    // Get user's current subscription
+    // Get user's current profile
     const { data: profile, error } = await supabase
       .from('profiles')
-      .select('subscription_type, max_assistants')
+      .select('max_assistants')
       .eq('id', userId)
       .single()
 
