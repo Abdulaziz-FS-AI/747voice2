@@ -20,24 +20,70 @@ export class UsageService {
    * Check if user can create new assistant
    */
   async canCreateAssistant(userId: string): Promise<void> {
-    const { data: profile } = await this.supabase
+    console.log(`🔍 Checking assistant limits for user: ${userId}`);
+
+    // First ensure profile exists
+    try {
+      const { error: ensureError } = await this.supabase
+        .rpc('ensure_profile_exists', { user_id: userId });
+      
+      if (ensureError) {
+        console.error('Failed to ensure profile exists:', ensureError);
+      }
+    } catch (error) {
+      console.warn('ensure_profile_exists function may not exist:', error);
+    }
+
+    // Get profile with detailed selection
+    const { data: profile, error: profileError } = await this.supabase
       .from('profiles')
-      .select('max_assistants')
+      .select('max_assistants, max_minutes_monthly, current_usage_minutes')
       .eq('id', userId)
       .single();
 
-    const { count } = await this.supabase
+    console.log('Profile query result:', { profile, profileError });
+
+    // Get current assistant count  
+    const { count, error: countError } = await this.supabase
       .from('user_assistants')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', userId);
 
-    if (!profile || count === null) {
-      throw new Error('Failed to check assistant limits');
+    console.log('Assistant count query result:', { count, countError });
+
+    // Enhanced error handling
+    if (profileError) {
+      console.error('Profile error:', profileError);
+      throw new Error(`Profile error: ${profileError.message}`);
     }
+
+    if (!profile) {
+      console.error('No profile found for user:', userId);
+      throw new Error('User profile not found. Please contact support.');
+    }
+
+    if (profile.max_assistants === null || profile.max_assistants === undefined) {
+      console.error('max_assistants is null/undefined:', profile);
+      throw new Error('User limits not configured. Please contact support.');
+    }
+
+    if (countError) {
+      console.error('Count error:', countError);
+      throw new Error(`Assistant count error: ${countError.message}`);
+    }
+
+    if (count === null) {
+      console.error('Assistant count returned null');
+      throw new Error('Failed to count assistants. Please try again.');
+    }
+
+    console.log(`Assistant limits check: ${count}/${profile.max_assistants}`);
 
     if (count >= profile.max_assistants) {
       throw new UsageLimitError('assistants', count, profile.max_assistants);
     }
+
+    console.log('✅ User can create assistant');
   }
 
   /**
