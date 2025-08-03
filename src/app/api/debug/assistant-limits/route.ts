@@ -30,7 +30,7 @@ export async function GET() {
 
     // Test canCreateAssistant function
     const usageService = new UsageService();
-    let canCreateTest = { success: false, error: null as string | null };
+    const canCreateTest = { success: false, error: null as string | null };
     try {
       await usageService.canCreateAssistant(user.id);
       canCreateTest.success = true;
