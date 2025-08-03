@@ -57,14 +57,14 @@ export async function middleware(request: NextRequest) {
     // Protect dashboard routes
     if (request.nextUrl.pathname.startsWith('/dashboard')) {
       if (!user) {
-        console.log('🔒 [MIDDLEWARE] Redirecting to login - no user');
-        return NextResponse.redirect(new URL('/login', request.url))
+        console.log('🔒 [MIDDLEWARE] Redirecting to signin - no user');
+        return NextResponse.redirect(new URL('/signin', request.url))
       }
       console.log('🔒 [MIDDLEWARE] User authenticated, allowing dashboard access');
     }
 
     // Redirect authenticated users away from auth pages
-    if (user && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/signup')) {
+    if (user && (request.nextUrl.pathname === '/signin' || request.nextUrl.pathname === '/signup')) {
       console.log('🔒 [MIDDLEWARE] Redirecting authenticated user to dashboard');
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
