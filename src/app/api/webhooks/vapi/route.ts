@@ -10,7 +10,7 @@ import {
   type CallEndEvent
 } from '@/types/vapi-webhooks';
 import { rateLimitWebhook } from '@/lib/middleware/rate-limiting';
-import { ErrorTracker, BusinessMetrics } from '@/lib/monitoring/sentry';
+// import { ErrorTracker, BusinessMetrics } from '@/lib/monitoring/sentry';
 
 // POST /api/webhooks/vapi - Handle Vapi webhook events
 export async function POST(request: NextRequest) {
@@ -59,9 +59,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Webhook processing error:', error);
-    ErrorTracker.captureApiError(error instanceof Error ? error : 'Webhook processing failed', request, undefined, {
-      operation: 'vapi_webhook'
-    })
+    console.error('Webhook processing failed:', error)
     return handleAPIError(error);
   }
 }

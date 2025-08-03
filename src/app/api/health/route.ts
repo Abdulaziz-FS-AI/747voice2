@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceRoleClient } from '@/lib/supabase'
 import { rateLimitAPI } from '@/lib/middleware/rate-limiting'
-import { ErrorTracker } from '@/lib/monitoring/sentry'
+// import { ErrorTracker } from '@/lib/monitoring/sentry'
 
 export async function GET(request: NextRequest) {
   try {
@@ -43,10 +43,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     // Track health check failures
-    ErrorTracker.captureError(error instanceof Error ? error : 'Health check failed', {
-      endpoint: '/api/health',
-      metadata: { category: 'health_check' }
-    })
+    console.error('Health check failed:', error)
     
     return NextResponse.json({
       status: 'unhealthy',

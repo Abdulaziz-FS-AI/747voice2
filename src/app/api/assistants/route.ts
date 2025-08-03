@@ -6,7 +6,7 @@ import { createVapiAssistant } from '@/lib/vapi';
 import { z } from 'zod';
 import { UsageService } from '@/lib/services/usage.service';
 import { rateLimitAPI, rateLimitAssistant } from '@/lib/middleware/rate-limiting';
-import { ErrorTracker, PerformanceTracker, BusinessMetrics } from '@/lib/monitoring/sentry';
+// import { ErrorTracker, PerformanceTracker, BusinessMetrics } from '@/lib/monitoring/sentry';
 
 // Structured question schema
 const StructuredQuestionSchema = z.object({
@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    ErrorTracker.captureApiError(error instanceof Error ? error : 'GET assistants failed', request, user?.id)
+    console.error('GET assistants failed:', error)
     return handleAPIError(error);
   }
 }
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
   
   try {
     console.log('🚀 [API] ===== STARTING ASSISTANT CREATION =====');
-    PerformanceTracker.startTransaction(operationId)
+    console.log('Starting assistant creation transaction:', operationId)
     
     // Step 2: Authenticate user (moved up for rate limiting)
     try {
@@ -406,7 +406,7 @@ export async function POST(request: NextRequest) {
     console.log('[Assistant API] Assistant created in database:', assistant.id);
     
     // Track business metrics
-    BusinessMetrics.trackAssistantCreated(user.id, assistant.id)
+    console.log('Assistant created for user:', user.id, 'assistant:', assistant.id)
 
     // Step 11: Save structured questions (if any)
     if (validatedData.structured_questions && validatedData.structured_questions.length > 0) {
@@ -459,10 +459,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Track successful completion
-    PerformanceTracker.endTransaction(operationId, 'assistant_creation', true, user.id, {
-      assistantId: assistant.id,
-      vapiAssistantId
-    })
+    console.log('Assistant creation transaction completed successfully for user:', user.id)
 
     // Success response
     return NextResponse.json({
@@ -483,18 +480,10 @@ export async function POST(request: NextRequest) {
     
     // Track performance failure
     const userId = user?.id || 'unknown'
-    PerformanceTracker.endTransaction(operationId, 'assistant_creation', false, userId, {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      assistantCreated,
-      vapiAssistantId
-    })
+    console.log('Assistant creation transaction failed for user:', userId)
     
     // Capture error with context
-    ErrorTracker.captureApiError(error instanceof Error ? error : 'Assistant creation failed', request, userId, {
-      assistantCreated,
-      vapiAssistantId,
-      operation: 'assistant_creation'
-    })
+    console.error('Assistant creation failed:', error)
     
     // If we created an assistant but something failed after, include the ID in the response
     if (assistantCreated) {

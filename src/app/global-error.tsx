@@ -3,14 +3,6 @@
 import { useEffect } from 'react'
 import Link from 'next/link'
 
-// Optional error tracking import
-let ErrorTracker: any = null
-try {
-  ErrorTracker = require('@/lib/monitoring/sentry').ErrorTracker
-} catch {
-  console.warn('Error tracking not available')
-}
-
 export default function GlobalError({
   error,
   reset,
@@ -19,18 +11,8 @@ export default function GlobalError({
   reset: () => void
 }) {
   useEffect(() => {
-    // Log the error to monitoring system if available
-    if (ErrorTracker) {
-      ErrorTracker.captureError(error, {
-        metadata: {
-          category: 'global_error',
-          digest: error.digest,
-          component: 'global-error-boundary'
-        }
-      }, 'fatal')
-    } else {
-      console.error('Global error:', error)
-    }
+    // Log the error
+    console.error('Global error:', error)
   }, [error])
 
   return (
