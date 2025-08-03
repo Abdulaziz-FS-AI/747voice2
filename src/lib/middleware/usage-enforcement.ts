@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceRoleClient } from '@/lib/supabase';
-import { UsageLimitError } from '@/lib/types/subscription.types';
+import { USER_LIMITS } from '@/lib/constants/subscription-plans';
 
 /**
- * Middleware to enforce usage limits on protected endpoints
+ * Middleware to enforce simple usage limits on protected endpoints
  */
 export async function enforceUsageLimits(
   request: NextRequest,
@@ -13,10 +13,10 @@ export async function enforceUsageLimits(
 ): Promise<NextResponse | null> {
   const supabase = createServiceRoleClient();
 
-  // Get user's current subscription and usage
+  // Get user's current usage
   const { data: profile } = await supabase
     .from('profiles')
-    .select('subscription_type, current_usage_minutes, max_minutes_monthly, max_assistants')
+    .select('current_usage_minutes, max_minutes_monthly, max_assistants')
     .eq('id', userId)
     .single();
 
@@ -34,21 +34,35 @@ export async function enforceUsageLimits(
       .select('*', { count: 'exact', head: true })
       .eq('user_id', userId);
 
-    if ((currentCount || 0) + increment > profile.max_assistants) {
+    const limit = profile.max_assistants || USER_LIMITS.MAX_ASSISTANTS;
+    if ((currentCount || 0) + increment > limit) {
       return NextResponse.json(
         { 
           success: false, 
-          error: new UsageLimitError('assistants', currentCount || 0, profile.max_assistants)
+          error: { 
+            code: 'USAGE_LIMIT_EXCEEDED',
+            message: `Assistant limit exceeded: ${currentCount}/${limit}`,
+            limitType: 'assistants',
+            current: currentCount || 0,
+            limit: limit
+          }
         },
         { status: 403 }
       );
     }
   } else if (limitType === 'minutes') {
-    if (profile.current_usage_minutes + increment > profile.max_minutes_monthly) {
+    const limit = profile.max_minutes_monthly || USER_LIMITS.MAX_MINUTES_MONTHLY;
+    if ((profile.current_usage_minutes || 0) + increment > limit) {
       return NextResponse.json(
         { 
           success: false, 
-          error: new UsageLimitError('minutes', profile.current_usage_minutes, profile.max_minutes_monthly)
+          error: { 
+            code: 'USAGE_LIMIT_EXCEEDED',
+            message: `Minutes limit exceeded: ${profile.current_usage_minutes}/${limit}`,
+            limitType: 'minutes',
+            current: profile.current_usage_minutes || 0,
+            limit: limit
+          }
         },
         { status: 403 }
       );
@@ -56,65 +70,5 @@ export async function enforceUsageLimits(
   }
 
   // Limits not exceeded, allow request to continue
-  return null;
-}
-
-/**
- * Check if user has active subscription
- */
-export async function requireActiveSubscription(
-  userId: string
-): Promise<NextResponse | null> {
-  const supabase = createServiceRoleClient();
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('subscription_status')
-    .eq('id', userId)
-    .single();
-
-  if (!profile || profile.subscription_status !== 'active') {
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: { 
-          code: 'SUBSCRIPTION_INACTIVE', 
-          message: 'Active subscription required for this action' 
-        } 
-      },
-      { status: 403 }
-    );
-  }
-
-  return null;
-}
-
-/**
- * Check if user has Pro subscription
- */
-export async function requireProSubscription(
-  userId: string
-): Promise<NextResponse | null> {
-  const supabase = createServiceRoleClient();
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('subscription_type')
-    .eq('id', userId)
-    .single();
-
-  if (!profile || profile.subscription_type !== 'pro') {
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: { 
-          code: 'PRO_REQUIRED', 
-          message: 'Pro subscription required for this feature' 
-        } 
-      },
-      { status: 403 }
-    );
-  }
-
   return null;
 }

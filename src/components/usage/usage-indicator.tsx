@@ -3,197 +3,59 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
 import { 
-  DollarSign, 
   Phone, 
   Clock, 
   RefreshCw, 
   AlertTriangle,
-  TrendingUp,
-  Mic,
-  MessageSquare,
-  Zap
+  Users,
+  Timer,
+  CheckCircle
 } from 'lucide-react'
-import { createClientSupabaseClient } from '@/lib/supabase'
-import { toast } from '@/hooks/use-toast'
-
-interface UsageData {
-  totalCalls: number
-  totalDuration: number
-  totalCost: number
-  aiModelCost: number
-  transcriptionCost: number
-  ttsCost: number
-  phoneCost: number
-  periodStart: string
-  callsThisMonth: number
-  costThisMonth: number
-  averageCallCost: number
-  averageCallDuration: number
-}
+import { useUsage } from '@/contexts/subscription-context'
 
 interface UsageIndicatorProps {
   className?: string
   variant?: 'compact' | 'detailed'
-  showSync?: boolean
+  showRefresh?: boolean
 }
 
 export default function UsageIndicator({ 
   className = '', 
   variant = 'detailed',
-  showSync = true 
+  showRefresh = true 
 }: UsageIndicatorProps) {
-  const [usage, setUsage] = useState<UsageData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [syncing, setSyncing] = useState(false)
-  const [lastSyncAt, setLastSyncAt] = useState<string | null>(null)
-  
-  const supabase = createClientSupabaseClient()
+  const { usage, loading, error, refreshUsage } = useUsage()
+  const [refreshing, setRefreshing] = useState(false)
 
-  useEffect(() => {
-    fetchUsageData()
-    fetchSyncStatus()
-  }, [])
-
-  const fetchUsageData = async () => {
-    try {
-      setLoading(true)
-      
-      // Get current usage from database function
-      const { data, error } = await supabase.rpc('get_team_current_usage')
-      
-      if (error) {
-        console.error('Failed to fetch usage data:', error)
-        toast({
-          title: 'Error',
-          description: 'Failed to load usage data',
-          variant: 'destructive'
-        })
-        return
-      }
-
-      // Get additional metrics
-      const { data: dailyStats } = await supabase
-        .from('daily_usage')
-        .select('*')
-        .gte('usage_date', getMonthStart())
-        .order('usage_date', { ascending: false })
-
-      const monthlyStats = dailyStats?.reduce((acc, day) => ({
-        calls: acc.calls + (day.calls_count || 0),
-        cost: acc.cost + (day.total_cost || 0),
-        duration: acc.duration + (day.total_duration || 0)
-      }), { calls: 0, cost: 0, duration: 0 }) || { calls: 0, cost: 0, duration: 0 }
-
-      setUsage({
-        totalCalls: data?.[0]?.total_calls || 0,
-        totalDuration: data?.[0]?.total_duration || 0,
-        totalCost: data?.[0]?.total_cost || 0,
-        aiModelCost: data?.[0]?.ai_model_cost || 0,
-        transcriptionCost: data?.[0]?.transcription_cost || 0,
-        ttsCost: data?.[0]?.tts_cost || 0,
-        phoneCost: data?.[0]?.phone_cost || 0,
-        periodStart: data?.[0]?.period_start || new Date().toISOString(),
-        callsThisMonth: monthlyStats.calls,
-        costThisMonth: monthlyStats.cost,
-        averageCallCost: data?.[0]?.total_calls > 0 ? (data[0].total_cost / data[0].total_calls) : 0,
-        averageCallDuration: data?.[0]?.total_calls > 0 ? (data[0].total_duration / data[0].total_calls) : 0,
-      })
-    } catch (error) {
-      console.error('Error fetching usage data:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const fetchSyncStatus = async () => {
-    try {
-      const response = await fetch('/api/usage/sync')
-      const result = await response.json()
-      
-      if (result.success) {
-        setLastSyncAt(result.data.lastSyncAt)
-      }
-    } catch (error) {
-      console.error('Error fetching sync status:', error)
-    }
-  }
-
-  const handleSync = async () => {
-    try {
-      setSyncing(true)
-      
-      const response = await fetch('/api/usage/sync', {
-        method: 'POST'
-      })
-      
-      const result = await response.json()
-      
-      if (result.success) {
-        toast({
-          title: 'Usage Synced',
-          description: `Synced ${result.data.syncedCalls} calls with $${result.data.totalCostSynced} in cost updates`,
-        })
-        
-        // Refresh data
-        await fetchUsageData()
-        setLastSyncAt(result.data.syncedAt)
-      } else {
-        throw new Error(result.error?.message || 'Sync failed')
-      }
-    } catch (error) {
-      console.error('Sync error:', error)
-      toast({
-        title: 'Sync Failed',
-        description: 'Failed to sync usage data from voice service',
-        variant: 'destructive'
-      })
-    } finally {
-      setSyncing(false)
-    }
-  }
-
-  const getMonthStart = () => {
-    const now = new Date()
-    return new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
-  }
-
-  const formatCost = (cost: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 4,
-      maximumFractionDigits: 4
-    }).format(cost)
+  const handleRefresh = async () => {
+    setRefreshing(true)
+    await refreshUsage()
+    setRefreshing(false)
   }
 
   const formatDuration = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
+    const minutes = Math.floor(seconds / 60)
     const secs = seconds % 60
     
-    if (hours > 0) {
-      return `${hours}h ${minutes}m ${secs}s`
+    if (minutes > 0) {
+      return `${minutes}m ${secs}s`
     }
-    return `${minutes}m ${secs}s`
+    return `${secs}s`
   }
 
-  const getTimeSinceLastSync = () => {
-    if (!lastSyncAt) return 'Never'
-    
-    const now = new Date()
-    const syncTime = new Date(lastSyncAt)
-    const diffMinutes = Math.floor((now.getTime() - syncTime.getTime()) / (1000 * 60))
-    
-    if (diffMinutes < 1) return 'Just now'
-    if (diffMinutes < 60) return `${diffMinutes}m ago`
-    
-    const diffHours = Math.floor(diffMinutes / 60)
-    if (diffHours < 24) return `${diffHours}h ago`
-    
-    const diffDays = Math.floor(diffHours / 24)
-    return `${diffDays}d ago`
+  const getUsageColor = (percentage: number) => {
+    if (percentage >= 90) return 'text-red-600'
+    if (percentage >= 80) return 'text-orange-600'
+    return 'text-green-600'
+  }
+
+  const getProgressColor = (percentage: number) => {
+    if (percentage >= 90) return 'bg-red-500'
+    if (percentage >= 80) return 'bg-orange-500'
+    return 'bg-green-500'
   }
 
   if (loading) {
@@ -209,18 +71,22 @@ export default function UsageIndicator({
     )
   }
 
-  if (!usage) {
+  if (error || !usage) {
     return (
       <Card className={className}>
         <CardContent className="p-6">
           <div className="text-center text-gray-500">
             <AlertTriangle className="h-8 w-8 mx-auto mb-2" />
             <p>Unable to load usage data</p>
+            {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
           </div>
         </CardContent>
       </Card>
     )
   }
+
+  const minutesPercentage = (usage.minutes.used / usage.minutes.limit) * 100
+  const assistantsPercentage = (usage.assistants.count / usage.assistants.limit) * 100
 
   if (variant === 'compact') {
     return (
@@ -229,16 +95,16 @@ export default function UsageIndicator({
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="bg-blue-100 p-2 rounded-lg">
-                <DollarSign className="h-4 w-4 text-blue-600" />
+                <Timer className="h-4 w-4 text-blue-600" />
               </div>
               <div>
-                <p className="text-sm font-medium">{formatCost(usage.totalCost)}</p>
-                <p className="text-xs text-gray-500">Current period</p>
+                <p className="text-sm font-medium">{usage.minutes.used}/{usage.minutes.limit} min</p>
+                <p className="text-xs text-gray-500">This month</p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-sm font-medium">{usage.totalCalls}</p>
-              <p className="text-xs text-gray-500">calls</p>
+              <p className="text-sm font-medium">{usage.assistants.count}/{usage.assistants.limit}</p>
+              <p className="text-xs text-gray-500">assistants</p>
             </div>
           </div>
         </CardContent>
@@ -251,132 +117,132 @@ export default function UsageIndicator({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-lg">Usage & Costs</CardTitle>
+            <CardTitle className="text-lg">Usage Limits</CardTitle>
             <CardDescription>
-              Current billing period • Started {new Date(usage.periodStart).toLocaleDateString()}
+              Monthly usage • Resets in {usage.minutes.daysUntilReset} days
             </CardDescription>
           </div>
-          {showSync && (
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleSync}
-                disabled={syncing}
-                title={`Sync with Voice Service - Last sync: ${getTimeSinceLastSync()}`}
-              >
-                <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
-              </Button>
-            </div>
+          {showRefresh && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={refreshing}
+              title="Refresh usage data"
+            >
+              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+            </Button>
           )}
         </div>
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {/* Total Cost Overview */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-semibold text-blue-900">Total Spend</h3>
-            <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-              Period to Date
-            </Badge>
-          </div>
-          <div className="text-3xl font-bold text-blue-900 mb-1">
-            {formatCost(usage.totalCost)}
-          </div>
-          <div className="flex items-center space-x-4 text-sm text-blue-700">
-            <div className="flex items-center space-x-1">
-              <Phone className="h-3 w-3" />
-              <span>{usage.totalCalls} calls</span>
+        {/* Minutes Usage */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Timer className="h-5 w-5 text-blue-600" />
+              <h3 className="font-semibold">Call Minutes</h3>
             </div>
-            <div className="flex items-center space-x-1">
-              <Clock className="h-3 w-3" />
-              <span>{formatDuration(usage.totalDuration)}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Cost Breakdown */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Zap className="h-4 w-4 text-orange-500" />
-                <span className="text-sm">AI Model</span>
-              </div>
-              <span className="text-sm font-medium">{formatCost(usage.aiModelCost)}</span>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Mic className="h-4 w-4 text-green-500" />
-                <span className="text-sm">Transcription</span>
-              </div>
-              <span className="text-sm font-medium">{formatCost(usage.transcriptionCost)}</span>
+            <div className="text-right">
+              <p className={`text-lg font-bold ${getUsageColor(minutesPercentage)}`}>
+                {usage.minutes.used}/{usage.minutes.limit}
+              </p>
+              <p className="text-xs text-gray-500">
+                {minutesPercentage.toFixed(0)}% used
+              </p>
             </div>
           </div>
           
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <MessageSquare className="h-4 w-4 text-blue-500" />
-                <span className="text-sm">Text-to-Speech</span>
+          <div className="space-y-2">
+            <Progress 
+              value={minutesPercentage} 
+              className="h-2"
+            />
+            {minutesPercentage >= 80 && (
+              <div className="flex items-center space-x-1 text-xs">
+                <AlertTriangle className="h-3 w-3 text-orange-500" />
+                <span className="text-orange-600">
+                  {minutesPercentage >= 90 ? 'Critical: ' : 'Warning: '}
+                  You've used {minutesPercentage.toFixed(0)}% of your monthly minutes
+                </span>
               </div>
-              <span className="text-sm font-medium">{formatCost(usage.ttsCost)}</span>
+            )}
+          </div>
+        </div>
+
+        {/* Assistants Usage */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Users className="h-5 w-5 text-green-600" />
+              <h3 className="font-semibold">AI Assistants</h3>
             </div>
+            <div className="text-right">
+              <p className={`text-lg font-bold ${getUsageColor(assistantsPercentage)}`}>
+                {usage.assistants.count}/{usage.assistants.limit}
+              </p>
+              <p className="text-xs text-gray-500">
+                {assistantsPercentage.toFixed(0)}% used
+              </p>
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Progress 
+              value={assistantsPercentage} 
+              className="h-2"
+            />
+            {assistantsPercentage >= 80 && (
+              <div className="flex items-center space-x-1 text-xs">
+                <AlertTriangle className="h-3 w-3 text-orange-500" />
+                <span className="text-orange-600">
+                  {assistantsPercentage >= 100 ? 'You\'ve reached your assistant limit' : 
+                   `You're using ${usage.assistants.count} of ${usage.assistants.limit} assistants`}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Call Statistics */}
+        {usage.calls.totalThisMonth > 0 && (
+          <div className="pt-4 border-t space-y-3">
+            <h4 className="text-sm font-medium text-gray-900">This Month's Activity</h4>
             
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Phone className="h-4 w-4 text-purple-500" />
-                <span className="text-sm">Phone/Transport</span>
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <p className="text-2xl font-bold text-gray-900">{usage.calls.totalThisMonth}</p>
+                <p className="text-xs text-gray-500">total calls</p>
               </div>
-              <span className="text-sm font-medium">{formatCost(usage.phoneCost)}</span>
+              <div>
+                <p className="text-2xl font-bold text-gray-900">{usage.calls.successRate}%</p>
+                <p className="text-xs text-gray-500">success rate</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-900">{formatDuration(usage.calls.averageDuration)}</p>
+                <p className="text-xs text-gray-500">avg duration</p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Averages */}
+        {/* Usage Status */}
         <div className="pt-4 border-t">
-          <h4 className="text-sm font-medium text-gray-900 mb-3">Averages</h4>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{formatCost(usage.averageCallCost)}</p>
-              <p className="text-xs text-gray-500">per call</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{formatDuration(Math.round(usage.averageCallDuration))}</p>
-              <p className="text-xs text-gray-500">avg duration</p>
-            </div>
+          <div className="flex items-center space-x-2">
+            {minutesPercentage < 80 && assistantsPercentage < 80 ? (
+              <>
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                <span className="text-sm text-green-600">Usage within normal limits</span>
+              </>
+            ) : (
+              <>
+                <AlertTriangle className="h-4 w-4 text-orange-500" />
+                <span className="text-sm text-orange-600">Approaching usage limits</span>
+              </>
+            )}
           </div>
         </div>
-
-        {/* Month Comparison */}
-        {usage.costThisMonth > 0 && (
-          <div className="pt-4 border-t">
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="text-sm font-medium text-gray-900">This Month</h4>
-              <div className="flex items-center space-x-1 text-green-600">
-                <TrendingUp className="h-3 w-3" />
-                <span className="text-xs">Tracking</span>
-              </div>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span>{formatCost(usage.costThisMonth)} • {usage.callsThisMonth} calls</span>
-              <Badge variant="outline" className="text-xs">
-                Month to Date
-              </Badge>
-            </div>
-          </div>
-        )}
-
-        {/* Last Sync Info */}
-        {showSync && lastSyncAt && (
-          <div className="pt-4 border-t">
-            <p className="text-xs text-gray-500">
-              Last synced with voice service: {getTimeSinceLastSync()}
-            </p>
-          </div>
-        )}
       </CardContent>
     </Card>
   )

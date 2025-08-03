@@ -3,7 +3,7 @@
 import { ReactNode } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
-import { useSubscription } from '@/contexts/subscription-context'
+import { useUsage } from '@/contexts/subscription-context'
 import { 
   LayoutDashboard, 
   Users, 
@@ -21,7 +21,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
-import { UsageWarningBanner } from '@/components/subscription/usage-warning-banner'
+import { UsageWarningBanner } from '@/components/usage/usage-alerts'
 
 interface DashboardLayoutProps {
   children: ReactNode
@@ -39,7 +39,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter()
   const pathname = usePathname()
   const { user, signOut } = useAuth()
-  const { subscription, usage } = useSubscription()
+  const { profile, usage } = useUsage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const handleSignOut = async () => {
@@ -177,18 +177,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <div className="flex items-center gap-2">
                   <div className="px-2 py-0.5 rounded-full text-xs font-medium"
                        style={{ 
-                         background: subscription?.type === 'pro' 
-                           ? 'var(--vm-gradient-primary)' 
-                           : 'rgba(139, 92, 246, 0.1)',
-                         color: subscription?.type === 'pro' 
-                           ? '#FFFFFF' 
-                           : 'var(--vm-secondary-purple)'
+                         background: 'rgba(139, 92, 246, 0.1)',
+                         color: 'var(--vm-secondary-purple)'
                        }}>
-                    {subscription?.type === 'pro' ? 'Pro Plan' : 'Free Plan'}
+                    Voice Matrix User
                   </div>
-                  {subscription?.status === 'active' && (
-                    <Activity className="h-3 w-3" style={{ color: 'var(--vm-success-green)' }} />
-                  )}
+                  <Activity className="h-3 w-3" style={{ color: 'var(--vm-success-green)' }} />
                 </div>
               </div>
             </div>
@@ -220,10 +214,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   variant="ghost"
                   size="sm"
                   className="w-full justify-start hover:bg-white/5"
-                  onClick={() => router.push('/dashboard/settings/billing')}
+                  onClick={() => router.push('/dashboard/settings')}
                 >
-                  <CreditCard className="mr-2 h-3 w-3" />
-                  <span className="text-xs">Manage Subscription</span>
+                  <Settings className="mr-2 h-3 w-3" />
+                  <span className="text-xs">Account Settings</span>
                 </Button>
               </div>
             )}

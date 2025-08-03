@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/lib/auth-context";
-import { SubscriptionProvider } from "@/contexts/subscription-context";
+import { UsageProvider } from "@/contexts/subscription-context";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
@@ -31,10 +31,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          <SubscriptionProvider>
+          <UsageProvider>
             {children}
             <Toaster />
-          </SubscriptionProvider>
+          </UsageProvider>
         </AuthProvider>
       </body>
     </html>

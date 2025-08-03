@@ -244,7 +244,7 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             <a href="#features" className="transition-colors hover:text-purple-400" style={{ color: 'var(--vm-neutral-200)' }}>Features</a>
-            <a href="#pricing" className="transition-colors hover:text-purple-400" style={{ color: 'var(--vm-neutral-200)' }}>Pricing</a>
+            <a href="#about" className="transition-colors hover:text-purple-400" style={{ color: 'var(--vm-neutral-200)' }}>About</a>
             <a href="#testimonials" className="transition-colors hover:text-purple-400" style={{ color: 'var(--vm-neutral-200)' }}>Reviews</a>
             <a href="#contact" className="transition-colors hover:text-purple-400" style={{ color: 'var(--vm-neutral-200)' }}>Contact</a>
           </nav>
@@ -261,7 +261,7 @@ const Header = () => {
                 <Button variant="ghost" onClick={() => router.push('/signin')} style={{ color: 'var(--vm-primary-light)' }}>
                   Sign In
                 </Button>
-                <Button onClick={() => router.push('/signup?step=plan')} style={{ background: 'var(--vm-gradient-primary)', color: '#FFFFFF' }}>
+                <Button onClick={() => router.push('/signup')} style={{ background: 'var(--vm-gradient-primary)', color: '#FFFFFF' }}>
                   Get Started
                 </Button>
               </>
@@ -288,7 +288,7 @@ const Header = () => {
           >
             <nav className="flex flex-col gap-4">
               <a href="#features" style={{ color: 'var(--vm-neutral-200)' }} onClick={() => setIsMenuOpen(false)}>Features</a>
-              <a href="#pricing" style={{ color: 'var(--vm-neutral-200)' }} onClick={() => setIsMenuOpen(false)}>Pricing</a>
+              <a href="#about" style={{ color: 'var(--vm-neutral-200)' }} onClick={() => setIsMenuOpen(false)}>About</a>
               <a href="#testimonials" style={{ color: 'var(--vm-neutral-200)' }} onClick={() => setIsMenuOpen(false)}>Reviews</a>
               <a href="#contact" style={{ color: 'var(--vm-neutral-200)' }} onClick={() => setIsMenuOpen(false)}>Contact</a>
               <div className="flex flex-col gap-2 pt-4 border-t" style={{ borderColor: 'var(--vm-border-default)' }}>
@@ -299,7 +299,7 @@ const Header = () => {
                 ) : (
                   <>
                     <Button variant="outline" onClick={() => router.push('/signin')} style={{ borderColor: 'var(--vm-neutral-700)', color: 'var(--vm-neutral-200)' }}>Sign In</Button>
-                    <Button onClick={() => router.push('/signup?step=plan')} style={{ background: 'var(--vm-gradient-primary)', color: '#FFFFFF' }}>Get Started</Button>
+                    <Button onClick={() => router.push('/signup')} style={{ background: 'var(--vm-gradient-primary)', color: '#FFFFFF' }}>Get Started</Button>
                   </>
                 )}
               </div>
@@ -380,7 +380,7 @@ export default function HomePage() {
                   size="lg" 
                   className="px-8 py-4 text-lg font-semibold"
                   style={{ background: 'var(--vm-gradient-primary)', border: 'none', color: '#FFFFFF' }}
-                  onClick={() => router.push(user ? '/dashboard' : '/signup?step=plan')}
+                  onClick={() => router.push(user ? '/dashboard' : '/signup')}
                 >
                   {user ? 'Go to Dashboard' : 'Start Free Trial'}
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -523,8 +523,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-24 px-6 relative">
+      {/* About Section */}
+      <section id="about" className="py-24 px-6 relative">
         {!isScrolling && <VoiceWave mousePosition={mousePosition} variant="accent" />}
         
         <div className="max-w-6xl mx-auto relative z-10">
@@ -535,88 +535,93 @@ export default function HomePage() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: 'var(--vm-primary-light)' }}>
-              Simple, Transparent Pricing
+              What You Get with Voice Matrix
             </h2>
-            <p className="text-xl max-w-2xl mx-auto" style={{ color: 'var(--vm-neutral-200)' }}>
-              Choose the perfect plan for your business. Start free, scale as you grow.
+            <p className="text-xl max-w-3xl mx-auto" style={{ color: 'var(--vm-neutral-200)' }}>
+              Start building intelligent voice agents today with everything you need included.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               {
-                name: "Free Plan",
-                price: "Free",
-                description: "Perfect for getting started with AI voice agents",
-                features: ["1 AI voice assistant", "Basic voice customization", "Community support", "Dashboard analytics"],
-                cta: "Start Free",
-                popular: false
+                icon: Users,
+                title: "3 AI Assistants",
+                description: "Create up to 3 intelligent voice agents to handle different aspects of your business"
               },
               {
-                name: "Pro Plan",
-                price: "$25",
-                description: "For power users and growing businesses",
-                features: ["10 AI voice assistants", "Advanced voice customization", "Priority support & live chat", "Advanced analytics & reporting", "Custom integrations", "API access", "White-label options"],
-                cta: "Upgrade to Pro",
-                popular: true
+                icon: Clock,
+                title: "10 Minutes Monthly",
+                description: "Process up to 10 minutes of voice conversations per month to get started"
+              },
+              {
+                icon: Mic,
+                title: "Advanced AI Models",
+                description: "Access to state-of-the-art voice AI technology with natural conversation capabilities"
+              },
+              {
+                icon: BarChart3,
+                title: "Real-time Analytics",
+                description: "Monitor performance and track conversations with detailed insights and reporting"
+              },
+              {
+                icon: Shield,
+                title: "Secure & Reliable",
+                description: "Enterprise-grade security with encrypted communications and reliable uptime"
+              },
+              {
+                icon: Headphones,
+                title: "Community Support",
+                description: "Get help from our community and access comprehensive documentation"
               }
-            ].map((plan, index) => (
+            ].map((feature, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: index * 0.1 }}
                 whileHover={{ y: -10, scale: 1.02 }}
-                className={`p-8 rounded-2xl relative ${plan.popular ? 'ring-2 ring-orange-500' : ''}`}
+                className="p-8 rounded-2xl text-center group"
                 style={{ 
-                  background: 'var(--vm-surface)', 
-                  border: '1px solid var(--vm-border-subtle)'
+                  background: 'var(--vm-primary-surface)', 
+                  border: '1px solid var(--vm-border-default)'
                 }}
               >
-                {plan.popular && (
-                  <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-4 py-1"
-                         style={{ background: 'var(--vm-gradient-primary)', color: '#FFFFFF' }}>
-                    Most Popular
-                  </Badge>
-                )}
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500/0 via-purple-500/5 to-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
-                <div className="text-center mb-6">
-                  <h3 className="text-xl font-semibold mb-2" style={{ color: 'var(--vm-primary-light)' }}>{plan.name}</h3>
-                  <div className="mb-2">
-                    <span className="text-4xl font-bold" style={{ color: 'var(--vm-primary-light)' }}>{plan.price}</span>
-                    {plan.price !== "Free" && plan.price !== "Custom" && <span style={{ color: 'var(--vm-neutral-400)' }}>/month</span>}
+                <div className="relative z-10">
+                  <div className="p-4 rounded-xl mb-6 inline-block" style={{ background: 'var(--vm-gradient-primary)' }}>
+                    <feature.icon className="h-8 w-8 text-white" />
                   </div>
-                  <p style={{ color: 'var(--vm-neutral-200)' }}>{plan.description}</p>
+                  <h3 className="text-xl font-semibold mb-4" style={{ color: 'var(--vm-primary-light)' }}>{feature.title}</h3>
+                  <p className="leading-relaxed" style={{ color: 'var(--vm-neutral-200)' }}>{feature.description}</p>
                 </div>
-                
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                      <span style={{ color: 'var(--vm-neutral-200)' }}>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                
-                <Button 
-                  className="w-full"
-                  variant={plan.popular ? "default" : "outline"}
-                  style={plan.popular ? { background: 'var(--vm-gradient-primary)', color: '#FFFFFF' } : { borderColor: 'var(--vm-secondary-purple)', color: 'var(--vm-secondary-purple)' }}
-                  onClick={() => {
-                    const planType = plan.name.toLowerCase().includes('free') ? 'free' : 'pro'
-                    // For free plan, go to simplified signup. For pro plan, go to full signup flow
-                    if (planType === 'free') {
-                      router.push(`/signup?plan=free&step=details&quick=true`)
-                    } else {
-                      router.push(`/signup?plan=${planType}&step=plan`)
-                    }
-                  }}
-                >
-                  {plan.cta}
-                </Button>
               </motion.div>
             ))}
           </div>
+
+          {/* Call to Action */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="text-center mt-16"
+          >
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button 
+                size="lg" 
+                className="px-8 py-4 text-lg font-semibold"
+                style={{ background: 'var(--vm-gradient-primary)', border: 'none', color: '#FFFFFF' }}
+                onClick={() => router.push(user ? '/dashboard' : '/signup')}
+              >
+                {user ? 'Go to Dashboard' : 'Get Started Today'}
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </motion.div>
+            <p className="text-sm mt-4" style={{ color: 'var(--vm-neutral-400)' }}>
+              No credit card required • Free to start • Easy setup
+            </p>
+          </motion.div>
         </div>
       </section>
 
@@ -716,7 +721,7 @@ export default function HomePage() {
                 size="lg" 
                 className="px-8 py-4 text-lg font-semibold"
                 style={{ background: 'var(--vm-gradient-primary)', border: 'none', color: '#FFFFFF' }}
-                onClick={() => router.push(user ? '/dashboard' : '/signup?step=plan')}
+                onClick={() => router.push(user ? '/dashboard' : '/signup')}
               >
                 {user ? 'Go to Dashboard' : 'Start Free Trial Today'}
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -767,7 +772,7 @@ export default function HomePage() {
               <h4 className="font-semibold mb-4" style={{ color: 'var(--vm-primary-light)' }}>Product</h4>
               <ul className="space-y-2">
                 <li><a href="#features" className="transition-colors hover:text-purple-400" style={{ color: 'var(--vm-neutral-200)' }}>Features</a></li>
-                <li><a href="#pricing" className="transition-colors hover:text-purple-400" style={{ color: 'var(--vm-neutral-200)' }}>Pricing</a></li>
+                <li><a href="#about" className="transition-colors hover:text-purple-400" style={{ color: 'var(--vm-neutral-200)' }}>About</a></li>
                 <li><a href="/dashboard" className="transition-colors hover:text-purple-400" style={{ color: 'var(--vm-neutral-200)' }}>Dashboard</a></li>
                 <li><a href="/docs" className="transition-colors hover:text-purple-400" style={{ color: 'var(--vm-neutral-200)' }}>Documentation</a></li>
               </ul>

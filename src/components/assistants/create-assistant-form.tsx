@@ -61,7 +61,7 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
   const [isLoading, setIsLoading] = useState(false)
   
   // Usage enforcement for assistant creation
-  const { executeAction, UpgradeModal } = useEnforcedAction({
+  const { executeAction } = useEnforcedAction({
     actionType: 'assistants',
     onSuccess: () => {} // Will be handled in form submit
   })
