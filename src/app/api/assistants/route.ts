@@ -110,9 +110,9 @@ export async function POST(request: NextRequest) {
     console.log('🚀 [API] ===== STARTING ASSISTANT CREATION =====');
     console.log('Starting assistant creation transaction:', operationId)
     
-    // Step 2: Authenticate user (moved up for rate limiting)
+    // Step 2: Simple authentication check (no complex permissions)
     try {
-      const authResult = await requirePermission('basic');
+      const authResult = await authenticateRequest();
       user = authResult.user;
       console.log('[Assistant API] User authenticated:', user.id);
     } catch (authError) {
@@ -241,10 +241,11 @@ export async function POST(request: NextRequest) {
               id: user.id,
               email: user.email || 'unknown@example.com',
               full_name: user.user_metadata?.full_name || 'Unknown User',
+              subscription_type: 'free',
+              subscription_status: 'active',
               current_usage_minutes: 0,
               max_minutes_monthly: 10,
               max_assistants: 3,
-              usage_reset_date: new Date().toISOString().split('T')[0],
               onboarding_completed: false
             });
           

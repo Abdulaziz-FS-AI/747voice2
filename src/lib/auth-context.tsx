@@ -69,7 +69,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [supabase.auth])
 
   const signOut = async () => {
-    await supabase.auth.signOut()
+    try {
+      const { error } = await supabase.auth.signOut()
+      if (error) {
+        console.error('Sign out error:', error)
+        throw error
+      }
+    } catch (error) {
+      console.error('Failed to sign out:', error)
+      throw error
+    }
   }
 
   const signInWithGoogle = async () => {

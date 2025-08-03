@@ -44,7 +44,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const handleSignOut = async () => {
     await signOut()
-    router.push('/login')
+    router.push('/signin')
   }
 
   return (
