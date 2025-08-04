@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateRequest, requirePermission, logAuditEvent } from '@/lib/auth';
+import { requireAuth as authenticateRequest, testAuthSystem } from '@/lib/auth-ultimate';
+import { requirePermission, logAuditEvent } from '@/lib/auth';
 import { handleAPIError } from '@/lib/errors';
 import { createServiceRoleClient } from '@/lib/supabase';
 import { createVapiAssistant } from '@/lib/vapi';
@@ -110,18 +111,27 @@ export async function POST(request: NextRequest) {
     console.log('🚀 [API] ===== STARTING ASSISTANT CREATION =====');
     console.log('Starting assistant creation transaction:', operationId)
     
-    // Step 2: Simple authentication check (no complex permissions)
+    // Step 2: Ultimate authentication with multiple fallback strategies
     try {
       const authResult = await authenticateRequest();
       user = authResult.user;
-      console.log('[Assistant API] User authenticated:', user.id);
+      console.log('[Assistant API] User authenticated via ultimate auth:', user.id);
     } catch (authError) {
-      console.error('[Assistant API] Authentication failed:', authError);
+      console.error('[Assistant API] Ultimate authentication failed:', authError);
+      
+      // Enhanced error response with debugging info
+      const errorDetails = authError instanceof Error ? {
+        message: authError.message,
+        code: (authError as any).code || 'AUTH_ERROR',
+        details: (authError as any).details
+      } : { message: 'Unknown authentication error', code: 'AUTH_ERROR' };
+      
       return NextResponse.json({
         success: false,
         error: { 
-          code: 'AUTH_ERROR', 
-          message: 'Authentication required. Please log in again.' 
+          ...errorDetails,
+          message: 'Authentication failed. Please try logging in again.',
+          debug: process.env.NODE_ENV === 'development' ? errorDetails : undefined
         }
       }, { status: 401 });
     }
