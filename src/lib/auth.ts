@@ -73,9 +73,12 @@ export async function authenticateRequest() {
             id: user.id,
             email: user.email || 'unknown@example.com',
             full_name: user.user_metadata?.full_name || '',
+            subscription_type: 'free',
+            subscription_status: 'active',
             current_usage_minutes: 0,
             max_minutes_monthly: 10,
-            max_assistants: 3
+            max_assistants: 3,
+            onboarding_completed: false
           })
           .select()
           .single();
