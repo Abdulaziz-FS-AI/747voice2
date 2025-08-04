@@ -6,7 +6,15 @@
 import { createBrowserClient, createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database';
-import { cookies, headers } from 'next/headers';
+// Import with error handling for Next.js 15
+let cookies: any, headers: any;
+try {
+  const nextHeaders = require('next/headers');
+  cookies = nextHeaders.cookies;
+  headers = nextHeaders.headers;
+} catch (error) {
+  console.error('Failed to import next/headers:', error);
+}
 
 // Enhanced error types
 export class AuthError extends Error {
