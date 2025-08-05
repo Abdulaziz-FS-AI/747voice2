@@ -153,14 +153,20 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
       // Check if assistant was created (even if voice service failed)
       if (result.success || (result.error?.assistantId)) {
         console.log('✅ [FORM] Assistant creation successful!')
+        console.log('✅ [FORM] Result data:', result.data || result.error?.assistantId)
+        
         toast({
-          title: 'Assistant Created!',
-          description: 'Your assistant has been created successfully and saved to the database.',
+          title: '🎉 Assistant Created Successfully!',
+          description: `${data.name} has been created and is ready to use.`,
+          variant: 'default'
         })
-        // Wait a moment for the toast to show, then redirect
+        
+        // Show success for longer, then redirect
         setTimeout(() => {
+          console.log('🔄 [FORM] Redirecting to assistants dashboard...')
           router.push('/dashboard/assistants')
-        }, 1000)
+          router.refresh() // Force refresh to show new assistant
+        }, 2000)
       } else {
         console.error('❌ [FORM] Assistant creation failed:', result)
         console.error('❌ [FORM] Error details:', {

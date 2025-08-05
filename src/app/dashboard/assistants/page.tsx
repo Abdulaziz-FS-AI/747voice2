@@ -72,24 +72,44 @@ export default function AssistantsPage() {
   const fetchAssistants = async () => {
     try {
       setLoading(true)
+      console.log('🔄 [ASSISTANTS] Fetching assistants...')
       
-      const response = await fetch('/api/assistants')
+      const response = await fetch('/api/assistants', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-store' // Always get fresh data
+      })
+      
+      console.log('📥 [ASSISTANTS] Response status:', response.status, response.statusText)
+      
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('❌ [ASSISTANTS] API error:', errorText)
+        throw new Error(`API error: ${response.status} - ${errorText}`)
+      }
+      
       const data = await response.json()
+      console.log('📥 [ASSISTANTS] Response data:', data)
       
       if (data.success) {
-        setAssistants(data.data || [])
+        const assistantsData = data.data || []
+        console.log('✅ [ASSISTANTS] Loaded', assistantsData.length, 'assistants')
+        setAssistants(assistantsData)
       } else {
+        console.error('❌ [ASSISTANTS] API returned error:', data.error)
         toast({
-          title: 'Error',
-          description: 'Failed to fetch assistants',
+          title: 'Error Loading Assistants',
+          description: data.error?.message || 'Failed to fetch assistants',
           variant: 'destructive'
         })
       }
     } catch (error) {
-      console.error('Failed to fetch assistants:', error)
+      console.error('❌ [ASSISTANTS] Failed to fetch assistants:', error)
       toast({
         title: 'Error',
-        description: 'Failed to fetch assistants',
+        description: error instanceof Error ? error.message : 'Failed to fetch assistants',
         variant: 'destructive'
       })
     } finally {
