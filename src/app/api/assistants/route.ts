@@ -56,7 +56,8 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(parseInt(searchParams.get('limit') || '10'), 50);
     const search = searchParams.get('search');
 
-    const supabase = createServiceRoleClient();
+    // USE SERVICE ROLE CLIENT TO BYPASS RLS
+    const supabase = createServiceRoleClient('get_assistants');
 
     let query = supabase
       .from('user_assistants')
@@ -255,7 +256,7 @@ export async function POST(request: NextRequest) {
       throw validationError;
     }
 
-    // Step 5: Ensure user profile exists
+    // Step 5: Ensure user profile exists - USE SERVICE ROLE TO BYPASS RLS
     const supabase = createServiceRoleClient('user_profile_creation');
     try {
       const { data: existingProfile } = await supabase
@@ -302,9 +303,8 @@ export async function POST(request: NextRequest) {
       console.warn('[Assistant API] Profile check failed, continuing:', profileError);
     }
     
-    // Step 6: Check assistant creation limits (3 max)
-    const supabaseForCount = createServiceRoleClient('assistant_count');
-    const { count: currentCount } = await supabaseForCount
+    // Step 6: Check assistant creation limits (3 max) - USE SERVICE ROLE
+    const { count: currentCount } = await supabase
       .from('user_assistants')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id)
