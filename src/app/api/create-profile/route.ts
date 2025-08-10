@@ -28,19 +28,18 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Create new profile with default limits
+    // Create new profile with demo system defaults
     const { data: newProfile, error: insertError } = await supabase
       .from('profiles')
       .insert({
         id: user.id,
         email: user.email || 'unknown@example.com',
-        full_name: user.user_metadata?.full_name || 'Unknown User',
-        subscription_type: 'free',
-        subscription_status: 'active',
-        current_usage_minutes: 0,
-        max_minutes_monthly: 10,  // Free tier: 10 minutes
-        max_assistants: 3,        // Free tier: 3 assistants
-        onboarding_completed: false
+        full_name: user.user_metadata?.full_name || 
+                  user.user_metadata?.name || 
+                  user.email?.split('@')[0] || 'User',
+        max_assistants: 3,           // Demo: 3 assistants max
+        max_minutes_total: 10,       // Demo: 10 minutes total
+        current_usage_minutes: 0     // Start with 0 usage
       })
       .select()
       .single()

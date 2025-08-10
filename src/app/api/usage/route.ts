@@ -18,13 +18,13 @@ export async function GET() {
     // Get user profile (with auto-creation if missing)
     let { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('id, email, full_name, current_usage_minutes, max_minutes_monthly, max_assistants, usage_reset_date')
+      .select('id, email, full_name, current_usage_minutes, max_minutes_total, max_assistants')
       .eq('id', user.id)
       .single();
 
-    // If no profile exists, create one with default values (same logic as UsageService)
+    // If no profile exists, create one with demo system defaults
     if (!profile && profileError?.code === 'PGRST116') {
-      console.log('No profile found, creating default profile for user:', user.id);
+      console.log('No profile found, creating demo profile for user:', user.id);
       
       const { data: newProfile, error: createError } = await supabase
         .from('profiles')
@@ -33,12 +33,10 @@ export async function GET() {
           email: user.email || 'unknown@example.com',
           full_name: user.user_metadata?.full_name || 'Unknown User',
           current_usage_minutes: 0,
-          max_minutes_monthly: 10,
-          max_assistants: 3,  // Free users get 3 assistants
-          usage_reset_date: new Date().toISOString().split('T')[0],
-          onboarding_completed: false
+          max_minutes_total: 10,     // Demo: 10 minutes total
+          max_assistants: 3          // Demo: 3 assistants max
         })
-        .select('id, email, full_name, current_usage_minutes, max_minutes_monthly, max_assistants, usage_reset_date')
+        .select('id, email, full_name, current_usage_minutes, max_minutes_total, max_assistants')
         .single();
 
       if (createError) {
