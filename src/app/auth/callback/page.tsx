@@ -45,16 +45,17 @@ export default function AuthCallbackPage() {
               
               if (ensureError) {
                 console.error('🚀 Auth callback - ensure profile error:', ensureError)
-                // Try to create profile manually if function fails
+                // Try to create demo profile manually if function fails
                 await supabase
-                  .from('profiles')
+                  .from('demo_profiles')
                   .insert({
                     id: data.session.user.id,
                     email: data.session.user.email || 'unknown@example.com',
-                    full_name: data.session.user.user_metadata?.full_name || '',
-                    current_usage_minutes: 0,
-                    max_minutes_monthly: 10,
-                    max_assistants: 3,
+                    full_name: data.session.user.user_metadata?.full_name || 
+                              data.session.user.user_metadata?.name || 
+                              data.session.user.email?.split('@')[0] || 'User',
+                    total_usage_minutes: 0,
+                    assistant_count: 0,
                     onboarding_completed: false
                   })
                   .select()
@@ -69,38 +70,20 @@ export default function AuthCallbackPage() {
             // Wait a moment for profile to be created
             await new Promise(resolve => setTimeout(resolve, 1000))
             
-            // Update the subscription type if it's Pro (database trigger creates as 'free' by default)
-            if (selectedPlan === 'pro') {
-              const { error: updateError } = await supabase
-                .from('profiles')
-                .update({ 
-                  subscription_type: 'pro',
-                  max_minutes_monthly: 100,
-                  max_assistants: 10,
-                  setup_completed: true
-                })
-                .eq('id', data.session.user.id)
-              
-              if (updateError) {
-                console.error('🚀 Auth callback - pro plan update error:', updateError)
-              } else {
-                console.log('🚀 Auth callback - updated to pro plan')
-              }
-              
-              router.push('/dashboard?new=pro')
+            // Demo system: All users get same demo limits, just mark onboarding complete
+            const { error: updateError } = await supabase
+              .from('demo_profiles')
+              .update({ onboarding_completed: true })
+              .eq('id', data.session.user.id)
+            
+            if (updateError) {
+              console.error('🚀 Auth callback - onboarding update error:', updateError)
             } else {
-              // For free plan, just mark as setup complete
-              const { error: updateError } = await supabase
-                .from('profiles')
-                .update({ setup_completed: true })
-                .eq('id', data.session.user.id)
-              
-              if (updateError) {
-                console.error('🚀 Auth callback - free plan update error:', updateError)
-              }
-              
-              router.push('/dashboard?new=free')
+              console.log('🚀 Auth callback - demo onboarding completed')
             }
+            
+            // Demo system: All users go to same dashboard
+            router.push('/dashboard?new=demo')
           } else {
             // Existing user or no plan selection - ensure profile exists
             console.log('🚀 Auth callback - checking existing user profile')
@@ -112,16 +95,17 @@ export default function AuthCallbackPage() {
               
               if (ensureError) {
                 console.error('🚀 Auth callback - ensure profile error:', ensureError)
-                // Try to create profile manually if function fails
+                // Try to create demo profile manually if function fails
                 await supabase
-                  .from('profiles')
+                  .from('demo_profiles')
                   .insert({
                     id: data.session.user.id,
                     email: data.session.user.email || 'unknown@example.com',
-                    full_name: data.session.user.user_metadata?.full_name || '',
-                    current_usage_minutes: 0,
-                    max_minutes_monthly: 10,
-                    max_assistants: 3,
+                    full_name: data.session.user.user_metadata?.full_name || 
+                              data.session.user.user_metadata?.name || 
+                              data.session.user.email?.split('@')[0] || 'User',
+                    total_usage_minutes: 0,
+                    assistant_count: 0,
                     onboarding_completed: false
                   })
                   .select()
@@ -136,17 +120,22 @@ export default function AuthCallbackPage() {
             await new Promise(resolve => setTimeout(resolve, 1000))
             
             const { data: profile } = await supabase
-              .from('profiles')
-              .select('setup_completed, subscription_type')
+              .from('demo_profiles')
+              .select('onboarding_completed')
               .eq('id', data.session.user.id)
               .single()
             
-            if (profile?.setup_completed) {
-              console.log('🚀 Auth callback - existing user, redirecting to dashboard')
+            if (profile?.onboarding_completed) {
+              console.log('🚀 Auth callback - existing demo user, redirecting to dashboard')
               router.push('/dashboard')
             } else {
-              console.log('🚀 Auth callback - new user needs plan selection')
-              router.push('/signup?step=plan')
+              console.log('🚀 Auth callback - new demo user, completing onboarding')
+              // Mark as completed and go to dashboard
+              await supabase
+                .from('demo_profiles')
+                .update({ onboarding_completed: true })
+                .eq('id', data.session.user.id)
+              router.push('/dashboard?new=demo')
             }
           }
         } else {

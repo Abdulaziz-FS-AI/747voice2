@@ -4,9 +4,9 @@ export async function ensureUserProfile(userId: string) {
   const supabase = createClientSupabaseClient()
   
   try {
-    // First check if profile exists
+    // First check if demo profile exists
     const { data: profile, error: profileError } = await supabase
-      .from('profiles')
+      .from('demo_profiles')
       .select('*')
       .eq('id', userId)
       .single()
@@ -28,9 +28,9 @@ export async function ensureUserProfile(userId: string) {
         return { success: false, error: 'Could not get user data' }
       }
       
-      // Create profile with default values
+      // Create demo profile with default values
       const { data: newProfile, error: createError } = await supabase
-        .from('profiles')
+        .from('demo_profiles')
         .insert({
           id: user.id,
           email: user.email,
@@ -38,14 +38,9 @@ export async function ensureUserProfile(userId: string) {
                      user.user_metadata?.name || 
                      `${user.user_metadata?.first_name || ''} ${user.user_metadata?.last_name || ''}`.trim() ||
                      user.email?.split('@')[0] || 'User',
-          subscription_type: user.user_metadata?.subscription_type || 'free',
-          subscription_status: 'active',
-          current_usage_minutes: 0,
-          max_minutes_monthly: user.user_metadata?.subscription_type === 'pro' ? 100 : 10,
-          max_assistants: user.user_metadata?.subscription_type === 'pro' ? 10 : 1,
-          billing_cycle_start: new Date().toISOString(),
-          billing_cycle_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          setup_completed: user.user_metadata?.setup_completed || false
+          total_usage_minutes: 0,
+          assistant_count: 0,
+          onboarding_completed: false
         })
         .select()
         .single()
@@ -83,9 +78,9 @@ export async function debugUserProfile() {
       }
     }
     
-    // Get profile
+    // Get demo profile
     const { data: profile, error: profileError } = await supabase
-      .from('profiles')
+      .from('demo_profiles')
       .select('*')
       .eq('id', user.id)
       .single()

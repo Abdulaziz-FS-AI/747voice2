@@ -40,24 +40,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         // Only redirect from signin page after checking profile status
         if (window.location.pathname === '/signin') {
-          // First ensure profile exists
+          // Demo system: Ensure profile exists and redirect to dashboard
           ensureUserProfile(session.user.id).then((result) => {
             console.log('🚀 Auth context - ensure profile result:', result)
             
             if (result.success && result.profile) {
-              if (result.profile.setup_completed) {
-                // Existing user with complete profile
-                console.log('🚀 Auth context - existing user, redirecting to dashboard')
-                window.location.href = '/dashboard'
-              } else {
-                // User exists but setup not complete
-                console.log('🚀 Auth context - user setup incomplete, redirecting to signup')
-                window.location.href = '/signup?step=plan'
-              }
+              // Demo system: Always redirect to dashboard for authenticated users
+              console.log('🚀 Auth context - demo user authenticated, redirecting to dashboard')
+              window.location.href = '/dashboard'
             } else {
-              // Failed to create/get profile - redirect to signup
-              console.log('🚀 Auth context - profile issue, redirecting to signup')
-              window.location.href = '/signup?step=plan'
+              // Failed to create/get profile - still try dashboard
+              console.log('🚀 Auth context - profile issue, still redirecting to dashboard')
+              window.location.href = '/dashboard'
             }
           })
         }
