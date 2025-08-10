@@ -45,18 +45,18 @@ export default function AuthCallbackPage() {
               
               if (ensureError) {
                 console.error('🚀 Auth callback - ensure profile error:', ensureError)
-                // Try to create demo profile manually if function fails
+                // Try to create profile manually if function fails
                 await supabase
-                  .from('demo_profiles')
+                  .from('profiles')
                   .insert({
                     id: data.session.user.id,
                     email: data.session.user.email || 'unknown@example.com',
                     full_name: data.session.user.user_metadata?.full_name || 
                               data.session.user.user_metadata?.name || 
                               data.session.user.email?.split('@')[0] || 'User',
-                    total_usage_minutes: 0,
-                    assistant_count: 0,
-                    onboarding_completed: false
+                    max_assistants: 3,
+                    max_minutes_total: 10,
+                    current_usage_minutes: 0
                   })
                   .select()
                   .single()
@@ -70,17 +70,8 @@ export default function AuthCallbackPage() {
             // Wait a moment for profile to be created
             await new Promise(resolve => setTimeout(resolve, 1000))
             
-            // Demo system: All users get same demo limits, just mark onboarding complete
-            const { error: updateError } = await supabase
-              .from('demo_profiles')
-              .update({ onboarding_completed: true })
-              .eq('id', data.session.user.id)
-            
-            if (updateError) {
-              console.error('🚀 Auth callback - onboarding update error:', updateError)
-            } else {
-              console.log('🚀 Auth callback - demo onboarding completed')
-            }
+            // Demo system: Profile already created with correct limits
+            console.log('🚀 Auth callback - demo profile ready')
             
             // Demo system: All users go to same dashboard
             router.push('/dashboard?new=demo')
@@ -95,18 +86,18 @@ export default function AuthCallbackPage() {
               
               if (ensureError) {
                 console.error('🚀 Auth callback - ensure profile error:', ensureError)
-                // Try to create demo profile manually if function fails
+                // Try to create profile manually if function fails
                 await supabase
-                  .from('demo_profiles')
+                  .from('profiles')
                   .insert({
                     id: data.session.user.id,
                     email: data.session.user.email || 'unknown@example.com',
                     full_name: data.session.user.user_metadata?.full_name || 
                               data.session.user.user_metadata?.name || 
                               data.session.user.email?.split('@')[0] || 'User',
-                    total_usage_minutes: 0,
-                    assistant_count: 0,
-                    onboarding_completed: false
+                    max_assistants: 3,
+                    max_minutes_total: 10,
+                    current_usage_minutes: 0
                   })
                   .select()
                   .single()
@@ -120,21 +111,16 @@ export default function AuthCallbackPage() {
             await new Promise(resolve => setTimeout(resolve, 1000))
             
             const { data: profile } = await supabase
-              .from('demo_profiles')
-              .select('onboarding_completed')
+              .from('profiles')
+              .select('*')
               .eq('id', data.session.user.id)
               .single()
             
-            if (profile?.onboarding_completed) {
-              console.log('🚀 Auth callback - existing demo user, redirecting to dashboard')
+            if (profile) {
+              console.log('🚀 Auth callback - existing user, redirecting to dashboard')
               router.push('/dashboard')
             } else {
-              console.log('🚀 Auth callback - new demo user, completing onboarding')
-              // Mark as completed and go to dashboard
-              await supabase
-                .from('demo_profiles')
-                .update({ onboarding_completed: true })
-                .eq('id', data.session.user.id)
+              console.log('🚀 Auth callback - new user, redirecting to dashboard')
               router.push('/dashboard?new=demo')
             }
           }

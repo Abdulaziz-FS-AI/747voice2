@@ -4,9 +4,9 @@ export async function ensureUserProfile(userId: string) {
   const supabase = createClientSupabaseClient()
   
   try {
-    // First check if demo profile exists
+    // First check if profile exists
     const { data: profile, error: profileError } = await supabase
-      .from('demo_profiles')
+      .from('profiles')
       .select('*')
       .eq('id', userId)
       .single()
@@ -28,9 +28,9 @@ export async function ensureUserProfile(userId: string) {
         return { success: false, error: 'Could not get user data' }
       }
       
-      // Create demo profile with default values
+      // Create profile with demo system defaults
       const { data: newProfile, error: createError } = await supabase
-        .from('demo_profiles')
+        .from('profiles')
         .insert({
           id: user.id,
           email: user.email,
@@ -38,9 +38,9 @@ export async function ensureUserProfile(userId: string) {
                      user.user_metadata?.name || 
                      `${user.user_metadata?.first_name || ''} ${user.user_metadata?.last_name || ''}`.trim() ||
                      user.email?.split('@')[0] || 'User',
-          total_usage_minutes: 0,
-          assistant_count: 0,
-          onboarding_completed: false
+          max_assistants: 3,
+          max_minutes_total: 10,
+          current_usage_minutes: 0
         })
         .select()
         .single()
@@ -78,9 +78,9 @@ export async function debugUserProfile() {
       }
     }
     
-    // Get demo profile
+    // Get profile
     const { data: profile, error: profileError } = await supabase
-      .from('demo_profiles')
+      .from('profiles')
       .select('*')
       .eq('id', user.id)
       .single()
