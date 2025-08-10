@@ -85,7 +85,7 @@ export async function GET() {
 
     // Calculate usage directly from data (no database functions needed)
     const minutesUsed = profile.current_usage_minutes || 0;
-    const minutesLimit = profile.max_minutes_monthly || 10;
+    const minutesLimit = profile.max_minutes_total || 10;
     const assistantsUsed = assistantCount || 0;
     const assistantsLimit = profile.max_assistants || 3;
     
@@ -136,10 +136,9 @@ export async function GET() {
       email: profile.email,
       fullName: profile.full_name,
       currentUsageMinutes: minutesUsed,
-      maxMinutesMonthly: minutesLimit,
+      maxMinutesTotal: minutesLimit,
       currentAssistantCount: assistantsUsed,
-      maxAssistants: assistantsLimit,
-      usageResetDate: profile.usage_reset_date
+      maxAssistants: assistantsLimit
     };
 
     return NextResponse.json({
