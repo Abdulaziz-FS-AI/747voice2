@@ -17,33 +17,44 @@ export class AuthError extends Error {
 export async function requireAuth(): Promise<{ user: any; profile: any }> {
   console.log('🔐 [SIMPLE-AUTH] Using hardcoded auth for testing');
   
-  // Create a hardcoded test user
+  // ATTEMPT 1: Check if we can create a real user in the database first
+  const supabase = createServiceRoleClient('auth_simple_test');
+  
+  // Try to get or create a test user
+  let testUserId = '00000000-0000-0000-0000-000000000001';
+  
+  // Check if user exists in database
+  const { data: existingProfile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', testUserId)
+    .single();
+  
+  if (existingProfile) {
+    console.log('🔐 [SIMPLE-AUTH] Found existing test profile, using it');
+    return {
+      user: {
+        id: testUserId,
+        email: existingProfile.email,
+        user_metadata: { full_name: existingProfile.full_name }
+      },
+      profile: existingProfile
+    };
+  }
+  
+  // If no profile exists, let the API create it
+  console.log('🔐 [SIMPLE-AUTH] No existing profile, letting API create one');
+  
   const testUser = {
-    id: '00000000-0000-0000-0000-000000000001',
+    id: testUserId,
     email: 'test@voicematrix.ai',
     user_metadata: {
       full_name: 'Test User'
     }
   };
   
-  const testProfile = {
-    id: '00000000-0000-0000-0000-000000000001',
-    email: 'test@voicematrix.ai',
-    full_name: 'Test User',
-    subscription_type: 'free',
-    subscription_status: 'active',
-    current_usage_minutes: 0,
-    max_minutes_monthly: 10,
-    max_assistants: 3,
-    onboarding_completed: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  };
-  
-  console.log('🔐 [SIMPLE-AUTH] Using hardcoded test user for development');
-  
   return {
     user: testUser,
-    profile: testProfile
+    profile: null  // Let the API create the profile
   };
 }
