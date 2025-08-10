@@ -211,6 +211,22 @@ function SignInContent() {
                 Get Started
               </Link>
             </div>
+
+            {/* Demo Mode Button */}
+            {process.env.NEXT_PUBLIC_DEMO_MODE === 'true' && (
+              <div className="pt-4 border-t" style={{ borderColor: 'var(--vm-border)' }}>
+                <Link href="/demo-login">
+                  <button className="w-full px-4 py-2 rounded-xl border transition-all duration-300 hover:scale-105"
+                          style={{
+                            borderColor: 'var(--vm-accent)',
+                            background: 'rgba(139, 92, 246, 0.1)',
+                            color: 'var(--vm-accent)'
+                          }}>
+                    🚀 Enter Demo Mode (No Login Required)
+                  </button>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>
