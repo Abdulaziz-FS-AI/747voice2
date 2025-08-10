@@ -1,3 +1,9 @@
+// =============================================
+// DEMO SYSTEM DATABASE TYPES
+// =============================================
+// Clean types for demo-only system with no subscriptions
+// =============================================
+
 export type Json =
   | string
   | number
@@ -14,67 +20,31 @@ export interface Database {
           id: string
           email: string
           full_name: string | null
+          max_assistants: number
+          max_minutes_total: number
+          current_usage_minutes: number
           created_at: string
           updated_at: string
-          subscription_type: 'free' | 'pro'
-          subscription_status: 'active' | 'cancelled' | 'past_due' | 'inactive'
-          current_usage_minutes: number
-          max_minutes_monthly: number
-          max_assistants: number
-          billing_cycle_start: string
-          billing_cycle_end: string
-          stripe_customer_id: string | null
-          stripe_subscription_id: string | null
-          paypal_customer_id: string | null
-          paypal_subscription_id: string | null
-          paypal_payer_id: string | null
-          payment_method_type: 'none' | 'paypal' | 'card'
-          onboarding_completed: boolean
-          setup_completed: boolean
         }
         Insert: {
           id: string
           email: string
           full_name?: string | null
+          max_assistants?: number
+          max_minutes_total?: number
+          current_usage_minutes?: number
           created_at?: string
           updated_at?: string
-          subscription_type?: 'free' | 'pro'
-          subscription_status?: 'active' | 'cancelled' | 'past_due' | 'inactive'
-          current_usage_minutes?: number
-          max_minutes_monthly?: number
-          max_assistants?: number
-          billing_cycle_start?: string
-          billing_cycle_end?: string
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          paypal_customer_id?: string | null
-          paypal_subscription_id?: string | null
-          paypal_payer_id?: string | null
-          payment_method_type?: 'none' | 'paypal' | 'card'
-          onboarding_completed?: boolean
-          setup_completed?: boolean
         }
         Update: {
           id?: string
           email?: string
           full_name?: string | null
+          max_assistants?: number
+          max_minutes_total?: number
+          current_usage_minutes?: number
           created_at?: string
           updated_at?: string
-          subscription_type?: 'free' | 'pro'
-          subscription_status?: 'active' | 'cancelled' | 'past_due' | 'inactive'
-          current_usage_minutes?: number
-          max_minutes_monthly?: number
-          max_assistants?: number
-          billing_cycle_start?: string
-          billing_cycle_end?: string
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          paypal_customer_id?: string | null
-          paypal_subscription_id?: string | null
-          paypal_payer_id?: string | null
-          payment_method_type?: 'none' | 'paypal' | 'card'
-          onboarding_completed?: boolean
-          setup_completed?: boolean
         }
       }
       templates: {
@@ -114,46 +84,55 @@ export interface Database {
           id: string
           user_id: string
           template_id: string | null
-          vapi_assistant_id: string
+          vapi_assistant_id: string | null
           name: string
+          personality: string
           config: Json
+          usage_minutes: number
+          max_lifetime_days: number
+          expires_at: string
+          will_auto_delete: boolean
+          deletion_reason: string | null
+          assistant_state: 'active' | 'expired' | 'deleted'
           created_at: string
           updated_at: string
-          is_disabled: boolean | null
-          disabled_at: string | null
-          disabled_reason: string | null
-          original_vapi_config: Json | null
-          assistant_state: 'active' | 'disabled_usage' | 'disabled_payment' | 'deleted' | null
+          deleted_at: string | null
         }
         Insert: {
           id?: string
           user_id: string
           template_id?: string | null
-          vapi_assistant_id: string
+          vapi_assistant_id?: string | null
           name: string
+          personality?: string
           config?: Json
+          usage_minutes?: number
+          max_lifetime_days?: number
+          expires_at?: string
+          will_auto_delete?: boolean
+          deletion_reason?: string | null
+          assistant_state?: 'active' | 'expired' | 'deleted'
           created_at?: string
           updated_at?: string
-          is_disabled?: boolean | null
-          disabled_at?: string | null
-          disabled_reason?: string | null
-          original_vapi_config?: Json | null
-          assistant_state?: 'active' | 'disabled_usage' | 'disabled_payment' | 'deleted' | null
+          deleted_at?: string | null
         }
         Update: {
           id?: string
           user_id?: string
           template_id?: string | null
-          vapi_assistant_id?: string
+          vapi_assistant_id?: string | null
           name?: string
+          personality?: string
           config?: Json
+          usage_minutes?: number
+          max_lifetime_days?: number
+          expires_at?: string
+          will_auto_delete?: boolean
+          deletion_reason?: string | null
+          assistant_state?: 'active' | 'expired' | 'deleted'
           created_at?: string
           updated_at?: string
-          is_disabled?: boolean | null
-          disabled_at?: string | null
-          disabled_reason?: string | null
-          original_vapi_config?: Json | null
-          assistant_state?: 'active' | 'disabled_usage' | 'disabled_payment' | 'deleted' | null
+          deleted_at?: string | null
         }
       }
       structured_questions: {
@@ -166,16 +145,18 @@ export interface Database {
           data_type: 'string' | 'number' | 'boolean'
           is_required: boolean | null
           order_index: number
+          created_at: string
         }
         Insert: {
           id?: string
           assistant_id: string
-          form_title: string
+          form_title?: string
           question_text: string
           structured_name: string
-          data_type: 'string' | 'number' | 'boolean'
+          data_type?: 'string' | 'number' | 'boolean'
           is_required?: boolean | null
-          order_index: number
+          order_index?: number
+          created_at?: string
         }
         Update: {
           id?: string
@@ -186,6 +167,7 @@ export interface Database {
           data_type?: 'string' | 'number' | 'boolean'
           is_required?: boolean | null
           order_index?: number
+          created_at?: string
         }
       }
       user_phone_numbers: {
@@ -247,39 +229,49 @@ export interface Database {
       call_logs: {
         Row: {
           id: string
+          user_id: string
           assistant_id: string
-          duration_seconds: number | null
-          cost: number | null
+          vapi_call_id: string | null
+          duration_seconds: number
+          duration_minutes: number // computed column
+          call_status: string
           caller_number: string | null
-          started_at: string
           transcript: string | null
-          structured_data: Json | null
-          success_evaluation: string | null
           summary: string | null
+          structured_data: Json | null
+          started_at: string
+          ended_at: string | null
+          created_at: string
         }
         Insert: {
           id?: string
+          user_id: string
           assistant_id: string
-          duration_seconds?: number | null
-          cost?: number | null
+          vapi_call_id?: string | null
+          duration_seconds?: number
+          call_status?: string
           caller_number?: string | null
-          started_at?: string
           transcript?: string | null
-          structured_data?: Json | null
-          success_evaluation?: string | null
           summary?: string | null
+          structured_data?: Json | null
+          started_at?: string
+          ended_at?: string | null
+          created_at?: string
         }
         Update: {
           id?: string
+          user_id?: string
           assistant_id?: string
-          duration_seconds?: number | null
-          cost?: number | null
+          vapi_call_id?: string | null
+          duration_seconds?: number
+          call_status?: string
           caller_number?: string | null
-          started_at?: string
           transcript?: string | null
-          structured_data?: Json | null
-          success_evaluation?: string | null
           summary?: string | null
+          structured_data?: Json | null
+          started_at?: string
+          ended_at?: string | null
+          created_at?: string
         }
       }
       call_analytics: {
@@ -292,7 +284,6 @@ export interface Database {
           successful_calls: number | null
           failed_calls: number | null
           total_duration_minutes: number | null
-          total_cost_cents: number | null
           average_call_duration: number | null
           success_rate: number | null
           created_at: string
@@ -307,7 +298,6 @@ export interface Database {
           successful_calls?: number | null
           failed_calls?: number | null
           total_duration_minutes?: number | null
-          total_cost_cents?: number | null
           average_call_duration?: number | null
           success_rate?: number | null
           created_at?: string
@@ -322,256 +312,154 @@ export interface Database {
           successful_calls?: number | null
           failed_calls?: number | null
           total_duration_minutes?: number | null
-          total_cost_cents?: number | null
           average_call_duration?: number | null
           success_rate?: number | null
           created_at?: string
           updated_at?: string
         }
       }
-      rate_limits: {
+      cleanup_jobs: {
         Row: {
           id: string
-          key: string
-          timestamp: string
-          ip_address: string | null
-          user_agent: string | null
-          created_at: string | null
-        }
-        Insert: {
-          id?: string
-          key: string
-          timestamp?: string
-          ip_address?: string | null
-          user_agent?: string | null
-          created_at?: string | null
-        }
-        Update: {
-          id?: string
-          key?: string
-          timestamp?: string
-          ip_address?: string | null
-          user_agent?: string | null
-          created_at?: string | null
-        }
-      }
-      subscription_events: {
-        Row: {
-          id: string
-          user_id: string
-          event_type: 'upgraded' | 'downgraded' | 'cancelled' | 'renewed' | 'payment_failed' | 'usage_limit_exceeded' | 'monthly_reset' | 'usage_warning' | 'payment_method_updated' | 'subscription_paused' | 'subscription_resumed' | 'refund_processed'
-          from_plan: string | null
-          to_plan: string | null
-          metadata: Json
+          job_type: string
+          assistants_deleted: number
+          users_affected: number
+          execution_time_ms: number | null
+          details: Json
           created_at: string
         }
         Insert: {
           id?: string
-          user_id: string
-          event_type: 'upgraded' | 'downgraded' | 'cancelled' | 'renewed' | 'payment_failed' | 'usage_limit_exceeded' | 'monthly_reset' | 'usage_warning' | 'payment_method_updated' | 'subscription_paused' | 'subscription_resumed' | 'refund_processed'
-          from_plan?: string | null
-          to_plan?: string | null
-          metadata?: Json
+          job_type?: string
+          assistants_deleted?: number
+          users_affected?: number
+          execution_time_ms?: number | null
+          details?: Json
           created_at?: string
         }
         Update: {
           id?: string
-          user_id?: string
-          event_type?: 'upgraded' | 'downgraded' | 'cancelled' | 'renewed' | 'payment_failed' | 'usage_limit_exceeded' | 'monthly_reset' | 'usage_warning' | 'payment_method_updated' | 'subscription_paused' | 'subscription_resumed' | 'refund_processed'
-          from_plan?: string | null
-          to_plan?: string | null
-          metadata?: Json
+          job_type?: string
+          assistants_deleted?: number
+          users_affected?: number
+          execution_time_ms?: number | null
+          details?: Json
           created_at?: string
-        }
-      }
-      vapi_sync_queue: {
-        Row: {
-          id: string
-          assistant_id: string
-          vapi_assistant_id: string
-          action: 'disable' | 'enable' | 'delete' | 'update'
-          reason: string
-          priority: number
-          retry_count: number
-          error: string | null
-          processed_at: string | null
-          last_retry_at: string | null
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          assistant_id: string
-          vapi_assistant_id: string
-          action: 'disable' | 'enable' | 'delete' | 'update'
-          reason: string
-          priority?: number
-          retry_count?: number
-          error?: string | null
-          processed_at?: string | null
-          last_retry_at?: string | null
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          assistant_id?: string
-          vapi_assistant_id?: string
-          action?: 'disable' | 'enable' | 'delete' | 'update'
-          reason?: string
-          priority?: number
-          retry_count?: number
-          error?: string | null
-          processed_at?: string | null
-          last_retry_at?: string | null
-          created_at?: string
-        }
-      }
-      payment_history: {
-        Row: {
-          id: string
-          user_id: string
-          transaction_id: string
-          payment_provider: 'paypal' | 'stripe'
-          amount: number
-          currency: string
-          status: 'completed' | 'pending' | 'failed' | 'refunded'
-          payment_method: string | null
-          description: string | null
-          invoice_number: string | null
-          metadata: Json
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          transaction_id: string
-          payment_provider: 'paypal' | 'stripe'
-          amount: number
-          currency?: string
-          status: 'completed' | 'pending' | 'failed' | 'refunded'
-          payment_method?: string | null
-          description?: string | null
-          invoice_number?: string | null
-          metadata?: Json
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          transaction_id?: string
-          payment_provider?: 'paypal' | 'stripe'
-          amount?: number
-          currency?: string
-          status?: 'completed' | 'pending' | 'failed' | 'refunded'
-          payment_method?: string | null
-          description?: string | null
-          invoice_number?: string | null
-          metadata?: Json
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      invoices: {
-        Row: {
-          id: string
-          user_id: string
-          invoice_number: string
-          transaction_id: string | null
-          amount: number
-          tax: number
-          total: number
-          currency: string
-          status: 'paid' | 'pending' | 'void'
-          due_date: string | null
-          paid_date: string | null
-          pdf_url: string | null
-          line_items: Json
-          billing_details: Json | null
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          invoice_number: string
-          transaction_id?: string | null
-          amount: number
-          tax?: number
-          total: number
-          currency?: string
-          status: 'paid' | 'pending' | 'void'
-          due_date?: string | null
-          paid_date?: string | null
-          pdf_url?: string | null
-          line_items?: Json
-          billing_details?: Json | null
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          invoice_number?: string
-          transaction_id?: string | null
-          amount?: number
-          tax?: number
-          total?: number
-          currency?: string
-          status?: 'paid' | 'pending' | 'void'
-          due_date?: string | null
-          paid_date?: string | null
-          pdf_url?: string | null
-          line_items?: Json
-          billing_details?: Json | null
-          created_at?: string
-        }
-      }
-      paypal_webhook_events: {
-        Row: {
-          id: string
-          event_type: string
-          resource_type: string | null
-          resource_id: string | null
-          summary: string | null
-          processed: boolean
-          raw_data: Json
-          created_at: string
-          processed_at: string | null
-        }
-        Insert: {
-          id: string
-          event_type: string
-          resource_type?: string | null
-          resource_id?: string | null
-          summary?: string | null
-          processed?: boolean
-          raw_data: Json
-          created_at?: string
-          processed_at?: string | null
-        }
-        Update: {
-          id?: string
-          event_type?: string
-          resource_type?: string | null
-          resource_id?: string | null
-          summary?: string | null
-          processed?: boolean
-          raw_data?: Json
-          created_at?: string
-          processed_at?: string | null
         }
       }
     }
     Views: {
-      [_ in never]: never
+      active_assistants_view: {
+        Row: {
+          id: string
+          user_id: string
+          template_id: string | null
+          vapi_assistant_id: string | null
+          name: string
+          personality: string
+          config: Json
+          usage_minutes: number
+          max_lifetime_days: number
+          expires_at: string
+          will_auto_delete: boolean
+          deletion_reason: string | null
+          assistant_state: 'active' | 'expired' | 'deleted'
+          created_at: string
+          updated_at: string
+          deleted_at: string | null
+          user_email: string
+          user_total_usage: number
+          user_max_minutes: number
+          user_remaining_minutes: number
+          days_until_expiry: number
+          is_expired_by_time: boolean
+          is_expired_by_usage: boolean
+        }
+        Insert: never
+        Update: never
+      }
+      user_demo_status: {
+        Row: {
+          user_id: string
+          email: string
+          full_name: string | null
+          current_usage_minutes: number
+          max_minutes_total: number
+          remaining_minutes: number
+          active_assistants: number
+          max_assistants: number
+          remaining_assistant_slots: number
+          usage_limit_reached: boolean
+          assistant_limit_reached: boolean
+        }
+        Insert: never
+        Update: never
+      }
     }
     Functions: {
-      [_ in never]: never
+      cleanup_expired_assistants: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      handle_new_user: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      update_usage_on_call_end: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      check_assistant_expiration: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      assistant_state: 'active' | 'expired' | 'deleted'
+      data_type: 'string' | 'number' | 'boolean'
     }
-    CompositeTypes: {
-      [_ in never]: never
-    }
+    CompositeTypes: Record<string, never>
   }
 }
+
+// Helper types for demo system
+export type Profile = Database['public']['Tables']['profiles']['Row']
+export type Assistant = Database['public']['Tables']['user_assistants']['Row']
+export type CallLog = Database['public']['Tables']['call_logs']['Row']
+export type StructuredQuestion = Database['public']['Tables']['structured_questions']['Row']
+export type Template = Database['public']['Tables']['templates']['Row']
+export type PhoneNumber = Database['public']['Tables']['user_phone_numbers']['Row']
+export type CleanupJob = Database['public']['Tables']['cleanup_jobs']['Row']
+export type CallAnalytics = Database['public']['Tables']['call_analytics']['Row']
+
+// Demo-specific types
+export interface DemoUserStatus {
+  userId: string
+  email: string
+  fullName: string | null
+  currentUsageMinutes: number
+  maxMinutesTotal: number
+  remainingMinutes: number
+  activeAssistants: number
+  maxAssistants: number
+  remainingAssistantSlots: number
+  usageLimitReached: boolean
+  assistantLimitReached: boolean
+}
+
+export interface AssistantWithStatus extends Assistant {
+  userEmail: string
+  userTotalUsage: number
+  userMaxMinutes: number
+  userRemainingMinutes: number
+  daysUntilExpiry: number
+  isExpiredByTime: boolean
+  isExpiredByUsage: boolean
+}
+
+// Demo limits constants
+export const DEMO_LIMITS = {
+  MAX_ASSISTANTS: 3,
+  MAX_MINUTES_TOTAL: 10,
+  MAX_LIFETIME_DAYS: 7
+} as const

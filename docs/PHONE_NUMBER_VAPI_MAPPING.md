@@ -10,7 +10,7 @@
   phoneNumber: string,           // "+14155551234" (E.164 format)
   twilioAccountSid: string,      // "ACxxxxx..." (32 chars)
   twilioAuthToken: string,       // Twilio auth token
-  assignedAssistantId?: string,  // Optional assistant UUID
+  assignedAssistantId?: string,  //  assistant UUID
   notes?: string                 // Optional notes
 }
 ```
@@ -46,16 +46,8 @@ The service:
   twilioAccountSid: "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
   twilioAuthToken: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
   name: "Main Sales Line",
-  assistantId: "aafd4a02-523b-4675-8341-cfcc9b7a9a04" | null,
-  // Optional webhook configuration
-  server: {
-    url: "https://hook.eu2.make.com/...",
-    timeoutSeconds: 20,
-    headers: {
-      "Authorization": "Bearer xxx"
-    }
+  assistantId: "aafd4a02-523b-4675-8341-cfcc9b7a9a04" 
   }
-}
 ```
 
 ### 5. Database Storage (`phone_numbers` table)
@@ -71,9 +63,7 @@ The service:
   vapi_credential_id: "cred123...",    -- From VAPI response
   twilio_account_sid: "ACxxxxx...",
   twilio_auth_token: "encrypted...",   -- Should be encrypted
-  assigned_assistant_id: UUID | null,
-  webhook_url: "https://...",
-  is_active: true,
+  assigned_assistant_id: UUID ,
   created_at: timestamp,
   updated_at: timestamp
 }
@@ -83,7 +73,7 @@ The service:
 
 1. **Phone Number Format**: Must be E.164 format (e.g., `+14155551234`)
 2. **Twilio Credentials**: User provides their own Twilio account credentials
-3. **Assistant Assignment**: Optional during creation, can be updated later
+3. **Assistant Assignment**:  d
 4. **VAPI Response**: Returns `id` and `credentialId` which must be stored
 5. **Webhook**: Optional server configuration for call events
 

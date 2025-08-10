@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Plus, Phone, Clock, Activity, Brain } from 'lucide-react'
 import { AssistantCard } from '@/components/dashboard/assistant-card'
 import { DashboardLayout } from '@/components/dashboard/layout'
+import { DemoStatusCard } from '@/components/ui/demo-status'
 import UsageIndicator from '@/components/usage/usage-indicator'
 import { motion } from 'framer-motion'
 import type { Database } from '@/types/database'
@@ -304,12 +305,14 @@ export default function DashboardPage() {
           </motion.div>
         </motion.div>
 
-        {/* Usage Overview */}
+        {/* Demo Status & Usage Overview */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.8 }}
+          className="grid gap-6 lg:grid-cols-2"
         >
+          <DemoStatusCard />
           <UsageIndicator variant="compact" />
         </motion.div>
 
