@@ -3,7 +3,7 @@
 import { ReactNode } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
-import { useUsage } from '@/contexts/subscription-context'
+// Subscription context removed - demo system only
 import { 
   LayoutDashboard, 
   Users, 
@@ -39,7 +39,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter()
   const pathname = usePathname()
   const { user, signOut } = useAuth()
-  const { profile, usage } = useUsage()
+  // Demo system: No usage tracking needed
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const handleSignOut = async () => {
@@ -187,40 +187,16 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               </div>
             </div>
             
-            {/* Quick usage indicator */}
-            {usage && (
-              <div className="space-y-2 mt-3">
-                <div>
-                  <div className="flex items-center justify-between text-xs mb-1">
-                    <span style={{ color: 'var(--vm-text-muted)' }}>Minutes</span>
-                    <span style={{ color: 'var(--vm-text-primary)' }}>
-                      {usage.minutes.used}/{usage.minutes.limit}
-                    </span>
-                  </div>
-                  <div className="h-1 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--vm-neutral-700)' }}>
-                    <div 
-                      className="h-full rounded-full transition-all"
-                      style={{ 
-                        width: `${usage.minutes.percentage}%`,
-                        backgroundColor: usage.minutes.percentage >= 80 
-                          ? 'var(--vm-warning-amber)' 
-                          : 'var(--vm-success-green)'
-                      }}
-                    />
-                  </div>
-                </div>
-                
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start hover:bg-white/5"
-                  onClick={() => router.push('/dashboard/settings')}
-                >
-                  <Settings className="mr-2 h-3 w-3" />
-                  <span className="text-xs">Account Settings</span>
-                </Button>
-              </div>
-            )}
+            {/* Demo account info */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start hover:bg-white/5 mt-3"
+              onClick={() => router.push('/dashboard/settings')}
+            >
+              <Settings className="mr-2 h-3 w-3" />
+              <span className="text-xs">Account Settings</span>
+            </Button>
           </div>
           
           <button 

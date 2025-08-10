@@ -15,7 +15,7 @@ import {
 } from 'lucide-react'
 import { createClientSupabaseClient } from '@/lib/supabase'
 import { toast } from '@/hooks/use-toast'
-import { useUsage } from '@/contexts/subscription-context'
+// Subscription context removed - demo system only
 
 interface UsageAlert {
   id: string
@@ -283,45 +283,8 @@ export default function UsageAlerts({ className = '', compact = false }: UsageAl
   )
 }
 
-// Simple usage warning banner for the simplified system
+// Demo system usage warning banner - simplified
 export function UsageWarningBanner() {
-  const { usage } = useUsage()
-
-  if (!usage) return null
-
-  const warnings = []
-
-  // Check minutes usage
-  if (usage.minutes.percentage >= 90) {
-    warnings.push({
-      type: 'critical' as const,
-      message: `Critical: You've used ${usage.minutes.used}/${usage.minutes.limit} minutes (${usage.minutes.percentage.toFixed(0)}%)`
-    })
-  } else if (usage.minutes.percentage >= 80) {
-    warnings.push({
-      type: 'warning' as const,
-      message: `Warning: You've used ${usage.minutes.used}/${usage.minutes.limit} minutes (${usage.minutes.percentage.toFixed(0)}%)`
-    })
-  }
-
-  // Check assistants usage
-  if (usage.assistants.percentage >= 100) {
-    warnings.push({
-      type: 'critical' as const,
-      message: `You've reached your assistant limit (${usage.assistants.count}/${usage.assistants.limit})`
-    })
-  }
-
-  if (warnings.length === 0) return null
-
-  return (
-    <div className="px-6 py-2 space-y-2">
-      {warnings.map((warning, index) => (
-        <Alert key={index} variant={warning.type === 'critical' ? 'destructive' : 'default'}>
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>{warning.message}</AlertDescription>
-        </Alert>
-      ))}
-    </div>
-  )
+  // Demo system: No usage warnings needed - handled by DemoStatusCard
+  return null
 }
