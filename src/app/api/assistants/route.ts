@@ -143,56 +143,32 @@ export async function POST(request: NextRequest) {
     if (!existingProfile) {
       console.log('[DEMO API] Creating demo user profile');
       
-      // CRITICAL: For demo/test mode, we need to handle the foreign key constraint
-      // The profiles table references auth.users, but our hardcoded test user might not exist there
+      // Now create the profile (user already exists in auth.users from auth-simple.ts)
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          email: user.email || 'demo@example.com',
+          full_name: user.user_metadata?.full_name || 'Demo User',
+          max_assistants: DEMO_LIMITS.MAX_ASSISTANTS,
+          max_minutes_total: DEMO_LIMITS.MAX_MINUTES_TOTAL,
+          current_usage_minutes: 0
+        });
       
-      try {
-        // Attempt to create/ensure user exists in auth.users first (for hardcoded test user)
-        if (user.id === '00000000-0000-0000-0000-000000000001') {
-          console.log('[DEMO API] Creating test user in auth.users table for demo');
-          // Using service role to create user directly in auth.users
-          const { error: authUserError } = await supabase.auth.admin.createUser({
-            email: user.email || 'test@voicematrix.ai',
-            user_metadata: { full_name: user.user_metadata?.full_name || 'Test User' },
-            email_confirm: true
-          });
-          
-          if (authUserError && !authUserError.message?.includes('already')) {
-            console.warn('[DEMO API] Could not create auth user (might already exist):', authUserError.message);
-          }
-        }
-        
-        // Now create the profile
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: user.id,
-            email: user.email || 'demo@example.com',
-            full_name: user.user_metadata?.full_name || 'Demo User',
-            max_assistants: DEMO_LIMITS.MAX_ASSISTANTS,
-            max_minutes_total: DEMO_LIMITS.MAX_MINUTES_TOTAL,
-            current_usage_minutes: 0
-          });
-        
-        if (profileError) {
-          console.error('[DEMO API] Failed to create demo profile:', {
-            error: profileError,
-            code: profileError.code,
-            message: profileError.message,
-            details: profileError.details,
-            hint: profileError.hint,
-            userId: user.id,
-            userEmail: user.email
-          });
-          throw new Error(`Failed to initialize demo user profile: ${profileError.message || 'Unknown error'}`);
-        }
-        
-        console.log('[DEMO API] Successfully created demo profile');
-        
-      } catch (error) {
-        console.error('[DEMO API] Critical error in profile creation:', error);
-        throw error;
+      if (profileError) {
+        console.error('[DEMO API] Failed to create demo profile:', {
+          error: profileError,
+          code: profileError.code,
+          message: profileError.message,
+          details: profileError.details,
+          hint: profileError.hint,
+          userId: user.id,
+          userEmail: user.email
+        });
+        throw new Error(`Failed to initialize demo user profile: ${profileError.message || 'Unknown error'}`);
       }
+      
+      console.log('[DEMO API] Successfully created demo profile');
     }
 
     // DEMO SYSTEM: Check assistant creation limits (3 max)
