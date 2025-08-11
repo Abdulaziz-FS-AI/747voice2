@@ -1,78 +1,159 @@
--- =============================================
 -- DATABASE VERIFICATION SCRIPT
+-- Run this to verify your Make.com integration is ready
+
 -- =============================================
--- Run this to check if the fixes were applied
+-- 1. CHECK TRIGGERS (MOST CRITICAL)
 -- =============================================
-
--- 1. Check if user_phone_numbers table exists
-SELECT EXISTS (
-    SELECT FROM information_schema.tables 
-    WHERE table_schema = 'public' 
-    AND table_name = 'user_phone_numbers'
-) as phone_table_exists;
-
--- 2. Check if assistant_state column exists and has correct values
 SELECT 
-    EXISTS (
-        SELECT FROM information_schema.columns 
-        WHERE table_name = 'user_assistants' 
-        AND column_name = 'assistant_state'
-    ) as assistant_state_column_exists;
+    '=== TRIGGER CHECK ===' as section,
+    CASE 
+        WHEN COUNT(*) = 1 AND MAX(trigger_name) = 'call_usage_update_trigger' 
+        THEN '✅ TRIGGERS CORRECT - Ready for production'
+        WHEN EXISTS (SELECT 1 FROM information_schema.triggers WHERE trigger_name = 'on_call_log_inserted' AND event_object_table = 'call_info_log')
+        THEN '❌ CRITICAL ERROR - Problematic trigger still exists! Apply FINAL_TRIGGER_FIX.sql immediately!'
+        ELSE '⚠️ WARNING - Unexpected trigger configuration'
+    END as status
+FROM information_schema.triggers 
+WHERE event_object_table = 'call_info_log';
 
--- 3. Check current assistant states
+-- Show actual triggers
 SELECT 
-    assistant_state,
-    COUNT(*) as count
-FROM public.user_assistants
-GROUP BY assistant_state
-ORDER BY count DESC;
+    trigger_name,
+    action_statement,
+    CASE 
+        WHEN trigger_name = 'on_call_log_inserted' THEN '❌ REMOVE THIS - Causes UUID = TEXT error'
+        WHEN trigger_name = 'call_usage_update_trigger' THEN '✅ KEEP THIS - Works correctly'
+        ELSE '⚠️ Unknown trigger'
+    END as action_required
+FROM information_schema.triggers 
+WHERE event_object_table = 'call_info_log';
 
--- 4. Check if old columns still exist
+-- =============================================
+-- 2. CHECK TABLE STRUCTURE
+-- =============================================
 SELECT 
-    column_name,
-    data_type 
-FROM information_schema.columns 
-WHERE table_name = 'user_assistants' 
-AND column_name IN ('is_disabled', 'is_enabled', 'is_active')
-ORDER BY column_name;
-
--- 5. Check user_phone_numbers table structure if it exists
-SELECT 
+    '=== TABLE STRUCTURE CHECK ===' as section,
     column_name,
     data_type,
-    is_nullable
-FROM information_schema.columns 
-WHERE table_name = 'user_phone_numbers'
-ORDER BY column_name;
-
--- 6. Check your specific assistant that was failing
-SELECT 
-    id,
-    name,
-    assistant_state,
-    vapi_assistant_id,
-    user_id,
-    deleted_at,
+    is_nullable,
     CASE 
-        WHEN vapi_assistant_id IS NULL THEN '❌ No VAPI ID'
-        WHEN vapi_assistant_id LIKE 'fallback_%' THEN '⚠️ Fallback ID'
-        ELSE '✅ Valid VAPI ID'
-    END as vapi_status
-FROM public.user_assistants
-WHERE id = 'd3ccc711-e0d9-47c0-9333-d042c0e52937'
-   OR user_id = '8c2791ed-3366-4ddd-94cd-716bbf28bf85'
-ORDER BY created_at DESC;
+        WHEN column_name = 'assistant_id' AND data_type = 'text' THEN '✅ Correct - TEXT for VAPI IDs'
+        WHEN column_name = 'assistant_id' AND data_type = 'uuid' THEN '❌ Wrong - Should be TEXT not UUID'
+        WHEN column_name = 'duration_minutes' THEN '✅ Correct field name'
+        WHEN column_name = 'evaluation' THEN '✅ Correct - Flexible evaluation field'
+        ELSE '✓ Standard field'
+    END as status
+FROM information_schema.columns 
+WHERE table_name = 'call_info_log'
+ORDER BY ordinal_position;
 
 -- =============================================
--- EXPECTED RESULTS:
+-- 3. CHECK USER_ASSISTANTS TABLE
 -- =============================================
--- 
--- 1. phone_table_exists should be TRUE
--- 2. assistant_state_column_exists should be TRUE  
--- 3. assistant_state should show mostly 'active'
--- 4. Old columns (is_disabled, etc.) should NOT exist
--- 5. user_phone_numbers should have all required columns
--- 6. Your specific assistant should show up with correct state
--- 
--- If any of these fail, the scripts didn't run properly!
+SELECT 
+    '=== USER_ASSISTANTS CHECK ===' as section,
+    COUNT(*) as total_assistants,
+    COUNT(DISTINCT vapi_assistant_id) as unique_vapi_ids,
+    COUNT(DISTINCT user_id) as total_users,
+    CASE 
+        WHEN COUNT(*) > 0 THEN '✅ Assistants exist'
+        ELSE '⚠️ No assistants found - create some first'
+    END as status
+FROM user_assistants;
+
+-- Check for the specific assistant from Make.com errors
+SELECT 
+    '=== SPECIFIC ASSISTANT CHECK ===' as section,
+    CASE 
+        WHEN EXISTS (
+            SELECT 1 FROM user_assistants 
+            WHERE vapi_assistant_id = '49f85a9a-dc4f-4b0a-98db-4068f09c9efc'
+        ) THEN '✅ Test assistant exists'
+        ELSE '⚠️ Test assistant not found - may need to create it'
+    END as status;
+
 -- =============================================
+-- 4. CHECK RECENT CALL DATA
+-- =============================================
+SELECT 
+    '=== RECENT CALLS CHECK ===' as section,
+    COUNT(*) as total_calls_last_24h,
+    CASE 
+        WHEN COUNT(*) > 0 THEN '✅ Recent calls exist'
+        ELSE '⚠️ No recent calls - webhook may not be working'
+    END as status
+FROM call_info_log
+WHERE created_at > NOW() - INTERVAL '24 hours';
+
+-- Show last 5 calls for debugging
+SELECT 
+    '=== LAST 5 CALLS ===' as section,
+    id,
+    assistant_id,
+    duration_minutes,
+    evaluation,
+    created_at
+FROM call_info_log
+ORDER BY created_at DESC
+LIMIT 5;
+
+-- =============================================
+-- 5. CHECK FOREIGN KEY CONSTRAINTS
+-- =============================================
+SELECT 
+    '=== FOREIGN KEY CHECK ===' as section,
+    constraint_name,
+    table_name,
+    column_name,
+    foreign_table_name,
+    foreign_column_name
+FROM (
+    SELECT 
+        tc.constraint_name,
+        tc.table_name,
+        kcu.column_name,
+        ccu.table_name AS foreign_table_name,
+        ccu.column_name AS foreign_column_name
+    FROM information_schema.table_constraints AS tc 
+    JOIN information_schema.key_column_usage AS kcu
+        ON tc.constraint_name = kcu.constraint_name
+        AND tc.table_schema = kcu.table_schema
+    JOIN information_schema.constraint_column_usage AS ccu
+        ON ccu.constraint_name = tc.constraint_name
+        AND ccu.table_schema = tc.table_schema
+    WHERE tc.constraint_type = 'FOREIGN KEY' 
+        AND tc.table_name = 'call_info_log'
+) fk_info;
+
+-- =============================================
+-- 6. FINAL READINESS CHECK
+-- =============================================
+SELECT 
+    '=== FINAL READINESS VERDICT ===' as section,
+    CASE 
+        WHEN EXISTS (
+            SELECT 1 FROM information_schema.triggers 
+            WHERE trigger_name = 'on_call_log_inserted' 
+            AND event_object_table = 'call_info_log'
+        ) THEN '🔴 NOT READY - Critical trigger issue! Apply FINAL_TRIGGER_FIX.sql'
+        WHEN NOT EXISTS (
+            SELECT 1 FROM information_schema.triggers 
+            WHERE event_object_table = 'call_info_log'
+        ) THEN '🟡 WARNING - No triggers found, usage tracking may not work'
+        WHEN EXISTS (
+            SELECT 1 FROM information_schema.triggers 
+            WHERE trigger_name = 'call_usage_update_trigger' 
+            AND event_object_table = 'call_info_log'
+        ) AND NOT EXISTS (
+            SELECT 1 FROM information_schema.triggers 
+            WHERE trigger_name = 'on_call_log_inserted' 
+            AND event_object_table = 'call_info_log'
+        ) THEN '🟢 DATABASE READY - Triggers configured correctly'
+        ELSE '🟡 UNKNOWN STATE - Manual review needed'
+    END as database_status,
+    '⚠️ Remember to also set MAKE_WEBHOOK_SECRET environment variable!' as reminder;
+
+-- =============================================
+-- END OF VERIFICATION
+-- =============================================
+SELECT 'Verification complete. Check results above.' as message;

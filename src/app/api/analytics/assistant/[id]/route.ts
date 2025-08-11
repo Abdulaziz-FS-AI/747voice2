@@ -19,16 +19,70 @@ function truncateToSentence(text: string, maxLength: number = 80): string {
   return lastSpace > 0 ? truncated.substring(0, lastSpace) + '...' : truncated + '...'
 }
 
+// Helper function to properly evaluate call success (matching main analytics)
+function evaluateCallSuccess(evaluation: any): boolean {
+  if (!evaluation) return false
+  
+  // Convert to string and normalize
+  const evalStr = String(evaluation).toLowerCase().trim()
+  
+  // Exact matches for success (avoid substring false positives)
+  const successValues = [
+    'successful',
+    'success',
+    'qualified',
+    'completed',
+    'good',
+    'excellent',
+    'true',
+    '1',
+    'yes',
+    'passed'
+  ]
+  
+  // Check for exact match
+  if (successValues.includes(evalStr)) {
+    return true
+  }
+  
+  // Check for boolean true
+  if (evaluation === true || evaluation === 1) {
+    return true
+  }
+  
+  // Explicit failure checks (to avoid "unsuccessful" being marked as success)
+  const failureIndicators = [
+    'unsuccessful',
+    'failed',
+    'failure',
+    'error',
+    'bad',
+    'poor',
+    'false',
+    '0',
+    'no',
+    'incomplete'
+  ]
+  
+  if (failureIndicators.some(indicator => evalStr.includes(indicator))) {
+    return false
+  }
+  
+  // Default to false for unknown values
+  return false
+}
+
 // Helper function to analyze success evaluation based on rubric type
 function analyzeSuccessEvaluation(calls: any[], rubricType: string) {
   const breakdown: Record<string, number> = {}
   let totalEvaluated = 0
   
   calls.forEach(call => {
-    if (!call.success_evaluation) return
+    // Use 'evaluation' field from call_info_log, not 'success_evaluation'
+    if (!call.evaluation) return
     
     totalEvaluated++
-    const evaluation = call.success_evaluation
+    const evaluation = call.evaluation
     
     switch (rubricType) {
       case 'DescriptiveScale':
@@ -102,7 +156,7 @@ export async function GET(
     // Verify user owns this assistant and get assistant details
     const { data: assistant, error: assistantError } = await supabase
       .from('user_assistants')
-      .select('id, user_id, name, config')
+      .select('id, user_id, name, config, vapi_assistant_id')
       .eq('id', assistantId)
       .eq('user_id', user.id)
       .single()
@@ -118,14 +172,30 @@ export async function GET(
     const evaluationRubric = assistant.config?.evaluation_rubric || 'PassFail'
 
     // Get all calls for this assistant from call_info_log table
-    const { data: calls, error: callsError } = await supabase
+    // Try both internal ID and VAPI ID in case of different FK configurations
+    const { data: callsByInternalId, error: callsError1 } = await supabase
       .from('call_info_log')
       .select('*')
       .eq('assistant_id', assistantId)
       .order('started_at', { ascending: false })
+    
+    let calls = callsByInternalId || []
+    
+    // If no calls found by internal ID, try VAPI ID
+    if (calls.length === 0 && assistant.vapi_assistant_id) {
+      const { data: callsByVapiId, error: callsError2 } = await supabase
+        .from('call_info_log')
+        .select('*')
+        .eq('assistant_id', assistant.vapi_assistant_id)
+        .order('started_at', { ascending: false })
+      
+      if (callsByVapiId) {
+        calls = callsByVapiId
+      }
+    }
 
-    if (callsError) {
-      console.error('Error fetching call info logs:', callsError)
+    if (callsError1 && callsError2) {
+      console.error('Error fetching call info logs:', callsError1, callsError2)
     }
 
     const allCalls = calls || []
@@ -146,27 +216,13 @@ export async function GET(
     const totalDuration = allCalls.reduce((sum, call) => sum + ((call.duration_minutes || 0) * 60), 0)
     const avgDuration = totalCalls > 0 ? totalDuration / totalCalls : 0
 
-    // Calculate success rate based on success_evaluation
-    const evaluatedCalls = allCalls.filter(call => call.success_evaluation !== null && call.success_evaluation !== undefined)
+    // Calculate success rate using the 'evaluation' field from call_info_log
+    const evaluatedCalls = allCalls.filter(call => call.evaluation !== null && call.evaluation !== undefined)
     let successRate = 0
     
     if (evaluatedCalls.length > 0) {
-      const successfulCalls = evaluatedCalls.filter(call => {
-        const evaluation = call.success_evaluation
-        // Determine success based on rubric type
-        switch (evaluationRubric) {
-          case 'PassFail':
-            return evaluation === true || evaluation === 'true' || evaluation === 'Pass'
-          case 'PercentageScale':
-            return parseFloat(evaluation) >= 70 // Consider 70%+ as successful
-          case 'DescriptiveScale':
-            return evaluation === 'Excellent' || evaluation === 'Good'
-          case 'LikertScale':
-            return evaluation === 'Strongly Agree' || evaluation === 'Agree'
-          default:
-            return !!evaluation
-        }
-      })
+      // Use the fixed evaluation logic to avoid false positives
+      const successfulCalls = evaluatedCalls.filter(call => evaluateCallSuccess(call.evaluation))
       successRate = (successfulCalls.length / evaluatedCalls.length) * 100
     }
 
@@ -200,7 +256,7 @@ export async function GET(
       transcript: call.transcript || '',
       shortTranscript: truncateToSentence(call.transcript || ''),
       structuredData: call.structured_data || {},
-      successEvaluation: call.success_evaluation,
+      successEvaluation: call.evaluation, // Use 'evaluation' field from call_info_log
       summary: call.summary || ''
     }))
 
