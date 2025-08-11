@@ -84,7 +84,11 @@ const SuccessEvaluationDisplay = ({ evaluation, rubricType }: { evaluation: any,
       return <Badge variant={descriptiveVariant}>{evaluation}</Badge>
 
     case 'PercentageScale':
-      const percent = parseFloat(evaluation)
+      let percent = 0
+      if (typeof evaluation === 'string' || typeof evaluation === 'number') {
+        percent = parseFloat(String(evaluation))
+        if (isNaN(percent)) percent = 0
+      }
       return (
         <div className="flex items-center gap-2">
           <Progress value={percent} className="w-16" />
@@ -179,7 +183,15 @@ export default function AssistantAnalyticsPage() {
 
     // Prepare CSV data with only required fields
     const csvData = analytics.recentCalls.map(call => {
-      const date = new Date(call.startedAt)
+      let date = new Date()
+      try {
+        date = new Date(call.startedAt)
+        if (isNaN(date.getTime())) {
+          date = new Date() // Fallback to current date if invalid
+        }
+      } catch (e) {
+        date = new Date() // Fallback on error
+      }
       
       // Create base row with required fields
       const row: Record<string, any> = {
@@ -536,11 +548,11 @@ export default function AssistantAnalyticsPage() {
                           <TableCell className="max-w-xs">
                             {/* Display structured data clearly */}
                             <div className="space-y-1">
-                              {call.structuredData && Object.keys(call.structuredData).length > 0 ? (
+                              {call.structuredData && typeof call.structuredData === 'object' && Object.keys(call.structuredData).length > 0 ? (
                                 Object.entries(call.structuredData).map(([key, value]) => (
                                   <div key={key} className="text-sm">
                                     <span className="font-medium vm-text-secondary">{key}:</span>{' '}
-                                    <span className="vm-text-primary">{String(value)}</span>
+                                    <span className="vm-text-primary">{String(value || '')}</span>
                                   </div>
                                 ))
                               ) : (

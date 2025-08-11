@@ -179,17 +179,21 @@ export async function GET(request: NextRequest) {
         .order('started_at', { ascending: false })
         .limit(100)
 
+      let error2 = null // Initialize error2 to avoid undefined reference
+      
       if (!error1 && callsByInternalId && callsByInternalId.length > 0) {
         calls = callsByInternalId
         console.log('Found calls using internal assistant IDs')
       } else if (vapiAssistantIds.length > 0) {
         // If no results with internal IDs, try VAPI IDs (if FK points to vapi_assistant_id)
-        const { data: callsByVapiId, error: error2 } = await supabase
+        const { data: callsByVapiId, error: callsError2 } = await supabase
           .from('call_info_log')
           .select('*')
           .in('assistant_id', vapiAssistantIds)
           .order('started_at', { ascending: false })
           .limit(100)
+        
+        error2 = callsError2 // Assign to outer variable
 
         if (!error2 && callsByVapiId) {
           calls = callsByVapiId
@@ -199,6 +203,9 @@ export async function GET(request: NextRequest) {
 
       if (calls.length === 0) {
         console.log('No calls found for user assistants')
+        if (error1 || error2) {
+          console.error('Errors fetching calls:', { error1, error2 })
+        }
       }
     } catch (error) {
       console.error('Error fetching calls from call_info_log:', error)

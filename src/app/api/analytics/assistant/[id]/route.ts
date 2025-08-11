@@ -266,8 +266,8 @@ export async function GET(
           }
         }
         
-        // Debug logging to see what's in the data (only log once per question)
-        if (totalCalls > 0 && allCalls.indexOf(call) === 0) {
+        // Debug logging to see what's in the data (only log once per question in development)
+        if (process.env.NODE_ENV === 'development' && totalCalls > 0 && allCalls.indexOf(call) === 0) {
           console.log('Structured Questions Debug:', {
             questionText: question.question_text,
             structuredName: question.structured_name,
