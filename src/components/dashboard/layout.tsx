@@ -43,8 +43,15 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const handleSignOut = async () => {
-    await signOut()
-    router.push('/signin')
+    try {
+      await signOut()
+      // Redirect to home page instead of signin to avoid 404
+      window.location.href = '/'
+    } catch (error) {
+      console.error('Sign out error:', error)
+      // Even if signOut fails, redirect to home page
+      window.location.href = '/'
+    }
   }
 
   return (

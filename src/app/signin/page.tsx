@@ -50,11 +50,6 @@ function SignInContent() {
         return
       }
 
-      toast({
-        title: 'Welcome back!',
-        description: 'You have been logged in successfully.',
-      })
-
       // Let auth context handle routing based on profile status
     } catch (error) {
       setError('An unexpected error occurred')
