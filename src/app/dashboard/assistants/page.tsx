@@ -212,27 +212,18 @@ export default function AssistantsPage() {
   return (
     <DashboardLayout>
       <div className="space-y-8">
-        {/* Enhanced Header with AI Voice Agent Network Pattern */}
-        <div className="relative overflow-hidden">
-          {/* AI Voice Agent Network Background */}
-          <div className="absolute inset-0 opacity-20">
-            <svg className="w-full h-full" viewBox="0 0 800 200">
-              <defs>
-                <linearGradient id="voice agent-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" style={{ stopColor: 'var(--vm-orange-primary)', stopOpacity: 0.6 }} />
-                  <stop offset="100%" style={{ stopColor: 'var(--vm-violet)', stopOpacity: 0.3 }} />
-                </linearGradient>
-              </defs>
-              <g stroke="url(#voice agent-gradient)" strokeWidth="1" fill="none">
-                <circle cx="100" cy="50" r="3" fill="var(--vm-orange-primary)" opacity="0.8" />
-                <circle cx="300" cy="80" r="2" fill="var(--vm-violet)" opacity="0.6" />
-                <circle cx="500" cy="40" r="2.5" fill="var(--vm-cyan)" opacity="0.7" />
-                <circle cx="700" cy="90" r="2" fill="var(--vm-emerald)" opacity="0.5" />
-                <line x1="100" y1="50" x2="300" y2="80" />
-                <line x1="300" y1="80" x2="500" y2="40" />
-                <line x1="500" y1="40" x2="700" y2="90" />
-              </g>
-            </svg>
+        {/* Modern Header with Gradient Background */}
+        <div className="relative overflow-hidden rounded-2xl p-8 mb-6"
+             style={{
+               background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%)',
+               border: '1px solid rgba(139, 92, 246, 0.3)'
+             }}>
+          {/* Animated Background Particles */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-10 -left-10 w-40 h-40 rounded-full opacity-20"
+                 style={{ background: 'radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%)' }} />
+            <div className="absolute top-20 right-20 w-60 h-60 rounded-full opacity-15"
+                 style={{ background: 'radial-gradient(circle, rgba(236, 72, 153, 0.4) 0%, transparent 70%)' }} />
           </div>
           
           <motion.div 
@@ -248,20 +239,18 @@ export default function AssistantsPage() {
                 transition={{ duration: 0.6, delay: 0.1 }}
                 className="flex items-center gap-3 mb-2"
               >
-                <div className="p-3 rounded-xl" style={{ background: 'var(--vm-gradient-brand)' }}>
+                <div className="p-3 rounded-xl" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
                   <Bot className="h-8 w-8 text-white" />
                 </div>
-                <h1 className="text-4xl font-bold tracking-tight" style={{ 
-                  background: 'linear-gradient(135deg, var(--vm-orange-primary) 0%, var(--vm-violet) 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
-                }}>AI Voice Agent Assistants</h1>
+                <h1 className="text-5xl font-bold tracking-tight bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
+                  AI Voice Assistants
+                </h1>
               </motion.div>
               <motion.p 
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-muted-foreground text-lg"
+                className="text-lg text-gray-400"
               >
                 Deploy and manage your intelligent AI voice agents
               </motion.p>
@@ -278,12 +267,7 @@ export default function AssistantsPage() {
                   onClick={handleSync}
                   disabled={syncing}
                   variant="outline"
-                  className="relative overflow-hidden group"
-                  style={{
-                    background: 'rgba(255, 107, 53, 0.1)',
-                    border: '1px solid var(--vm-border-brand)',
-                    color: 'var(--vm-orange-primary)'
-                  }}
+                  className="relative overflow-hidden group bg-gray-800 hover:bg-gray-700 text-white border border-gray-700"
                 >
                   <RefreshCw className={`mr-2 h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
                   <span className="font-medium">{syncing ? 'Refreshing...' : 'Refresh'}</span>
@@ -299,11 +283,10 @@ export default function AssistantsPage() {
               >
                 <Button 
                   onClick={() => router.push('/dashboard/assistants/new')}
-                  className="relative overflow-hidden group"
+                  className="relative overflow-hidden group shadow-xl hover:shadow-2xl transition-all"
                   style={{
-                    background: 'var(--vm-gradient-brand)',
-                    border: 'none',
-                    boxShadow: '0 8px 32px rgba(255, 107, 53, 0.3)'
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    border: 'none'
                   }}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-700" />
@@ -322,31 +305,26 @@ export default function AssistantsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
-          <Card className="relative overflow-hidden" style={{
-            background: 'linear-gradient(135deg, rgba(255, 107, 53, 0.03) 0%, rgba(139, 92, 246, 0.02) 100%)',
-            border: '1px solid var(--vm-border-brand)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
-          }}>
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-500/50 to-transparent" />
+          <Card className="relative overflow-hidden border border-gray-700 bg-gray-900/50 backdrop-blur">
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Search className="h-5 w-5" style={{ color: 'var(--vm-orange-primary)' }} />
-                  AI Voice Agent Search Matrix
+                <CardTitle className="flex items-center gap-2 text-white">
+                  <Search className="h-5 w-5 text-purple-400" />
+                  Search & Filter
                 </CardTitle>
               </div>
             </CardHeader>
             <CardContent>
               <div className="flex gap-4 flex-col sm:flex-row">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4" style={{ color: 'var(--vm-orange-primary)' }} />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
-                    placeholder="Search voice agent patterns..."
+                    placeholder="Search assistants..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 transition-all duration-300 focus:shadow-lg focus:shadow-orange-500/20"
+                    className="pl-10 transition-all duration-300 bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
                     style={{
-                      background: 'var(--vm-void)',
                       border: '1px solid var(--vm-border-subtle)',
                       borderRadius: '8px'
                     }}

@@ -55,7 +55,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--vm-primary-dark)' }}>
+    <div className="min-h-screen" style={{ background: '#0f0f0f' }}>
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 
@@ -70,29 +70,30 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         "fixed inset-y-0 z-50 flex w-80 flex-col transition-transform lg:translate-x-0",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )} style={{ 
-        background: 'var(--vm-primary-surface)',
-        borderRight: '1px solid var(--vm-border-default)'
+        background: 'rgba(17, 24, 39, 0.95)',
+        borderRight: '1px solid rgba(75, 85, 99, 0.3)',
+        backdropFilter: 'blur(10px)'
       }}>
         
         {/* Premium Logo Section */}
-        <div className="flex h-20 items-center justify-between px-6" style={{ borderBottom: '1px solid var(--vm-border-default)' }}>
+        <div className="flex h-20 items-center justify-between px-6" style={{ borderBottom: '1px solid rgba(75, 85, 99, 0.3)' }}>
           <div className="flex items-center gap-3">
             {/* Voice Matrix Logo */}
             <div className="relative">
               <div 
-                className="h-12 w-12 rounded-full flex items-center justify-center"
-                style={{ background: 'var(--vm-gradient-primary)' }}
+                className="h-12 w-12 rounded-full flex items-center justify-center shadow-xl"
+                style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
               >
-                <Mic className="h-7 w-7" style={{ color: '#FFFFFF' }} />
+                <Mic className="h-7 w-7 text-white" />
               </div>
-              <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full flex items-center justify-center"
-                   style={{ background: 'var(--vm-accent-blue)' }}>
-                <Zap className="h-2.5 w-2.5" style={{ color: '#FFFFFF' }} />
+              <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full flex items-center justify-center animate-pulse"
+                   style={{ background: '#10b981' }}>
+                <Zap className="h-2.5 w-2.5 text-white" />
               </div>
             </div>
             <div>
-              <h1 className="text-2xl font-semibold tracking-wide" style={{ color: 'var(--vm-primary-light)' }}>Voice Matrix</h1>
-              <p className="text-xs font-medium" style={{ color: 'var(--vm-neutral-400)' }}>AI Intelligence Platform</p>
+              <h1 className="text-2xl font-semibold tracking-wide bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Voice Matrix</h1>
+              <p className="text-xs font-medium text-gray-400">AI Intelligence Platform</p>
             </div>
           </div>
           <Button
@@ -117,11 +118,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   className={cn(
                     "w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left transition-all duration-300 group",
                     isActive 
-                      ? "text-white" 
-                      : "hover:bg-white/5 hover:transform hover:scale-[1.02]"
+                      ? "text-white shadow-lg" 
+                      : "hover:bg-gray-800/50 hover:transform hover:scale-[1.02]"
                   )}
                   style={{
-                    background: isActive ? 'var(--vm-gradient-primary)' : 'transparent',
+                    background: isActive ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
                     border: isActive ? 'none' : '1px solid transparent',
                   }}
                   onClick={() => {
@@ -131,23 +132,23 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 >
                   <div className={cn(
                     "flex items-center justify-center w-10 h-10 rounded-lg transition-all",
-                    isActive ? "bg-white/20" : "bg-white/10 group-hover:bg-white/15"
+                    isActive ? "bg-white/20" : "bg-gray-800/50 group-hover:bg-gray-700/50"
                   )}>
                     <item.icon className={cn(
                       "h-5 w-5 transition-all",
-                      isActive ? "text-white" : "text-[var(--vm-secondary-purple)] group-hover:scale-110"
+                      isActive ? "text-white" : "text-purple-400 group-hover:scale-110 group-hover:text-purple-300"
                     )} />
                   </div>
                   <div className="flex-1">
                     <div className={cn(
                       "font-semibold text-sm",
-                      isActive ? "text-white" : "text-[var(--vm-primary-light)]"
+                      isActive ? "text-white" : "text-gray-200"
                     )}>
                       {item.name}
                     </div>
                     <div className={cn(
                       "text-xs",
-                      isActive ? "text-white/80" : "text-[var(--vm-neutral-400)]"
+                      isActive ? "text-white/80" : "text-gray-500"
                     )}>
                       {item.description}
                     </div>

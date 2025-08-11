@@ -333,13 +333,13 @@ export default function AssistantAnalyticsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card>
+          <Card className="border border-gray-700 bg-gray-900/50 backdrop-blur">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 text-white">
+                <BarChart3 className="h-5 w-5 text-purple-400" />
                 Select Assistant
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-gray-400">
                 Choose an assistant to view detailed analytics
               </CardDescription>
             </CardHeader>
@@ -441,10 +441,10 @@ export default function AssistantAnalyticsPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <Card>
+                <Card className="border border-gray-700 bg-gray-900/50 backdrop-blur">
                   <CardHeader>
-                    <CardTitle>Structured Questions Performance</CardTitle>
-                    <CardDescription>
+                    <CardTitle className="text-white">Structured Questions Performance</CardTitle>
+                    <CardDescription className="text-gray-400">
                       How well your assistant collects structured data from callers
                     </CardDescription>
                   </CardHeader>
@@ -494,19 +494,20 @@ export default function AssistantAnalyticsPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                <Card>
+                <Card className="border border-gray-700 bg-gray-900/50 backdrop-blur">
                   <CardHeader>
-                    <CardTitle>Success Evaluation Breakdown</CardTitle>
-                    <CardDescription>
+                    <CardTitle className="text-white">Success Evaluation Breakdown</CardTitle>
+                    <CardDescription className="text-gray-400">
                       Analysis based on {analytics.successAnalysis.rubricType} evaluation criteria
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                       {Object.entries(analytics.successAnalysis.breakdown).map(([key, value]) => (
-                        <div key={key} className="flex items-center justify-between p-3 border rounded-lg">
-                          <span className="font-medium">{key}</span>
-                          <Badge variant="outline">{value} calls</Badge>
+                        <div key={key} className="flex items-center justify-between p-3 border rounded-lg hover:border-purple-500/50 transition-colors"
+                             style={{ borderColor: 'rgba(75, 85, 99, 0.5)', background: 'rgba(17, 24, 39, 0.3)' }}>
+                          <span className="font-medium text-white">{key}</span>
+                          <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/50">{value} calls</Badge>
                         </div>
                       ))}
                     </div>
@@ -521,10 +522,10 @@ export default function AssistantAnalyticsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             >
-              <Card>
+              <Card className="border border-gray-700 bg-gray-900/50 backdrop-blur">
                 <CardHeader>
-                  <CardTitle>Recent Calls</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="text-white">Recent Calls</CardTitle>
+                  <CardDescription className="text-gray-400">
                     Latest call activity with structured data and evaluations
                   </CardDescription>
                 </CardHeader>
@@ -543,16 +544,16 @@ export default function AssistantAnalyticsPage() {
                     <TableBody>
                       {analytics.recentCalls.map((call) => (
                         <TableRow key={call.id}>
-                          <TableCell className="font-mono text-sm">{call.callerNumber}</TableCell>
-                          <TableCell>{call.duration}s</TableCell>
+                          <TableCell className="font-mono text-sm text-gray-300">{call.callerNumber}</TableCell>
+                          <TableCell className="text-gray-300">{call.duration}s</TableCell>
                           <TableCell className="max-w-xs">
                             {/* Display structured data clearly */}
                             <div className="space-y-1">
                               {call.structuredData && typeof call.structuredData === 'object' && Object.keys(call.structuredData).length > 0 ? (
                                 Object.entries(call.structuredData).map(([key, value]) => (
                                   <div key={key} className="text-sm">
-                                    <span className="font-medium vm-text-secondary">{key}:</span>{' '}
-                                    <span className="vm-text-primary">{String(value || '')}</span>
+                                    <span className="font-medium text-gray-400">{key}:</span>{' '}
+                                    <span className="text-white">{String(value || '')}</span>
                                   </div>
                                 ))
                               ) : (

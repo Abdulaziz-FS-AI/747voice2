@@ -182,18 +182,18 @@ export default function DashboardPage() {
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(255, 107, 53, 0.1)' }}>
-                  <Brain className="h-5 w-5" style={{ color: 'var(--vm-orange)' }} />
+                <div className="p-3 rounded-lg" style={{ backgroundColor: 'rgba(139, 92, 246, 0.2)' }}>
+                  <Brain className="h-5 w-5 text-purple-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium" style={{ color: 'var(--vm-text-muted)' }}>AI Assistants</p>
-                  <p className="text-2xl font-bold" style={{ color: 'var(--vm-text-primary)' }}>
+                  <p className="text-sm font-medium text-gray-400">AI Assistants</p>
+                  <p className="text-2xl font-bold text-white">
                     {loading ? <div className="w-8 h-6 bg-gray-700 rounded animate-pulse" /> : stats.totalAssistants}
                   </p>
                 </div>
               </div>
             </div>
-            <div className="text-xs" style={{ color: 'var(--vm-text-muted)' }}>
+            <div className="text-xs text-gray-500">
               Active voice agent networks
             </div>
           </motion.div>
@@ -209,22 +209,22 @@ export default function DashboardPage() {
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)' }}>
-                  <Phone className="h-5 w-5" style={{ color: 'var(--vm-emerald)' }} />
+                <div className="p-3 rounded-lg" style={{ backgroundColor: 'rgba(34, 197, 94, 0.2)' }}>
+                  <Phone className="h-5 w-5 text-green-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium" style={{ color: 'var(--vm-text-muted)' }}>Active Calls</p>
-                  <p className="text-2xl font-bold" style={{ color: 'var(--vm-text-primary)' }}>
+                  <p className="text-sm font-medium text-gray-400">Active Calls</p>
+                  <p className="text-2xl font-bold text-white">
                     {loading ? <div className="w-8 h-6 bg-gray-700 rounded animate-pulse" /> : stats.activeCalls}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: 'var(--vm-emerald)' }} />
-                <span className="text-xs font-medium" style={{ color: 'var(--vm-emerald)' }}>Live</span>
+                <div className="w-2 h-2 rounded-full animate-pulse bg-green-400" />
+                <span className="text-xs font-medium text-green-400">Live</span>
               </div>
             </div>
-            <div className="text-xs" style={{ color: 'var(--vm-text-muted)' }}>
+            <div className="text-xs text-gray-500">
               Real-time conversations
             </div>
           </motion.div>
@@ -240,18 +240,18 @@ export default function DashboardPage() {
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(0, 212, 255, 0.1)' }}>
-                  <Clock className="h-5 w-5" style={{ color: 'var(--vm-cyan)' }} />
+                <div className="p-3 rounded-lg" style={{ backgroundColor: 'rgba(245, 158, 11, 0.2)' }}>
+                  <Clock className="h-5 w-5 text-amber-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium" style={{ color: 'var(--vm-text-muted)' }}>Total Minutes</p>
-                  <p className="text-2xl font-bold" style={{ color: 'var(--vm-text-primary)' }}>
+                  <p className="text-sm font-medium text-gray-400">Total Minutes</p>
+                  <p className="text-2xl font-bold text-white">
                     {loading ? <div className="w-12 h-6 bg-gray-700 rounded animate-pulse" /> : stats.totalMinutes.toLocaleString()}
                   </p>
                 </div>
               </div>
             </div>
-            <div className="text-xs" style={{ color: 'var(--vm-text-muted)' }}>
+            <div className="text-xs text-gray-500">
               Voice processing time
             </div>
           </motion.div>
