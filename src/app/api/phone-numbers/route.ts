@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { authenticateRequest, requirePermission } from '@/lib/auth'
 import { handleAPIError } from '@/lib/errors'
 import { createServiceRoleClient } from '@/lib/supabase'
-import { PhoneNumberService } from '@/lib/services/phone-number.service'
+import { SimplePhoneService } from '@/lib/services/simple-phone.service'
 import type { Database } from '@/types/database'
 
 // Validation schemas - Twilio only
@@ -136,22 +136,27 @@ export async function POST(request: NextRequest) {
     
     const validatedData = createPhoneNumberSchema.parse(body)
     
-    // Use the PhoneNumberService instead of direct implementation
+    // Use the simplified PhoneNumberService
     step = 'creating phone number service'
-    console.log('Creating phone number service...')
-    const phoneNumberService = new PhoneNumberService()
+    console.log('Creating simplified phone number service...')
+    const phoneNumberService = new SimplePhoneService()
     
     step = 'calling phone number service'
-    console.log('🔥 [API ROUTE] Calling phoneNumberService.createPhoneNumber...')
+    console.log('🔥 [API ROUTE] Calling simplePhoneService.createPhoneNumber...')
     console.log('🔥 [API ROUTE] Service call parameters:', {
       userId: user.id,
-      validatedData: {
-        ...validatedData,
-        twilioAuthToken: '[REDACTED]'
-      }
+      phoneNumber: validatedData.phoneNumber,
+      assistantId: validatedData.assistantId
     })
     
-    const result = await phoneNumberService.createPhoneNumber(user.id, validatedData)
+    const result = await phoneNumberService.createPhoneNumber(
+      user.id,
+      validatedData.phoneNumber,
+      validatedData.friendlyName,
+      validatedData.twilioAccountSid,
+      validatedData.twilioAuthToken,
+      validatedData.assistantId
+    )
     console.log('🔥 [API ROUTE] ✅ Phone number created successfully:', result.id)
     
     return NextResponse.json({
