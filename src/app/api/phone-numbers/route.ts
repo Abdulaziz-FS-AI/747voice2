@@ -33,15 +33,10 @@ export async function GET(request: NextRequest) {
     const { user } = await authenticateRequest()
     const supabase = createServiceRoleClient()
 
+    // First get phone numbers
     const { data: phoneNumbers, error } = await supabase
       .from('user_phone_numbers')
-      .select(`
-        *,
-        user_assistants!assigned_assistant_id (
-          id,
-          name
-        )
-      `)
+      .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 
@@ -49,14 +44,27 @@ export async function GET(request: NextRequest) {
       throw error
     }
 
-    // Transform the data to flatten assistant info
-    const transformedData = phoneNumbers?.map(number => ({
-      ...number,
-      assistant: number.user_assistants ? {
-        id: number.user_assistants.id,
-        name: number.user_assistants.name
-      } : null
-    })) || []
+    // Manually fetch assistant data for each phone number
+    const transformedData = await Promise.all(
+      (phoneNumbers || []).map(async (number) => {
+        let assistant = null
+        
+        if (number.assigned_assistant_id) {
+          const { data: assistantData } = await supabase
+            .from('user_assistants')
+            .select('id, name')
+            .eq('id', number.assigned_assistant_id)
+            .single()
+          
+          assistant = assistantData
+        }
+        
+        return {
+          ...number,
+          user_assistants: assistant
+        }
+      })
+    )
 
     return NextResponse.json({
       success: true,
