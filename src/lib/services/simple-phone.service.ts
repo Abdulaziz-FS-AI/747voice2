@@ -29,7 +29,8 @@ export class SimplePhoneService {
     // Step 1: Get the assistant and verify ownership
     console.log('📞 [SIMPLE PHONE] Fetching assistant:', assistantId)
     
-    const { data: assistant, error: assistantError } = await supabase
+    // Try with assistant_state field first (new schema)
+    let { data: assistant, error: assistantError } = await supabase
       .from('user_assistants')
       .select('id, vapi_assistant_id, name, assistant_state')
       .eq('id', assistantId)
@@ -37,13 +38,28 @@ export class SimplePhoneService {
       .eq('assistant_state', 'active') // Only active assistants
       .single()
     
+    // If not found, try without assistant_state constraint (fallback for old data)
+    if (assistantError && assistantError.code === 'PGRST116') {
+      console.log('📞 [SIMPLE PHONE] Trying fallback query without assistant_state...')
+      const fallbackResult = await supabase
+        .from('user_assistants')
+        .select('id, vapi_assistant_id, name')
+        .eq('id', assistantId)
+        .eq('user_id', userId)
+        .single()
+      
+      assistant = fallbackResult.data
+      assistantError = fallbackResult.error
+    }
+    
     if (assistantError || !assistant) {
       console.error('📞 [SIMPLE PHONE] Assistant not found:', {
         assistantId,
         userId,
-        error: assistantError
+        error: assistantError,
+        errorCode: assistantError?.code
       })
-      throw new Error('Assistant not found or not active')
+      throw new Error('Assistant not found or not owned by user')
     }
     
     console.log('📞 [SIMPLE PHONE] Assistant found:', {

@@ -54,8 +54,25 @@ export async function GET(request: NextRequest) {
       .from('user_assistants')
       .select('*', { count: 'exact' });
 
-    // DEMO SYSTEM: Only return active assistants
-    query = query.eq('user_id', user.id).eq('assistant_state', 'active');
+    // DEMO SYSTEM: Only return assistants that are not deleted
+    query = query.eq('user_id', user.id)
+    
+    // First try with assistant_state, if that fails, fall back to checking deleted_at
+    const { data: testAssistants, error: testError } = await supabase
+      .from('user_assistants')
+      .select('assistant_state')
+      .eq('user_id', user.id)
+      .limit(1)
+    
+    if (testError || !testAssistants) {
+      // assistant_state field probably doesn't exist, use deleted_at instead
+      console.log('📋 [ASSISTANTS API] Using fallback query (no assistant_state field)')
+      query = query.is('deleted_at', null)
+    } else {
+      // assistant_state field exists, filter by it
+      console.log('📋 [ASSISTANTS API] Using assistant_state filter')
+      query = query.eq('assistant_state', 'active')
+    }
 
     if (search) {
       query = query.ilike('name', `%${search}%`);
