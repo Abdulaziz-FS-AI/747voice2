@@ -212,21 +212,35 @@ function SignInContent() {
               </Link>
             </div>
 
-            {/* Demo Mode Button */}
-            {process.env.NEXT_PUBLIC_DEMO_MODE === 'true' && (
-              <div className="pt-4 border-t" style={{ borderColor: 'var(--vm-border)' }}>
+            {/* Demo Mode - Prominent for troubleshooting */}
+            <div className="pt-4 border-t" style={{ borderColor: 'var(--vm-border)' }}>
+              <div className="space-y-3">
+                <div className="text-center">
+                  <p className="text-sm vm-text-muted mb-3">
+                    Having sign-in issues? Try our demo mode:
+                  </p>
+                </div>
                 <Link href="/demo-login">
-                  <button className="w-full px-4 py-2 rounded-xl border transition-all duration-300 hover:scale-105"
+                  <button className="w-full px-4 py-3 rounded-xl border-2 transition-all duration-300 hover:scale-105 font-semibold"
                           style={{
                             borderColor: 'var(--vm-accent)',
-                            background: 'rgba(139, 92, 246, 0.1)',
-                            color: 'var(--vm-accent)'
+                            background: 'rgba(139, 92, 246, 0.15)',
+                            color: 'var(--vm-accent)',
+                            boxShadow: '0 0 20px rgba(139, 92, 246, 0.2)'
                           }}>
-                    🚀 Enter Demo Mode (No Login Required)
+                    🚀 Enter Demo Mode (No Authentication Required)
                   </button>
                 </Link>
+                <div className="text-center">
+                  <button 
+                    onClick={() => window.open('/debug-auth.html', '_blank')}
+                    className="text-xs vm-text-muted hover:underline"
+                  >
+                    🔧 Debug authentication issues
+                  </button>
+                </div>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </div>

@@ -76,19 +76,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signInWithGoogle = async () => {
-    // Get plan selection from session storage
-    const selectedPlan = sessionStorage.getItem('voice-matrix-selected-plan')
+    console.log('🔄 [AUTH] Starting Google OAuth sign-in...')
     
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-        // Pass plan in query params since OAuth doesn't support custom user metadata
-        queryParams: selectedPlan ? { plan: selectedPlan } : undefined
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      })
+      
+      if (error) {
+        console.error('❌ [AUTH] Google OAuth error:', error)
+        throw error
       }
-    })
-    
-    if (error) {
+      
+      console.log('✅ [AUTH] Google OAuth initiated successfully')
+    } catch (error) {
+      console.error('❌ [AUTH] Failed to initiate Google OAuth:', error)
       throw error
     }
   }
