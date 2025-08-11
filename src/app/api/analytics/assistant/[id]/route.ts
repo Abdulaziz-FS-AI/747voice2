@@ -215,6 +215,13 @@ export async function GET(
     const totalCalls = allCalls.length
     const totalDuration = allCalls.reduce((sum, call) => sum + ((call.duration_minutes || 0) * 60), 0)
     const avgDuration = totalCalls > 0 ? totalDuration / totalCalls : 0
+    
+    // Calculate total cost (using configurable rate from environment)
+    const COST_PER_MINUTE = Number(process.env.VAPI_COST_PER_MINUTE) || 0.10
+    const totalCost = allCalls.reduce((sum, call) => {
+      const minutes = Number(call.duration_minutes) || 0
+      return sum + (minutes * COST_PER_MINUTE)
+    }, 0)
 
     // Calculate success rate using the 'evaluation' field from call_info_log
     const evaluatedCalls = allCalls.filter(call => call.evaluation !== null && call.evaluation !== undefined)
@@ -248,17 +255,23 @@ export async function GET(
     })
 
     // Format recent calls with truncated transcripts
-    const recentCalls = allCalls.slice(0, 50).map(call => ({
-      id: call.id,
-      callerNumber: call.caller_number || 'Unknown',
-      duration: (call.duration_minutes || 0) * 60, // Convert minutes back to seconds for display
-      startedAt: call.started_at,
-      transcript: call.transcript || '',
-      shortTranscript: truncateToSentence(call.transcript || ''),
-      structuredData: call.structured_data || {},
-      successEvaluation: call.evaluation, // Use 'evaluation' field from call_info_log
-      summary: call.summary || ''
-    }))
+    const recentCalls = allCalls.slice(0, 50).map(call => {
+      const durationMinutes = Number(call.duration_minutes) || 0
+      const cost = durationMinutes * COST_PER_MINUTE
+      
+      return {
+        id: call.id,
+        callerNumber: call.caller_number || 'Unknown',
+        duration: Math.round(durationMinutes * 60), // Convert minutes to seconds for display
+        cost: Math.round(cost * 100) / 100, // Round to 2 decimal places
+        startedAt: call.started_at,
+        transcript: call.transcript || '',
+        shortTranscript: truncateToSentence(call.transcript || ''),
+        structuredData: call.structured_data || {},
+        successEvaluation: call.evaluation, // Use 'evaluation' field from call_info_log
+        summary: call.summary || ''
+      }
+    })
 
     // Analyze success evaluation breakdown
     const successAnalysis = analyzeSuccessEvaluation(allCalls, evaluationRubric)
@@ -273,6 +286,7 @@ export async function GET(
         },
         metrics: {
           totalCalls,
+          totalCost: Math.round(totalCost * 100) / 100, // Round to 2 decimal places
           avgDuration: Math.round(avgDuration),
           successRate: Number(successRate.toFixed(1))
         },

@@ -383,7 +383,9 @@ export default function AssistantAnalyticsPage() {
                   <DollarSign className="h-4 w-4 vm-text-muted" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold vm-text-primary">${analytics.metrics.totalCost}</div>
+                  <div className="text-2xl font-bold vm-text-primary">
+                    ${(analytics.metrics.totalCost || 0).toFixed(2)}
+                  </div>
                   <p className="text-xs vm-text-muted">Voice AI expenses</p>
                 </CardContent>
               </Card>
@@ -522,7 +524,7 @@ export default function AssistantAnalyticsPage() {
                         <TableRow key={call.id}>
                           <TableCell className="font-mono text-sm">{call.callerNumber}</TableCell>
                           <TableCell>{call.duration}s</TableCell>
-                          <TableCell>${call.cost.toFixed(2)}</TableCell>
+                          <TableCell>${(call.cost || 0).toFixed(2)}</TableCell>
                           <TableCell className="max-w-xs">
                             <div>
                               <p className="text-sm">
