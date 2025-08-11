@@ -125,12 +125,30 @@ export class PhoneNumberService {
         userId: userId
       })
       
-      const { data: assistant, error: assistantError } = await supabase
+      // Try with assistant_state field first (new schema) - MATCH the assistants API logic
+      let { data: assistant, error: assistantError } = await supabase
         .from('user_assistants')
-        .select('id, vapi_assistant_id')
+        .select('id, vapi_assistant_id, assistant_state')
         .eq('id', request.assistantId)
         .eq('user_id', userId)
+        .eq('assistant_state', 'active')
         .single()
+      
+      // If not found, try without assistant_state constraint (fallback for old data)
+      if (assistantError && assistantError.code === 'PGRST116') {
+        console.log('🎯 [PHONE SERVICE] Assistant not found with active state, trying fallback query...')
+        const fallbackResult = await supabase
+          .from('user_assistants')
+          .select('id, vapi_assistant_id')
+          .eq('id', request.assistantId)
+          .eq('user_id', userId)
+          .is('deleted_at', null) // At least ensure it's not deleted
+          .single()
+        
+        assistant = fallbackResult.data
+        assistantError = fallbackResult.error
+        console.log('🎯 [PHONE SERVICE] Fallback query result:', { assistant, assistantError })
+      }
       
       console.log('🎯 [PHONE SERVICE] Assistant lookup result:', {
         correlationId,
