@@ -81,121 +81,6 @@ const MetricSkeleton = () => (
   </Card>
 )
 
-// Empty state for new users
-const EmptyAnalytics = ({ onGenerateSampleData }: { onGenerateSampleData?: () => void }) => (
-  <div className="space-y-8">
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="text-center py-8"
-    >
-      <div className="mx-auto w-24 h-24 rounded-full flex items-center justify-center mb-6" 
-           style={{ background: 'var(--vm-gradient-brand)' }}>
-        <BarChart3 className="h-12 w-12 text-white" />
-      </div>
-      <h3 className="text-2xl font-bold mb-4 vm-text-primary">Welcome to Analytics</h3>
-      <p className="text-lg vm-text-secondary mb-8 max-w-2xl mx-auto">
-        Start making calls with your voice agents to see detailed analytics, performance metrics, and insights.
-      </p>
-      <div className="flex flex-col sm:flex-row gap-4 justify-center">
-        <Button 
-          className="px-6 py-3"
-          style={{ background: 'var(--vm-gradient-brand)' }}
-          onClick={() => window.location.href = '/dashboard/assistants/new'}
-        >
-          <Zap className="mr-2 h-5 w-5" />
-          Create Your First Agent
-        </Button>
-        <Button 
-          variant="outline" 
-          className="px-6 py-3"
-          style={{ borderColor: 'var(--vm-orange-primary)', color: 'var(--vm-orange-primary)' }}
-          onClick={() => window.location.href = '/dashboard/assistants'}
-        >
-          <PlayCircle className="mr-2 h-5 w-5" />
-          View Existing Agents
-        </Button>
-        {process.env.NODE_ENV === 'development' && onGenerateSampleData && (
-          <Button 
-            variant="outline" 
-            className="px-6 py-3"
-            style={{ borderColor: 'var(--vm-violet)', color: 'var(--vm-violet)' }}
-            onClick={onGenerateSampleData}
-          >
-            <BarChart3 className="mr-2 h-5 w-5" />
-            Generate Sample Data
-          </Button>
-        )}
-      </div>
-    </motion.div>
-
-    {/* Sample Charts - Always visible even with no data */}
-    <div className="grid gap-6 md:grid-cols-2">
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-        <Card>
-          <CardHeader>
-            <CardTitle className="vm-text-primary">Weekly Call Volume</CardTitle>
-            <CardDescription className="vm-text-secondary">
-              Your call activity will appear here
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <SimpleBarChart
-              data={[
-                { label: 'Mon', value: 0 },
-                { label: 'Tue', value: 0 },
-                { label: 'Wed', value: 0 },
-                { label: 'Thu', value: 0 },
-                { label: 'Fri', value: 0 },
-                { label: 'Sat', value: 0 },
-                { label: 'Sun', value: 0 }
-              ]}
-              height={200}
-              showValues={false}
-            />
-            <p className="text-center mt-4 text-sm vm-text-muted">
-              No data yet - charts will populate when you start making calls
-            </p>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.3 }}
-      >
-        <Card>
-          <CardHeader>
-            <CardTitle className="vm-text-primary">Performance Metrics</CardTitle>
-            <CardDescription className="vm-text-secondary">
-              Success rate and quality indicators
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <SimpleBarChart
-              data={[
-                { label: 'Success', value: 0, color: 'var(--vm-emerald)' },
-                { label: 'Duration', value: 0, color: 'var(--vm-violet)' },
-                { label: 'Cost', value: 0, color: 'var(--vm-orange-primary)' },
-                { label: 'Quality', value: 0, color: 'var(--vm-gradient-brand)' }
-              ]}
-              height={200}
-              showValues={false}
-            />
-            <p className="text-center mt-4 text-sm vm-text-muted">
-              Metrics will be calculated from your actual call data
-            </p>
-          </CardContent>
-        </Card>
-      </motion.div>
-    </div>
-  </div>
-)
 
 // Error state for API failures
 const ErrorState = ({ onRetry }: { onRetry: () => void }) => (
@@ -289,7 +174,6 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [hasData, setHasData] = useState(false)
-  const [generatingData, setGeneratingData] = useState(false)
 
   // Always allow access to analytics page
   useEffect(() => {
@@ -372,8 +256,7 @@ export default function AnalyticsPage() {
             <h1 className="text-4xl font-bold tracking-tight vm-text-gradient">Analytics</h1>
             <p className="text-lg vm-text-secondary mt-2">
               {!user ? 'Sign in to view your voice agent analytics' :
-               hasData ? 'Performance insights across all your voice agents' :
-               'Deploy your first voice agent to start tracking analytics'}
+               'Performance insights across all your voice agents'}
             </p>
           </div>
           <div className="flex items-center gap-3">
