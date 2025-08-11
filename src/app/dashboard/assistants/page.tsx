@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
-import { Plus, Search, Edit, Trash2, MoreVertical, Power, PowerOff, Bot, Zap, Sparkles, RefreshCw } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, MoreVertical, Bot, Zap, Sparkles, RefreshCw } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -35,7 +35,7 @@ interface Assistant {
   template_id: string | null
   vapi_assistant_id: string
   config: any
-  is_active: boolean
+  assistant_state: 'active' | 'expired' | 'deleted'
   created_at: string
   updated_at: string
 }
@@ -50,7 +50,7 @@ export default function AssistantsPage() {
   const [filteredAssistants, setFilteredAssistants] = useState<Assistant[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'all' | 'enabled' | 'disabled'>('all')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active'>('all')
   
   // Modal states
   const [selectedAssistant, setSelectedAssistant] = useState<Assistant | null>(null)
@@ -128,44 +128,12 @@ export default function AssistantsPage() {
       )
     }
 
-    // Status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(assistant => 
-        statusFilter === 'enabled' ? assistant.is_active : !assistant.is_active
-      )
-    }
+    // Status filter - only show active assistants (demo system)
+    filtered = filtered.filter(assistant => assistant.assistant_state === 'active')
 
     setFilteredAssistants(filtered)
   }
 
-  const handleToggleStatus = async (assistant: Assistant) => {
-    try {
-      const response = await fetch(`/api/assistants/${assistant.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_active: !assistant.is_active })
-      })
-
-      if (response.ok) {
-        setAssistants(prev => 
-          prev.map(a => a.id === assistant.id ? { ...a, is_active: !assistant.is_active } : a)
-        )
-        toast({
-          title: 'Success',
-          description: `Assistant ${assistant.is_active ? 'disabled' : 'enabled'} successfully`
-        })
-      } else {
-        throw new Error('Failed to update assistant')
-      }
-    } catch (error) {
-      console.error('Failed to toggle assistant:', error)
-      toast({
-        title: 'Error',
-        description: 'Failed to update assistant status',
-        variant: 'destructive'
-      })
-    }
-  }
 
   const handleEdit = (assistant: Assistant) => {
     setSelectedAssistant(assistant)
@@ -240,11 +208,6 @@ export default function AssistantsPage() {
     }
   }
 
-  const getStatusBadge = (isActive: boolean) => (
-    <Badge variant={isActive ? 'default' : 'secondary'}>
-      {isActive ? 'Active' : 'Inactive'}
-    </Badge>
-  )
 
   return (
     <DashboardLayout>
@@ -398,9 +361,8 @@ export default function AssistantsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All AI Voice Agent States</SelectItem>
-                    <SelectItem value="enabled">Enabled Agents</SelectItem>
-                    <SelectItem value="disabled">Disabled Agents</SelectItem>
+                    <SelectItem value="all">All Active Agents</SelectItem>
+                    <SelectItem value="active">Active Agents Only</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -545,15 +507,15 @@ export default function AssistantsPage() {
                   
                   {/* AI Voice Agent Status Indicator */}
                   <div className="absolute top-3 right-3">
-                    <div className={`w-3 h-3 rounded-full ${assistant.is_active ? 'bg-emerald-400' : 'bg-gray-500'} animate-pulse`} />
+                    <div className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
                   </div>
                   
                   <CardHeader className="pb-4 relative">
                     <div className="flex justify-between items-start">
                       <div className="space-y-2 flex-1">
                         <div className="flex items-center gap-3">
-                          <div className="p-2.5 rounded-xl" style={{ background: assistant.is_active ? 'var(--vm-gradient-brand)' : 'var(--vm-surface-elevated)' }}>
-                            <Bot className="h-5 w-5" style={{ color: assistant.is_active ? 'white' : 'var(--vm-gray-400)' }} />
+                          <div className="p-2.5 rounded-xl" style={{ background: 'var(--vm-gradient-brand)' }}>
+                            <Bot className="h-5 w-5" style={{ color: 'white' }} />
                           </div>
                           <div>
                             <CardTitle className="text-lg font-bold" style={{ color: 'var(--vm-pure)' }}>
@@ -576,19 +538,6 @@ export default function AssistantsPage() {
                             <Edit className="mr-2 h-4 w-4 group-hover:text-blue-400" />
                             Modify Agent
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleToggleStatus(assistant)} className="group">
-                            {assistant.is_active ? (
-                              <>
-                                <PowerOff className="mr-2 h-4 w-4 group-hover:text-orange-400" />
-                                Disable
-                              </>
-                            ) : (
-                              <>
-                                <Power className="mr-2 h-4 w-4 group-hover:text-emerald-400" />
-                                Enable
-                              </>
-                            )}
-                          </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem 
                             onClick={() => handleDelete(assistant)}
@@ -602,10 +551,10 @@ export default function AssistantsPage() {
                     </div>
                     <div className="flex items-center gap-2 mt-3">
                       <Badge 
-                        variant={assistant.is_active ? 'default' : 'secondary'}
-                        className={assistant.is_active ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-gray-500/20 text-gray-400 border-gray-500/30'}
+                        variant="default"
+                        className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
                       >
-                        {assistant.is_active ? 'Enabled' : 'Disabled'}
+                        Active
                       </Badge>
                       <Badge 
                         variant="outline" 
@@ -647,14 +596,14 @@ export default function AssistantsPage() {
                     <div className="mt-4 pt-4 border-t" style={{ borderColor: 'var(--vm-border-subtle)' }}>
                       <div className="flex items-center justify-between text-xs mb-2">
                         <span style={{ color: 'var(--vm-gray-400)' }}>AI Voice Agent Activity</span>
-                        <span style={{ color: 'var(--vm-orange-primary)' }}>{assistant.is_active ? '98%' : '0%'}</span>
+                        <span style={{ color: 'var(--vm-orange-primary)' }}>Active</span>
                       </div>
                       <div className="w-full bg-gray-700 rounded-full h-1.5">
                         <div 
                           className="h-1.5 rounded-full transition-all duration-1000" 
                           style={{ 
-                            width: assistant.is_active ? '98%' : '0%',
-                            background: assistant.is_active ? 'var(--vm-gradient-brand)' : 'var(--vm-gray-600)'
+                            width: '98%',
+                            background: 'var(--vm-gradient-brand)'
                           }}
                         />
                       </div>
