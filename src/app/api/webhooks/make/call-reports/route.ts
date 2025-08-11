@@ -22,8 +22,7 @@ interface MakeCallReportPayload {
   structured_data?: Record<string, any> // JSONB structured data
   success_evaluation?: string   // Success evaluation text
   summary?: string             // Call summary text
-  cost: number                 // Cost (dollars or cents)
-  status?: string              // Call status (completed, failed, etc.)
+  status?: string | number | boolean // Call status - any data type (will be stored as evaluation)
 }
 
 const logger = LoggerService.getInstance()
@@ -95,23 +94,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Convert status to evaluation
-    const mapStatusToEvaluation = (status?: string): 'excellent' | 'good' | 'average' | 'poor' | 'pending' | 'failed' => {
-      if (!status) return 'pending'
-      switch (status.toLowerCase()) {
-        case 'completed':
-        case 'success':
-          return 'good'
-        case 'failed':
-        case 'error':
-          return 'failed'
-        case 'timeout':
-        case 'no_answer':
-          return 'poor'
-        default:
-          return 'pending'
-      }
-    }
+    // Pass evaluation directly without mapping - column accepts any data type
+    const evaluation = payload.status ?? null
+    console.log('🔥 [MAKE WEBHOOK] Evaluation data:', {
+      correlationId,
+      originalStatus: payload.status,
+      statusType: typeof payload.status,
+      evaluationValue: evaluation
+    })
 
     // Insert call log using NEW SCHEMA (no user_id, duration_minutes, evaluation)
     const { data: callLog, error: insertError } = await supabase
@@ -120,14 +110,14 @@ export async function POST(request: NextRequest) {
         assistant_id: assistant.id,  // No user_id - use assistant_id relationship
         vapi_call_id: payload.id,
         duration_minutes: Math.ceil(payload.duration_seconds / 60), // Convert seconds to minutes
-        evaluation: mapStatusToEvaluation(payload.status), // Map status to evaluation
+        evaluation: evaluation, // Pass through any data type
         caller_number: payload.caller_number,
         started_at: payload.started_at,
         ended_at: payload.ended_at || new Date().toISOString(),
         transcript: payload.transcript,
         structured_data: payload.structured_data || {},
         summary: payload.summary
-        // Note: cost field removed - not in current call_logs schema
+        // Note: cost field removed - not in current schema
       })
       .select()
       .single()

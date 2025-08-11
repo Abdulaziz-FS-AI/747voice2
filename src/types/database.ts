@@ -232,7 +232,7 @@ export interface Database {
           assistant_id: string
           vapi_call_id: string | null
           duration_minutes: number
-          evaluation: 'excellent' | 'good' | 'average' | 'poor' | 'pending' | 'failed'
+          evaluation: string | number | boolean | null
           caller_number: string | null
           transcript: string | null
           summary: string | null
@@ -246,7 +246,7 @@ export interface Database {
           assistant_id: string
           vapi_call_id?: string | null
           duration_minutes?: number
-          evaluation?: 'excellent' | 'good' | 'average' | 'poor' | 'pending' | 'failed'
+          evaluation?: string | number | boolean | null
           caller_number?: string | null
           transcript?: string | null
           summary?: string | null
@@ -260,7 +260,7 @@ export interface Database {
           assistant_id?: string
           vapi_call_id?: string | null
           duration_minutes?: number
-          evaluation?: 'excellent' | 'good' | 'average' | 'poor' | 'pending' | 'failed'
+          evaluation?: string | number | boolean | null
           caller_number?: string | null
           transcript?: string | null
           summary?: string | null
