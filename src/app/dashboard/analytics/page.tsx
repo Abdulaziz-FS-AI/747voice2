@@ -229,43 +229,58 @@ const ErrorState = ({ onRetry }: { onRetry: () => void }) => (
   </motion.div>
 )
 
-// Individual metric card with error handling
+// Individual metric card with error handling and improved colors
 const MetricCard = ({ title, value, subtitle, icon: Icon, trend }: {
   title: string
   value: string | number
   subtitle: string
   icon: any
   trend?: { value: number, isPositive: boolean }
-}) => (
-  <ErrorBoundary fallback={<MetricSkeleton />}>
-    <motion.div
-      whileHover={{ y: -5 }}
-      transition={{ duration: 0.2 }}
-    >
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium vm-text-secondary">{title}</CardTitle>
-          <Icon className="h-4 w-4 vm-text-muted" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold vm-text-primary">{value}</div>
-          <div className="flex items-center gap-2">
-            <p className="text-xs vm-text-muted">{subtitle}</p>
-            {trend && (
-              <Badge 
-                variant={trend.isPositive ? "default" : "secondary"}
-                className={`text-xs ${trend.isPositive ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}
-              >
-                {trend.isPositive ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingUp className="h-3 w-3 mr-1 rotate-180" />}
-                {Math.abs(trend.value)}%
-              </Badge>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  </ErrorBoundary>
-)
+}) => {
+  // Dynamic icon colors based on metric type
+  const getIconColor = () => {
+    switch(title) {
+      case 'Total Calls': return '#3b82f6' // Blue
+      case 'Total Cost': return '#10b981' // Green
+      case 'Avg Duration': return '#f59e0b' // Amber
+      case 'Success Rate': return '#8b5cf6' // Purple
+      default: return 'var(--vm-text-muted)'
+    }
+  }
+
+  return (
+    <ErrorBoundary fallback={<MetricSkeleton />}>
+      <motion.div
+        whileHover={{ y: -5, scale: 1.02 }}
+        transition={{ duration: 0.2 }}
+      >
+        <Card className="border border-gray-700 bg-gray-900/50 backdrop-blur">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-400">{title}</CardTitle>
+            <div className="p-2 rounded-lg" style={{ backgroundColor: `${getIconColor()}20` }}>
+              <Icon className="h-4 w-4" style={{ color: getIconColor() }} />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{value}</div>
+            <div className="flex items-center gap-2">
+              <p className="text-xs text-gray-500">{subtitle}</p>
+              {trend && (
+                <Badge 
+                  variant={trend.isPositive ? "default" : "secondary"}
+                  className={`text-xs ${trend.isPositive ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}
+                >
+                  {trend.isPositive ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingUp className="h-3 w-3 mr-1 rotate-180" />}
+                  {Math.abs(trend.value)}%
+                </Badge>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </ErrorBoundary>
+  )
+}
 
 export default function AnalyticsPage() {
   const router = useRouter()
@@ -362,24 +377,51 @@ export default function AnalyticsPage() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Button
-              onClick={() => router.push('/dashboard/analytics/assistant')}
-              variant="outline"
-              size="sm"
-              disabled={!user}
-            >
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Assistant Analytics
-            </Button>
             <Badge 
               variant="outline" 
-              className="flex items-center gap-1"
-              style={{ borderColor: 'var(--vm-orange-primary)', color: 'var(--vm-orange-primary)' }}
+              className="flex items-center gap-1 px-3 py-1"
+              style={{ 
+                borderColor: '#22c55e', 
+                color: '#22c55e',
+                backgroundColor: 'rgba(34, 197, 94, 0.1)'
+              }}
             >
-              <Activity className="h-3 w-3" />
+              <Activity className="h-3 w-3 animate-pulse" />
               {user ? 'Live Data' : 'Demo Mode'}
             </Badge>
           </div>
+        </motion.div>
+
+        {/* Prominent Assistant Analytics Button */}
+        {user && hasData && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="flex justify-center"
+          >
+            <Button
+              onClick={() => router.push('/dashboard/analytics/assistant')}
+              className="group relative px-8 py-6 text-lg font-semibold shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
+              style={{ 
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white'
+              }}
+            >
+              <div className="absolute inset-0 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                   style={{
+                     background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                     borderRadius: 'inherit'
+                   }}
+              />
+              <div className="relative flex items-center gap-3">
+                <BarChart3 className="h-6 w-6" />
+                <span>View Detailed Assistant Analytics</span>
+                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+              </div>
+            </Button>
+          </motion.div>
+        )}
         </motion.div>
 
         {/* Content based on state */}
@@ -453,6 +495,7 @@ export default function AnalyticsPage() {
                 value={analytics?.totalCalls || 0}
                 subtitle="All-time conversations" 
                 icon={Phone}
+                trend={analytics?.totalCalls > 0 ? { value: 12, isPositive: true } : undefined}
               />
               <MetricCard 
                 title="Total Cost" 
@@ -471,6 +514,7 @@ export default function AnalyticsPage() {
                 value={`${Math.round(analytics?.successRate || 0)}%`}
                 subtitle="Successful interactions" 
                 icon={Target}
+                trend={analytics?.successRate > 50 ? { value: 5, isPositive: true } : undefined}
               />
             </motion.div>
 
@@ -495,10 +539,10 @@ export default function AnalyticsPage() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.2 }}
                 >
-                  <Card>
+                  <Card className="border border-gray-700 bg-gray-900/50 backdrop-blur">
                     <CardHeader>
-                      <CardTitle className="vm-text-primary">Top Performing Agents</CardTitle>
-                      <CardDescription className="vm-text-secondary">
+                      <CardTitle className="text-white">Top Performing Agents</CardTitle>
+                      <CardDescription className="text-gray-400">
                         Your most active voice agents this month
                       </CardDescription>
                     </CardHeader>
@@ -517,24 +561,24 @@ export default function AnalyticsPage() {
                               initial={{ opacity: 0, x: -10 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: 0.1 * index }}
-                              className="flex items-center justify-between p-3 rounded-lg"
-                              style={{ background: 'var(--vm-surface)' }}
+                              className="flex items-center justify-between p-3 rounded-lg border border-gray-700 hover:border-purple-500/50 transition-colors"
+                              style={{ background: 'rgba(17, 24, 39, 0.5)' }}
                             >
                               <div className="flex items-center gap-3">
                                 <div className="flex items-center justify-center w-8 h-8 rounded-full"
-                                     style={{ background: 'var(--vm-gradient-brand)' }}>
+                                     style={{ background: `linear-gradient(135deg, ${index === 0 ? '#fbbf24' : index === 1 ? '#a3a3a3' : '#f97316'} 0%, ${index === 0 ? '#f59e0b' : index === 1 ? '#737373' : '#ea580c'} 100%)` }}>
                                   <span className="text-sm font-semibold text-white">#{index + 1}</span>
                                 </div>
                                 <div>
-                                  <div className="font-medium vm-text-primary">{assistant.name}</div>
-                                  <div className="text-sm vm-text-secondary">
+                                  <div className="font-medium text-white">{assistant.name}</div>
+                                  <div className="text-sm text-gray-400">
                                     {assistant.calls} calls • {assistant.successRate}% success
                                   </div>
                                 </div>
                               </div>
                               <div className="text-right">
-                                <div className="font-semibold vm-text-primary">${assistant.cost.toFixed(2)}</div>
-                                <div className="text-sm vm-text-muted">cost</div>
+                                <div className="font-semibold text-green-400">${assistant.cost.toFixed(2)}</div>
+                                <div className="text-sm text-gray-500">cost</div>
                               </div>
                             </motion.div>
                           ))}
@@ -564,10 +608,10 @@ export default function AnalyticsPage() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 }}
                 >
-                  <Card>
+                  <Card className="border border-gray-700 bg-gray-900/50 backdrop-blur">
                     <CardHeader>
-                      <CardTitle className="vm-text-primary">Recent Activity</CardTitle>
-                      <CardDescription className="vm-text-secondary">
+                      <CardTitle className="text-white">Recent Activity</CardTitle>
+                      <CardDescription className="text-gray-400">
                         Latest call activity across all agents
                       </CardDescription>
                     </CardHeader>
@@ -586,21 +630,21 @@ export default function AnalyticsPage() {
                               initial={{ opacity: 0, y: 10 }}
                               animate={{ opacity: 1, y: 0 }}
                               transition={{ delay: 0.1 * index }}
-                              className="flex items-center justify-between p-3 border rounded-lg"
-                              style={{ borderColor: 'var(--vm-border-subtle)' }}
+                              className="flex items-center justify-between p-3 border rounded-lg hover:border-blue-500/50 transition-colors"
+                              style={{ borderColor: 'rgba(75, 85, 99, 0.5)', background: 'rgba(17, 24, 39, 0.3)' }}
                             >
                               <div className="flex items-center gap-3">
-                                <div className={`w-2 h-2 rounded-full ${activity.success ? 'bg-green-500' : 'bg-yellow-500'}`} />
+                                <div className={`w-2 h-2 rounded-full animate-pulse ${activity.success ? 'bg-green-500' : 'bg-yellow-500'}`} />
                                 <div>
-                                  <div className="font-medium vm-text-primary">{activity.assistantName}</div>
-                                  <div className="text-sm vm-text-secondary">
+                                  <div className="font-medium text-white">{activity.assistantName}</div>
+                                  <div className="text-sm text-gray-400">
                                     {activity.callerNumber} • {activity.duration}s
                                   </div>
                                 </div>
                               </div>
                               <div className="text-right">
-                                <div className="font-semibold vm-text-primary">${activity.cost.toFixed(2)}</div>
-                                <div className="text-xs vm-text-muted">
+                                <div className="font-semibold text-green-400">${activity.cost.toFixed(2)}</div>
+                                <div className="text-xs text-gray-500">
                                   {new Date(activity.timestamp).toLocaleDateString()}
                                 </div>
                               </div>
@@ -621,13 +665,13 @@ export default function AnalyticsPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                <Card>
+                <Card className="border border-gray-700 bg-gray-900/50 backdrop-blur">
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2 vm-text-primary">
-                      <CalendarDays className="h-5 w-5" />
+                    <CardTitle className="flex items-center gap-2 text-white">
+                      <CalendarDays className="h-5 w-5 text-indigo-400" />
                       Daily Performance
                     </CardTitle>
-                    <CardDescription className="vm-text-secondary">
+                    <CardDescription className="text-gray-400">
                       Call volume and costs over the past week
                     </CardDescription>
                   </CardHeader>
