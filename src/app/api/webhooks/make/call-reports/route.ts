@@ -14,14 +14,16 @@ interface MakeCallReportPayload {
   // Exact structure as received from Make.com
   id: string                    // VAPI call ID (UUID)
   assistant_id: string          // VAPI assistant ID (UUID)
-  duration_seconds: number      // Call duration in seconds
+  duration_seconds: number      // Call duration in seconds (will convert to minutes)
   caller_number?: string        // Caller's phone number
   started_at: string           // Start timestamp (ISO format)
+  ended_at?: string            // End timestamp (ISO format)
   transcript?: string          // Call transcript
   structured_data?: Record<string, any> // JSONB structured data
   success_evaluation?: string   // Success evaluation text
   summary?: string             // Call summary text
-  cost: number                 // Cost (integer, cents or dollars)
+  cost: number                 // Cost (dollars or cents)
+  status?: string              // Call status (completed, failed, etc.)
 }
 
 const logger = LoggerService.getInstance()
@@ -52,7 +54,8 @@ export async function POST(request: NextRequest) {
       correlationId,
       vapiCallId: payload.id,
       assistantId: payload.assistant_id,
-      duration: payload.duration_seconds
+      duration: payload.duration_seconds,
+      status: payload.status
     })
 
     // Create Supabase client
@@ -79,35 +82,39 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Find phone number if provided
-    let phoneNumberId = null
-    if (payload.caller_number) {
-      const { data: phoneNumber } = await supabase
-        .from('user_phone_numbers')
-        .select('id')
-        .eq('phone_number', payload.caller_number)
-        .eq('user_id', assistant.user_id)
-        .single()
-      
-      phoneNumberId = phoneNumber?.id || null
+    // Convert status to evaluation
+    const mapStatusToEvaluation = (status?: string): 'excellent' | 'good' | 'average' | 'poor' | 'pending' | 'failed' => {
+      if (!status) return 'pending'
+      switch (status.toLowerCase()) {
+        case 'completed':
+        case 'success':
+          return 'good'
+        case 'failed':
+        case 'error':
+          return 'failed'
+        case 'timeout':
+        case 'no_answer':
+          return 'poor'
+        default:
+          return 'pending'
+      }
     }
 
-    // Insert call log
+    // Insert call log using NEW SCHEMA (no user_id, duration_minutes, evaluation)
     const { data: callLog, error: insertError } = await supabase
       .from('call_logs')
       .insert({
-        user_id: assistant.user_id,
-        assistant_id: assistant.id,
-        phone_number_id: phoneNumberId,
+        assistant_id: assistant.id,  // No user_id - use assistant_id relationship
         vapi_call_id: payload.id,
-        duration_seconds: payload.duration_seconds,
-        cost_cents: Math.round(payload.cost * 100), // Convert to cents if needed
+        duration_minutes: Math.ceil(payload.duration_seconds / 60), // Convert seconds to minutes
+        evaluation: mapStatusToEvaluation(payload.status), // Map status to evaluation
         caller_number: payload.caller_number,
         started_at: payload.started_at,
+        ended_at: payload.ended_at || new Date().toISOString(),
         transcript: payload.transcript,
         structured_data: payload.structured_data || {},
-        success_evaluation: payload.success_evaluation,
         summary: payload.summary
+        // Note: cost field removed - not in current call_logs schema
       })
       .select()
       .single()
@@ -132,7 +139,7 @@ export async function POST(request: NextRequest) {
       userId: assistant.user_id
     })
 
-    // The trigger function will automatically update call_analytics
+    // The trigger function will automatically update user usage and call_analytics
     return NextResponse.json({
       success: true,
       call_log_id: callLog.id,
