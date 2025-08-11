@@ -146,7 +146,6 @@ async function handleCallEnd(supabase: Awaited<Awaited<ReturnType<typeof createS
         ended_at: call.endedAt ? new Date(call.endedAt).toISOString() : new Date().toISOString(),
         duration_minutes: call.endedAt && call.startedAt ? 
           Math.ceil((new Date(call.endedAt).getTime() - new Date(call.startedAt).getTime()) / (1000 * 60)) : 0,
-        cost: call.cost || 0,
         updated_at: new Date().toISOString(),
       })
       .eq('id', existingCall.id)
@@ -186,7 +185,6 @@ async function handleCallEnd(supabase: Awaited<Awaited<ReturnType<typeof createS
 
   // Track business metrics for call completion
   const duration = (callRecord.duration_minutes || 0) * 60 // Convert minutes to seconds for metrics
-  const cost = callRecord.cost || 0
   
   // Get user ID from assistant for metrics
   const { data: assistantData } = await supabase
@@ -196,7 +194,7 @@ async function handleCallEnd(supabase: Awaited<Awaited<ReturnType<typeof createS
     .single()
   
   if (assistantData?.user_id) {
-    BusinessMetrics.trackCallCompleted(assistantData.user_id, assistant.id, duration, cost)
+    BusinessMetrics.trackCallCompleted(assistantData.user_id, assistant.id, duration, 0)
   }
 
   // Process lead information if available

@@ -421,7 +421,7 @@ export interface Database {
 // Helper types for demo system
 export type Profile = Database['public']['Tables']['profiles']['Row']
 export type Assistant = Database['public']['Tables']['user_assistants']['Row']
-export type CallLog = Database['public']['Tables']['call_logs']['Row']
+export type CallLog = Database['public']['Tables']['call_info_log']['Row']
 export type StructuredQuestion = Database['public']['Tables']['structured_questions']['Row']
 export type Template = Database['public']['Tables']['templates']['Row']
 export type PhoneNumber = Database['public']['Tables']['user_phone_numbers']['Row']

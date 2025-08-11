@@ -143,7 +143,6 @@ export async function GET(
 
     // Calculate basic metrics
     const totalCalls = allCalls.length
-    const totalCost = allCalls.reduce((sum, call) => sum + (parseFloat(call.cost) || 0), 0)
     const totalDuration = allCalls.reduce((sum, call) => sum + ((call.duration_minutes || 0) * 60), 0)
     const avgDuration = totalCalls > 0 ? totalDuration / totalCalls : 0
 
@@ -197,7 +196,6 @@ export async function GET(
       id: call.id,
       callerNumber: call.caller_number || 'Unknown',
       duration: (call.duration_minutes || 0) * 60, // Convert minutes back to seconds for display
-      cost: parseFloat(call.cost) || 0,
       startedAt: call.started_at,
       transcript: call.transcript || '',
       shortTranscript: truncateToSentence(call.transcript || ''),
@@ -219,7 +217,6 @@ export async function GET(
         },
         metrics: {
           totalCalls,
-          totalCost: Number(totalCost.toFixed(2)),
           avgDuration: Math.round(avgDuration),
           successRate: Number(successRate.toFixed(1))
         },
