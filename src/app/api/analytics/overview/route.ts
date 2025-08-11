@@ -218,14 +218,16 @@ export async function GET(request: NextRequest) {
     // Calculate overall statistics with validation
     const totalCalls = allCalls.length
     
+    // Calculate cost based on seconds (convert to minutes for pricing)
     const totalCost = allCalls.reduce((sum, call) => {
-      return sum + calculateCost(call.duration_minutes)
+      const seconds = Number(call.duration_seconds) || 0
+      const minutes = seconds / 60
+      return sum + calculateCost(minutes)
     }, 0)
     
-    // Calculate total duration in seconds
+    // Total duration already in seconds
     const totalDuration = allCalls.reduce((sum, call) => {
-      const minutes = validateDuration(call.duration_minutes)
-      return sum + (minutes * 60)
+      return sum + (Number(call.duration_seconds) || 0)
     }, 0)
     
     const avgDuration = totalCalls > 0 ? totalDuration / totalCalls : 0
@@ -243,7 +245,9 @@ export async function GET(request: NextRequest) {
       )
       
       const assistantCost = assistantCalls.reduce((sum, call) => {
-        return sum + calculateCost(call.duration_minutes)
+        const seconds = Number(call.duration_seconds) || 0
+        const minutes = seconds / 60
+        return sum + calculateCost(minutes)
       }, 0)
       
       const assistantSuccessful = assistantCalls.filter(call => 
@@ -272,15 +276,16 @@ export async function GET(request: NextRequest) {
                        vapiAssistantLookup.get(call.assistant_id)
       
       const success = evaluateCallSuccess(call.evaluation)
-      const duration = validateDuration(call.duration_minutes)
+      const durationSeconds = Number(call.duration_seconds) || 0
+      const durationMinutes = durationSeconds / 60
 
       return {
         id: call.id,
         assistantName: assistant?.name || 'Unknown Assistant',
         callerNumber: call.caller_number || 'Unknown',
-        duration: Math.round(duration * 60), // Convert to seconds for UI (rounded for display)
-        durationMinutes: duration, // Keep exact minutes too
-        cost: calculateCost(duration),
+        duration: Math.round(durationSeconds), // Already in seconds
+        durationMinutes: durationMinutes, // Keep minutes for cost calculation
+        cost: calculateCost(durationMinutes),
         success,
         timestamp: call.started_at || call.created_at
       }
@@ -301,11 +306,13 @@ export async function GET(request: NextRequest) {
       })
       
       const dayCost = dayCalls.reduce((sum, call) => {
-        return sum + calculateCost(call.duration_minutes)
+        const seconds = Number(call.duration_seconds) || 0
+        const minutes = seconds / 60
+        return sum + calculateCost(minutes)
       }, 0)
       
       const dayDuration = dayCalls.reduce((sum, call) => {
-        return sum + (validateDuration(call.duration_minutes) * 60)
+        return sum + (Number(call.duration_seconds) || 0)
       }, 0)
       
       const dayAvgDuration = dayCalls.length > 0 ? dayDuration / dayCalls.length : 0

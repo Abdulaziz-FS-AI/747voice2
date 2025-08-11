@@ -213,13 +213,14 @@ export async function GET(
 
     // Calculate basic metrics
     const totalCalls = allCalls.length
-    const totalDuration = allCalls.reduce((sum, call) => sum + ((call.duration_minutes || 0) * 60), 0)
+    const totalDuration = allCalls.reduce((sum, call) => sum + (Number(call.duration_seconds) || 0), 0)
     const avgDuration = totalCalls > 0 ? totalDuration / totalCalls : 0
     
     // Calculate total cost (using configurable rate from environment)
     const COST_PER_MINUTE = Number(process.env.VAPI_COST_PER_MINUTE) || 0.10
     const totalCost = allCalls.reduce((sum, call) => {
-      const minutes = Number(call.duration_minutes) || 0
+      const seconds = Number(call.duration_seconds) || 0
+      const minutes = seconds / 60
       return sum + (minutes * COST_PER_MINUTE)
     }, 0)
 
@@ -294,7 +295,8 @@ export async function GET(
 
     // Format recent calls with properly parsed structured data
     const recentCalls = allCalls.slice(0, 50).map(call => {
-      const durationMinutes = Number(call.duration_minutes) || 0
+      const durationSeconds = Number(call.duration_seconds) || 0
+      const durationMinutes = durationSeconds / 60
       const cost = durationMinutes * COST_PER_MINUTE
       
       // Parse structured_data if it's a string
@@ -315,7 +317,7 @@ export async function GET(
       return {
         id: call.id,
         callerNumber: call.caller_number || 'Unknown',
-        duration: Math.round(durationMinutes * 60), // Convert minutes to seconds for display
+        duration: Math.round(durationSeconds), // Already in seconds
         cost: Math.round(cost * 100) / 100, // Round to 2 decimal places
         startedAt: call.started_at,
         transcript: call.transcript || '',
