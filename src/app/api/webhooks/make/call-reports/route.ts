@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
     const insertData = {
       assistant_id: assistant.id,  // Should be internal DB ID, not VAPI ID
       vapi_call_id: payload.id,
-      duration_minutes: Math.ceil(payload.duration_seconds / 60),
+      duration_minutes: payload.duration_seconds / 60,  // Keep exact decimal value
       evaluation: evaluation,
       caller_number: payload.caller_number,
       started_at: payload.started_at,

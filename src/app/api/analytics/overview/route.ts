@@ -18,7 +18,8 @@ function validateDuration(duration: any): number {
     console.warn('Unusually long duration:', minutes, 'minutes - capping at 1440')
     return 1440
   }
-  return minutes
+  // Return with precision for decimal minutes
+  return Math.round(minutes * 10000) / 10000 // Keep 4 decimal places
 }
 
 // Helper function to properly evaluate call success
@@ -277,7 +278,8 @@ export async function GET(request: NextRequest) {
         id: call.id,
         assistantName: assistant?.name || 'Unknown Assistant',
         callerNumber: call.caller_number || 'Unknown',
-        duration: duration * 60, // Convert to seconds for UI
+        duration: Math.round(duration * 60), // Convert to seconds for UI (rounded for display)
+        durationMinutes: duration, // Keep exact minutes too
         cost: calculateCost(duration),
         success,
         timestamp: call.started_at || call.created_at
