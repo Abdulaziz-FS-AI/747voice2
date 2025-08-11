@@ -80,16 +80,39 @@ export async function POST(request: NextRequest) {
       .eq('vapi_assistant_id', payload.assistant_id)
       .single()
 
+    // DEBUG: Log assistant lookup details
+    console.log('🔥 [MAKE WEBHOOK] Assistant lookup:', {
+      correlationId,
+      searchingForVapiId: payload.assistant_id,
+      assistantFound: !!assistant,
+      assistantData: assistant,
+      lookupError: assistantError?.message
+    })
+
     if (assistantError || !assistant) {
+      // Additional debug: check if assistant exists with different ID format
+      const { data: allAssistants } = await supabase
+        .from('user_assistants')
+        .select('id, user_id, vapi_assistant_id, name')
+        .limit(5)
+      
       logger.error('Assistant not found for call report', {
         correlationId,
         vapiCallId: payload.id,
         assistantId: payload.assistant_id,
-        error: assistantError?.message
+        error: assistantError?.message,
+        availableAssistants: allAssistants?.map(a => ({
+          id: a.id, 
+          vapi_id: a.vapi_assistant_id, 
+          name: a.name
+        }))
       })
       
       return NextResponse.json(
-        { error: 'Assistant not found' },
+        { error: 'Assistant not found', debug: { 
+          searchedVapiId: payload.assistant_id,
+          availableAssistants: allAssistants?.map(a => a.vapi_assistant_id)
+        }},
         { status: 404 }
       )
     }
@@ -103,22 +126,35 @@ export async function POST(request: NextRequest) {
       evaluationValue: evaluation
     })
 
+    // DEBUG: Log what we're about to insert
+    const insertData = {
+      assistant_id: assistant.id,  // Should be internal DB ID, not VAPI ID
+      vapi_call_id: payload.id,
+      duration_minutes: Math.ceil(payload.duration_seconds / 60),
+      evaluation: evaluation,
+      caller_number: payload.caller_number,
+      started_at: payload.started_at,
+      ended_at: payload.ended_at || new Date().toISOString(),
+      transcript: payload.transcript,
+      structured_data: payload.structured_data || {},
+      summary: payload.summary
+    }
+
+    console.log('🔥 [MAKE WEBHOOK] About to insert:', {
+      correlationId,
+      insertData: {
+        assistant_id: insertData.assistant_id,
+        assistant_id_type: typeof insertData.assistant_id,
+        vapi_assistant_id: assistant.vapi_assistant_id,
+        internal_db_id: assistant.id,
+        are_they_equal: insertData.assistant_id === assistant.id
+      }
+    })
+
     // Insert call log using NEW SCHEMA (no user_id, duration_minutes, evaluation)
     const { data: callLog, error: insertError } = await supabase
       .from('call_info_log')
-      .insert({
-        assistant_id: assistant.id,  // No user_id - use assistant_id relationship
-        vapi_call_id: payload.id,
-        duration_minutes: Math.ceil(payload.duration_seconds / 60), // Convert seconds to minutes
-        evaluation: evaluation, // Pass through any data type
-        caller_number: payload.caller_number,
-        started_at: payload.started_at,
-        ended_at: payload.ended_at || new Date().toISOString(),
-        transcript: payload.transcript,
-        structured_data: payload.structured_data || {},
-        summary: payload.summary
-        // Note: cost field removed - not in current schema
-      })
+      .insert(insertData)
       .select()
       .single()
 

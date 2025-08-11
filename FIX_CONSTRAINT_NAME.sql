@@ -10,7 +10,14 @@ ALTER TABLE public.call_info_log DROP CONSTRAINT IF EXISTS call_logs_evaluation_
 -- Drop the constraint with new table name if it exists  
 ALTER TABLE public.call_info_log DROP CONSTRAINT IF EXISTS call_info_log_evaluation_check;
 
--- STEP 3: Change evaluation column to TEXT to accept any data type
+-- STEP 3: Fix foreign key constraint name (still using old table name)
+ALTER TABLE public.call_info_log DROP CONSTRAINT IF EXISTS call_logs_assistant_id_fkey;
+
+-- Recreate foreign key with correct name
+ALTER TABLE public.call_info_log ADD CONSTRAINT call_info_log_assistant_id_fkey 
+FOREIGN KEY (assistant_id) REFERENCES public.user_assistants(id) ON DELETE CASCADE;
+
+-- STEP 4: Change evaluation column to TEXT to accept any data type
 ALTER TABLE public.call_info_log ALTER COLUMN evaluation TYPE TEXT;
 
 -- Remove any NOT NULL constraint if present
