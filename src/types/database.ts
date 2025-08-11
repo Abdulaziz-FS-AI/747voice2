@@ -229,12 +229,10 @@ export interface Database {
       call_logs: {
         Row: {
           id: string
-          user_id: string
           assistant_id: string
           vapi_call_id: string | null
-          duration_seconds: number
-          duration_minutes: number // computed column
-          call_status: string
+          duration_minutes: number
+          evaluation: 'excellent' | 'good' | 'average' | 'poor' | 'pending' | 'failed'
           caller_number: string | null
           transcript: string | null
           summary: string | null
@@ -245,11 +243,10 @@ export interface Database {
         }
         Insert: {
           id?: string
-          user_id: string
           assistant_id: string
           vapi_call_id?: string | null
-          duration_seconds?: number
-          call_status?: string
+          duration_minutes?: number
+          evaluation?: 'excellent' | 'good' | 'average' | 'poor' | 'pending' | 'failed'
           caller_number?: string | null
           transcript?: string | null
           summary?: string | null
@@ -260,11 +257,10 @@ export interface Database {
         }
         Update: {
           id?: string
-          user_id?: string
           assistant_id?: string
           vapi_call_id?: string | null
-          duration_seconds?: number
-          call_status?: string
+          duration_minutes?: number
+          evaluation?: 'excellent' | 'good' | 'average' | 'poor' | 'pending' | 'failed'
           caller_number?: string | null
           transcript?: string | null
           summary?: string | null

@@ -72,11 +72,19 @@ export async function GET() {
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
 
-    const { data: callStats, error: callError } = await supabase
+    // Get assistant IDs for this user first (no user_id in call_logs anymore)
+    const { data: userAssistants } = await supabase
+      .from('user_assistants')
+      .select('id')
+      .eq('user_id', user.id);
+    
+    const assistantIds = userAssistants?.map(a => a.id) || [];
+    
+    const { data: callStats, error: callError } = assistantIds.length > 0 ? await supabase
       .from('call_logs')
-      .select('duration_seconds, status, created_at')
-      .eq('user_id', user.id)
-      .gte('created_at', startOfMonth.toISOString());
+      .select('duration_minutes, evaluation, created_at')
+      .in('assistant_id', assistantIds)
+      .gte('created_at', startOfMonth.toISOString()) : { data: [], error: null };
 
     if (callError) {
       console.error('Call stats error:', callError);
@@ -98,12 +106,12 @@ export async function GET() {
     const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
     const daysUntilReset = Math.ceil((nextMonth.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
-    // Calculate call statistics
-    const completedCalls = callStats?.filter(call => call.status === 'completed') || [];
+    // Calculate call statistics using new evaluation field
+    const completedCalls = callStats?.filter(call => call.evaluation === 'excellent' || call.evaluation === 'good' || call.evaluation === 'average') || [];
     const totalCalls = callStats?.length || 0;
     const successRate = totalCalls > 0 ? (completedCalls.length / totalCalls) * 100 : 0;
     const averageDuration = completedCalls.length > 0 
-      ? completedCalls.reduce((sum, call) => sum + (call.duration_seconds || 0), 0) / completedCalls.length
+      ? completedCalls.reduce((sum, call) => sum + ((call.duration_minutes || 0) * 60), 0) / completedCalls.length
       : 0;
 
     const usage = {
@@ -182,11 +190,19 @@ export async function POST() {
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
 
-    const { data: calls, error: callsError } = await supabase
+    // Get assistant IDs for this user first (no user_id in call_logs anymore)
+    const { data: userAssistants } = await supabase
+      .from('user_assistants')
+      .select('id')
+      .eq('user_id', user.id);
+    
+    const assistantIds = userAssistants?.map(a => a.id) || [];
+    
+    const { data: calls, error: callsError } = assistantIds.length > 0 ? await supabase
       .from('call_logs')
-      .select('duration_seconds')
-      .eq('user_id', user.id)
-      .gte('created_at', startOfMonth.toISOString());
+      .select('duration_minutes')
+      .in('assistant_id', assistantIds)
+      .gte('created_at', startOfMonth.toISOString()) : { data: [], error: null };
 
     if (callsError) {
       console.error('Failed to fetch calls for recalculation:', callsError);
@@ -197,8 +213,7 @@ export async function POST() {
     }
 
     // Calculate total minutes used this month
-    const totalSeconds = calls?.reduce((sum, call) => sum + (call.duration_seconds || 0), 0) || 0;
-    const recalculatedMinutes = Math.ceil(totalSeconds / 60);
+    const recalculatedMinutes = calls?.reduce((sum, call) => sum + (call.duration_minutes || 0), 0) || 0;
 
     // Update profile with recalculated usage
     const { error: updateError } = await supabase

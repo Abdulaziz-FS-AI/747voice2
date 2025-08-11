@@ -48,10 +48,12 @@ export async function GET(request: NextRequest) {
           assistantPerformance: [],
           hourlyDistribution: Array(24).fill(0),
           statusBreakdown: {
-            completed: 0,
+            excellent: 0,
+            good: 0,
+            average: 0,
+            poor: 0,
             failed: 0,
-            busy: 0,
-            no_answer: 0
+            pending: 0
           }
         }
       })
@@ -75,9 +77,9 @@ export async function GET(request: NextRequest) {
     
     // Calculate overview metrics
     const totalCalls = allCalls.length
-    const completedCalls = allCalls.filter(c => c.status === 'completed').length
+    const completedCalls = allCalls.filter(c => c.evaluation === 'excellent' || c.evaluation === 'good' || c.evaluation === 'average').length
     const successRate = totalCalls > 0 ? (completedCalls / totalCalls) * 100 : 0
-    const totalDuration = allCalls.reduce((sum, call) => sum + (call.duration || 0), 0)
+    const totalDuration = allCalls.reduce((sum, call) => sum + (call.duration_minutes || 0), 0)
     const avgCallDuration = totalCalls > 0 ? totalDuration / totalCalls : 0
     const totalCost = allCalls.reduce((sum, call) => sum + (call.cost || 0), 0)
     const uniqueCallers = new Set(allCalls.map(c => c.caller_number)).size
@@ -92,7 +94,7 @@ export async function GET(request: NextRequest) {
       dailyMap.set(date, {
         calls: existing.calls + 1,
         cost: existing.cost + (call.cost || 0),
-        completed: existing.completed + (call.status === 'completed' ? 1 : 0)
+        completed: existing.completed + (call.evaluation === 'excellent' || call.evaluation === 'good' || call.evaluation === 'average' ? 1 : 0)
       })
     })
     
@@ -124,9 +126,9 @@ export async function GET(request: NextRequest) {
     // Calculate assistant performance
     const assistantPerformance = assistants?.map(assistant => {
       const assistantCalls = allCalls.filter(c => c.assistant_id === assistant.id)
-      const completed = assistantCalls.filter(c => c.status === 'completed').length
+      const completed = assistantCalls.filter(c => c.evaluation === 'excellent' || c.evaluation === 'good' || c.evaluation === 'average').length
       const totalAssistantCost = assistantCalls.reduce((sum, c) => sum + (c.cost || 0), 0)
-      const totalAssistantDuration = assistantCalls.reduce((sum, c) => sum + (c.duration || 0), 0)
+      const totalAssistantDuration = assistantCalls.reduce((sum, c) => sum + (c.duration_minutes || 0), 0)
       
       return {
         id: assistant.id,
@@ -145,12 +147,14 @@ export async function GET(request: NextRequest) {
       hourlyDistribution[hour]++
     })
     
-    // Calculate status breakdown
+    // Calculate evaluation breakdown
     const statusBreakdown = {
-      completed: allCalls.filter(c => c.status === 'completed').length,
-      failed: allCalls.filter(c => c.status === 'failed').length,
-      busy: allCalls.filter(c => c.status === 'busy').length,
-      no_answer: allCalls.filter(c => c.status === 'no_answer').length
+      excellent: allCalls.filter(c => c.evaluation === 'excellent').length,
+      good: allCalls.filter(c => c.evaluation === 'good').length,
+      average: allCalls.filter(c => c.evaluation === 'average').length,
+      poor: allCalls.filter(c => c.evaluation === 'poor').length,
+      failed: allCalls.filter(c => c.evaluation === 'failed').length,
+      pending: allCalls.filter(c => c.evaluation === 'pending').length
     }
     
     return NextResponse.json({

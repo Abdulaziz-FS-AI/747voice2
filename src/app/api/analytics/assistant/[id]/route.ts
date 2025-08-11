@@ -144,7 +144,7 @@ export async function GET(
     // Calculate basic metrics
     const totalCalls = allCalls.length
     const totalCost = allCalls.reduce((sum, call) => sum + (parseFloat(call.cost) || 0), 0)
-    const totalDuration = allCalls.reduce((sum, call) => sum + (call.duration_seconds || 0), 0)
+    const totalDuration = allCalls.reduce((sum, call) => sum + ((call.duration_minutes || 0) * 60), 0)
     const avgDuration = totalCalls > 0 ? totalDuration / totalCalls : 0
 
     // Calculate success rate based on success_evaluation
@@ -196,7 +196,7 @@ export async function GET(
     const recentCalls = allCalls.slice(0, 50).map(call => ({
       id: call.id,
       callerNumber: call.caller_number || 'Unknown',
-      duration: call.duration_seconds || 0,
+      duration: (call.duration_minutes || 0) * 60, // Convert minutes back to seconds for display
       cost: parseFloat(call.cost) || 0,
       startedAt: call.started_at,
       transcript: call.transcript || '',

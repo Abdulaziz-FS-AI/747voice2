@@ -142,10 +142,10 @@ async function handleCallEnd(supabase: Awaited<Awaited<ReturnType<typeof createS
     const { data: updatedCall, error: updateError } = await supabase
       .from('call_logs')
       .update({
-        status: call.status,
+        evaluation: call.status === 'completed' ? 'good' : 'failed', // Map old status to new evaluation
         ended_at: call.endedAt ? new Date(call.endedAt).toISOString() : new Date().toISOString(),
-        duration: call.endedAt && call.startedAt ? 
-          Math.floor((new Date(call.endedAt).getTime() - new Date(call.startedAt).getTime()) / 1000) : 0,
+        duration_minutes: call.endedAt && call.startedAt ? 
+          Math.ceil((new Date(call.endedAt).getTime() - new Date(call.startedAt).getTime()) / (1000 * 60)) : 0,
         cost: call.cost || 0,
         updated_at: new Date().toISOString(),
       })
@@ -164,14 +164,14 @@ async function handleCallEnd(supabase: Awaited<Awaited<ReturnType<typeof createS
       .from('call_logs')
       .insert({
         assistant_id: assistant.id,
-        duration_seconds: call.endedAt && call.startedAt ? 
-          Math.floor((new Date(call.endedAt).getTime() - new Date(call.startedAt).getTime()) / 1000) : 0,
-        cost: call.cost || 0,
+        duration_minutes: call.endedAt && call.startedAt ? 
+          Math.ceil((new Date(call.endedAt).getTime() - new Date(call.startedAt).getTime()) / (1000 * 60)) : 0,
+        evaluation: call.status === 'completed' ? 'good' : 'failed', // Map old status to new evaluation
         caller_number: 'unknown',
         started_at: call.startedAt ? new Date(call.startedAt).toISOString() : new Date().toISOString(),
+        ended_at: call.endedAt ? new Date(call.endedAt).toISOString() : null,
         transcript: null,
         structured_data: {},
-        success_evaluation: null,
         summary: null
       })
       .select('*')
@@ -185,8 +185,8 @@ async function handleCallEnd(supabase: Awaited<Awaited<ReturnType<typeof createS
   }
 
   // Track business metrics for call completion
-  const duration = callRecord.duration_seconds || 0
-  const cost = callRecord.cost_cents ? callRecord.cost_cents / 100 : 0
+  const duration = (callRecord.duration_minutes || 0) * 60 // Convert minutes to seconds for metrics
+  const cost = callRecord.cost || 0
   
   // Get user ID from assistant for metrics
   const { data: assistantData } = await supabase
@@ -212,7 +212,7 @@ async function handleCallEnd(supabase: Awaited<Awaited<ReturnType<typeof createS
   // }
 
   console.log('Call end report processed successfully:', call.id);
-  console.log(`Call duration: ${callRecord.duration_seconds}s - Usage tracking trigger should fire automatically`);
+  console.log(`Call duration: ${callRecord.duration_minutes}m - Usage tracking trigger should fire automatically`);
   
   // Check and enforce usage limits
   if (assistantData?.user_id) {
