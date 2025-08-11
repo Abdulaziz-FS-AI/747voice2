@@ -393,7 +393,7 @@ export default function AnalyticsPage() {
         </motion.div>
 
         {/* Prominent Assistant Analytics Button */}
-        {user && hasData && (
+        {user && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -462,9 +462,98 @@ export default function AnalyticsPage() {
               </Card>
             </div>
           </div>
-        ) : !user || !hasData ? (
-          // Empty State for new users or users without data
-          <EmptyAnalytics onGenerateSampleData={generateSampleData} />
+        ) : !user ? (
+          // Show analytics with empty data for non-authenticated users
+          <div className="space-y-8">
+            {/* Prominent Assistant Analytics Button - Always shown */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="flex justify-center"
+            >
+              <Button
+                onClick={() => router.push('/dashboard/analytics/assistant')}
+                className="group relative px-8 py-6 text-lg font-semibold shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
+                style={{ 
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: 'white'
+                }}
+              >
+                <div className="absolute inset-0 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                     style={{
+                       background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                       borderRadius: 'inherit'
+                     }}
+                />
+                <div className="relative flex items-center gap-3">
+                  <BarChart3 className="h-6 w-6" />
+                  <span>View Detailed Assistant Analytics</span>
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </div>
+              </Button>
+            </motion.div>
+
+            {/* Key Metrics - Always shown with zero values */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+            >
+              <MetricCard title="Total Calls" value={0} subtitle="All-time conversations" icon={Phone} />
+              <MetricCard title="Total Cost" value="$0.00" subtitle="Voice AI expenses" icon={DollarSign} />
+              <MetricCard title="Avg Duration" value="0s" subtitle="Per conversation" icon={Clock} />
+              <MetricCard title="Success Rate" value="0%" subtitle="Successful interactions" icon={Target} />
+            </motion.div>
+
+            {/* Empty Charts */}
+            <div className="grid gap-6 md:grid-cols-2">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <Card className="border border-gray-700 bg-gray-900/50 backdrop-blur">
+                  <CardHeader>
+                    <CardTitle className="text-white">Top Performing Agents</CardTitle>
+                    <CardDescription className="text-gray-400">
+                      Your most active voice agents this month
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <Users className="h-12 w-12 mx-auto mb-4 vm-text-muted" />
+                      <p className="vm-text-muted">No agent data available yet</p>
+                      <p className="text-sm vm-text-muted mt-1">Deploy agents and make calls to see performance metrics</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <Card className="border border-gray-700 bg-gray-900/50 backdrop-blur">
+                  <CardHeader>
+                    <CardTitle className="text-white">Recent Activity</CardTitle>
+                    <CardDescription className="text-gray-400">
+                      Latest call activity across all agents
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <Activity className="h-12 w-12 mx-auto mb-4 vm-text-muted" />
+                      <p className="vm-text-muted">No recent activity to display</p>
+                      <p className="text-sm vm-text-muted mt-1">Your recent calls will appear here</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+          </div>
         ) : error ? (
           // Error State - still shows page structure
           <div className="space-y-8">
