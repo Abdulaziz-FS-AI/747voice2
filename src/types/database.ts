@@ -226,7 +226,7 @@ export interface Database {
           notes?: string | null
         }
       }
-      call_logs: {
+      call_info_log: {
         Row: {
           id: string
           assistant_id: string

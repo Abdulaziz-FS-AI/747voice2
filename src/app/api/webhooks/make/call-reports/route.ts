@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
 
     // Insert call log using NEW SCHEMA (no user_id, duration_minutes, evaluation)
     const { data: callLog, error: insertError } = await supabase
-      .from('call_logs')
+      .from('call_info_log')
       .insert({
         assistant_id: assistant.id,  // No user_id - use assistant_id relationship
         vapi_call_id: payload.id,

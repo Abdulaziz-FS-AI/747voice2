@@ -81,7 +81,7 @@ export async function GET() {
     const assistantIds = userAssistants?.map(a => a.id) || [];
     
     const { data: callStats, error: callError } = assistantIds.length > 0 ? await supabase
-      .from('call_logs')
+      .from('call_info_log')
       .select('duration_minutes, evaluation, created_at')
       .in('assistant_id', assistantIds)
       .gte('created_at', startOfMonth.toISOString()) : { data: [], error: null };
@@ -199,7 +199,7 @@ export async function POST() {
     const assistantIds = userAssistants?.map(a => a.id) || [];
     
     const { data: calls, error: callsError } = assistantIds.length > 0 ? await supabase
-      .from('call_logs')
+      .from('call_info_log')
       .select('duration_minutes')
       .in('assistant_id', assistantIds)
       .gte('created_at', startOfMonth.toISOString()) : { data: [], error: null };

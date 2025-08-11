@@ -8,7 +8,7 @@
 -- =============================================
 
 -- 1. Drop existing trigger to prevent conflicts during schema changes
-DROP TRIGGER IF EXISTS call_usage_update_trigger ON public.call_logs;
+DROP TRIGGER IF EXISTS call_usage_update_trigger ON public.call_info_log;
 
 -- 2. Ensure helper function exists (get user_id from assistant_id)
 CREATE OR REPLACE FUNCTION get_user_from_assistant(assistant_uuid uuid)
@@ -35,7 +35,7 @@ BEGIN
   -- Sum all call durations for this user this month using assistant_id join
   SELECT COALESCE(SUM(cl.duration_minutes), 0)
   INTO total_minutes
-  FROM public.call_logs cl
+  FROM public.call_info_log cl
   JOIN public.user_assistants ua ON cl.assistant_id = ua.id
   WHERE ua.user_id = user_uuid
     AND cl.created_at >= start_of_month
@@ -97,7 +97,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 5. Recreate trigger for new schema
 CREATE TRIGGER call_usage_update_trigger
-  BEFORE INSERT OR UPDATE OF duration_minutes, evaluation ON public.call_logs
+  BEFORE INSERT OR UPDATE OF duration_minutes, evaluation ON public.call_info_log
   FOR EACH ROW
   EXECUTE FUNCTION update_user_usage_on_call();
 
@@ -196,7 +196,7 @@ $$ LANGUAGE plpgsql STABLE SECURITY DEFINER;
 
 -- 8. Update indexes for new schema
 DROP INDEX IF EXISTS idx_call_logs_duration_status;
-CREATE INDEX IF NOT EXISTS idx_call_logs_duration_evaluation ON public.call_logs(duration_minutes, evaluation) 
+CREATE INDEX IF NOT EXISTS idx_call_info_log_duration_evaluation ON public.call_info_log(duration_minutes, evaluation) 
   WHERE evaluation IN ('excellent', 'good', 'average');
 
 -- 9. Verify the functions work correctly

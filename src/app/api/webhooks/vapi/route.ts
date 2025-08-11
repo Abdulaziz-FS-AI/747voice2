@@ -132,7 +132,7 @@ async function handleCallEnd(supabase: Awaited<Awaited<ReturnType<typeof createS
   // Check if call record already exists
   let callRecord;
   const { data: existingCall } = await supabase
-    .from('call_logs')
+    .from('call_info_log')
     .select('*')
     .eq('vapi_call_id', call.id)
     .single();
@@ -140,7 +140,7 @@ async function handleCallEnd(supabase: Awaited<Awaited<ReturnType<typeof createS
   if (existingCall) {
     // Update existing call record
     const { data: updatedCall, error: updateError } = await supabase
-      .from('call_logs')
+      .from('call_info_log')
       .update({
         evaluation: call.status === 'completed' ? 'good' : 'failed', // Map old status to new evaluation
         ended_at: call.endedAt ? new Date(call.endedAt).toISOString() : new Date().toISOString(),
@@ -161,7 +161,7 @@ async function handleCallEnd(supabase: Awaited<Awaited<ReturnType<typeof createS
   } else {
     // Create new call record (end-to-end report)
     const { data: newCall, error: insertError } = await supabase
-      .from('call_logs')
+      .from('call_info_log')
       .insert({
         assistant_id: assistant.id,
         duration_minutes: call.endedAt && call.startedAt ? 

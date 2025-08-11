@@ -117,15 +117,15 @@ export async function GET(
     // Get evaluation rubric from assistant config
     const evaluationRubric = assistant.config?.evaluation_rubric || 'PassFail'
 
-    // Get all calls for this assistant from call_logs table
+    // Get all calls for this assistant from call_info_log table
     const { data: calls, error: callsError } = await supabase
-      .from('call_logs')
+      .from('call_info_log')
       .select('*')
       .eq('assistant_id', assistantId)
       .order('started_at', { ascending: false })
 
     if (callsError) {
-      console.error('Error fetching call logs:', callsError)
+      console.error('Error fetching call info logs:', callsError)
     }
 
     const allCalls = calls || []

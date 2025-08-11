@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
     
     // Get calls within date range
     const { data: calls, error: callsError } = await supabase
-      .from('call_logs')
+      .from('call_info_log')
       .select('*')
       .in('assistant_id', assistantIds)
       .gte('started_at', startDate.toISOString())
