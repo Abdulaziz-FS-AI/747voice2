@@ -292,10 +292,25 @@ export async function GET(
       }
     })
 
-    // Format recent calls with truncated transcripts
+    // Format recent calls with properly parsed structured data
     const recentCalls = allCalls.slice(0, 50).map(call => {
       const durationMinutes = Number(call.duration_minutes) || 0
       const cost = durationMinutes * COST_PER_MINUTE
+      
+      // Parse structured_data if it's a string
+      let structuredData = {}
+      if (call.structured_data) {
+        if (typeof call.structured_data === 'string') {
+          try {
+            structuredData = JSON.parse(call.structured_data)
+          } catch (e) {
+            console.warn('Failed to parse structured_data for call:', call.id)
+            structuredData = {}
+          }
+        } else {
+          structuredData = call.structured_data
+        }
+      }
       
       return {
         id: call.id,
@@ -305,7 +320,7 @@ export async function GET(
         startedAt: call.started_at,
         transcript: call.transcript || '',
         shortTranscript: truncateToSentence(call.transcript || ''),
-        structuredData: call.structured_data || {},
+        structuredData: structuredData,
         successEvaluation: call.evaluation, // Use 'evaluation' field from call_info_log
         summary: call.summary || ''
       }

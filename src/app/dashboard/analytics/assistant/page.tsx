@@ -5,16 +5,12 @@ import { useAuth } from '@/lib/auth-context'
 import { motion } from 'framer-motion'
 import { 
   BarChart3, 
-  TrendingUp, 
   Phone, 
   Clock, 
-  DollarSign,
-  Target,
   RefreshCw,
   Download,
   Eye,
-  EyeOff,
-  ChevronDown
+  EyeOff
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { DashboardLayout } from '@/components/dashboard/layout'
@@ -177,38 +173,75 @@ export default function AssistantAnalyticsPage() {
     })
   }
 
-  // Export to CSV
+  // Export to CSV with structured format
   const exportToCSV = () => {
     if (!analytics) return
 
-    const csvData = analytics.recentCalls.map(call => ({
-      'Call ID': call.id,
-      'Caller Number': call.callerNumber,
-      'Duration (seconds)': call.duration,
-      'Cost': call.cost,
-      'Started At': call.startedAt,
-      'Success Evaluation': call.successEvaluation,
-      'Summary': call.summary,
-      'Transcript': call.transcript.replace(/[\r\n]+/g, ' '),
-      ...call.structuredData
-    }))
+    // Prepare CSV data with only required fields
+    const csvData = analytics.recentCalls.map(call => {
+      const date = new Date(call.startedAt)
+      
+      // Create base row with required fields
+      const row: Record<string, any> = {
+        'Caller Number': call.callerNumber,
+        'Duration (seconds)': call.duration,
+        'Evaluation': call.successEvaluation || 'N/A',
+        'Summary': call.summary || '',
+        'Transcript': (call.transcript || '').replace(/[\r\n]+/g, ' '),
+        'Date': date.toLocaleDateString(),
+        'Time': date.toLocaleTimeString()
+      }
+      
+      // Add structured data fields as separate columns
+      if (call.structuredData && typeof call.structuredData === 'object') {
+        Object.entries(call.structuredData).forEach(([key, value]) => {
+          // Clean up the key name for CSV column header
+          const columnName = key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ')
+          row[columnName] = value || ''
+        })
+      }
+      
+      return row
+    })
 
-    const csv = [
-      Object.keys(csvData[0] || {}).join(','),
-      ...csvData.map(row => Object.values(row).map(val => `"${val}"`).join(','))
+    if (csvData.length === 0) {
+      toast({
+        title: 'No data',
+        description: 'No calls to export',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    // Create CSV string with proper escaping
+    const headers = Object.keys(csvData[0])
+    const csvContent = [
+      headers.join(','),
+      ...csvData.map(row => 
+        headers.map(header => {
+          const value = row[header]
+          // Escape quotes and wrap in quotes if contains comma, quote, or newline
+          const stringValue = String(value || '')
+          if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+            return `"${stringValue.replace(/"/g, '""')}"`
+          }
+          return stringValue
+        }).join(',')
+      )
     ].join('\n')
 
-    const blob = new Blob([csv], { type: 'text/csv' })
+    // Download the CSV
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `assistant-${analytics.assistant.name}-analytics-${new Date().toISOString().split('T')[0]}.csv`
+    a.download = `calls_${analytics.assistant.name}_${new Date().toISOString().split('T')[0]}.csv`
     a.click()
     URL.revokeObjectURL(url)
 
     toast({
       title: 'Exported',
-      description: 'Analytics data exported successfully'
+      description: `Exported ${csvData.length} calls to CSV`
     })
   }
 
@@ -359,12 +392,12 @@ export default function AssistantAnalyticsPage() {
         ) : (
           // Analytics Dashboard
           <div className="space-y-8">
-            {/* Key Metrics */}
+            {/* Key Metrics - Only Total Calls and Avg Duration */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+              className="grid gap-4 md:grid-cols-2"
             >
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -379,36 +412,12 @@ export default function AssistantAnalyticsPage() {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium vm-text-secondary">Total Cost</CardTitle>
-                  <DollarSign className="h-4 w-4 vm-text-muted" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold vm-text-primary">
-                    ${(analytics.metrics.totalCost || 0).toFixed(2)}
-                  </div>
-                  <p className="text-xs vm-text-muted">Voice AI expenses</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium vm-text-secondary">Avg Duration</CardTitle>
                   <Clock className="h-4 w-4 vm-text-muted" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold vm-text-primary">{analytics.metrics.avgDuration}s</div>
                   <p className="text-xs vm-text-muted">Per conversation</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium vm-text-secondary">Success Rate</CardTitle>
-                  <Target className="h-4 w-4 vm-text-muted" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold vm-text-primary">{analytics.metrics.successRate}%</div>
-                  <p className="text-xs vm-text-muted">Successful interactions</p>
                 </CardContent>
               </Card>
             </motion.div>
@@ -494,7 +503,7 @@ export default function AssistantAnalyticsPage() {
               </motion.div>
             )}
 
-            {/* Recent Calls Table */}
+            {/* Recent Calls Table with Structured Data */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -504,7 +513,7 @@ export default function AssistantAnalyticsPage() {
                 <CardHeader>
                   <CardTitle>Recent Calls</CardTitle>
                   <CardDescription>
-                    Latest call activity with transcripts and evaluations
+                    Latest call activity with structured data and evaluations
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -513,10 +522,10 @@ export default function AssistantAnalyticsPage() {
                       <TableRow>
                         <TableHead>Caller</TableHead>
                         <TableHead>Duration</TableHead>
-                        <TableHead>Cost</TableHead>
-                        <TableHead>Transcript</TableHead>
-                        <TableHead>Success</TableHead>
-                        <TableHead>Date</TableHead>
+                        <TableHead>Structured Data</TableHead>
+                        <TableHead>Evaluation</TableHead>
+                        <TableHead>Summary</TableHead>
+                        <TableHead>Date/Time</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -524,34 +533,18 @@ export default function AssistantAnalyticsPage() {
                         <TableRow key={call.id}>
                           <TableCell className="font-mono text-sm">{call.callerNumber}</TableCell>
                           <TableCell>{call.duration}s</TableCell>
-                          <TableCell>${(call.cost || 0).toFixed(2)}</TableCell>
                           <TableCell className="max-w-xs">
-                            <div>
-                              <p className="text-sm">
-                                {expandedTranscripts.has(call.id) 
-                                  ? call.transcript 
-                                  : call.shortTranscript
-                                }
-                              </p>
-                              {call.transcript && call.transcript !== call.shortTranscript && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="mt-1 h-6 px-2 text-xs"
-                                  onClick={() => toggleTranscript(call.id)}
-                                >
-                                  {expandedTranscripts.has(call.id) ? (
-                                    <>
-                                      <EyeOff className="h-3 w-3 mr-1" />
-                                      Show Less
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Eye className="h-3 w-3 mr-1" />
-                                      Show More
-                                    </>
-                                  )}
-                                </Button>
+                            {/* Display structured data clearly */}
+                            <div className="space-y-1">
+                              {call.structuredData && Object.keys(call.structuredData).length > 0 ? (
+                                Object.entries(call.structuredData).map(([key, value]) => (
+                                  <div key={key} className="text-sm">
+                                    <span className="font-medium vm-text-secondary">{key}:</span>{' '}
+                                    <span className="vm-text-primary">{String(value)}</span>
+                                  </div>
+                                ))
+                              ) : (
+                                <span className="text-sm vm-text-muted">No structured data</span>
                               )}
                             </div>
                           </TableCell>
@@ -561,8 +554,20 @@ export default function AssistantAnalyticsPage() {
                               rubricType={analytics.assistant.evaluationRubric}
                             />
                           </TableCell>
+                          <TableCell className="max-w-xs">
+                            <div className="text-sm">
+                              {call.summary ? (
+                                <p className="line-clamp-2">{call.summary}</p>
+                              ) : (
+                                <p className="vm-text-muted">No summary</p>
+                              )}
+                            </div>
+                          </TableCell>
                           <TableCell className="text-sm vm-text-muted">
-                            {new Date(call.startedAt).toLocaleDateString()}
+                            <div>
+                              <div>{new Date(call.startedAt).toLocaleDateString()}</div>
+                              <div className="text-xs">{new Date(call.startedAt).toLocaleTimeString()}</div>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}
