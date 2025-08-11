@@ -32,6 +32,13 @@ export async function POST(request: NextRequest) {
   const correlationId = crypto.randomUUID()
   
   try {
+    // DEBUG: Log that webhook was called
+    console.log('🔥 [MAKE WEBHOOK] Received request', {
+      correlationId,
+      timestamp: new Date().toISOString(),
+      headers: Object.fromEntries(request.headers.entries()),
+      url: request.url
+    })
     // Verify Make.com webhook secret
     const authHeader = request.headers.get('x-make-apikey')
     if (authHeader !== process.env.MAKE_WEBHOOK_SECRET) {
@@ -49,6 +56,12 @@ export async function POST(request: NextRequest) {
 
     // Parse the payload from Make.com
     const payload: MakeCallReportPayload = await request.json()
+    
+    // DEBUG: Log the full payload
+    console.log('🔥 [MAKE WEBHOOK] Full payload received:', {
+      correlationId,
+      payload: JSON.stringify(payload, null, 2)
+    })
     
     logger.info('Received Make.com call report', {
       correlationId,
@@ -160,10 +173,17 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Only allow POST requests
+// GET endpoint for testing webhook connectivity
 export async function GET() {
-  return NextResponse.json(
-    { error: 'Method not allowed' },
-    { status: 405 }
-  )
+  const timestamp = new Date().toISOString()
+  console.log('🔥 [MAKE WEBHOOK] GET request received at', timestamp)
+  
+  return NextResponse.json({
+    message: 'Make.com webhook endpoint is working',
+    timestamp,
+    endpoint: '/api/webhooks/make/call-reports',
+    methods: ['POST'],
+    expectedHeaders: ['x-make-apikey'],
+    status: 'healthy'
+  })
 }
