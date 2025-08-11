@@ -422,7 +422,6 @@ export default function AnalyticsPage() {
             </Button>
           </motion.div>
         )}
-        </motion.div>
 
         {/* Content based on state */}
         {loading ? (
