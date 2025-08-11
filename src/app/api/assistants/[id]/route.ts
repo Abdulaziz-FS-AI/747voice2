@@ -11,7 +11,7 @@ export async function GET(
   try {
     const params = await context.params
     const { user } = await authenticateRequest()
-    const supabase = createServiceRoleClient()
+    const supabase = createServiceRoleClient('get_assistant')
 
     const { data: assistant, error } = await supabase
       .from('user_assistants')
@@ -44,7 +44,7 @@ export async function PATCH(
     const params = await context.params
     const { user } = await requirePermission()
     const body = await request.json()
-    const supabase = createServiceRoleClient()
+    const supabase = createServiceRoleClient('update_assistant')
 
     // Verify ownership
     const { data: existing } = await supabase
@@ -92,7 +92,7 @@ export async function DELETE(
   try {
     const params = await context.params
     const { user } = await requirePermission()
-    const supabase = createServiceRoleClient()
+    const supabase = createServiceRoleClient('delete_assistant')
 
     console.log(`Delete assistant request: ${params.id} for user: ${user.id}`)
 
@@ -133,24 +133,51 @@ export async function DELETE(
     }
 
     // Delete assistant from VAPI
+    console.log(`🔧 VAPI deletion check:`, {
+      hasVapiId: !!assistant.vapi_assistant_id,
+      vapiId: assistant.vapi_assistant_id,
+      hasVapiClient: !!vapiClient,
+      vapiApiKey: !!process.env.VAPI_API_KEY
+    })
+
     if (assistant.vapi_assistant_id && vapiClient) {
-      try {
-        console.log(`Deleting assistant ${assistant.vapi_assistant_id} from VAPI`)
-        await vapiClient.deleteAssistant(assistant.vapi_assistant_id)
+      // Skip deletion for fallback IDs
+      if (assistant.vapi_assistant_id.startsWith('fallback_')) {
+        console.log(`⏭️ Skipping VAPI deletion for fallback ID: ${assistant.vapi_assistant_id}`)
         deletionResults.assistant.success = true
-        console.log(`Successfully deleted assistant from VAPI`)
-      } catch (vapiError) {
-        console.error('Failed to delete assistant from VAPI:', vapiError)
-        deletionResults.assistant.error = vapiError
-        // Continue with local deletion even if VAPI fails
+        deletionResults.assistant.error = 'Fallback ID - no VAPI deletion needed'
+      } else {
+        try {
+          console.log(`🗑️ Deleting assistant ${assistant.vapi_assistant_id} from VAPI...`)
+          const result = await vapiClient.deleteAssistant(assistant.vapi_assistant_id)
+          console.log(`✅ VAPI delete result:`, result)
+          deletionResults.assistant.success = true
+          console.log(`✅ Successfully deleted assistant from VAPI`)
+        } catch (vapiError: any) {
+          console.error('❌ Failed to delete assistant from VAPI:', {
+            error: vapiError,
+            message: vapiError?.message,
+            status: vapiError?.status,
+            response: vapiError?.response?.data
+          })
+          deletionResults.assistant.error = vapiError
+          // Continue with local deletion even if VAPI fails
+        }
       }
+    } else {
+      console.log(`⚠️ No VAPI deletion needed:`, {
+        reason: !assistant.vapi_assistant_id ? 'No VAPI ID' : 'No VAPI client'
+      })
+      deletionResults.assistant.success = true
+      deletionResults.assistant.error = 'No VAPI integration'
     }
 
     // Delete assigned phone numbers from VAPI
     if (assignedPhones && assignedPhones.length > 0) {
+      console.log(`📞 Found ${assignedPhones.length} phone numbers to delete from VAPI`)
       for (const phone of assignedPhones) {
         try {
-          console.log(`Deleting phone number ${phone.phone_number} (${phone.vapi_phone_id}) from VAPI`)
+          console.log(`📞 Deleting phone number ${phone.phone_number} (${phone.vapi_phone_id}) from VAPI...`)
           
           const response = await fetch(`https://api.vapi.ai/phone-number/${phone.vapi_phone_id}`, {
             method: 'DELETE',
@@ -158,6 +185,8 @@ export async function DELETE(
               'Authorization': `Bearer ${process.env.VAPI_API_KEY}`
             }
           })
+
+          console.log(`📞 Phone delete response: ${response.status} ${response.statusText}`)
 
           if (response.ok || response.status === 404) {
             // 404 means already deleted, which is fine
@@ -167,21 +196,25 @@ export async function DELETE(
               success: true,
               error: null
             })
-            console.log(`Successfully deleted phone number ${phone.phone_number} from VAPI`)
+            console.log(`✅ Successfully deleted phone number ${phone.phone_number} from VAPI`)
           } else {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+            const errorText = await response.text()
+            console.error(`❌ Phone delete failed: ${response.status} - ${errorText}`)
+            throw new Error(`HTTP ${response.status}: ${errorText}`)
           }
-        } catch (vapiError) {
-          console.error(`Failed to delete phone number ${phone.phone_number} from VAPI:`, vapiError)
+        } catch (vapiError: any) {
+          console.error(`❌ Failed to delete phone number ${phone.phone_number} from VAPI:`, vapiError)
           deletionResults.phoneNumbers.push({
             id: phone.id,
             number: phone.phone_number,
             success: false,
-            error: vapiError
+            error: vapiError?.message || vapiError
           })
           // Continue with next phone number
         }
       }
+    } else {
+      console.log(`📞 No phone numbers assigned to this assistant`)
     }
 
     // Soft delete phone numbers in database (preserve call history)
