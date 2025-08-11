@@ -76,16 +76,6 @@ export async function PATCH(
       throw error
     }
 
-    // If toggling active status and has Vapi ID, update in Vapi
-    if ('is_active' in body && existing.vapi_assistant_id) {
-      try {
-        // Vapi doesn't have enable/disable, but we track it locally
-        // Could implement by updating the assistant's configuration
-      } catch (vapiError) {
-        console.error('Failed to update Vapi assistant:', vapiError)
-      }
-    }
-
     return NextResponse.json({
       success: true,
       data: assistant
@@ -129,7 +119,6 @@ export async function DELETE(
       .from('user_phone_numbers')
       .select('id, phone_number, friendly_name, vapi_phone_id')
       .eq('assigned_assistant_id', assistant.id)
-      .eq('is_active', true)
 
     if (phonesError) {
       console.error('Error fetching assigned phone numbers:', phonesError)
@@ -201,12 +190,7 @@ export async function DELETE(
       const { error: phoneDeleteError } = await supabase
         .from('user_phone_numbers')
         .update({
-          is_active: false,
           assigned_assistant_id: null,
-          assigned_at: null,
-          sync_status: 'deleted',
-          sync_error: 'Assistant deleted',
-          last_synced_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })
         .eq('assigned_assistant_id', assistant.id)
@@ -218,11 +202,16 @@ export async function DELETE(
       }
     }
 
-    // Delete assistant from database completely
-    console.log(`Deleting assistant ${assistant.name} from database`)
+    // For demo system: Mark as deleted instead of hard delete
+    // This preserves history while making it unavailable
+    console.log(`Marking assistant ${assistant.name} as deleted in database`)
     const { error: assistantDeleteError } = await supabase
       .from('user_assistants')
-      .delete()
+      .update({
+        assistant_state: 'deleted',
+        deletion_reason: 'manual',
+        deleted_at: new Date().toISOString()
+      })
       .eq('id', params.id)
 
     if (assistantDeleteError) {

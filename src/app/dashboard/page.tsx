@@ -58,23 +58,6 @@ export default function DashboardPage() {
     }
   }
 
-  const handleAssistantToggle = async (assistantId: string, isActive: boolean) => {
-    try {
-      const res = await fetch(`/api/assistants/${assistantId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_disabled: isActive })
-      })
-
-      if (res.ok) {
-        setAssistants(prev => 
-          prev.map(a => a.id === assistantId ? { ...a, is_disabled: isActive } : a)
-        )
-      }
-    } catch (error) {
-      console.error('Failed to toggle assistant:', error)
-    }
-  }
 
   const handleAssistantDelete = async (assistantId: string) => {
     if (!confirm('Are you sure you want to delete this assistant?')) return
@@ -401,7 +384,6 @@ export default function DashboardPage() {
                 >
                   <AssistantCard
                     assistant={assistant}
-                    onToggle={() => handleAssistantToggle(assistant.id, !assistant.is_disabled)}
                     onEdit={() => router.push(`/dashboard/assistants/${assistant.id}/edit`)}
                     onDelete={() => handleAssistantDelete(assistant.id)}
                     onViewDetails={() => router.push(`/dashboard/assistants/${assistant.id}`)}

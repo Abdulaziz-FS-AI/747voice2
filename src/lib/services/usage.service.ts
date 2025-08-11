@@ -253,78 +253,80 @@ export class UsageService {
   }
 
   /**
-   * Disable all assistants for a user (when limit exceeded)
+   * Delete all assistants for a user (when limit exceeded - demo system)
    */
-  async disableUserAssistants(userId: string, reason: string): Promise<void> {
+  async deleteUserAssistants(userId: string, reason: string): Promise<void> {
     // Get all active assistants
     const { data: assistants } = await this.supabase
       .from('user_assistants')
       .select('id, vapi_assistant_id')
       .eq('user_id', userId)
-      .eq('is_disabled', false);
+      .eq('assistant_state', 'active');
 
     if (!assistants) return;
 
-    // Queue VAPI updates
+    // Queue VAPI deletion
     for (const assistant of assistants) {
-      await this.vapiSync.queueSync(
-        assistant.id,
-        assistant.vapi_assistant_id,
-        'disable',
-        reason,
-        1 // High priority
-      );
+      if (assistant.vapi_assistant_id && !assistant.vapi_assistant_id.startsWith('fallback_')) {
+        await this.vapiSync.queueSync(
+          assistant.id,
+          assistant.vapi_assistant_id,
+          'delete',
+          reason,
+          1 // High priority
+        );
+      }
     }
 
-    // Update local state
+    // Mark as deleted in database
     await this.supabase
       .from('user_assistants')
       .update({
-        is_disabled: true,
-        disabled_at: new Date().toISOString(),
-        disabled_reason: reason,
-        assistant_state: 'disabled_usage'
+        assistant_state: 'deleted',
+        deleted_at: new Date().toISOString(),
+        deletion_reason: reason
       })
       .eq('user_id', userId)
-      .eq('is_disabled', false);
+      .eq('assistant_state', 'active');
   }
 
   /**
-   * Re-enable assistants after limit reset or upgrade
+   * Demo system doesn't re-enable - assistants are deleted permanently
+   * Users must create new assistants within their limits
    */
-  async enableUserAssistants(userId: string, reason: string): Promise<void> {
-    // Get disabled assistants
-    const { data: assistants } = await this.supabase
+  async cleanupExpiredAssistants(): Promise<void> {
+    // Find expired assistants
+    const { data: expired } = await this.supabase
       .from('user_assistants')
-      .select('id, vapi_assistant_id')
-      .eq('user_id', userId)
-      .eq('is_disabled', true)
-      .eq('disabled_reason', 'usage_limit_exceeded');
+      .select('id, vapi_assistant_id, user_id')
+      .eq('assistant_state', 'active')
+      .lt('expires_at', new Date().toISOString());
 
-    if (!assistants) return;
+    if (!expired) return;
 
-    // Queue VAPI updates
-    for (const assistant of assistants) {
-      await this.vapiSync.queueSync(
-        assistant.id,
-        assistant.vapi_assistant_id,
-        'enable',
-        reason,
-        2 // Medium priority
-      );
+    for (const assistant of expired) {
+      // Queue VAPI deletion
+      if (assistant.vapi_assistant_id && !assistant.vapi_assistant_id.startsWith('fallback_')) {
+        await this.vapiSync.queueSync(
+          assistant.id,
+          assistant.vapi_assistant_id,
+          'delete',
+          'expired',
+          2 // Medium priority
+        );
+      }
     }
 
-    // Update local state
+    // Mark as expired
     await this.supabase
       .from('user_assistants')
       .update({
-        is_disabled: false,
-        disabled_at: null,
-        disabled_reason: null,
-        assistant_state: 'active'
+        assistant_state: 'expired',
+        deleted_at: new Date().toISOString(),
+        deletion_reason: 'expired'
       })
-      .eq('user_id', userId)
-      .eq('disabled_reason', 'usage_limit_exceeded');
+      .lt('expires_at', new Date().toISOString())
+      .eq('assistant_state', 'active');
   }
 
   /**

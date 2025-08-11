@@ -18,7 +18,6 @@ interface AssistantSelectorProps {
   value?: string
   onValueChange: (value: string) => void
   placeholder?: string
-  includeInactive?: boolean
   className?: string
 }
 
@@ -26,7 +25,6 @@ export function AssistantSelector({
   value,
   onValueChange,
   placeholder = "Select an assistant...",
-  includeInactive = false,
   className
 }: AssistantSelectorProps) {
   const [assistants, setAssistants] = useState<Assistant[]>([])
@@ -34,7 +32,7 @@ export function AssistantSelector({
 
   useEffect(() => {
     fetchAssistants()
-  }, [includeInactive])
+  }, [])
 
   const fetchAssistants = async () => {
     try {
@@ -43,14 +41,9 @@ export function AssistantSelector({
       const data = await response.json()
       
       if (data.success) {
-        let filteredAssistants = data.data || []
-        
-        // Filter out inactive assistants if not included
-        if (!includeInactive) {
-          filteredAssistants = filteredAssistants.filter((a: Assistant) => !a.is_disabled)
-        }
-        
-        setAssistants(filteredAssistants)
+        // Only show active assistants (demo system only has active or deleted)
+        const activeAssistants = data.data || []
+        setAssistants(activeAssistants)
       }
     } catch (error) {
       console.error('Failed to fetch assistants:', error)
@@ -69,10 +62,10 @@ export function AssistantSelector({
             <div className="flex items-center gap-2">
               <span>{selectedAssistant.name}</span>
               <Badge 
-                variant={!selectedAssistant.is_disabled ? 'default' : 'secondary'}
+                variant="default"
                 className="ml-auto"
               >
-                {!selectedAssistant.is_disabled ? 'Active' : 'Inactive'}
+                Active
               </Badge>
             </div>
           )}
@@ -100,13 +93,13 @@ export function AssistantSelector({
                 </div>
                 <div className="flex items-center gap-1 ml-2">
                   <Badge 
-                    variant={!assistant.is_disabled ? 'default' : 'secondary'}
+                    variant="default"
                     className="text-xs"
                   >
-                    {!assistant.is_disabled ? 'Active' : 'Inactive'}
+                    Active
                   </Badge>
                   <Badge variant="outline" className="text-xs">
-                    Assistant
+                    {assistant.usage_minutes || 0} min
                   </Badge>
                 </div>
               </div>

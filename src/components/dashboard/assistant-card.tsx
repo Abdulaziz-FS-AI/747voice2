@@ -6,7 +6,6 @@ import {
   MoreVertical, 
   Edit, 
   Trash2, 
-  Power,
   Eye,
   Clock,
   Building
@@ -14,7 +13,6 @@ import {
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Switch } from '@/components/ui/switch'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +25,6 @@ type Assistant = Database['public']['Tables']['user_assistants']['Row']
 
 interface AssistantCardProps {
   assistant: Assistant
-  onToggle: () => void
   onEdit: () => void
   onDelete: () => void
   onViewDetails: () => void
@@ -35,18 +32,10 @@ interface AssistantCardProps {
 
 export function AssistantCard({
   assistant,
-  onToggle,
   onEdit,
   onDelete,
   onViewDetails
 }: AssistantCardProps) {
-  const [isToggling, setIsToggling] = useState(false)
-
-  const handleToggle = async () => {
-    setIsToggling(true)
-    await onToggle()
-    setIsToggling(false)
-  }
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('en-US', {
@@ -108,21 +97,13 @@ export function AssistantCard({
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Badge variant={!assistant.is_disabled ? "default" : "secondary"}>
-              {!assistant.is_disabled ? "Enabled" : "Disabled"}
+            <Badge variant="default">
+              Active
             </Badge>
-            {false && (
-              <Badge variant="outline" className="capitalize">
-                Professional
-              </Badge>
-            )}
+            <Badge variant="outline">
+              {assistant.usage_minutes || 0} min used
+            </Badge>
           </div>
-          <Switch
-            checked={!assistant.is_disabled}
-            onCheckedChange={handleToggle}
-            disabled={isToggling}
-            className="data-[state=checked]:bg-green-500"
-          />
         </div>
 
         <div className="space-y-2 text-sm">
@@ -142,7 +123,6 @@ export function AssistantCard({
             <div className="flex items-center justify-between text-muted-foreground">
               <span>Status</span>
               <Badge variant="outline" className="text-xs">
-                <Power className="mr-1 h-3 w-3" />
                 Deployed
               </Badge>
             </div>

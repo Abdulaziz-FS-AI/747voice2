@@ -126,7 +126,7 @@ export class UsageLimitService {
       .from('user_assistants')
       .select('id, vapi_assistant_id, config')
       .eq('user_id', userId)
-      .eq('is_disabled', false)
+      .eq('assistant_state', 'active')
       .not('vapi_assistant_id', 'is', null)
     
     if (error || !assistants) {
