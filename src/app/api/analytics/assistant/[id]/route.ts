@@ -236,8 +236,46 @@ export async function GET(
     // Analyze structured questions completion rates
     const questionAnalytics = (structuredQuestions || []).map(question => {
       const answeredCalls = allCalls.filter(call => {
-        const structuredData = call.structured_data || {}
-        const answer = structuredData[question.structured_name]
+        // Handle structured_data that might be a JSON string or object
+        let structuredData = {}
+        if (call.structured_data) {
+          if (typeof call.structured_data === 'string') {
+            try {
+              structuredData = JSON.parse(call.structured_data)
+            } catch (e) {
+              console.warn('Failed to parse structured_data as JSON:', e)
+              structuredData = {}
+            }
+          } else {
+            structuredData = call.structured_data
+          }
+        }
+        
+        // Check multiple possible field names (case-insensitive)
+        let answer = structuredData[question.structured_name]
+        
+        // If not found, try case-insensitive search
+        if (answer === null || answer === undefined) {
+          const lowerStructuredName = question.structured_name.toLowerCase()
+          for (const [key, value] of Object.entries(structuredData)) {
+            if (key.toLowerCase() === lowerStructuredName) {
+              answer = value
+              break
+            }
+          }
+        }
+        
+        // Debug logging to see what's in the data (only log once per question)
+        if (totalCalls > 0 && allCalls.indexOf(call) === 0) {
+          console.log('Structured Questions Debug:', {
+            questionText: question.question_text,
+            structuredName: question.structured_name,
+            sampleData: structuredData,
+            foundAnswer: answer,
+            rawData: call.structured_data
+          })
+        }
+        
         return answer !== null && answer !== undefined && answer !== ''
       })
       
