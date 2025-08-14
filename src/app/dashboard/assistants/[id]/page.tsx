@@ -427,22 +427,6 @@ export default function AssistantDetailsPage() {
                     </p>
                   </div>
                   
-                  {assistant.questions && (
-                    <div>
-                      <Label className="text-sm font-medium text-gray-700">Structured Questions</Label>
-                      <div className="mt-2 space-y-2">
-                        {typeof assistant.questions === 'object' ? (
-                          Object.entries(assistant.questions).map(([key, question]) => (
-                            <div key={key} className="text-sm text-gray-600 bg-white p-2 rounded border">
-                              <span className="font-medium">{key}:</span> {String(question)}
-                            </div>
-                          ))
-                        ) : (
-                          <p className="text-sm text-gray-600">{String(assistant.questions)}</p>
-                        )}
-                      </div>
-                    </div>
-                  )}
 
                   <div>
                     <Label className="text-sm font-medium text-gray-700">VAPI Assistant ID</Label>
@@ -455,7 +439,7 @@ export default function AssistantDetailsPage() {
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <h4 className="text-sm font-medium text-blue-900">Need Changes?</h4>
                   <p className="text-sm text-blue-700 mt-1">
-                    Contact your administrator to modify system prompts, structured questions, or other advanced settings.
+                    Contact your administrator to modify system prompts or other advanced settings.
                   </p>
                 </div>
               </CardContent>

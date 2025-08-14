@@ -15,10 +15,9 @@ import { toast } from '@/hooks/use-toast'
 import { ModelSelector } from '@/components/assistants/model-selector'
 import { VoiceSelector } from '@/components/assistants/voice-selector'
 import { PersonalitySelector } from '@/components/assistants/personality-selector'
-import { StructuredQuestions } from '@/components/assistants/structured-questions'
 import { EvaluationSelector } from '@/components/assistants/evaluation-selector'
 import { MessageType } from '@/components/assistants/client-messages-selector'
-import { StructuredQuestion, EvaluationRubric } from '@/lib/structured-data'
+import { EvaluationRubric } from '@/lib/structured-data'
 import { useEnforcedAction } from '@/hooks/use-enforced-action'
 
 // Form data interface
@@ -32,7 +31,6 @@ interface AssistantFormData {
   first_message?: string
   first_message_mode: 'assistant-speaks-first' | 'user-speaks-first'
   background_sound: 'off' | 'office'
-  structured_questions: StructuredQuestion[]
   evaluation_rubric: EvaluationRubric | null
   client_messages: MessageType[]
 }
@@ -76,7 +74,6 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
       first_message: templateData?.config?.first_message || 'Hello! How can I help you today?',
       first_message_mode: templateData?.config?.first_message_mode || 'assistant-speaks-first',
       background_sound: templateData?.config?.background_sound || 'office',
-      structured_questions: templateData?.config?.structured_questions || [],
       evaluation_rubric: templateData?.config?.evaluation_rubric || null,
       // client_messages removed - handled by backend with fixed values
     }
@@ -114,7 +111,6 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
         first_message: data.first_message || 'Hello! How can I help you today?',
         first_message_mode: data.first_message_mode || 'assistant-speaks-first',
         background_sound: data.background_sound || 'office',
-        structured_questions: data.structured_questions || [],
         evaluation_rubric: data.evaluation_rubric || null,
         // client_messages removed - handled by backend with fixed values
         template_id: templateData?.templateId || undefined
@@ -416,17 +412,6 @@ export function CreateAssistantForm({ templateData, onCancel }: CreateAssistantF
             </div>
 
             <div className="space-y-6">
-              <div>
-                <Label className="text-sm font-medium mb-3 block" style={{ color: 'var(--vm-gray-100)' }}>
-                  Structured Questions
-                </Label>
-                <div className="p-4 rounded-lg" style={{ background: 'var(--vm-void)', border: '1px solid var(--vm-border-subtle)' }}>
-                  <StructuredQuestions
-                    questions={formValues.structured_questions || []}
-                    onQuestionsChange={(questions) => setValue('structured_questions', questions)}
-                  />
-                </div>
-              </div>
 
               <div>
                 <Label className="text-sm font-medium mb-3 block" style={{ color: 'var(--vm-gray-100)' }}>

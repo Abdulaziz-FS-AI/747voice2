@@ -27,7 +27,6 @@ export interface ClientAssistant {
   
   // Read-only fields (from VAPI)
   system_prompt?: string
-  questions?: any[]
   
   // Metadata
   assigned_at: string

@@ -208,8 +208,7 @@ export async function GET(
     const allCalls = recentCalls || []
     const result = analytics && analytics.length > 0 ? analytics[0] : null
 
-    // For PIN system, structured questions come from assistant config
-    const structuredQuestions = assistant.questions || []
+    // Structured questions system removed
 
     // Use analytics data from database function if available
     const totalCalls = result ? Number(result.total_calls) : allCalls.length
@@ -217,16 +216,7 @@ export async function GET(
     const avgDuration = result ? Number(result.average_call_duration) : 0
     const successRate = result ? Number(result.success_rate) : 0
 
-    // Simplified question analytics for PIN system
-    const questionAnalytics = structuredQuestions.map((question: any, index: number) => ({
-      question: question.question || `Question ${index + 1}`,
-      structuredName: question.name || `question_${index}`,
-      dataType: 'string',
-      isRequired: false,
-      answerRate: 0, // Would need to analyze call transcripts
-      totalAnswered: 0,
-      totalCalls: totalCalls
-    }))
+    // Question analytics removed - no longer supported
 
     // Format recent calls for PIN system
     const formattedRecentCalls = allCalls.map(call => ({
@@ -256,7 +246,7 @@ export async function GET(
           avgDuration: Math.round(avgDuration),
           successRate: Number(successRate.toFixed(1))
         },
-        structuredQuestions: questionAnalytics,
+        structuredQuestions: [], // Removed - no longer supported
         recentCalls: formattedRecentCalls,
         dailyBreakdown: result?.daily_breakdown || [],
         recentCallsFromAnalytics: result?.recent_calls || []
