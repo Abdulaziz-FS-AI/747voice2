@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { authenticateRequest } from '@/lib/auth'
+import { validatePinSession } from '@/lib/pin-auth'
 import { createServiceRoleClient } from '@/lib/supabase'
+import { handleAPIError } from '@/lib/errors'
 
 // Helper function to truncate transcript to one sentence
 function truncateToSentence(text: string, maxLength: number = 80): string {
@@ -141,7 +142,16 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { user } = await authenticateRequest()
+    // PIN-based authentication
+    const sessionResult = await validatePinSession(request)
+    if (!sessionResult.success) {
+      return NextResponse.json({
+        success: false,
+        error: { code: 'UNAUTHORIZED', message: 'Invalid or expired session' }
+      }, { status: 401 })
+    }
+
+    const { client_id } = sessionResult
     const { id: assistantId } = await params
     
     if (!assistantId) {
@@ -151,14 +161,15 @@ export async function GET(
       }, { status: 400 })
     }
 
-    const supabase = createServiceRoleClient()
+    const supabase = createServiceRoleClient('assistant_analytics')
 
-    // Verify user owns this assistant and get assistant details
+    // Verify client owns this assistant and get assistant details
     const { data: assistant, error: assistantError } = await supabase
-      .from('user_assistants')
-      .select('id, user_id, name, config, vapi_assistant_id')
+      .from('client_assistants')
+      .select('id, client_id, display_name, vapi_assistant_id')
       .eq('id', assistantId)
-      .eq('user_id', user.id)
+      .eq('client_id', client_id)
+      .eq('is_active', true)
       .single()
 
     if (assistantError || !assistant) {
@@ -168,201 +179,92 @@ export async function GET(
       }, { status: 404 })
     }
 
-    // Get evaluation rubric from assistant config
-    const evaluationRubric = assistant.config?.evaluation_rubric || 'PassFail'
-
-    // Get all calls for this assistant from call_info_log table
-    // Try both internal ID and VAPI ID in case of different FK configurations
-    const { data: callsByInternalId, error: callsError1 } = await supabase
-      .from('call_info_log')
-      .select('*')
-      .eq('assistant_id', assistantId)
-      .order('started_at', { ascending: false })
-    
-    let calls = callsByInternalId || []
-    
-    // If no calls found by internal ID, try VAPI ID
-    if (calls.length === 0 && assistant.vapi_assistant_id) {
-      const { data: callsByVapiId, error: callsError2 } = await supabase
-        .from('call_info_log')
-        .select('*')
-        .eq('assistant_id', assistant.vapi_assistant_id)
-        .order('started_at', { ascending: false })
-      
-      if (callsByVapiId) {
-        calls = callsByVapiId
-      }
-    }
-
-    if (callsError1 && callsError2) {
-      console.error('Error fetching call info logs:', callsError1, callsError2)
-    }
-
-    const allCalls = calls || []
-
-    // Get structured questions for this assistant
-    const { data: structuredQuestions, error: questionsError } = await supabase
-      .from('structured_questions')
-      .select('*')
-      .eq('assistant_id', assistantId)
-      .order('order_index')
-
-    if (questionsError) {
-      console.error('Error fetching structured questions:', questionsError)
-    }
-
-    // Calculate basic metrics
-    const totalCalls = allCalls.length
-    const totalDuration = allCalls.reduce((sum, call) => sum + (Number(call.duration_seconds) || 0), 0)
-    const avgDuration = totalCalls > 0 ? totalDuration / totalCalls : 0
-    
-    // Calculate total cost (using configurable rate from environment)
-    const COST_PER_MINUTE = Number(process.env.VAPI_COST_PER_MINUTE) || 0.10
-    const totalCost = allCalls.reduce((sum, call) => {
-      const seconds = Number(call.duration_seconds) || 0
-      const minutes = seconds / 60
-      return sum + (minutes * COST_PER_MINUTE)
-    }, 0)
-
-    // Calculate success rate using the 'evaluation' field from call_info_log
-    const evaluatedCalls = allCalls.filter(call => call.evaluation !== null && call.evaluation !== undefined)
-    let successRate = 0
-    
-    if (evaluatedCalls.length > 0) {
-      // Use the fixed evaluation logic to avoid false positives
-      const successfulCalls = evaluatedCalls.filter(call => evaluateCallSuccess(call.evaluation))
-      successRate = (successfulCalls.length / evaluatedCalls.length) * 100
-    }
-
-    // Analyze structured questions completion rates
-    const questionAnalytics = (structuredQuestions || []).map(question => {
-      const answeredCalls = allCalls.filter(call => {
-        // Handle structured_data that might be a JSON string or object
-        let structuredData = {}
-        if (call.structured_data) {
-          if (typeof call.structured_data === 'string') {
-            try {
-              structuredData = JSON.parse(call.structured_data)
-            } catch (e) {
-              console.warn('Failed to parse structured_data as JSON:', e)
-              structuredData = {}
-            }
-          } else {
-            structuredData = call.structured_data
-          }
-        }
-        
-        // Check multiple possible field names (case-insensitive)
-        let answer = structuredData[question.structured_name]
-        
-        // If not found, try case-insensitive search
-        if (answer === null || answer === undefined) {
-          const lowerStructuredName = question.structured_name.toLowerCase()
-          for (const [key, value] of Object.entries(structuredData)) {
-            if (key.toLowerCase() === lowerStructuredName) {
-              answer = value
-              break
-            }
-          }
-        }
-        
-        // Debug logging to see what's in the data (only log once per question in development)
-        if (process.env.NODE_ENV === 'development' && totalCalls > 0 && allCalls.indexOf(call) === 0) {
-          console.log('Structured Questions Debug:', {
-            questionText: question.question_text,
-            structuredName: question.structured_name,
-            sampleData: structuredData,
-            foundAnswer: answer,
-            rawData: call.structured_data
-          })
-        }
-        
-        return answer !== null && answer !== undefined && answer !== ''
+    // Get all calls for this assistant using database function
+    const { data: analytics, error: analyticsError } = await supabase
+      .rpc('get_assistant_analytics', {
+        client_id_input: client_id,
+        assistant_id_input: assistantId,
+        days_back: 30
       })
-      
-      const answerRate = totalCalls > 0 ? (answeredCalls.length / totalCalls) * 100 : 0
-      
-      return {
-        question: question.question_text,
-        structuredName: question.structured_name,
-        dataType: question.data_type,
-        isRequired: question.is_required,
-        answerRate: Math.round(answerRate * 10) / 10, // Round to 1 decimal
-        totalAnswered: answeredCalls.length,
-        totalCalls: totalCalls
-      }
-    })
 
-    // Format recent calls with properly parsed structured data
-    const recentCalls = allCalls.slice(0, 50).map(call => {
-      const durationSeconds = Number(call.duration_seconds) || 0
-      const durationMinutes = durationSeconds / 60
-      const cost = durationMinutes * COST_PER_MINUTE
-      
-      // Parse structured_data if it's a string
-      let structuredData = {}
-      if (call.structured_data) {
-        if (typeof call.structured_data === 'string') {
-          try {
-            structuredData = JSON.parse(call.structured_data)
-          } catch (e) {
-            console.warn('Failed to parse structured_data for call:', call.id)
-            structuredData = {}
-          }
-        } else {
-          structuredData = call.structured_data
-        }
-      }
-      
-      return {
-        id: call.id,
-        callerNumber: call.caller_number || 'Unknown',
-        duration: Math.round(durationSeconds), // Already in seconds
-        cost: Math.round(cost * 100) / 100, // Round to 2 decimal places
-        startedAt: call.started_at,
-        transcript: call.transcript || '',
-        shortTranscript: truncateToSentence(call.transcript || ''),
-        structuredData: structuredData,
-        successEvaluation: call.evaluation, // Use 'evaluation' field from call_info_log
-        summary: call.summary || ''
-      }
-    })
+    if (analyticsError) {
+      console.error('[Assistant Analytics] Database error:', analyticsError)
+      throw new Error('Failed to fetch assistant analytics')
+    }
 
-    // Analyze success evaluation breakdown
-    const successAnalysis = analyzeSuccessEvaluation(allCalls, evaluationRubric)
+    // Get recent calls for this assistant
+    const { data: recentCalls, error: callsError } = await supabase
+      .from('call_logs')
+      .select('*')
+      .eq('client_id', client_id)
+      .eq('assistant_id', assistantId)
+      .order('call_time', { ascending: false })
+      .limit(50)
+
+    if (callsError) {
+      console.error('[Assistant Analytics] Calls error:', callsError)
+    }
+
+    const allCalls = recentCalls || []
+    const result = analytics && analytics.length > 0 ? analytics[0] : null
+
+    // For PIN system, structured questions come from assistant config
+    const structuredQuestions = assistant.questions || []
+
+    // Use analytics data from database function if available
+    const totalCalls = result ? Number(result.total_calls) : allCalls.length
+    const totalCost = result ? Number(result.total_cost_dollars) : 0
+    const avgDuration = result ? Number(result.average_call_duration) : 0
+    const successRate = result ? Number(result.success_rate) : 0
+
+    // Simplified question analytics for PIN system
+    const questionAnalytics = structuredQuestions.map((question: any, index: number) => ({
+      question: question.question || `Question ${index + 1}`,
+      structuredName: question.name || `question_${index}`,
+      dataType: 'string',
+      isRequired: false,
+      answerRate: 0, // Would need to analyze call transcripts
+      totalAnswered: 0,
+      totalCalls: totalCalls
+    }))
+
+    // Format recent calls for PIN system
+    const formattedRecentCalls = allCalls.map(call => ({
+      id: call.id,
+      callerNumber: call.caller_number || 'Unknown',
+      duration: call.duration_seconds || 0,
+      cost: call.cost || 0,
+      startedAt: call.call_time,
+      transcript: call.transcript || '',
+      shortTranscript: truncateToSentence(call.transcript || ''),
+      structuredData: call.structured_data || {},
+      successEvaluation: call.success_evaluation,
+      summary: call.summary || ''
+    }))
 
     return NextResponse.json({
       success: true,
       data: {
         assistant: {
           id: assistant.id,
-          name: assistant.name,
-          evaluationRubric: evaluationRubric
+          name: assistant.display_name,
+          evaluationRubric: 'boolean' // PIN system uses boolean success evaluation
         },
         metrics: {
           totalCalls,
-          totalCost: Math.round(totalCost * 100) / 100, // Round to 2 decimal places
+          totalCost: Number(totalCost.toFixed(2)),
           avgDuration: Math.round(avgDuration),
           successRate: Number(successRate.toFixed(1))
         },
         structuredQuestions: questionAnalytics,
-        recentCalls,
-        successAnalysis: {
-          rubricType: evaluationRubric,
-          breakdown: successAnalysis.breakdown,
-          totalEvaluated: successAnalysis.totalEvaluated
-        }
+        recentCalls: formattedRecentCalls,
+        dailyBreakdown: result?.daily_breakdown || [],
+        recentCallsFromAnalytics: result?.recent_calls || []
       }
     })
 
   } catch (error) {
     console.error('GET assistant analytics error:', error)
-    return NextResponse.json({
-      success: false,
-      error: { 
-        code: 'ANALYTICS_ERROR', 
-        message: error instanceof Error ? error.message : 'Failed to fetch analytics' 
-      }
-    }, { status: 500 })
+    return handleAPIError(error)
   }
 }
