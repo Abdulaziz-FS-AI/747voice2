@@ -175,7 +175,7 @@ export default function AssistantDetailsPage() {
             <div>
               <h1 className="text-2xl font-bold text-gray-900">{assistant.display_name}</h1>
               <p className="text-gray-600">
-                Assigned {new Date(assistant.assigned_at).toLocaleDateString()}
+                VAPI Assistant ID: {assistant.vapi_assistant_id.slice(0, 12)}...
               </p>
             </div>
           </div>
@@ -212,8 +212,8 @@ export default function AssistantDetailsPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Status</span>
-                  <Badge variant={assistant.is_active ? "default" : "secondary"}>
-                    {assistant.is_active ? "Active" : "Inactive"}
+                  <Badge variant="default">
+                    Active
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between">
@@ -225,9 +225,9 @@ export default function AssistantDetailsPage() {
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Assigned</span>
+                  <span className="text-sm text-gray-600">Created</span>
                   <span className="text-sm font-medium">
-                    {new Date(assistant.assigned_at).toLocaleDateString()}
+                    {new Date(assistant.created_at).toLocaleDateString()}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">

@@ -7,7 +7,6 @@ import { usePinAuth } from '@/lib/contexts/pin-auth-context'
 import { 
   LayoutDashboard, 
   Users, 
-  Phone, 
   BarChart3, 
   Settings,
   LogOut,
@@ -29,10 +28,9 @@ interface DashboardLayoutProps {
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, description: 'Overview & Analytics' },
-  { name: 'AI Assistants', href: '/dashboard/assistants', icon: Mic, description: 'Voice AI Management' },
-  { name: 'Phone Numbers', href: '/dashboard/phone-numbers', icon: Phone, description: 'Twilio Integration' },
+  { name: 'AI Assistants', href: '/dashboard/assistants', icon: Mic, description: 'Your Voice AI Assistants' },
   { name: 'Analytics', href: '/dashboard/analytics', icon: Activity, description: 'Performance Insights' },
-  { name: 'Settings', href: '/dashboard/settings', icon: Settings, description: 'Configuration' },
+  { name: 'Settings', href: '/dashboard/settings', icon: Settings, description: 'Account Settings' },
 ]
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {

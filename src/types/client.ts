@@ -17,7 +17,7 @@ export interface ClientAssistant {
   client_id: string
   vapi_assistant_id: string
   
-  // Client-editable fields
+  // Client-editable fields (limited edit access)
   display_name: string
   first_message?: string
   voice?: string
@@ -29,34 +29,18 @@ export interface ClientAssistant {
   system_prompt?: string
   
   // Metadata
-  assigned_at: string
   created_at: string
   updated_at: string
-  is_active: boolean
+  last_synced_at?: string // When last refreshed from VAPI
 }
 
-export interface ClientPhoneNumber {
-  id: string
-  client_id: string
-  vapi_phone_id: string
-  phone_number: string
-  friendly_name: string
-  assigned_assistant_id?: string
-  assistant_display_name?: string
-  
-  // Metadata
-  assigned_at: string
-  created_at: string
-  updated_at: string
-  is_active: boolean
-  notes?: string
-}
+// Phone number system removed - handled entirely in VAPI
 
 export interface CallLog {
   id: string
   client_id: string
   assistant_id: string
-  phone_number_id?: string
+  phone_number?: string // Simple text field - phone handled in VAPI
   vapi_call_id?: string
   
   // Call details

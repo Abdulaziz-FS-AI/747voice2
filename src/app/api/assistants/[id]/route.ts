@@ -88,44 +88,88 @@ export async function PATCH(
       }, { status: 400 })
     }
 
-    // Use the database function for safe updates
-    const { data, error } = await supabase
-      .rpc('update_assistant', {
-        assistant_id_input: params.id,
-        client_id_input: client_id,
-        display_name_input: updateData.display_name,
-        first_message_input: updateData.first_message,
-        voice_input: updateData.voice,
-        model_input: updateData.model,
-        eval_method_input: updateData.eval_method,
-        max_call_duration_input: updateData.max_call_duration
-      });
+    // Get the assistant to get VAPI assistant ID
+    const { data: assistant, error: assistantError } = await supabase
+      .from('client_assistants')
+      .select('*')
+      .eq('id', params.id)
+      .eq('client_id', client_id)
+      .single()
 
-    if (error) {
-      console.error('[Update Assistant] Database error:', error);
-      throw error;
-    }
-
-    if (!data || data.length === 0) {
+    if (assistantError || !assistant) {
       return NextResponse.json({
         success: false,
-        error: { code: 'NOT_FOUND', message: 'Assistant not found or access denied' }
+        error: { code: 'NOT_FOUND', message: 'Assistant not found or not accessible' }
       }, { status: 404 })
     }
 
-    const result = data[0];
+    // Update VAPI assistant if we have fields that map to VAPI
+    const vapiUpdateData: any = {}
     
-    if (!result.success) {
+    if (updateData.first_message !== undefined) {
+      vapiUpdateData.firstMessage = updateData.first_message
+    }
+    if (updateData.voice !== undefined) {
+      vapiUpdateData.voice = { provider: 'playht', voiceId: updateData.voice }
+    }
+    if (updateData.model !== undefined) {
+      vapiUpdateData.model = { 
+        provider: updateData.model.includes('gpt') ? 'openai' : 'anthropic',
+        model: updateData.model 
+      }
+    }
+    if (updateData.max_call_duration !== undefined) {
+      vapiUpdateData.endCallConfig = { endCallMaxDuration: updateData.max_call_duration }
+    }
+
+    // Update VAPI assistant if we have mappable fields
+    if (Object.keys(vapiUpdateData).length > 0 && process.env.VAPI_API_KEY) {
+      try {
+        const vapiResponse = await fetch(`https://api.vapi.ai/assistant/${assistant.vapi_assistant_id}`, {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${process.env.VAPI_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(vapiUpdateData)
+        })
+
+        if (!vapiResponse.ok) {
+          const errorData = await vapiResponse.text()
+          console.error('[VAPI] Update failed:', errorData)
+          // Continue with local update even if VAPI fails
+        }
+      } catch (vapiError) {
+        console.error('[VAPI] Update error:', vapiError)
+        // Continue with local update even if VAPI fails
+      }
+    }
+
+    // Update local database record
+    const { data: updatedAssistant, error: updateError } = await supabase
+      .from('client_assistants')
+      .update({
+        ...updateData,
+        updated_at: new Date().toISOString(),
+        last_synced_at: new Date().toISOString()
+      })
+      .eq('id', params.id)
+      .eq('client_id', client_id)
+      .select('*')
+      .single()
+
+    if (updateError) {
+      console.error('[DB] Assistant update failed:', updateError)
       return NextResponse.json({
         success: false,
-        error: { code: 'UPDATE_FAILED', message: result.message }
-      }, { status: 400 })
+        error: { code: 'DB_ERROR', message: 'Failed to update assistant in database' }
+      }, { status: 500 })
     }
 
     return NextResponse.json({
       success: true,
-      data: result.updated_assistant,
-      message: result.message
+      data: updatedAssistant,
+      message: 'Assistant updated successfully'
     })
   } catch (error) {
     return handleAPIError(error)

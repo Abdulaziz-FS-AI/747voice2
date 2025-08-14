@@ -74,3 +74,125 @@ export async function POST(request: NextRequest) {
     }
   }, { status: 403 });
 }
+
+// PATCH /api/assistants?action=refresh - Refresh all assistants from VAPI
+export async function PATCH(request: NextRequest) {
+  try {
+    // PIN-based authentication
+    const sessionResult = await validatePinSession(request);
+    if (!sessionResult.success) {
+      return NextResponse.json({
+        success: false,
+        error: { code: 'UNAUTHORIZED', message: 'Invalid or expired session' }
+      }, { status: 401 });
+    }
+
+    const { client_id } = sessionResult;
+    const { searchParams } = new URL(request.url);
+    const action = searchParams.get('action');
+
+    if (action !== 'refresh') {
+      return NextResponse.json({
+        success: false,
+        error: { code: 'BAD_REQUEST', message: 'Invalid action. Use ?action=refresh' }
+      }, { status: 400 });
+    }
+
+    const supabase = createServiceRoleClient('refresh_assistants_from_vapi');
+
+    // Get all client assistants
+    const { data: assistants, error: fetchError } = await supabase
+      .from('client_assistants')
+      .select('*')
+      .eq('client_id', client_id)
+
+    if (fetchError) {
+      console.error('[Refresh] Failed to fetch assistants:', fetchError);
+      return NextResponse.json({
+        success: false,
+        error: { code: 'DB_ERROR', message: 'Failed to fetch assistants' }
+      }, { status: 500 });
+    }
+
+    if (!assistants || assistants.length === 0) {
+      return NextResponse.json({
+        success: true,
+        data: [],
+        message: 'No assistants to refresh'
+      });
+    }
+
+    // Refresh from VAPI if API key is available
+    const refreshedAssistants = [];
+    for (const assistant of assistants) {
+      try {
+        if (process.env.VAPI_API_KEY) {
+          // Fetch from VAPI
+          const vapiResponse = await fetch(`https://api.vapi.ai/assistant/${assistant.vapi_assistant_id}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${process.env.VAPI_API_KEY}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (vapiResponse.ok) {
+            const vapiData = await vapiResponse.json();
+            
+            // Update local record with VAPI data
+            const { data: updatedAssistant, error: updateError } = await supabase
+              .from('client_assistants')
+              .update({
+                first_message: vapiData.firstMessage || assistant.first_message,
+                voice: vapiData.voice?.voiceId || assistant.voice,
+                model: vapiData.model?.model || assistant.model,
+                max_call_duration: vapiData.endCallConfig?.endCallMaxDuration || assistant.max_call_duration,
+                system_prompt: vapiData.model?.systemPrompt || assistant.system_prompt,
+                last_synced_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', assistant.id)
+              .select('*')
+              .single();
+
+            if (!updateError) {
+              refreshedAssistants.push(updatedAssistant);
+            } else {
+              console.error(`[Refresh] Failed to update assistant ${assistant.id}:`, updateError);
+              refreshedAssistants.push(assistant);
+            }
+          } else {
+            console.error(`[Refresh] VAPI fetch failed for assistant ${assistant.id}`);
+            refreshedAssistants.push(assistant);
+          }
+        } else {
+          // No VAPI key, just update sync timestamp
+          const { data: updatedAssistant, error: updateError } = await supabase
+            .from('client_assistants')
+            .update({
+              last_synced_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', assistant.id)
+            .select('*')
+            .single();
+
+          refreshedAssistants.push(updatedAssistant || assistant);
+        }
+      } catch (error) {
+        console.error(`[Refresh] Error refreshing assistant ${assistant.id}:`, error);
+        refreshedAssistants.push(assistant);
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: refreshedAssistants,
+      message: `Refreshed ${refreshedAssistants.length} assistants from VAPI`
+    });
+
+  } catch (error) {
+    console.error('PATCH assistants failed:', error);
+    return handleAPIError(error);
+  }
+}
