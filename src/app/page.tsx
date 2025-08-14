@@ -213,7 +213,7 @@ const OptimizedVoiceIndicators = ({ isScrolling }: { isScrolling: boolean }) => 
 // Header component
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { client } = usePinAuth()
+  const { client, isAuthenticated } = usePinAuth()
   const router = useRouter()
 
   return (
