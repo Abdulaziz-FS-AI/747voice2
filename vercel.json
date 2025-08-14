@@ -22,16 +22,6 @@
       "maxDuration": 30
     }
   },
-  "crons": [
-    {
-      "path": "/api/cron/sync",
-      "schedule": "0 2 * * *"
-    },
-    {
-      "path": "/api/usage/process-enforcement",
-      "schedule": "0 3 * * *"
-    }
-  ],
   "env": {
     "NODE_ENV": "production"
   },
