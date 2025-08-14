@@ -44,6 +44,11 @@ export function PinAuthProvider({ children }: PinAuthProviderProps) {
   useEffect(() => {
     const loadSession = async () => {
       try {
+        if (typeof window === 'undefined') {
+          setIsLoading(false)
+          return
+        }
+        
         const storedToken = localStorage.getItem('session-token')
         const storedClient = localStorage.getItem('client-info')
 

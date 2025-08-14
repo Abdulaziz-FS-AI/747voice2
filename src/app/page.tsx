@@ -1,12 +1,14 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { ArrowRight, Play, Mic, Shield, BarChart3, Users, Star, Menu, X, Phone, Zap, Globe, Headphones, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { useAuth } from '@/lib/auth-context'
+import { usePinAuth } from '@/lib/contexts/pin-auth-context'
 
 // Performance-optimized mouse tracking with throttling
 const useOptimizedMouseTracking = () => {
@@ -211,7 +213,7 @@ const OptimizedVoiceIndicators = ({ isScrolling }: { isScrolling: boolean }) => 
 // Header component
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { user } = useAuth()
+  const { client } = usePinAuth()
   const router = useRouter()
 
   return (
@@ -251,7 +253,7 @@ const Header = () => {
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center gap-4">
-            {user ? (
+            {isAuthenticated && client ? (
               <Button onClick={() => router.push('/dashboard')} style={{ background: 'var(--vm-gradient-primary)', color: '#FFFFFF' }}>
                 Dashboard
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -292,7 +294,7 @@ const Header = () => {
               <a href="#testimonials" style={{ color: 'var(--vm-neutral-200)' }} onClick={() => setIsMenuOpen(false)}>Reviews</a>
               <a href="#contact" style={{ color: 'var(--vm-neutral-200)' }} onClick={() => setIsMenuOpen(false)}>Contact</a>
               <div className="flex flex-col gap-2 pt-4 border-t" style={{ borderColor: 'var(--vm-border-default)' }}>
-                {user ? (
+                {isAuthenticated && client ? (
                   <Button onClick={() => router.push('/dashboard')} style={{ background: 'var(--vm-gradient-primary)', color: '#FFFFFF' }}>
                     Dashboard
                   </Button>
@@ -313,18 +315,18 @@ const Header = () => {
 
 export default function HomePage() {
   const router = useRouter()
-  const { user, loading } = useAuth()
+  const { client, isAuthenticated, isLoading } = usePinAuth()
   const { mousePosition, isScrolling } = useOptimizedMouseTracking()
 
   // Redirect authenticated users to dashboard
   useEffect(() => {
-    if (!loading && user) {
+    if (!isLoading && isAuthenticated && client) {
       router.push('/dashboard')
     }
-  }, [user, loading, router])
+  }, [client, isAuthenticated, isLoading, router])
 
   // Show loading state while checking authentication
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--vm-primary-dark)' }}>
         <div className="text-center">
@@ -380,9 +382,9 @@ export default function HomePage() {
                   size="lg" 
                   className="px-8 py-4 text-lg font-semibold"
                   style={{ background: 'var(--vm-gradient-primary)', border: 'none', color: '#FFFFFF' }}
-                  onClick={() => router.push(user ? '/dashboard' : '/signup')}
+                  onClick={() => router.push(isAuthenticated && client ? '/dashboard' : '/signup')}
                 >
-                  {user ? 'Go to Dashboard' : 'Get Started'}
+                  {isAuthenticated && client ? 'Go to Dashboard' : 'Get Started'}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </motion.div>
@@ -612,9 +614,9 @@ export default function HomePage() {
                 size="lg" 
                 className="px-8 py-4 text-lg font-semibold"
                 style={{ background: 'var(--vm-gradient-primary)', border: 'none', color: '#FFFFFF' }}
-                onClick={() => router.push(user ? '/dashboard' : '/signup')}
+                onClick={() => router.push(isAuthenticated && client ? '/dashboard' : '/signup')}
               >
-                {user ? 'Go to Dashboard' : 'Get Started Today'}
+                {isAuthenticated && client ? 'Go to Dashboard' : 'Get Started Today'}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </motion.div>
@@ -721,9 +723,9 @@ export default function HomePage() {
                 size="lg" 
                 className="px-8 py-4 text-lg font-semibold"
                 style={{ background: 'var(--vm-gradient-primary)', border: 'none', color: '#FFFFFF' }}
-                onClick={() => router.push(user ? '/dashboard' : '/signup')}
+                onClick={() => router.push(isAuthenticated && client ? '/dashboard' : '/signup')}
               >
-                {user ? 'Go to Dashboard' : 'Get Started Today'}
+                {isAuthenticated && client ? 'Go to Dashboard' : 'Get Started Today'}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </motion.div>

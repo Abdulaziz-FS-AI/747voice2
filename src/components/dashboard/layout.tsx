@@ -2,7 +2,7 @@
 
 import { ReactNode } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { useAuth } from '@/lib/auth-context'
+import { usePinAuth } from '@/lib/contexts/pin-auth-context'
 // Subscription context removed - demo system only
 import { 
   LayoutDashboard, 
@@ -38,18 +38,18 @@ const navigation = [
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter()
   const pathname = usePathname()
-  const { user, signOut } = useAuth()
+  const { client, logout } = usePinAuth()
   // Demo system: No usage tracking needed
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  const handleSignOut = async () => {
+  const handleSignOut = () => {
     try {
-      await signOut()
+      logout()
       // Redirect to home page instead of signin to avoid 404
       window.location.href = '/'
     } catch (error) {
       console.error('Sign out error:', error)
-      // Even if signOut fails, redirect to home page
+      // Even if logout fails, redirect to home page
       window.location.href = '/'
     }
   }
@@ -171,7 +171,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 style={{ background: 'var(--vm-gradient-primary)' }}
               >
                 <span className="text-lg font-bold" style={{ color: '#FFFFFF' }}>
-                  {user?.email?.[0]?.toUpperCase() || 'U'}
+                  {client?.company_name?.[0]?.toUpperCase() || 'C'}
                 </span>
                 <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full"
                      style={{ background: 'var(--vm-success-green)' }}>
@@ -180,7 +180,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm truncate" style={{ color: 'var(--vm-primary-light)' }}>
-                  {user?.email}
+                  {client?.company_name}
                 </p>
                 <div className="flex items-center gap-2">
                   <div className="px-2 py-0.5 rounded-full text-xs font-medium"

@@ -1,7 +1,9 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { useEffect, useState } from 'react'
-import { useAuth } from '@/lib/auth-context'
+import { usePinAuth } from '@/lib/contexts/pin-auth-context'
 import { motion } from 'framer-motion'
 import { 
   BarChart3, 
@@ -113,7 +115,7 @@ const SuccessEvaluationDisplay = ({ evaluation, rubricType }: { evaluation: any,
 }
 
 export default function AssistantAnalyticsPage() {
-  const { user } = useAuth()
+  const { client, isAuthenticated } = usePinAuth()
   const { toast } = useToast()
   const [assistants, setAssistants] = useState<Assistant[]>([])
   const [selectedAssistantId, setSelectedAssistantId] = useState<string>('')
@@ -121,6 +123,7 @@ export default function AssistantAnalyticsPage() {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [expandedTranscripts, setExpandedTranscripts] = useState<Set<string>>(new Set())
+  const [mounted, setMounted] = useState(false)
 
   // Fetch user's assistants
   const fetchAssistants = async () => {
@@ -269,10 +272,10 @@ export default function AssistantAnalyticsPage() {
   }
 
   useEffect(() => {
-    if (user) {
+    if (isAuthenticated && client) {
       fetchAssistants()
     }
-  }, [user])
+  }, [isAuthenticated, client])
 
   useEffect(() => {
     if (selectedAssistantId) {
@@ -280,7 +283,7 @@ export default function AssistantAnalyticsPage() {
     }
   }, [selectedAssistantId])
 
-  if (!user) {
+  if (!isAuthenticated || !client) {
     return (
       <DashboardLayout>
         <div className="text-center py-8">

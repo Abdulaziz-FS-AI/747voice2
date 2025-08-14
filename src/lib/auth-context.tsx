@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false)
       
       // Handle successful sign in - let auth callback handle routing
-      if (event === 'SIGNED_IN' && session?.user) {
+      if (event === 'SIGNED_IN' && session?.user && typeof window !== 'undefined') {
         console.log('🚀 Auth context - SIGNED_IN event, current path:', window.location.pathname)
         
         // Only redirect from signin page after checking profile status
