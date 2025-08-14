@@ -8,7 +8,8 @@ const rateLimitStore = new Map<string, { attempts: number, lastAttempt: number, 
 
 // PIN validation - strictly 6 digits only
 const pinLoginSchema = z.object({
-  pin: z.string().regex(/^[0-9]{6}$/, 'PIN must be exactly 6 digits')
+  pin: z.string().regex(/^[0-9]{6}$/, 'PIN must be exactly 6 digits'),
+  rememberMe: z.boolean().optional().default(false)
 });
 
 /**
@@ -18,7 +19,7 @@ const pinLoginSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { pin } = pinLoginSchema.parse(body);
+    const { pin, rememberMe } = pinLoginSchema.parse(body);
     
     const clientIP = extractClientIP(request) || 'unknown';
     const userAgent = extractUserAgent(request);
@@ -96,15 +97,29 @@ export async function POST(request: NextRequest) {
       message: `Welcome, ${authResult.company_name}!`
     });
 
-    // Set session token as httpOnly cookie with reduced duration
+    // Set session token as httpOnly cookie with appropriate duration
     if (authResult.session_token) {
+      // If remember me is checked, extend session to 30 days, otherwise 4 hours
+      const maxAge = rememberMe ? 30 * 24 * 60 * 60 : 4 * 60 * 60;
+      
       response.cookies.set('session-token', authResult.session_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 4 * 60 * 60, // Reduced to 4 hours for security
+        maxAge: maxAge,
         path: '/'
       });
+      
+      // Also set a persistent remember-me cookie if checked
+      if (rememberMe) {
+        response.cookies.set('remember-me', 'true', {
+          httpOnly: false, // Allow client-side access for auto-login
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 30 * 24 * 60 * 60, // 30 days
+          path: '/'
+        });
+      }
     }
     
     return response;
@@ -155,9 +170,18 @@ export async function DELETE(request: NextRequest) {
       sessionInvalidated: logoutSuccess
     });
     
-    // Clear the cookie
+    // Clear the cookies
     response.cookies.set('session-token', '', {
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 0,
+      path: '/'
+    });
+    
+    // Also clear remember-me cookie
+    response.cookies.set('remember-me', '', {
+      httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       maxAge: 0,

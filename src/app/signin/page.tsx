@@ -9,6 +9,7 @@ import { toast } from '@/hooks/use-toast'
 
 function PinLoginContent() {
   const [pin, setPin] = useState('')
+  const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
@@ -38,7 +39,7 @@ function PinLoginContent() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ pin }),
+        body: JSON.stringify({ pin, rememberMe }),
       })
 
       const result = await response.json()
@@ -54,6 +55,15 @@ function PinLoginContent() {
         client_id: result.data.client_id,
         company_name: result.data.company_name
       }))
+      
+      // Store remember me preference if checked
+      if (rememberMe) {
+        localStorage.setItem('remember-me', 'true')
+        localStorage.setItem('remember-token', result.data.session_token)
+      } else {
+        localStorage.removeItem('remember-me')
+        localStorage.removeItem('remember-token')
+      }
 
       toast({
         title: 'Welcome!',
@@ -125,6 +135,20 @@ function PinLoginContent() {
                 <p className="text-xs vm-text-muted text-center">
                   Your PIN was provided by your administrator
                 </p>
+              </div>
+
+              {/* Remember Me Checkbox */}
+              <div className="flex items-center justify-center gap-2">
+                <input
+                  type="checkbox"
+                  id="remember-me"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                />
+                <Label htmlFor="remember-me" className="text-sm vm-text-muted cursor-pointer">
+                  Remember me on this device
+                </Label>
               </div>
 
               {error && (

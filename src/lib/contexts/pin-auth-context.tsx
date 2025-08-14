@@ -49,10 +49,30 @@ export function PinAuthProvider({ children }: PinAuthProviderProps) {
           return
         }
         
+        // Check for remember-me token first
+        const rememberToken = localStorage.getItem('remember-token')
+        const rememberMe = localStorage.getItem('remember-me')
         const storedToken = localStorage.getItem('session-token')
         const storedClient = localStorage.getItem('client-info')
 
-        if (storedToken && storedClient) {
+        // If remember-me is active and we have a remember token, try to use it
+        if (rememberMe === 'true' && rememberToken) {
+          // Validate the remember token
+          const isValid = await validateSession(rememberToken)
+          if (isValid && storedClient) {
+            const clientInfo = JSON.parse(storedClient)
+            setSessionToken(rememberToken)
+            setClient(clientInfo)
+            // Update the session token in localStorage
+            localStorage.setItem('session-token', rememberToken)
+          } else {
+            // Remember token is invalid, clear it
+            localStorage.removeItem('remember-me')
+            localStorage.removeItem('remember-token')
+            clearLocalSession()
+          }
+        } else if (storedToken && storedClient) {
+          // Normal session check (no remember-me)
           const clientInfo = JSON.parse(storedClient)
           
           // Validate session with server
@@ -104,6 +124,8 @@ export function PinAuthProvider({ children }: PinAuthProviderProps) {
   const clearLocalSession = () => {
     localStorage.removeItem('session-token')
     localStorage.removeItem('client-info')
+    localStorage.removeItem('remember-me')
+    localStorage.removeItem('remember-token')
     setSessionToken(null)
     setClient(null)
   }
