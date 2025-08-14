@@ -3,15 +3,14 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  console.log('🔒 [MIDDLEWARE-FIXED] Request:', request.nextUrl.pathname);
+  console.log('🔒 [MIDDLEWARE-SECURE] Request:', request.nextUrl.pathname);
   
-  // DEMO MODE: Skip auth for test mode
-  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true' || 
-                     request.headers.get('x-demo-mode') === 'true' ||
-                     request.cookies.get('demo-mode')?.value === 'true';
+  // SECURITY: Demo mode only in development and only via environment variable
+  const isDemoMode = process.env.NODE_ENV === 'development' && 
+                     process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
   
   if (isDemoMode) {
-    console.log('🔒 [MIDDLEWARE-FIXED] Demo mode active - bypassing auth');
+    console.log('🔒 [MIDDLEWARE-SECURE] Demo mode active in development only');
     return NextResponse.next();
   }
   
@@ -30,22 +29,19 @@ export async function middleware(request: NextRequest) {
         cookies: {
           get(name: string) {
             const cookie = request.cookies.get(name)?.value;
-            console.log('🔒 [MIDDLEWARE-FIXED] Getting cookie:', name, cookie ? 'present' : 'missing');
-            return cookie;
+                    return cookie;
           },
           set(name: string, value: string, options: any) {
-            console.log('🔒 [MIDDLEWARE-FIXED] Setting cookie:', name);
             response.cookies.set({
               name,
               value,
               ...options,
-              httpOnly: false, // Allow client-side access
+              httpOnly: true, // SECURITY: Force httpOnly for security
               secure: process.env.NODE_ENV === 'production',
-              sameSite: 'lax'
+              sameSite: 'strict' // SECURITY: Stricter same-site policy
             })
           },
           remove(name: string, options: any) {
-            console.log('🔒 [MIDDLEWARE-FIXED] Removing cookie:', name);
             response.cookies.set({
               name,
               value: '',
@@ -68,12 +64,15 @@ export async function middleware(request: NextRequest) {
       timeoutPromise
     ]) as any;
 
-    console.log('🔒 [MIDDLEWARE-FIXED] Auth check:', {
-      hasUser: !!user,
-      userId: user?.id,
-      error: error?.message,
-      path: request.nextUrl.pathname
-    });
+    // SECURITY: Only log in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔒 [MIDDLEWARE-SECURE] Auth check:', {
+        hasUser: !!user,
+        userId: user?.id?.substring(0, 8) + '...', // Partial ID only
+        error: error?.message,
+        path: request.nextUrl.pathname
+      });
+    }
 
     // Always allow auth callback
     if (request.nextUrl.pathname === '/auth/callback') {

@@ -197,8 +197,18 @@ export function handleAPIError(error: unknown): NextResponse {
   // Generic error fallback
   console.error('❌ [ERROR HANDLER] Using generic error fallback');
   
-  // Show detailed errors in production for debugging (temporarily)
-  const showDetailedErrors = true; // Always show for debugging
+  // SECURITY: Only show detailed errors in development
+  const showDetailedErrors = process.env.NODE_ENV === 'development';
+  
+  // Log error details for monitoring (but don't expose to client in production)
+  if (!showDetailedErrors) {
+    console.error('❌ [PRODUCTION ERROR]', {
+      errorType: typeof error,
+      errorName: error instanceof Error ? error.name : 'Unknown',
+      errorMessage: error instanceof Error ? error.message : String(error),
+      timestamp: new Date().toISOString()
+    });
+  }
   
   return NextResponse.json(
     {
@@ -207,7 +217,7 @@ export function handleAPIError(error: unknown): NextResponse {
         code: 'INTERNAL_ERROR',
         message: showDetailedErrors 
           ? `Error: ${error instanceof Error ? error.message : String(error)}`
-          : 'An unexpected error occurred',
+          : 'An unexpected error occurred. Please try again later.',
         details: showDetailedErrors ? {
           errorType: typeof error,
           errorName: error instanceof Error ? error.name : 'Unknown',
@@ -215,7 +225,7 @@ export function handleAPIError(error: unknown): NextResponse {
           errorStack: error instanceof Error ? error.stack?.split('\n').slice(0, 5).join('\n') : 'No stack',
           timestamp: new Date().toISOString(),
           environment: process.env.NODE_ENV || 'unknown'
-        } : undefined
+        } : { errorId: Math.random().toString(36).substring(7) }
       }
     },
     { status: 500 }
