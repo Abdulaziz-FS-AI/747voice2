@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PinWebhookProcessor } from '@/lib/pin-webhook-processor'
+import crypto from 'crypto'
 
 export const runtime = 'nodejs'
 
@@ -9,8 +10,39 @@ export const runtime = 'nodejs'
  */
 export async function POST(request: NextRequest) {
   try {
+    // Get raw body for signature verification
+    const rawBody = await request.text()
+    const signature = request.headers.get('x-vapi-signature')
+    
+    // Verify webhook signature if configured
+    if (process.env.VAPI_WEBHOOK_SECRET) {
+      if (!signature) {
+        console.warn('[VAPI Webhook] Missing signature header')
+        return NextResponse.json(
+          { error: 'Missing signature' },
+          { status: 401 }
+        )
+      }
+      
+      const crypto = require('crypto')
+      const expectedSignature = crypto
+        .createHmac('sha256', process.env.VAPI_WEBHOOK_SECRET)
+        .update(rawBody)
+        .digest('hex')
+      
+      const receivedSignature = signature.replace('sha256=', '')
+      
+      if (expectedSignature !== receivedSignature) {
+        console.warn('[VAPI Webhook] Invalid signature')
+        return NextResponse.json(
+          { error: 'Invalid signature' },
+          { status: 401 }
+        )
+      }
+    }
+    
     // Parse the webhook payload
-    const body = await request.json()
+    const body = JSON.parse(rawBody)
     
     console.log(`[VAPI Webhook] Received ${body.type || 'unknown'} event`)
 
