@@ -51,7 +51,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Update change_pin function to require exactly 6 digits
+-- Update change_pin function PIN format validation only
 CREATE OR REPLACE FUNCTION public.change_pin(
   client_id_input uuid,
   current_pin_input text,
@@ -113,8 +113,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Also fix get_client_assistants to work with the new schema
-CREATE OR REPLACE FUNCTION public.get_client_assistants(client_id_input uuid)
+-- Drop and recreate get_client_assistants to work with the new schema
+DROP FUNCTION IF EXISTS public.get_client_assistants(uuid);
+
+CREATE FUNCTION public.get_client_assistants(client_id_input uuid)
 RETURNS TABLE(
   id uuid,
   vapi_assistant_id text,
