@@ -92,10 +92,10 @@ export async function GET() {
     }
 
     // Calculate usage directly from data (no database functions needed)
-    const minutesUsed = profile.current_usage_minutes || 0;
-    const minutesLimit = profile.max_minutes_total || 10;
+    const minutesUsed = profile?.current_usage_minutes || 0;
+    const minutesLimit = profile?.max_minutes_total || 10;
     const assistantsUsed = assistantCount || 0;
-    const assistantsLimit = profile.max_assistants || 3;
+    const assistantsLimit = profile?.max_assistants || 3;
     
     // Calculate permissions
     const canMakeCall = minutesUsed < minutesLimit;
@@ -140,9 +140,9 @@ export async function GET() {
     };
 
     const userProfile = {
-      userId: profile.id,
-      email: profile.email,
-      fullName: profile.full_name,
+      userId: profile?.id || '',
+      email: profile?.email || '',
+      fullName: profile?.full_name || '',
       currentUsageMinutes: minutesUsed,
       maxMinutesTotal: minutesLimit,
       currentAssistantCount: assistantsUsed,

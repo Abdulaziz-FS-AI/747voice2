@@ -8,6 +8,7 @@
 
 import { LoggerService } from './logger.service'
 import { VAPIError, RateLimitError, ServiceUnavailableError } from '@/lib/errors'
+import crypto from 'crypto'
 
 interface VAPIPhoneNumberPayload {
   provider: 'twilio' | 'byo-phone-number'

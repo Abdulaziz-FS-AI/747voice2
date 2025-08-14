@@ -29,6 +29,9 @@ export function PinAuthProvider({ children }: PinAuthProviderProps) {
   const [client, setClient] = useState<ClientInfo | null>(null)
   const [sessionToken, setSessionToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  
+  // Computed authentication state
+  const isAuthenticated = !!(client && sessionToken)
   const router = useRouter()
   const pathname = usePathname()
 
