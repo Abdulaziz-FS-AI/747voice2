@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { AlertCircle, Loader2, Mic, Zap, Lock } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
+import { usePinAuth } from '@/lib/contexts/pin-auth-context'
 
 function PinLoginContent() {
   const [pin, setPin] = useState('')
@@ -14,6 +15,7 @@ function PinLoginContent() {
   const [error, setError] = useState('')
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { isAuthenticated, reloadFromStorage } = usePinAuth()
 
   useEffect(() => {
     // Check for error messages in URL params
@@ -22,6 +24,13 @@ function PinLoginContent() {
       setError(decodeURIComponent(urlError))
     }
   }, [searchParams])
+
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/dashboard')
+    }
+  }, [isAuthenticated, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -34,6 +43,7 @@ function PinLoginContent() {
         return
       }
 
+      // Use the PinAuthProvider's login method, but handle rememberMe separately
       const response = await fetch('/api/auth/pin-login', {
         method: 'POST',
         headers: {
@@ -70,7 +80,9 @@ function PinLoginContent() {
         description: result.message,
       })
 
-      router.push('/dashboard')
+      // Reload the auth provider from localStorage and let the redirect useEffect handle navigation
+      await reloadFromStorage()
+      
     } catch (error: any) {
       console.error('[PIN Login] Error:', error)
       setError('Login failed. Please try again.')

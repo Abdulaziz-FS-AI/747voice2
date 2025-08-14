@@ -17,6 +17,7 @@ export interface PinAuthContextType {
   login: (pin: string) => Promise<{ success: boolean; error?: string }>
   logout: () => void
   refreshSession: () => Promise<boolean>
+  reloadFromStorage: () => Promise<void>
 }
 
 const PinAuthContext = createContext<PinAuthContextType | undefined>(undefined)
@@ -211,6 +212,44 @@ export function PinAuthProvider({ children }: PinAuthProviderProps) {
     }
   }
 
+  const reloadFromStorage = async (): Promise<void> => {
+    try {
+      if (typeof window === 'undefined') return
+
+      const storedToken = localStorage.getItem('session-token')
+      const storedClient = localStorage.getItem('client-info')
+      const rememberToken = localStorage.getItem('remember-token')
+      const rememberMe = localStorage.getItem('remember-me')
+
+      // If remember-me is active and we have a remember token, try to use it
+      if (rememberMe === 'true' && rememberToken) {
+        const isValid = await validateSession(rememberToken)
+        if (isValid && storedClient) {
+          const clientInfo = JSON.parse(storedClient)
+          setSessionToken(rememberToken)
+          setClient(clientInfo)
+          localStorage.setItem('session-token', rememberToken)
+        } else {
+          localStorage.removeItem('remember-me')
+          localStorage.removeItem('remember-token')
+          clearLocalSession()
+        }
+      } else if (storedToken && storedClient) {
+        const clientInfo = JSON.parse(storedClient)
+        const isValid = await validateSession(storedToken)
+        if (isValid) {
+          setSessionToken(storedToken)
+          setClient(clientInfo)
+        } else {
+          clearLocalSession()
+        }
+      }
+    } catch (error) {
+      console.error('[PIN Auth] Error reloading from storage:', error)
+      clearLocalSession()
+    }
+  }
+
   const value: PinAuthContextType = {
     client,
     sessionToken,
@@ -219,6 +258,7 @@ export function PinAuthProvider({ children }: PinAuthProviderProps) {
     login,
     logout,
     refreshSession,
+    reloadFromStorage,
   }
 
   return (
