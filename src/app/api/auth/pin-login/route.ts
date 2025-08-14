@@ -6,18 +6,9 @@ import { authenticatePin, logoutSession, extractClientIP, extractUserAgent } fro
 // Rate limiting store (in production, use Redis/KV store)
 const rateLimitStore = new Map<string, { attempts: number, lastAttempt: number, lockedUntil?: number }>()
 
-// Enhanced PIN validation with security checks
+// PIN validation - strictly 6 digits only
 const pinLoginSchema = z.object({
-  pin: z.string().regex(/^[0-9]{6,8}$/, 'PIN must be 6-8 digits')
-    .refine(pin => {
-      // Check for weak patterns
-      const weakPatterns = [
-        /^(\d)\1+$/, // All same digit (111111)
-        /^123456|^654321/, // Sequential
-        /^000000|^999999/ // Common patterns
-      ]
-      return !weakPatterns.some(pattern => pattern.test(pin))
-    }, 'PIN is too weak. Avoid patterns like 111111 or 123456')
+  pin: z.string().regex(/^[0-9]{6}$/, 'PIN must be exactly 6 digits')
 });
 
 /**

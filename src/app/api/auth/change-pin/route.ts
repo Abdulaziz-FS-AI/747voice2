@@ -5,8 +5,8 @@ import { createServiceRoleClient } from '@/lib/supabase';
 import { validatePinSession } from '@/lib/pin-auth';
 
 const changePinSchema = z.object({
-  currentPin: z.string().regex(/^[0-9]{6,8}$/, 'Current PIN must be 6-8 digits'),
-  newPin: z.string().regex(/^[0-9]{6,8}$/, 'New PIN must be 6-8 digits'),
+  currentPin: z.string().regex(/^[0-9]{6}$/, 'Current PIN must be exactly 6 digits'),
+  newPin: z.string().regex(/^[0-9]{6}$/, 'New PIN must be exactly 6 digits'),
   email: z.string().email('Valid email required for verification')
 });
 
