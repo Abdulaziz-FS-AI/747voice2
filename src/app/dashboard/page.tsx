@@ -45,22 +45,26 @@ export default function DashboardPage() {
       const assistantsRes = await authenticatedFetch('/api/assistants')
       const assistantsData = await handleAuthenticatedResponse<ClientAssistant[]>(assistantsRes)
       
-      if (assistantsData) {
+      if (assistantsData && Array.isArray(assistantsData)) {
         setAssistants(assistantsData)
         setStats(prev => ({ ...prev, totalAssistants: assistantsData.length }))
+      } else {
+        setAssistants([])
+        setStats(prev => ({ ...prev, totalAssistants: 0 }))
       }
 
       // Fetch analytics
       try {
-        const analyticsRes = await authenticatedFetch('/api/analytics/dashboard?days_back=30')
-        const analyticsData = await handleAuthenticatedResponse<DashboardAnalytics>(analyticsRes)
+        const analyticsRes = await authenticatedFetch('/api/analytics/dashboard?days=30')
+        const analyticsJson = await analyticsRes.json()
         
-        if (analyticsData) {
+        if (analyticsJson.success && analyticsJson.data) {
+          const overview = analyticsJson.data.overview || {}
           setStats(prev => ({
             ...prev,
-            totalCalls: Number(analyticsData.total_calls) || 0,
-            totalMinutes: Math.round(Number(analyticsData.total_duration_hours) * 60) || 0,
-            successRate: Number(analyticsData.success_rate) || 0
+            totalCalls: Number(overview.totalCalls) || 0,
+            totalMinutes: Math.round(Number(overview.totalDurationHours || 0) * 60) || 0,
+            successRate: Number(overview.successRate) || 0
           }))
         }
       } catch (analyticsError) {
@@ -198,7 +202,7 @@ export default function DashboardPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {assistants.slice(0, 6).map((assistant, index) => (
+                {(Array.isArray(assistants) ? assistants.slice(0, 6) : []).map((assistant, index) => (
                   <motion.div
                     key={assistant.id}
                     initial={{ opacity: 0, y: 20 }}
