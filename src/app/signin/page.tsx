@@ -28,8 +28,8 @@ function PinLoginContent() {
     setError('')
 
     try {
-      if (!pin || pin.length < 6) {
-        setError('Please enter a valid 6-8 digit PIN')
+      if (!pin || pin.length !== 6) {
+        setError('Please enter a valid 6 digit PIN')
         return
       }
 
@@ -113,10 +113,10 @@ function PinLoginContent() {
                 <Input
                   id="pin"
                   type="password"
-                  placeholder="Enter your 6-8 digit PIN"
+                  placeholder="Enter your 6 digit PIN"
                   value={pin}
-                  onChange={(e) => setPin(e.target.value.replace(/[^0-9]/g, '').slice(0, 8))}
-                  maxLength={8}
+                  onChange={(e) => setPin(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))}
+                  maxLength={6}
                   required
                   disabled={isLoading}
                   className="vm-input text-center text-lg tracking-widest"
