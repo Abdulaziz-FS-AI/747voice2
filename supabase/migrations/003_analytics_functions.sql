@@ -212,17 +212,17 @@ BEGIN
   ),
   recent_calls AS (
     SELECT 
-      cl.started_at,
+      cl.call_time,
       cl.duration_seconds,
       cl.cost,
       cl.caller_number,
       cl.success_evaluation,
-      cl.status
+      cl.call_status
     FROM public.call_logs cl
     WHERE cl.client_id = client_id_input 
       AND cl.assistant_id = assistant_id_input
-      AND cl.started_at >= start_date::timestamp
-    ORDER BY cl.started_at DESC
+      AND cl.call_time >= start_date::timestamp
+    ORDER BY cl.call_time DESC
     LIMIT 20
   ),
   totals AS (
@@ -270,12 +270,12 @@ BEGIN
     (
       SELECT jsonb_agg(
         jsonb_build_object(
-          'started_at', rc.started_at,
+          'call_time', rc.call_time,
           'duration_seconds', rc.duration_seconds,
           'cost_dollars', ROUND(rc.cost::numeric, 2),
           'caller_number', rc.caller_number,
           'success_evaluation', rc.success_evaluation,
-          'status', rc.status
+          'call_status', rc.call_status
         )
       )
       FROM recent_calls rc

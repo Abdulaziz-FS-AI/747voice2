@@ -43,7 +43,7 @@ export interface ClientPhoneNumber {
   phone_number: string
   friendly_name: string
   assigned_assistant_id?: string
-  assistant_name?: string
+  assistant_display_name?: string
   
   // Metadata
   assigned_at: string
@@ -57,24 +57,48 @@ export interface CallLog {
   id: string
   client_id: string
   assistant_id: string
+  phone_number_id?: string
   vapi_call_id?: string
-  duration_seconds: number
-  cost?: number
+  
+  // Call details
   caller_number?: string
-  started_at: string
-  ended_at?: string
+  call_time: string
+  end_time?: string
+  duration_seconds: number
+  call_status: string
+  call_type?: string
+  
+  // Call content
   transcript?: string
+  recording_url?: string
   structured_data?: any
-  success_evaluation?: string
+  success_evaluation?: boolean
   summary?: string
-  status: string
+  
+  // Cost tracking
+  cost?: number
+  
+  // Assistant info cache
+  assistant_display_name?: string
+  
+  // Timestamps
+  created_at: string
+  updated_at: string
 }
 
 export interface CallAnalytics {
   id: string
   client_id: string
   assistant_id?: string
+  call_log_id?: string
+  
+  // Analytics data
   date: string
+  duration_seconds?: number
+  cost?: number
+  success_evaluation?: boolean
+  
+  // Aggregated fields for daily stats
   total_calls: number
   successful_calls: number
   failed_calls: number
@@ -82,6 +106,13 @@ export interface CallAnalytics {
   total_cost_cents: number
   average_call_duration: number
   success_rate: number
+  
+  // Call metadata
+  has_recording?: boolean
+  has_transcript?: boolean
+  transcript_length?: number
+  
+  // Timestamps
   created_at: string
   updated_at: string
 }
@@ -95,7 +126,7 @@ export interface ClientSession {
   created_at: string
   expires_at: string
   is_active: boolean
-  last_activity?: string
+  last_accessed?: string
 }
 
 // API Response types

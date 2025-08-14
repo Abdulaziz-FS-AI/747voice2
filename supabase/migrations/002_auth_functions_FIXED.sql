@@ -1,4 +1,5 @@
 -- Authentication functions for PIN-based system
+-- FIXED VERSION: Corrected field references and added missing functions
 
 -- Function to clean up expired sessions
 CREATE OR REPLACE FUNCTION public.cleanup_expired_sessions()
@@ -156,7 +157,7 @@ RETURNS TABLE(
   phone_number text,
   friendly_name text,
   assigned_assistant_id uuid,
-  assistant_display_name text,
+  assistant_display_name text, -- Fixed: use correct field name
   is_active boolean,
   assigned_at timestamp with time zone
 ) AS $$
@@ -241,7 +242,8 @@ RETURNS TABLE(
   client_id uuid,
   company_name text,
   contact_email text,
-  pin_changed_at timestamp with time zone
+  pin_changed_at timestamp with time zone,
+  masked_email text -- Added: masked email for security
 ) AS $$
 BEGIN
   RETURN QUERY
@@ -249,17 +251,23 @@ BEGIN
     c.id,
     c.company_name,
     c.contact_email,
-    c.pin_changed_at
+    c.pin_changed_at,
+    CONCAT(
+      LEFT(c.contact_email, 2),
+      '***',
+      SUBSTRING(c.contact_email FROM POSITION('@' IN c.contact_email))
+    ) as masked_email
   FROM public.clients c
   WHERE c.id = client_id_input AND c.is_active = true;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Function to change PIN (with current PIN verification)
+-- Function to change PIN (with current PIN and email verification)
 CREATE OR REPLACE FUNCTION public.change_pin(
   client_id_input uuid,
   current_pin_input text,
-  new_pin_input text
+  new_pin_input text,
+  email_input text
 )
 RETURNS TABLE(
   success boolean,
@@ -268,6 +276,7 @@ RETURNS TABLE(
 ) AS $$
 DECLARE
   current_pin_valid boolean;
+  email_valid boolean;
   pin_exists boolean;
 BEGIN
   -- Validate new PIN format
@@ -276,14 +285,17 @@ BEGIN
     RETURN;
   END IF;
   
-  -- Verify current PIN
+  -- Verify current PIN and email
   SELECT EXISTS(
     SELECT 1 FROM public.clients 
-    WHERE id = client_id_input AND pin = current_pin_input AND is_active = true
+    WHERE id = client_id_input 
+      AND pin = current_pin_input 
+      AND contact_email = email_input
+      AND is_active = true
   ) INTO current_pin_valid;
   
   IF NOT current_pin_valid THEN
-    RETURN QUERY SELECT false, 'Current PIN is incorrect'::text, 'INVALID_CURRENT_PIN'::text;
+    RETURN QUERY SELECT false, 'Current PIN or email is incorrect'::text, 'INVALID_CREDENTIALS'::text;
     RETURN;
   END IF;
   
@@ -312,5 +324,99 @@ BEGIN
   WHERE client_id = client_id_input;
   
   RETURN QUERY SELECT true, 'PIN changed successfully. Please login again.'::text, NULL::text;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to get recent call logs for dashboard
+CREATE OR REPLACE FUNCTION public.get_recent_calls(
+  client_id_input uuid,
+  limit_rows integer DEFAULT 10
+)
+RETURNS TABLE(
+  id uuid,
+  call_time timestamp with time zone,
+  duration_seconds integer,
+  cost numeric,
+  caller_number text,
+  call_status text,
+  assistant_display_name text,
+  success_evaluation boolean
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    cl.id,
+    cl.call_time,
+    cl.duration_seconds,
+    cl.cost,
+    cl.caller_number,
+    cl.call_status,
+    cl.assistant_display_name,
+    cl.success_evaluation
+  FROM public.call_logs cl
+  WHERE cl.client_id = client_id_input
+  ORDER BY cl.call_time DESC
+  LIMIT limit_rows;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to get dashboard analytics with proper field references
+CREATE OR REPLACE FUNCTION public.get_dashboard_analytics(
+  client_id_input uuid,
+  days_back integer DEFAULT 30
+)
+RETURNS TABLE(
+  total_calls bigint,
+  total_duration_hours numeric,
+  avg_duration_minutes numeric,
+  success_rate numeric,
+  recent_calls jsonb
+) AS $$
+DECLARE
+  start_date timestamp with time zone;
+BEGIN
+  start_date := timezone('utc'::text, now()) - (days_back || ' days')::interval;
+  
+  RETURN QUERY
+  WITH call_stats AS (
+    SELECT 
+      COUNT(*) as total_calls,
+      COALESCE(SUM(duration_seconds), 0) as total_duration_seconds,
+      COALESCE(AVG(duration_seconds), 0) as avg_duration_seconds,
+      COALESCE(
+        SUM(CASE WHEN call_status = 'completed' THEN 1 ELSE 0 END)::numeric / 
+        NULLIF(COUNT(*), 0) * 100, 
+        0
+      ) as success_rate
+    FROM public.call_logs
+    WHERE client_id = client_id_input 
+      AND call_time >= start_date
+  ),
+  recent AS (
+    SELECT jsonb_agg(
+      jsonb_build_object(
+        'id', cl.id,
+        'call_time', cl.call_time,
+        'duration_seconds', cl.duration_seconds,
+        'cost', cl.cost,
+        'caller_number', cl.caller_number,
+        'call_status', cl.call_status,
+        'assistant_display_name', cl.assistant_display_name
+      ) ORDER BY cl.call_time DESC
+    ) as recent_calls
+    FROM (
+      SELECT * FROM public.call_logs
+      WHERE client_id = client_id_input
+      ORDER BY call_time DESC
+      LIMIT 10
+    ) cl
+  )
+  SELECT 
+    cs.total_calls,
+    ROUND(cs.total_duration_seconds::numeric / 3600, 2) as total_duration_hours,
+    ROUND(cs.avg_duration_seconds::numeric / 60, 2) as avg_duration_minutes,
+    ROUND(cs.success_rate, 2) as success_rate,
+    r.recent_calls
+  FROM call_stats cs, recent r;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
