@@ -2,718 +2,312 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/lib/auth-context'
-import { motion } from 'framer-motion'
+import { usePinAuth } from '@/lib/contexts/pin-auth-context'
 import { 
   BarChart3, 
   TrendingUp, 
   Phone, 
   Clock, 
-  DollarSign,
-  Users,
   Activity,
-  Target,
-  CalendarDays,
-  Zap,
-  ArrowRight,
-  PlayCircle,
-  AlertCircle,
-  RefreshCw
+  Settings,
+  Calendar,
+  AlertCircle
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { DashboardLayout } from '@/components/dashboard/layout'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { SimpleBarChart, SimpleLineChart } from '@/components/analytics/simple-bar-chart'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { toast } from '@/hooks/use-toast'
+import { motion } from 'framer-motion'
+import { authenticatedFetch, handleAuthenticatedResponse } from '@/lib/utils/client-session'
+import type { DashboardAnalytics, CallLog } from '@/types/client'
 
-interface AnalyticsSummary {
+interface AnalyticsStats {
   totalCalls: number
-  totalCost: number
-  totalDuration: number
-  avgDuration: number
+  totalDurationHours: number
+  avgDurationMinutes: number
   successRate: number
-  topAssistants: Array<{
-    id: string
-    name: string
-    calls: number
-    cost: number
-    successRate: number
-  }>
-  recentActivity: Array<{
-    id: string
-    assistantName: string
-    callerNumber: string
-    duration: number
-    cost: number
-    success: boolean
-    timestamp: string
-  }>
-  dailyStats: Array<{
-    date: string
-    calls: number
-    cost: number
-    avgDuration: number
-  }>
-}
-
-// Error Boundary Component for individual sections
-const ErrorBoundary = ({ children, fallback }: { children: React.ReactNode, fallback: React.ReactNode }) => {
-  try {
-    return <>{children}</>
-  } catch (error) {
-    console.error('Analytics section error:', error)
-    return <>{fallback}</>
-  }
-}
-
-// Loading skeleton for metric cards
-const MetricSkeleton = () => (
-  <Card>
-    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-      <Skeleton className="h-4 w-24" />
-      <Skeleton className="h-4 w-4 rounded" />
-    </CardHeader>
-    <CardContent>
-      <Skeleton className="h-8 w-16 mb-1" />
-      <Skeleton className="h-3 w-32" />
-    </CardContent>
-  </Card>
-)
-
-
-// Error state for API failures
-const ErrorState = ({ onRetry }: { onRetry: () => void }) => (
-  <motion.div
-    initial={{ opacity: 0, scale: 0.95 }}
-    animate={{ opacity: 1, scale: 1 }}
-    className="flex items-center justify-center py-16"
-  >
-    <Card className="w-full max-w-md">
-      <CardHeader className="text-center">
-        <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4"
-             style={{ background: 'var(--vm-orange-pale)' }}>
-          <AlertCircle className="h-8 w-8" style={{ color: 'var(--vm-orange-primary)' }} />
-        </div>
-        <CardTitle className="vm-text-primary">Analytics Temporarily Unavailable</CardTitle>
-        <CardDescription className="vm-text-secondary">
-          We're having trouble loading your analytics data. This usually resolves quickly.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="text-center">
-        <Button 
-          onClick={onRetry}
-          className="px-6 py-2"
-          style={{ background: 'var(--vm-gradient-brand)' }}
-        >
-          <RefreshCw className="mr-2 h-4 w-4" />
-          Try Again
-        </Button>
-      </CardContent>
-    </Card>
-  </motion.div>
-)
-
-// Individual metric card with error handling and improved colors
-const MetricCard = ({ title, value, subtitle, icon: Icon, trend }: {
-  title: string
-  value: string | number
-  subtitle: string
-  icon: any
-  trend?: { value: number, isPositive: boolean }
-}) => {
-  // Dynamic icon colors based on metric type
-  const getIconColor = () => {
-    switch(title) {
-      case 'Total Calls': return '#3b82f6' // Blue
-      case 'Total Cost': return '#10b981' // Green
-      case 'Avg Duration': return '#f59e0b' // Amber
-      case 'Success Rate': return '#8b5cf6' // Purple
-      default: return 'var(--vm-text-muted)'
-    }
-  }
-
-  return (
-    <ErrorBoundary fallback={<MetricSkeleton />}>
-      <motion.div
-        whileHover={{ y: -5, scale: 1.02 }}
-        transition={{ duration: 0.2 }}
-      >
-        <Card className="border border-gray-700 bg-gray-900/50 backdrop-blur">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400">{title}</CardTitle>
-            <div className="p-2 rounded-lg" style={{ backgroundColor: `${getIconColor()}20` }}>
-              <Icon className="h-4 w-4" style={{ color: getIconColor() }} />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">{value}</div>
-            <div className="flex items-center gap-2">
-              <p className="text-xs text-gray-500">{subtitle}</p>
-              {trend && (
-                <Badge 
-                  variant={trend.isPositive ? "default" : "secondary"}
-                  className={`text-xs ${trend.isPositive ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}
-                >
-                  {trend.isPositive ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingUp className="h-3 w-3 mr-1 rotate-180" />}
-                  {Math.abs(trend.value)}%
-                </Badge>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-    </ErrorBoundary>
-  )
+  recentCalls: CallLog[]
 }
 
 export default function AnalyticsPage() {
   const router = useRouter()
-  const { user } = useAuth()
-  const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null)
+  const { client, isAuthenticated, isLoading } = usePinAuth()
+  const [analytics, setAnalytics] = useState<AnalyticsStats | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [hasData, setHasData] = useState(false)
+  const [timeRange, setTimeRange] = useState('30') // days
 
-  // Always allow access to analytics page
   useEffect(() => {
-    // Don't redirect if no user - just show limited analytics
-    fetchAnalytics()
-  }, [])
+    if (isAuthenticated && !isLoading) {
+      fetchAnalytics()
+    }
+  }, [isAuthenticated, isLoading, timeRange])
 
   const fetchAnalytics = async () => {
     try {
       setLoading(true)
-      setError(null)
       
-      // If no user, show empty state immediately
-      if (!user) {
-        setAnalytics(null)
-        setHasData(false)
-        setLoading(false)
-        return
+      const response = await authenticatedFetch(`/api/analytics/dashboard?days_back=${timeRange}`)
+      const data = await handleAuthenticatedResponse<DashboardAnalytics>(response)
+      
+      if (data) {
+        // Transform the data to match our interface
+        setAnalytics({
+          totalCalls: Number(data.total_calls) || 0,
+          totalDurationHours: Number(data.total_duration_hours) || 0,
+          avgDurationMinutes: Number(data.avg_duration_minutes) || 0,
+          successRate: Number(data.success_rate) || 0,
+          recentCalls: data.recent_calls || []
+        })
       }
-      
-      const response = await fetch('/api/analytics/overview')
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-      }
-      
-      const data = await response.json()
-      
-      if (data.success) {
-        setAnalytics(data.data)
-        // Check if user has any meaningful data
-        setHasData(data.data.totalCalls > 0 || data.data.topAssistants.length > 0)
-      } else {
-        throw new Error(data.error?.message || 'Failed to load analytics')
-      }
-    } catch (err) {
-      console.error('Analytics fetch error:', err)
-      setError(err instanceof Error ? err.message : 'Failed to load analytics data')
-      // Still show the page, just with error state for that section
+    } catch (error) {
+      console.error('[Analytics] Failed to fetch analytics:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to load analytics data. Please try again.',
+        variant: 'destructive'
+      })
     } finally {
       setLoading(false)
     }
   }
 
-  const generateSampleData = async () => {
-    if (!user || generatingData) return
-    
-    try {
-      setGeneratingData(true)
-      const response = await fetch('/api/analytics/generate-sample-data', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      })
-      
-      const data = await response.json()
-      
-      if (data.success) {
-        // Refresh analytics after generating data
-        fetchAnalytics()
-      } else {
-        console.error('Failed to generate sample data:', data.error)
-      }
-    } catch (err) {
-      console.error('Generate sample data error:', err)
-    } finally {
-      setGeneratingData(false)
-    }
+  const formatDuration = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+    return minutes > 0 ? `${minutes}m ${remainingSeconds}s` : `${remainingSeconds}s`
+  }
+
+  if (isLoading || loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </DashboardLayout>
+    )
   }
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
-        {/* Header - Always visible */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between"
-        >
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold tracking-tight vm-text-gradient">Analytics</h1>
-            <p className="text-lg vm-text-secondary mt-2">
-              {!user ? 'Sign in to view your voice agent analytics' :
-               'Performance insights across all your voice agents'}
-            </p>
+            <h1 className="text-3xl font-bold text-gray-900">Analytics</h1>
+            <p className="text-gray-600">View your call analytics and performance metrics</p>
           </div>
-          <div className="flex items-center gap-3">
-            <Badge 
-              variant="outline" 
-              className="flex items-center gap-1 px-3 py-1"
-              style={{ 
-                borderColor: '#22c55e', 
-                color: '#22c55e',
-                backgroundColor: 'rgba(34, 197, 94, 0.1)'
-              }}
+          <div className="flex items-center gap-4">
+            <Select value={timeRange} onValueChange={setTimeRange}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Select time range" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7">Last 7 days</SelectItem>
+                <SelectItem value="30">Last 30 days</SelectItem>
+                <SelectItem value="90">Last 90 days</SelectItem>
+                <SelectItem value="365">Last year</SelectItem>
+              </SelectContent>
+            </Select>
+            <button
+              onClick={() => router.push('/dashboard/settings')}
+              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-              <Activity className="h-3 w-3 animate-pulse" />
-              {user ? 'Live Data' : 'Demo Mode'}
-            </Badge>
+              <Settings className="h-4 w-4 mr-2" />
+              Settings
+            </button>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Prominent Assistant Analytics Button */}
-        {user && (
+        {/* Key Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="flex justify-center"
+            transition={{ delay: 0.1 }}
+            className="bg-white rounded-lg shadow p-6"
           >
-            <Button
-              onClick={() => router.push('/dashboard/analytics/assistant')}
-              className="group relative px-8 py-6 text-lg font-semibold shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
-              style={{ 
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                color: 'white'
-              }}
-            >
-              <div className="absolute inset-0 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                   style={{
-                     background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                     borderRadius: 'inherit'
-                   }}
-              />
-              <div className="relative flex items-center gap-3">
-                <BarChart3 className="h-6 w-6" />
-                <span>View Detailed Assistant Analytics</span>
-                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Calls</p>
+                <p className="text-2xl font-bold text-gray-900">{analytics?.totalCalls || 0}</p>
+                <p className="text-xs text-gray-500">Last {timeRange} days</p>
               </div>
-            </Button>
+              <Phone className="h-8 w-8 text-blue-600" />
+            </div>
           </motion.div>
-        )}
 
-        {/* Content based on state */}
-        {loading ? (
-          // Loading State
-          <div className="space-y-8">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <MetricSkeleton />
-              <MetricSkeleton />
-              <MetricSkeleton />
-              <MetricSkeleton />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white rounded-lg shadow p-6"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Hours</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {analytics?.totalDurationHours ? analytics.totalDurationHours.toFixed(1) : '0.0'}
+                </p>
+                <p className="text-xs text-gray-500">Conversation time</p>
+              </div>
+              <Clock className="h-8 w-8 text-green-600" />
             </div>
-            <div className="grid gap-6 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <Skeleton className="h-6 w-48" />
-                  <Skeleton className="h-4 w-64" />
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <Skeleton className="h-16 w-full" />
-                    <Skeleton className="h-16 w-full" />
-                    <Skeleton className="h-16 w-full" />
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <Skeleton className="h-6 w-48" />
-                  <Skeleton className="h-4 w-64" />
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <Skeleton className="h-12 w-full" />
-                    <Skeleton className="h-12 w-full" />
-                    <Skeleton className="h-12 w-full" />
-                  </div>
-                </CardContent>
-              </Card>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white rounded-lg shadow p-6"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Avg Duration</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {analytics?.avgDurationMinutes ? `${analytics.avgDurationMinutes.toFixed(1)}m` : '0.0m'}
+                </p>
+                <p className="text-xs text-gray-500">Per call</p>
+              </div>
+              <BarChart3 className="h-8 w-8 text-purple-600" />
             </div>
-          </div>
-        ) : !user ? (
-          // Show analytics with empty data for non-authenticated users
-          <div className="space-y-8">
-            {/* Prominent Assistant Analytics Button - Always shown */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 }}
-              className="flex justify-center"
-            >
-              <Button
-                onClick={() => router.push('/dashboard/analytics/assistant')}
-                className="group relative px-8 py-6 text-lg font-semibold shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
-                style={{ 
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  color: 'white'
-                }}
-              >
-                <div className="absolute inset-0 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                     style={{
-                       background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                       borderRadius: 'inherit'
-                     }}
-                />
-                <div className="relative flex items-center gap-3">
-                  <BarChart3 className="h-6 w-6" />
-                  <span>View Detailed Assistant Analytics</span>
-                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-                </div>
-              </Button>
-            </motion.div>
+          </motion.div>
 
-            {/* Key Metrics - Always shown with zero values */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
-            >
-              <MetricCard title="Total Calls" value={0} subtitle="All-time conversations" icon={Phone} />
-              <MetricCard title="Total Cost" value="$0.00" subtitle="Voice AI expenses" icon={DollarSign} />
-              <MetricCard title="Avg Duration" value="0s" subtitle="Per conversation" icon={Clock} />
-              <MetricCard title="Success Rate" value="0%" subtitle="Successful interactions" icon={Target} />
-            </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-white rounded-lg shadow p-6"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Success Rate</p>
+                <p className="text-2xl font-bold text-gray-900">{analytics?.successRate || 0}%</p>
+                <p className="text-xs text-gray-500">Call completion</p>
+              </div>
+              <TrendingUp className="h-8 w-8 text-orange-600" />
+            </div>
+          </motion.div>
+        </div>
 
-            {/* Empty Charts */}
-            <div className="grid gap-6 md:grid-cols-2">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                <Card className="border border-gray-700 bg-gray-900/50 backdrop-blur">
-                  <CardHeader>
-                    <CardTitle className="text-white">Top Performing Agents</CardTitle>
-                    <CardDescription className="text-gray-400">
-                      Your most active voice agents this month
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-8">
-                      <Users className="h-12 w-12 mx-auto mb-4 vm-text-muted" />
-                      <p className="vm-text-muted">No agent data available yet</p>
-                      <p className="text-sm vm-text-muted mt-1">Deploy agents and make calls to see performance metrics</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                <Card className="border border-gray-700 bg-gray-900/50 backdrop-blur">
-                  <CardHeader>
-                    <CardTitle className="text-white">Recent Activity</CardTitle>
-                    <CardDescription className="text-gray-400">
-                      Latest call activity across all agents
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-8">
-                      <Activity className="h-12 w-12 mx-auto mb-4 vm-text-muted" />
-                      <p className="vm-text-muted">No recent activity to display</p>
-                      <p className="text-sm vm-text-muted mt-1">Your recent calls will appear here</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+        {/* Recent Calls */}
+        <div className="bg-white rounded-lg shadow">
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-medium text-gray-900">Recent Call Activity</h2>
+                <p className="text-sm text-gray-600">Your latest calls and their outcomes</p>
+              </div>
+              <Badge variant="outline" className="flex items-center gap-1">
+                <Activity className="h-3 w-3" />
+                Live Data
+              </Badge>
             </div>
           </div>
-        ) : error ? (
-          // Error State - still shows page structure
-          <div className="space-y-8">
-            {/* Show basic metrics with placeholder data */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <MetricCard title="Total Calls" value="--" subtitle="Temporarily unavailable" icon={Phone} />
-              <MetricCard title="Total Cost" value="--" subtitle="Temporarily unavailable" icon={DollarSign} />
-              <MetricCard title="Avg Duration" value="--" subtitle="Temporarily unavailable" icon={Clock} />
-              <MetricCard title="Success Rate" value="--" subtitle="Temporarily unavailable" icon={Target} />
-            </div>
-            
-            {/* Error state for detailed sections */}
-            <ErrorState onRetry={fetchAnalytics} />
-          </div>
-        ) : (
-          // Full Analytics Dashboard
-          <div className="space-y-8">
-            {/* Key Metrics */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
-            >
-              <MetricCard 
-                title="Total Calls" 
-                value={analytics?.totalCalls || 0}
-                subtitle="All-time conversations" 
-                icon={Phone}
-                trend={analytics?.totalCalls > 0 ? { value: 12, isPositive: true } : undefined}
-              />
-              <MetricCard 
-                title="Total Cost" 
-                value={`$${(analytics?.totalCost || 0).toFixed(2)}`}
-                subtitle="Voice AI expenses" 
-                icon={DollarSign}
-              />
-              <MetricCard 
-                title="Avg Duration" 
-                value={`${Math.round(analytics?.avgDuration || 0)}s`}
-                subtitle="Per conversation" 
-                icon={Clock}
-              />
-              <MetricCard 
-                title="Success Rate" 
-                value={`${Math.round(analytics?.successRate || 0)}%`}
-                subtitle="Successful interactions" 
-                icon={Target}
-                trend={analytics?.successRate > 50 ? { value: 5, isPositive: true } : undefined}
-              />
-            </motion.div>
 
-            {/* Charts and Details */}
-            <div className="grid gap-6 md:grid-cols-2">
-              {/* Top Performing Agents */}
-              <ErrorBoundary fallback={
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Top Performing Agents</CardTitle>
-                    <CardDescription>Data temporarily unavailable</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-8 vm-text-muted">
-                      Unable to load agent performance data
-                    </div>
-                  </CardContent>
-                </Card>
-              }>
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <Card className="border border-gray-700 bg-gray-900/50 backdrop-blur">
-                    <CardHeader>
-                      <CardTitle className="text-white">Top Performing Agents</CardTitle>
-                      <CardDescription className="text-gray-400">
-                        Your most active voice agents this month
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      {!analytics?.topAssistants || analytics.topAssistants.length === 0 ? (
-                        <div className="text-center py-8">
-                          <Users className="h-12 w-12 mx-auto mb-4 vm-text-muted" />
-                          <p className="vm-text-muted">No agent data available yet</p>
-                          <p className="text-sm vm-text-muted mt-1">Deploy agents and make calls to see performance metrics</p>
-                        </div>
-                      ) : (
-                        <div className="space-y-4">
-                          {analytics.topAssistants.map((assistant, index) => (
-                            <motion.div
-                              key={assistant.id}
-                              initial={{ opacity: 0, x: -10 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: 0.1 * index }}
-                              className="flex items-center justify-between p-3 rounded-lg border border-gray-700 hover:border-purple-500/50 transition-colors"
-                              style={{ background: 'rgba(17, 24, 39, 0.5)' }}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className="flex items-center justify-center w-8 h-8 rounded-full"
-                                     style={{ background: `linear-gradient(135deg, ${index === 0 ? '#fbbf24' : index === 1 ? '#a3a3a3' : '#f97316'} 0%, ${index === 0 ? '#f59e0b' : index === 1 ? '#737373' : '#ea580c'} 100%)` }}>
-                                  <span className="text-sm font-semibold text-white">#{index + 1}</span>
-                                </div>
-                                <div>
-                                  <div className="font-medium text-white">{assistant.name}</div>
-                                  <div className="text-sm text-gray-400">
-                                    {assistant.calls} calls • {assistant.successRate}% success
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="text-right">
-                                <div className="font-semibold text-green-400">${assistant.cost.toFixed(2)}</div>
-                                <div className="text-sm text-gray-500">cost</div>
-                              </div>
-                            </motion.div>
-                          ))}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              </ErrorBoundary>
-
-              {/* Recent Activity */}
-              <ErrorBoundary fallback={
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Recent Activity</CardTitle>
-                    <CardDescription>Data temporarily unavailable</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-8 vm-text-muted">
-                      Unable to load activity data
-                    </div>
-                  </CardContent>
-                </Card>
-              }>
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <Card className="border border-gray-700 bg-gray-900/50 backdrop-blur">
-                    <CardHeader>
-                      <CardTitle className="text-white">Recent Activity</CardTitle>
-                      <CardDescription className="text-gray-400">
-                        Latest call activity across all agents
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      {!analytics?.recentActivity || analytics.recentActivity.length === 0 ? (
-                        <div className="text-center py-8">
-                          <Activity className="h-12 w-12 mx-auto mb-4 vm-text-muted" />
-                          <p className="vm-text-muted">No recent activity to display</p>
-                          <p className="text-sm vm-text-muted mt-1">Your recent calls will appear here</p>
-                        </div>
-                      ) : (
-                        <div className="space-y-3">
-                          {analytics.recentActivity.map((activity, index) => (
-                            <motion.div
-                              key={activity.id}
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: 0.1 * index }}
-                              className="flex items-center justify-between p-3 border rounded-lg hover:border-blue-500/50 transition-colors"
-                              style={{ borderColor: 'rgba(75, 85, 99, 0.5)', background: 'rgba(17, 24, 39, 0.3)' }}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className={`w-2 h-2 rounded-full animate-pulse ${activity.success ? 'bg-green-500' : 'bg-yellow-500'}`} />
-                                <div>
-                                  <div className="font-medium text-white">{activity.assistantName}</div>
-                                  <div className="text-sm text-gray-400">
-                                    {activity.callerNumber} • {activity.duration}s
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="text-right">
-                                <div className="font-semibold text-green-400">${activity.cost.toFixed(2)}</div>
-                                <div className="text-xs text-gray-500">
-                                  {new Date(activity.timestamp).toLocaleDateString()}
-                                </div>
-                              </div>
-                            </motion.div>
-                          ))}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              </ErrorBoundary>
-            </div>
-
-            {/* Daily Statistics with Charts */}
-            <ErrorBoundary fallback={null}>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-              >
-                <Card className="border border-gray-700 bg-gray-900/50 backdrop-blur">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-white">
-                      <CalendarDays className="h-5 w-5 text-indigo-400" />
-                      Daily Performance
-                    </CardTitle>
-                    <CardDescription className="text-gray-400">
-                      Call volume and costs over the past week
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {/* Call Volume Chart */}
-                    <div>
-                      <h4 className="text-sm font-medium vm-text-primary mb-3">Call Volume</h4>
-                      <SimpleBarChart
-                        data={analytics?.dailyStats?.map(day => ({
-                          label: new Date(day.date).toLocaleDateString('en', { weekday: 'short' }),
-                          value: day.calls
-                        })) || [
-                          { label: 'Mon', value: 0 },
-                          { label: 'Tue', value: 0 },
-                          { label: 'Wed', value: 0 },
-                          { label: 'Thu', value: 0 },
-                          { label: 'Fri', value: 0 },
-                          { label: 'Sat', value: 0 },
-                          { label: 'Sun', value: 0 }
-                        ]}
-                        height={150}
-                      />
-                    </div>
-                    
-                    {/* Cost Trend Chart */}
-                    <div>
-                      <h4 className="text-sm font-medium vm-text-primary mb-3">Cost Trend</h4>
-                      <SimpleLineChart
-                        data={analytics?.dailyStats?.map(day => ({
-                          date: new Date(day.date).toLocaleDateString(),
-                          value: day.cost
-                        })) || []}
-                        height={150}
-                      />
-                    </div>
-                    
-                    {/* Detailed Stats */}
-                    {analytics?.dailyStats && analytics.dailyStats.length > 0 && (
-                      <div className="space-y-3 pt-4 border-t" style={{ borderColor: 'var(--vm-border-subtle)' }}>
-                        <h4 className="text-sm font-medium vm-text-primary mb-3">Detailed Breakdown</h4>
-                        {analytics.dailyStats.map((day, index) => (
-                          <motion.div
-                            key={day.date}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.1 * index }}
-                            className="flex items-center justify-between p-3 border rounded-lg"
-                            style={{ borderColor: 'var(--vm-border-subtle)' }}
-                          >
-                            <div className="flex items-center gap-4">
-                              <div className="font-medium min-w-[100px] vm-text-primary">
-                                {new Date(day.date).toLocaleDateString()}
-                              </div>
-                              <div className="flex items-center gap-4 text-sm vm-text-secondary">
-                                <span>{day.calls} calls</span>
-                                <span>{Math.round(day.avgDuration)}s avg</span>
-                              </div>
-                            </div>
-                            <div className="font-semibold vm-text-primary">
-                              ${day.cost.toFixed(2)}
-                            </div>
-                          </motion.div>
-                        ))}
+          <div className="p-6">
+            {!analytics?.recentCalls || analytics.recentCalls.length === 0 ? (
+              <div className="text-center py-12">
+                <Phone className="mx-auto h-12 w-12 text-gray-400" />
+                <h3 className="mt-2 text-sm font-medium text-gray-900">No recent calls</h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  When you receive calls through your assistants, they'll appear here.
+                </p>
+                <p className="mt-2 text-xs text-gray-400">
+                  Call analytics are updated in real-time.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {analytics.recentCalls.map((call, index) => (
+                  <motion.div
+                    key={call.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 + index * 0.1 }}
+                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full">
+                        <Phone className="h-5 w-5 text-blue-600" />
                       </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </ErrorBoundary>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-gray-900">
+                            {call.caller_number || 'Unknown caller'}
+                          </span>
+                          <Badge 
+                            variant={call.call_status === 'completed' ? 'default' : 'secondary'}
+                            className="text-xs"
+                          >
+                            {call.call_status || 'Unknown'}
+                          </Badge>
+                        </div>
+                        <div className="text-sm text-gray-600 flex items-center gap-4">
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {formatDuration(call.duration_seconds || 0)}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {new Date(call.call_time).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="text-right">
+                      <div className="text-sm font-medium text-gray-900">
+                        Assistant: {call.assistant_display_name || 'Unknown'}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {new Date(call.call_time).toLocaleTimeString()}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
           </div>
-        )}
+        </div>
+
+        {/* Analytics Notice */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="bg-blue-50 border border-blue-200 rounded-lg p-6"
+        >
+          <div className="flex gap-3">
+            <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-blue-800">
+              <p className="font-medium">Analytics & Reporting</p>
+              <p className="mt-1">
+                Your call analytics are automatically generated from your voice assistant interactions. 
+                Data is updated in real-time and includes call duration, success rates, and caller information.
+              </p>
+              <div className="mt-3 flex gap-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.push('/dashboard')}
+                  className="border-blue-300 text-blue-700 hover:bg-blue-100"
+                >
+                  Back to Dashboard
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.push('/dashboard/assistants')}
+                  className="border-blue-300 text-blue-700 hover:bg-blue-100"
+                >
+                  View Assistants
+                </Button>
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </DashboardLayout>
   )

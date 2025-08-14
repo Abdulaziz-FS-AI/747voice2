@@ -1,416 +1,371 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
-import { useAuth } from '@/lib/auth-context'
-import { Settings, User, Bell, Database, Shield, Sparkles, Zap, Activity, CreditCard } from 'lucide-react'
-// Card components replaced with AI Voice Agent design system
+import { Lock, Mail, User, Calendar, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
 import { DashboardLayout } from '@/components/dashboard/layout'
-import { Badge } from '@/components/ui/badge'
+import { motion } from 'framer-motion'
+import { usePinAuth } from '@/lib/contexts/pin-auth-context'
+import { authenticatedFetch, handleAuthenticatedResponse } from '@/lib/utils/client-session'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
+import { toast } from '@/hooks/use-toast'
+import type { ClientInfo } from '@/types/client'
+
+interface ClientSettings {
+  company_name: string
+  contact_email: string
+  pin_changed_at?: string
+  masked_email: string
+}
 
 export default function SettingsPage() {
   const router = useRouter()
-  const { user } = useAuth()
+  const { client, logout, isAuthenticated, isLoading } = usePinAuth()
+  const [settings, setSettings] = useState<ClientSettings | null>(null)
+  const [loadingSettings, setLoadingSettings] = useState(true)
+
+  // PIN Change Form
+  const [currentPin, setCurrentPin] = useState('')
+  const [newPin, setNewPin] = useState('')
+  const [confirmNewPin, setConfirmNewPin] = useState('')
+  const [email, setEmail] = useState('')
+  const [changingPin, setChangingPin] = useState(false)
+  const [pinChangeSuccess, setPinChangeSuccess] = useState(false)
 
   useEffect(() => {
-    if (!user) {
-      router.push('/login')
+    if (isAuthenticated && !isLoading) {
+      fetchSettings()
+    }
+  }, [isAuthenticated, isLoading])
+
+  const fetchSettings = async () => {
+    try {
+      setLoadingSettings(true)
+      const response = await authenticatedFetch('/api/auth/change-pin')
+      const data = await handleAuthenticatedResponse<ClientSettings>(response)
+      
+      if (data) {
+        setSettings(data)
+        setEmail(data.contact_email) // Pre-fill email
+      }
+    } catch (error) {
+      console.error('[Settings] Failed to fetch settings:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to load settings. Please try again.',
+        variant: 'destructive'
+      })
+    } finally {
+      setLoadingSettings(false)
+    }
+  }
+
+  const handlePinChange = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    // Validation
+    if (!currentPin || currentPin.length < 6) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please enter your current PIN (6-8 digits)',
+        variant: 'destructive'
+      })
       return
     }
-  }, [user, router])
 
-  if (!user) {
-    return null
+    if (!newPin || newPin.length < 6 || newPin.length > 8) {
+      toast({
+        title: 'Validation Error',
+        description: 'New PIN must be 6-8 digits',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    if (newPin !== confirmNewPin) {
+      toast({
+        title: 'Validation Error',
+        description: 'New PIN and confirmation do not match',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    if (!email || !email.includes('@')) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please enter a valid email address',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    try {
+      setChangingPin(true)
+      
+      const response = await authenticatedFetch('/api/auth/change-pin', {
+        method: 'POST',
+        body: JSON.stringify({
+          currentPin,
+          newPin,
+          email
+        })
+      })
+
+      const result = await handleAuthenticatedResponse<any>(response)
+      
+      if (result) {
+        setPinChangeSuccess(true)
+        toast({
+          title: 'PIN Changed Successfully',
+          description: 'Your PIN has been updated. You will be logged out in 3 seconds.',
+        })
+
+        // Clear form
+        setCurrentPin('')
+        setNewPin('')
+        setConfirmNewPin('')
+
+        // Logout after 3 seconds
+        setTimeout(() => {
+          logout()
+        }, 3000)
+      }
+    } catch (error: any) {
+      console.error('[Settings] PIN change failed:', error)
+      toast({
+        title: 'PIN Change Failed',
+        description: error.message || 'Failed to change PIN. Please try again.',
+        variant: 'destructive'
+      })
+    } finally {
+      setChangingPin(false)
+    }
+  }
+
+  if (isLoading || loadingSettings) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </DashboardLayout>
+    )
   }
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
-        {/* Voice Agent Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="flex items-center justify-between"
-        >
-          <div>
-            <motion.h1 
-              className="vm-text-display mb-2"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-            >
-              <span className="vm-text-gradient">Voice Agent</span> Settings
-            </motion.h1>
-            <motion.p 
-              className="vm-text-secondary text-lg"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              Configure your Voice Matrix experience and preferences
-            </motion.p>
-          </div>
-          <motion.div
-            className="vm-energy-pulse p-4 rounded-2xl"
-            style={{ background: 'var(--vm-gradient-surface)' }}
-            whileHover={{ scale: 1.05 }}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
-            <Settings className="w-8 h-8" style={{ color: 'var(--vm-orange-primary)' }} />
-          </motion.div>
-        </motion.div>
+      <div className="space-y-6">
+        {/* Header */}
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Account Settings</h1>
+          <p className="text-gray-600">Manage your account preferences and security</p>
+        </div>
 
-        {/* AI Voice Agent Settings Grid */}
-        <div className="grid gap-8 md:grid-cols-2">
-          {/* Account Settings */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Account Information */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            whileHover={{ y: -5, scale: 1.02 }}
-            className="vm-card-feature p-8 group"
+            transition={{ delay: 0.1 }}
+            className="bg-white rounded-lg shadow p-6"
           >
-            <div className="flex items-center gap-4 mb-6">
-              <motion.div
-                className="w-12 h-12 rounded-xl flex items-center justify-center"
-                style={{ background: 'var(--vm-gradient-brand)' }}
-                whileHover={{ rotate: 360, scale: 1.1 }}
-                transition={{ duration: 0.6 }}
-              >
-                <User className="w-6 h-6 text-white" />
-              </motion.div>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <User className="h-5 w-5 text-blue-600" />
+              </div>
               <div>
-                <h3 className="text-xl font-semibold vm-text-gradient">Account Matrix</h3>
-                <p className="vm-text-secondary text-sm">AI Voice Agent profile configuration</p>
+                <h2 className="text-lg font-semibold text-gray-900">Account Information</h2>
+                <p className="text-sm text-gray-600">Your account details</p>
               </div>
             </div>
-            
-            <div className="space-y-6">
-              <div className="space-y-3">
-                <label className="text-sm font-medium" style={{ color: 'var(--vm-pure)' }}>AI Voice Agent Identity</label>
-                <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--vm-surface)' }}>
-                  <span className="vm-text-secondary font-mono text-sm">{user.email}</span>
-                  <motion.div whileHover={{ scale: 1.05 }}>
-                    <Badge className="vm-badge bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
-                      <Activity className="w-3 h-3 mr-1" />
-                      Verified
-                    </Badge>
-                  </motion.div>
+
+            <div className="space-y-4">
+              <div>
+                <Label className="text-sm font-medium text-gray-700">Company Name</Label>
+                <div className="mt-1 p-3 bg-gray-50 rounded-md border">
+                  <p className="text-gray-900">{settings?.company_name || client?.company_name}</p>
                 </div>
               </div>
-              <div className="space-y-3">
-                <label className="text-sm font-medium" style={{ color: 'var(--vm-pure)' }}>Access Level</label>
-                <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--vm-surface)' }}>
-                  <span className="vm-text-secondary font-semibold">Pro AI Voice Agent Access</span>
-                  <motion.div whileHover={{ scale: 1.05 }}>
-                    <Badge className="vm-badge">
-                      <Sparkles className="w-3 h-3 mr-1" />
-                      Active
-                    </Badge>
-                  </motion.div>
+
+              <div>
+                <Label className="text-sm font-medium text-gray-700">Contact Email</Label>
+                <div className="mt-1 p-3 bg-gray-50 rounded-md border">
+                  <p className="text-gray-900">{settings?.contact_email}</p>
                 </div>
               </div>
+
+              {settings?.pin_changed_at && (
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">Last PIN Change</Label>
+                  <div className="mt-1 p-3 bg-gray-50 rounded-md border flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-gray-400" />
+                    <p className="text-gray-900">
+                      {new Date(settings.pin_changed_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
 
-          {/* Billing & Subscription */}
+          {/* PIN Change */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.15 }}
-            whileHover={{ y: -5, scale: 1.02 }}
-            className="vm-card-feature p-8 group cursor-pointer"
-            onClick={() => router.push('/dashboard/settings/billing')}
+            transition={{ delay: 0.2 }}
+            className="bg-white rounded-lg shadow p-6"
           >
-            <div className="flex items-center gap-4 mb-6">
-              <motion.div
-                className="w-12 h-12 rounded-xl flex items-center justify-center"
-                style={{ background: 'var(--vm-gradient-primary)' }}
-                whileHover={{ rotate: 360, scale: 1.1 }}
-                transition={{ duration: 0.6 }}
-              >
-                <CreditCard className="w-6 h-6 text-white" />
-              </motion.div>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-red-100 rounded-lg">
+                <Lock className="h-5 w-5 text-red-600" />
+              </div>
               <div>
-                <h3 className="text-xl font-semibold vm-text-gradient">Billing Matrix</h3>
-                <p className="vm-text-secondary text-sm">Subscription & usage management</p>
+                <h2 className="text-lg font-semibold text-gray-900">Change PIN</h2>
+                <p className="text-sm text-gray-600">Update your security PIN</p>
               </div>
             </div>
-            
-            <div className="space-y-6">
-              <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--vm-surface)' }}>
-                <div>
-                  <div className="font-medium" style={{ color: 'var(--vm-pure)' }}>Current Plan</div>
-                  <div className="text-sm vm-text-secondary">Manage your subscription</div>
-                </div>
-                <motion.div whileHover={{ scale: 1.05 }}>
-                  <Badge className="vm-badge" style={{ background: 'var(--vm-gradient-primary)', color: '#FFFFFF' }}>
-                    <Zap className="w-3 h-3 mr-1" />
-                    Manage
-                  </Badge>
-                </motion.div>
-              </div>
-              <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--vm-surface)' }}>
-                <div>
-                  <div className="font-medium" style={{ color: 'var(--vm-pure)' }}>Usage Analytics</div>
-                  <div className="text-sm vm-text-secondary">Track minutes and assistants</div>
-                </div>
-                <motion.div whileHover={{ scale: 1.05 }}>
-                  <Badge className="vm-badge bg-cyan-500/10 text-cyan-400 border-cyan-500/20">
-                    <Activity className="w-3 h-3 mr-1" />
-                    View
-                  </Badge>
-                </motion.div>
-              </div>
-            </div>
-          </motion.div>
 
-          {/* AI Voice Agent Notifications */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            whileHover={{ y: -5, scale: 1.02 }}
-            className="vm-card-feature p-8 group"
-          >
-            <div className="flex items-center gap-4 mb-6">
-              <motion.div
-                className="w-12 h-12 rounded-xl flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg, var(--vm-violet), var(--vm-pulse-purple))' }}
-                whileHover={{ rotate: 360, scale: 1.1 }}
-                transition={{ duration: 0.6 }}
-              >
-                <Bell className="w-6 h-6 text-white" />
-              </motion.div>
-              <div>
-                <h3 className="text-xl font-semibold vm-text-voice agent">AI Voice Agent Alerts</h3>
-                <p className="vm-text-secondary text-sm">Voice intelligence notifications</p>
+            {pinChangeSuccess ? (
+              <div className="text-center py-8">
+                <CheckCircle className="mx-auto h-12 w-12 text-green-500 mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">PIN Changed Successfully</h3>
+                <p className="text-sm text-gray-600">You will be logged out shortly to use your new PIN.</p>
               </div>
-            </div>
-            
-            <div className="space-y-6">
-              <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--vm-surface)' }}>
+            ) : (
+              <form onSubmit={handlePinChange} className="space-y-4">
                 <div>
-                  <div className="font-medium" style={{ color: 'var(--vm-pure)' }}>AI Voice Agent Call Alerts</div>
-                  <div className="text-sm vm-text-secondary">Real-time voice activity monitoring</div>
+                  <Label htmlFor="currentPin" className="text-sm font-medium text-gray-700">
+                    Current PIN
+                  </Label>
+                  <Input
+                    id="currentPin"
+                    type="password"
+                    placeholder="Enter current PIN"
+                    value={currentPin}
+                    onChange={(e) => setCurrentPin(e.target.value.replace(/[^0-9]/g, '').slice(0, 8))}
+                    maxLength={8}
+                    className="mt-1"
+                    disabled={changingPin}
+                  />
                 </div>
-                <motion.div whileHover={{ scale: 1.05 }}>
-                  <Badge className="vm-badge bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
-                    <Zap className="w-3 h-3 mr-1" />
-                    Active
-                  </Badge>
-                </motion.div>
-              </div>
-              <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--vm-surface)' }}>
-                <div>
-                  <div className="font-medium" style={{ color: 'var(--vm-pure)' }}>Matrix Analytics</div>
-                  <div className="text-sm vm-text-secondary">Weekly voice agent performance reports</div>
-                </div>
-                <motion.div whileHover={{ scale: 1.05 }}>
-                  <Badge className="vm-badge bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
-                    <Activity className="w-3 h-3 mr-1" />
-                    Enabled
-                  </Badge>
-                </motion.div>
-              </div>
-            </div>
-          </motion.div>
 
-          {/* AI Voice Agent Security */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            whileHover={{ y: -5, scale: 1.02 }}
-            className="vm-card-feature p-8 group"
-          >
-            <div className="flex items-center gap-4 mb-6">
-              <motion.div
-                className="w-12 h-12 rounded-xl flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg, var(--vm-emerald), var(--vm-cyan))' }}
-                whileHover={{ rotate: 360, scale: 1.1 }}
-                transition={{ duration: 0.6 }}
-              >
-                <Shield className="w-6 h-6 text-white" />
-              </motion.div>
-              <div>
-                <h3 className="text-xl font-semibold" style={{ color: 'var(--vm-emerald)' }}>AI Voice Agent Vault</h3>
-                <p className="vm-text-secondary text-sm">Advanced data protection protocols</p>
-              </div>
-            </div>
-            
-            <div className="space-y-6">
-              <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--vm-surface)' }}>
                 <div>
-                  <div className="font-medium" style={{ color: 'var(--vm-pure)' }}>Data Matrix Retention</div>
-                  <div className="text-sm vm-text-secondary">AI Voice Agent conversation storage period</div>
+                  <Label htmlFor="newPin" className="text-sm font-medium text-gray-700">
+                    New PIN (6-8 digits)
+                  </Label>
+                  <Input
+                    id="newPin"
+                    type="password"
+                    placeholder="Enter new PIN"
+                    value={newPin}
+                    onChange={(e) => setNewPin(e.target.value.replace(/[^0-9]/g, '').slice(0, 8))}
+                    maxLength={8}
+                    className="mt-1"
+                    disabled={changingPin}
+                  />
                 </div>
-                <motion.div whileHover={{ scale: 1.05 }}>
-                  <Badge className="vm-badge bg-cyan-500/10 text-cyan-400 border-cyan-500/20">
-                    90 voice agent cycles
-                  </Badge>
-                </motion.div>
-              </div>
-              <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--vm-surface)' }}>
-                <div>
-                  <div className="font-medium" style={{ color: 'var(--vm-pure)' }}>Intelligence Tracking</div>
-                  <div className="text-sm vm-text-secondary">AI Voice Agent pattern analysis permissions</div>
-                </div>
-                <motion.div whileHover={{ scale: 1.05 }}>
-                  <Badge className="vm-badge bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
-                    <Zap className="w-3 h-3 mr-1" />
-                    Enabled
-                  </Badge>
-                </motion.div>
-              </div>
-            </div>
-          </motion.div>
 
-          {/* AI Voice Agent System Status */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            whileHover={{ y: -5, scale: 1.02 }}
-            className="vm-card-feature p-8 group"
-          >
-            <div className="flex items-center gap-4 mb-6">
-              <motion.div
-                className="w-12 h-12 rounded-xl flex items-center justify-center vm-status-online"
-                style={{ background: 'linear-gradient(135deg, var(--vm-signal-blue), var(--vm-violet))' }}
-                whileHover={{ rotate: 360, scale: 1.1 }}
-                transition={{ duration: 0.6 }}
-              >
-                <Database className="w-6 h-6 text-white" />
-              </motion.div>
-              <div>
-                <h3 className="text-xl font-semibold" style={{ color: 'var(--vm-signal-blue)' }}>AI Voice Agent Core Status</h3>
-                <p className="vm-text-secondary text-sm">System health monitoring</p>
-              </div>
-            </div>
-            
-            <div className="space-y-6">
-              <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--vm-surface)' }}>
                 <div>
-                  <div className="font-medium" style={{ color: 'var(--vm-pure)' }}>AI Voice Agent Database</div>
-                  <div className="text-sm vm-text-secondary">Core data matrix connectivity</div>
+                  <Label htmlFor="confirmNewPin" className="text-sm font-medium text-gray-700">
+                    Confirm New PIN
+                  </Label>
+                  <Input
+                    id="confirmNewPin"
+                    type="password"
+                    placeholder="Confirm new PIN"
+                    value={confirmNewPin}
+                    onChange={(e) => setConfirmNewPin(e.target.value.replace(/[^0-9]/g, '').slice(0, 8))}
+                    maxLength={8}
+                    className="mt-1"
+                    disabled={changingPin}
+                  />
                 </div>
-                <motion.div whileHover={{ scale: 1.05 }}>
-                  <Badge className="vm-badge bg-emerald-500/10 text-emerald-400 border-emerald-500/20 vm-glow-pulse">
-                    <Activity className="w-3 h-3 mr-1" />
-                    AI Voice Agent Active
-                  </Badge>
-                </motion.div>
-              </div>
-              <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--vm-surface)' }}>
+
                 <div>
-                  <div className="font-medium" style={{ color: 'var(--vm-pure)' }}>Voice Intelligence Service</div>
-                  <div className="text-sm vm-text-secondary">Voice intelligence service status</div>
+                  <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                    Email Verification
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email for verification"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="mt-1"
+                    disabled={changingPin}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Must match your account email: {settings?.masked_email}
+                  </p>
                 </div>
-                <motion.div whileHover={{ scale: 1.05 }}>
-                  <Badge className="vm-badge bg-emerald-500/10 text-emerald-400 border-emerald-500/20 vm-glow-pulse">
-                    <Zap className="w-3 h-3 mr-1" />
-                    Connected
-                  </Badge>
-                </motion.div>
-              </div>
-              <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--vm-surface)' }}>
-                <div>
-                  <div className="font-medium" style={{ color: 'var(--vm-pure)' }}>Event Webhooks</div>
-                  <div className="text-sm vm-text-secondary">Real-time voice agent event processing</div>
+
+                <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                  <div className="flex gap-3">
+                    <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                    <div className="text-sm text-yellow-800">
+                      <p className="font-medium">Important:</p>
+                      <ul className="mt-1 list-disc list-inside space-y-1">
+                        <li>You will be logged out after changing your PIN</li>
+                        <li>Use your new PIN to log back in</li>
+                        <li>Make sure to remember your new PIN</li>
+                      </ul>
+                    </div>
+                  </div>
                 </div>
-                <motion.div whileHover={{ scale: 1.05 }}>
-                  <Badge className="vm-badge bg-emerald-500/10 text-emerald-400 border-emerald-500/20 vm-glow-pulse">
-                    <Activity className="w-3 h-3 mr-1" />
-                    Active
-                  </Badge>
-                </motion.div>
-              </div>
-            </div>
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={changingPin}
+                >
+                  {changingPin ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Changing PIN...
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="h-4 w-4 mr-2" />
+                      Change PIN
+                    </>
+                  )}
+                </Button>
+              </form>
+            )}
           </motion.div>
         </div>
 
-        {/* AI Voice Agent Evolution Preview */}
+        {/* Contact Support */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="vm-card-feature p-8 md:col-span-2"
+          transition={{ delay: 0.3 }}
+          className="bg-gray-50 rounded-lg p-6"
         >
-          <div className="flex items-center gap-4 mb-8">
-            <motion.div
-              className="w-12 h-12 rounded-xl flex items-center justify-center"
-              style={{ background: 'var(--vm-gradient-voice agent)' }}
-              animate={{ rotate: [0, 360] }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            >
-              <Sparkles className="w-6 h-6 text-white" />
-            </motion.div>
-            <div>
-              <h3 className="text-2xl font-semibold vm-text-voice agent">AI Voice Agent Evolution Pipeline</h3>
-              <p className="vm-text-secondary">Advanced features currently in voice agent development</p>
-            </div>
+          <div className="flex items-center gap-3 mb-4">
+            <Mail className="h-5 w-5 text-gray-600" />
+            <h3 className="text-lg font-semibold text-gray-900">Need Help?</h3>
           </div>
-          
-          <div className="grid gap-6 md:grid-cols-3">
-            {[
-              {
-                title: "Quantum Analytics",
-                description: "Advanced voice agent conversation analysis with predictive intelligence patterns",
-                icon: "📊",
-                color: "var(--vm-violet)"
-              },
-              {
-                title: "Team AI Voice Agent Network",
-                description: "Collaborative matrix management with distributed voice agent permissions", 
-                icon: "👥",
-                color: "var(--vm-cyan)"
-              },
-              {
-                title: "Matrix Integrations",
-                description: "AI Voice Agent connections to your enterprise CRM and business intelligence systems",
-                icon: "🔗",
-                color: "var(--vm-emerald)"
-              }
-            ].map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.6 + index * 0.1 }}
-                whileHover={{ y: -5, scale: 1.05 }}
-                className="p-6 rounded-2xl group cursor-pointer"
-                style={{ 
-                  background: 'var(--vm-surface)',
-                  border: `1px solid ${feature.color}30`
-                }}
-              >
-                <div className="text-3xl mb-4">{feature.icon}</div>
-                <div className="font-semibold mb-3" style={{ color: 'var(--vm-pure)' }}>
-                  {feature.title}
-                </div>
-                <div className="text-sm vm-text-secondary mb-4 leading-relaxed">
-                  {feature.description}
-                </div>
-                <motion.div whileHover={{ scale: 1.05 }}>
-                  <Badge 
-                    className="vm-badge" 
-                    style={{ 
-                      background: `${feature.color}10`,
-                      color: feature.color,
-                      borderColor: `${feature.color}30`
-                    }}
-                  >
-                    <Zap className="w-3 h-3 mr-1" />
-                    AI Voice Agent Development
-                  </Badge>
-                </motion.div>
-              </motion.div>
-            ))}
+          <p className="text-gray-600 mb-4">
+            If you're having trouble with your account or need assistance with your assistants,
+            please contact your administrator.
+          </p>
+          <div className="flex gap-4">
+            <Button
+              variant="outline"
+              onClick={() => router.push('/dashboard')}
+            >
+              Back to Dashboard
+            </Button>
+            <Button
+              variant="outline"
+              onClick={logout}
+            >
+              Logout
+            </Button>
           </div>
         </motion.div>
       </div>

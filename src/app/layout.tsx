@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { AuthProvider } from "@/lib/auth-context";
-// Subscription context removed - demo system only
+import { PinAuthProvider } from "@/lib/contexts/pin-auth-context";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
@@ -30,10 +29,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
+        <PinAuthProvider>
           {children}
           <Toaster />
-        </AuthProvider>
+        </PinAuthProvider>
       </body>
     </html>
   );
