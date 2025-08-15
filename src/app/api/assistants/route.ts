@@ -33,12 +33,13 @@ export async function GET(request: NextRequest) {
       throw error;
     }
 
-    let filteredAssistants = assistants || [];
+    // Ensure assistants is always an array
+    let filteredAssistants = Array.isArray(assistants) ? assistants : [];
 
     // Apply search filter if provided
     if (search) {
       filteredAssistants = filteredAssistants.filter((assistant: any) =>
-        assistant.display_name.toLowerCase().includes(search.toLowerCase())
+        assistant.display_name?.toLowerCase().includes(search.toLowerCase())
       );
     }
 
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: paginatedAssistants,
+      data: Array.isArray(paginatedAssistants) ? paginatedAssistants : [],
       pagination: {
         page,
         limit,

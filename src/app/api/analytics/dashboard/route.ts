@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
           totalCost: Number(result.total_cost) || 0, // Now properly calculated in database
           totalDurationHours: Number(result.total_duration_hours) || 0
         },
-        recentCalls: result.recent_calls || []
+        recentCalls: Array.isArray(result.recent_calls) ? result.recent_calls : []
       }
     })
     

@@ -56,13 +56,10 @@ export default function DashboardPage() {
       const assistantsRes = await authenticatedFetch('/api/assistants')
       const assistantsData = await handleAuthenticatedResponse<ClientAssistant[]>(assistantsRes)
       
-      if (assistantsData && Array.isArray(assistantsData)) {
-        setAssistants(assistantsData)
-        setStats(prev => ({ ...prev, totalAssistants: assistantsData.length }))
-      } else {
-        setAssistants([])
-        setStats(prev => ({ ...prev, totalAssistants: 0 }))
-      }
+      // Ensure assistantsData is always an array
+      const safeAssistants = Array.isArray(assistantsData) ? assistantsData : []
+      setAssistants(safeAssistants)
+      setStats(prev => ({ ...prev, totalAssistants: safeAssistants.length }))
 
       // Fetch analytics
       try {
