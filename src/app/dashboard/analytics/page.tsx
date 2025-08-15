@@ -16,6 +16,7 @@ import {
   AlertCircle
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { MetricsCard } from '@/components/ui/metrics-card'
 import { DashboardLayout } from '@/components/dashboard/layout'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -84,8 +85,43 @@ export default function AnalyticsPage() {
   if (isLoading || loading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="app-main">
+          <motion.div 
+            className="flex items-center justify-center min-h-[60vh]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="flex flex-col items-center gap-6">
+              <div className="relative">
+                <motion.div 
+                  className="w-16 h-16 rounded-full border-2 border-vm-glass-border bg-vm-gradient-glass backdrop-blur-lg"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                />
+                <motion.div 
+                  className="absolute top-1 left-1 w-14 h-14 rounded-full border-2 border-vm-primary border-t-transparent"
+                  animate={{ rotate: -360 }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <BarChart3 className="w-6 h-6 text-vm-primary vm-animate-pulse-slow" />
+                </div>
+              </div>
+              <div className="text-center space-y-2">
+                <motion.h3 
+                  className="vm-text-lg font-semibold vm-text-bright"
+                  animate={{ opacity: [0.6, 1, 0.6] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  Loading Analytics
+                </motion.h3>
+                <p className="vm-text-small vm-subheading-contrast">
+                  Fetching your performance data...
+                </p>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </DashboardLayout>
     )
@@ -93,223 +129,311 @@ export default function AnalyticsPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Analytics</h1>
-            <p className="text-gray-600">View your call analytics and performance metrics</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Select time range" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="7">Last 7 days</SelectItem>
-                <SelectItem value="30">Last 30 days</SelectItem>
-                <SelectItem value="90">Last 90 days</SelectItem>
-                <SelectItem value="365">Last year</SelectItem>
-              </SelectContent>
-            </Select>
-            <button
-              onClick={() => router.push('/dashboard/settings')}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+      <div className="app-main">
+        <div className="space-y-8">
+          {/* Premium Header */}
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+            className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
+          >
+            <div className="space-y-2">
+              <motion.h1 
+                className="vm-display-large vm-text-gradient vm-heading-contrast"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2, duration: 0.6 }}
+              >
+                Analytics Dashboard
+              </motion.h1>
+              <motion.p 
+                className="vm-text-lead vm-text-bright max-w-2xl"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3, duration: 0.6 }}
+              >
+                Monitor your AI assistant performance and track call analytics in real-time
+              </motion.p>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+              className="flex items-center gap-4"
             >
-              <Settings className="h-4 w-4 mr-2" />
-              Settings
-            </button>
-          </div>
-        </div>
-
-        {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-white rounded-lg shadow p-6"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Calls</p>
-                <p className="text-2xl font-bold text-gray-900">{analytics?.totalCalls || 0}</p>
-                <p className="text-xs text-gray-500">Last {timeRange} days</p>
-              </div>
-              <Phone className="h-8 w-8 text-blue-600" />
-            </div>
+              <Select value={timeRange} onValueChange={setTimeRange}>
+                <SelectTrigger className="w-48 bg-vm-surface-elevated border-vm-border vm-text-bright">
+                  <SelectValue placeholder="Select time range" />
+                </SelectTrigger>
+                <SelectContent className="bg-vm-surface-elevated border-vm-border">
+                  <SelectItem value="7">Last 7 days</SelectItem>
+                  <SelectItem value="30">Last 30 days</SelectItem>
+                  <SelectItem value="90">Last 90 days</SelectItem>
+                  <SelectItem value="365">Last year</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                variant="secondary"
+                size="lg"
+                onClick={() => router.push('/dashboard/settings')}
+                leftIcon={<Settings className="h-5 w-5" />}
+                asMotion
+                motionProps={{
+                  whileHover: { scale: 1.02, y: -2 },
+                  whileTap: { scale: 0.98 },
+                }}
+                className="vm-hover-glow"
+              >
+                Settings
+              </Button>
+            </motion.div>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white rounded-lg shadow p-6"
+          {/* Premium Metrics Grid */}
+          <motion.div 
+            className="metrics-grid vm-stagger-container"
+            initial="hidden"
+            animate="visible"
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Hours</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {analytics?.totalDurationHours ? analytics.totalDurationHours.toFixed(1) : '0.0'}
-                </p>
-                <p className="text-xs text-gray-500">Conversation time</p>
-              </div>
-              <Clock className="h-8 w-8 text-green-600" />
-            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.6 }}
+            >
+              <MetricsCard
+                variant="success"
+                icon={<Phone className="h-5 w-5" />}
+                label="Total Calls"
+                value={analytics?.totalCalls || 0}
+                description={`Last ${timeRange} days`}
+                valueEmphasis="primary"
+                asMotion
+                glow
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.6 }}
+            >
+              <MetricsCard
+                variant="default"
+                icon={<Clock className="h-5 w-5" />}
+                label="Total Hours"
+                value={analytics?.totalDurationHours ? analytics.totalDurationHours.toFixed(1) : '0.0'}
+                description="Conversation time"
+                valueEmphasis="gradient"
+                asMotion
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7, duration: 0.6 }}
+            >
+              <MetricsCard
+                variant="warning"
+                icon={<BarChart3 className="h-5 w-5" />}
+                label="Avg Duration"
+                value={analytics?.avgDurationMinutes ? `${analytics.avgDurationMinutes.toFixed(1)}m` : '0.0m'}
+                description="Per call"
+                valueEmphasis="premium"
+                asMotion
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8, duration: 0.6 }}
+            >
+              <MetricsCard
+                variant="premium"
+                icon={<TrendingUp className="h-5 w-5" />}
+                label="Success Rate"
+                value={`${analytics?.successRate || 0}%`}
+                description="Call completion"
+                valueEmphasis="gradient"
+                asMotion
+                glow
+              />
+            </motion.div>
           </motion.div>
 
-          <motion.div
+          {/* Premium Recent Calls Section */}
+          <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="bg-white rounded-lg shadow p-6"
+            transition={{ delay: 0.9, duration: 0.6 }}
+            className="vm-card relative overflow-hidden"
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Avg Duration</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {analytics?.avgDurationMinutes ? `${analytics.avgDurationMinutes.toFixed(1)}m` : '0.0m'}
-                </p>
-                <p className="text-xs text-gray-500">Per call</p>
-              </div>
-              <BarChart3 className="h-8 w-8 text-purple-600" />
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="bg-white rounded-lg shadow p-6"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Success Rate</p>
-                <p className="text-2xl font-bold text-gray-900">{analytics?.successRate || 0}%</p>
-                <p className="text-xs text-gray-500">Call completion</p>
-              </div>
-              <TrendingUp className="h-8 w-8 text-orange-600" />
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Recent Calls */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-medium text-gray-900">Recent Call Activity</h2>
-                <p className="text-sm text-gray-600">Your latest calls and their outcomes</p>
-              </div>
-              <Badge variant="outline" className="flex items-center gap-1">
-                <Activity className="h-3 w-3" />
-                Live Data
-              </Badge>
-            </div>
-          </div>
-
-          <div className="p-6">
-            {!analytics?.recentCalls || analytics.recentCalls.length === 0 ? (
-              <div className="text-center py-12">
-                <Phone className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No recent calls</h3>
-                <p className="mt-1 text-sm text-gray-500">
-                  When you receive calls through your assistants, they'll appear here.
-                </p>
-                <p className="mt-2 text-xs text-gray-400">
-                  Call analytics are updated in real-time.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {analytics.recentCalls.map((call, index) => (
-                  <motion.div
-                    key={call.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 + index * 0.1 }}
-                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+            <div className="p-8 border-b border-vm-glass-border/50">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div className="space-y-2">
+                  <motion.h2 
+                    className="vm-display-small vm-heading-contrast"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 1.0, duration: 0.6 }}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full">
-                        <Phone className="h-5 w-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-gray-900">
-                            {call.caller_number || 'Unknown caller'}
-                          </span>
-                          <Badge 
-                            variant={call.call_status === 'completed' ? 'default' : 'secondary'}
-                            className="text-xs"
-                          >
-                            {call.call_status || 'Unknown'}
-                          </Badge>
-                        </div>
-                        <div className="text-sm text-gray-600 flex items-center gap-4">
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {formatDuration(call.duration_seconds || 0)}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {new Date(call.call_time).toLocaleDateString()}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="text-right">
-                      <div className="text-sm font-medium text-gray-900">
-                        Assistant: {call.assistant_display_name || 'Unknown'}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {new Date(call.call_time).toLocaleTimeString()}
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Analytics Notice */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="bg-blue-50 border border-blue-200 rounded-lg p-6"
-        >
-          <div className="flex gap-3">
-            <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-            <div className="text-sm text-blue-800">
-              <p className="font-medium">Analytics & Reporting</p>
-              <p className="mt-1">
-                Your call analytics are automatically generated from your voice assistant interactions. 
-                Data is updated in real-time and includes call duration, success rates, and caller information.
-              </p>
-              <div className="mt-3 flex gap-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => router.push('/dashboard')}
-                  className="border-blue-300 text-blue-700 hover:bg-blue-100"
+                    Recent Call Activity
+                  </motion.h2>
+                  <motion.p 
+                    className="vm-text-body vm-subheading-contrast"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 1.1, duration: 0.6 }}
+                  >
+                    Monitor your latest assistant interactions and performance
+                  </motion.p>
+                </div>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 1.2, duration: 0.6 }}
                 >
-                  Back to Dashboard
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => router.push('/dashboard/assistants')}
-                  className="border-blue-300 text-blue-700 hover:bg-blue-100"
-                >
-                  View Assistants
-                </Button>
+                  <Badge variant="outline" className="flex items-center gap-1 text-vm-success border-vm-success">
+                    <Activity className="h-3 w-3" />
+                    Live Data
+                  </Badge>
+                </motion.div>
               </div>
             </div>
-          </div>
-        </motion.div>
+
+            <div className="p-8">
+              {!analytics?.recentCalls || analytics.recentCalls.length === 0 ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 1.3, duration: 0.6 }}
+                  className="text-center py-16"
+                >
+                  <div className="relative mb-6">
+                    <div className="absolute inset-0 bg-gradient-to-br from-vm-primary/20 via-vm-accent/10 to-transparent rounded-full blur-2xl" />
+                    <div className="relative w-24 h-24 mx-auto rounded-full bg-vm-gradient-glass border border-vm-glass-border backdrop-blur-lg flex items-center justify-center">
+                      <Phone className="h-8 w-8 text-vm-primary" />
+                    </div>
+                  </div>
+                  <h3 className="vm-text-lg font-semibold vm-text-bright mb-2">No recent calls</h3>
+                  <p className="vm-text-body vm-subheading-contrast mb-4 max-w-md mx-auto">
+                    When you receive calls through your AI assistants, they'll appear here with detailed analytics.
+                  </p>
+                  <p className="vm-text-small vm-text-muted">
+                    Call analytics are updated in real-time.
+                  </p>
+                </motion.div>
+              ) : (
+                <div className="space-y-4">
+                  {analytics.recentCalls.map((call, index) => (
+                    <motion.div
+                      key={call.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 + index * 0.1 }}
+                      className="flex items-center justify-between p-6 vm-card border border-vm-glass-border/50 hover:border-vm-ring vm-hover-lift"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center justify-center w-12 h-12 bg-vm-primary/10 border border-vm-primary/20 rounded-xl">
+                          <Phone className="h-5 w-5 text-vm-primary" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium vm-text-bright">
+                              {call.caller_number || 'Unknown caller'}
+                            </span>
+                            <Badge 
+                              variant={call.call_status === 'completed' ? 'default' : 'secondary'}
+                              className={`text-xs ${
+                                call.call_status === 'completed' 
+                                  ? 'text-vm-success border-vm-success' 
+                                  : 'text-vm-muted border-vm-border'
+                              }`}
+                            >
+                              {call.call_status || 'Unknown'}
+                            </Badge>
+                          </div>
+                          <div className="text-sm vm-text-muted flex items-center gap-4">
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {formatDuration(call.duration_seconds || 0)}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              {new Date(call.call_time).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="text-right">
+                        <div className="text-sm font-medium vm-text-bright">
+                          Assistant: {call.assistant_display_name || 'Unknown'}
+                        </div>
+                        <div className="text-xs vm-text-muted">
+                          {new Date(call.call_time).toLocaleTimeString()}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </motion.div>
+
+          {/* Premium Analytics Notice */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.4, duration: 0.6 }}
+          >
+            <Card className="vm-card border border-vm-accent/30 bg-vm-gradient-glass backdrop-blur-lg">
+              <CardContent className="p-8">
+                <div className="flex gap-4">
+                  <div className="flex items-center justify-center w-12 h-12 bg-vm-accent/10 border border-vm-accent/20 rounded-xl flex-shrink-0">
+                    <AlertCircle className="h-6 w-6 text-vm-accent" />
+                  </div>
+                  <div className="space-y-3">
+                    <h3 className="vm-text-lg font-semibold text-vm-accent">Analytics & Reporting</h3>
+                    <p className="vm-text-body vm-text-bright leading-relaxed">
+                      Your call analytics are automatically generated from your voice assistant interactions. 
+                      Data is updated in real-time and includes call duration, success rates, and caller information.
+                    </p>
+                    <div className="flex flex-wrap gap-3 pt-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => router.push('/dashboard')}
+                        asMotion
+                        motionProps={{
+                          whileHover: { scale: 1.02 },
+                          whileTap: { scale: 0.98 },
+                        }}
+                      >
+                        Back to Dashboard
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => router.push('/dashboard/assistants')}
+                        asMotion
+                        motionProps={{
+                          whileHover: { scale: 1.02 },
+                          whileTap: { scale: 0.98 },
+                        }}
+                      >
+                        View Assistants
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
       </div>
     </DashboardLayout>
   )
