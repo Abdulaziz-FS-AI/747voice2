@@ -1,34 +1,34 @@
 import type { ClientInfo } from '@/lib/contexts/pin-auth-context'
 
 export interface SessionData {
-  sessionToken: string | null
+  pin: string | null
   clientInfo: ClientInfo | null
 }
 
 /**
- * Get session token from localStorage
+ * Get PIN from localStorage - SIMPLIFIED APPROACH
  */
-export function getSessionToken(): string | null {
+export function getClientPin(): string | null {
   if (typeof window === 'undefined') return null
   
   try {
-    return localStorage.getItem('session-token')
+    return localStorage.getItem('client-pin')
   } catch (error) {
-    console.error('[Session] Error getting session token:', error)
+    console.error('[Session] Error getting client PIN:', error)
     return null
   }
 }
 
 /**
- * Set session token in localStorage
+ * Set PIN in localStorage
  */
-export function setSessionToken(token: string): void {
+export function setClientPin(pin: string): void {
   if (typeof window === 'undefined') return
   
   try {
-    localStorage.setItem('session-token', token)
+    localStorage.setItem('client-pin', pin)
   } catch (error) {
-    console.error('[Session] Error setting session token:', error)
+    console.error('[Session] Error setting client PIN:', error)
   }
 }
 
@@ -61,13 +61,13 @@ export function setClientInfo(clientInfo: ClientInfo): void {
 }
 
 /**
- * Clear all session data
+ * Clear all session data - SIMPLIFIED (no session tokens)
  */
 export function clearSession(): void {
   if (typeof window === 'undefined') return
   
   try {
-    localStorage.removeItem('session-token')
+    localStorage.removeItem('client-pin')
     localStorage.removeItem('client-info')
   } catch (error) {
     console.error('[Session] Error clearing session:', error)
@@ -75,38 +75,39 @@ export function clearSession(): void {
 }
 
 /**
- * Check if user is authenticated (has valid session data)
+ * Check if user is authenticated - SIMPLIFIED (has PIN and client info)
  */
 export function isAuthenticated(): boolean {
-  const token = getSessionToken()
+  const pin = getClientPin()
   const client = getClientInfo()
-  return !!(token && client)
+  return !!(pin && client && /^[0-9]{6}$/.test(pin))
 }
 
 /**
- * Get complete session data
+ * Get complete session data - SIMPLIFIED
  */
 export function getSessionData(): SessionData {
   return {
-    sessionToken: getSessionToken(),
+    pin: getClientPin(),
     clientInfo: getClientInfo()
   }
 }
 
 /**
- * Create headers with authentication for API requests
+ * Create headers with PIN authentication for API requests
+ * SIMPLIFIED: Uses Bearer {PIN} for authentication
  */
 export function createAuthHeaders(): HeadersInit {
-  const token = getSessionToken()
+  const pin = getClientPin()
   
   return {
     'Content-Type': 'application/json',
-    ...(token && { 'Authorization': `Bearer ${token}` })
+    ...(pin && { 'Authorization': `Bearer ${pin}` })
   }
 }
 
 /**
- * Make authenticated API request
+ * Make authenticated API request - SIMPLIFIED with PIN
  */
 export async function authenticatedFetch(
   url: string, 
@@ -125,20 +126,21 @@ export async function authenticatedFetch(
 
 /**
  * Handle API response and check for authentication errors
+ * SIMPLIFIED: Clear local storage on auth error
  */
 export async function handleAuthenticatedResponse<T>(
   response: Response,
   onUnauthorized?: () => void
 ): Promise<T> {
   if (response.status === 401) {
-    // Session expired or invalid
+    // PIN authentication failed or invalid
     clearSession()
     if (onUnauthorized) {
       onUnauthorized()
     } else if (typeof window !== 'undefined') {
       window.location.href = '/signin'
     }
-    throw new Error('Session expired')
+    throw new Error('PIN authentication failed')
   }
   
   if (!response.ok) {

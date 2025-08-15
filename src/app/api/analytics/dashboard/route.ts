@@ -1,40 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { validatePinSession } from '@/lib/pin-auth'
+import { validatePinFromRequest } from '@/lib/pin-auth'
 import { createServiceRoleClient } from '@/lib/supabase'
 import { handleAPIError } from '@/lib/errors'
 
-// Helper function to calculate total cost from recent calls
-function calculateTotalCost(recentCalls: any[]): number {
-  if (!recentCalls || !Array.isArray(recentCalls)) return 0
-  return recentCalls.reduce((total, call) => total + (Number(call.cost) || 0), 0)
-}
-
 export async function GET(request: NextRequest) {
   try {
-    // PIN-based authentication
-    const sessionResult = await validatePinSession(request)
-    if (!sessionResult.success) {
+    // SIMPLIFIED PIN-based authentication (no sessions)
+    const pinResult = await validatePinFromRequest(request)
+    if (!pinResult.success) {
       return NextResponse.json({
         success: false,
-        error: { code: 'UNAUTHORIZED', message: 'Invalid or expired session' }
+        error: { code: 'UNAUTHORIZED', message: pinResult.error || 'PIN authentication required' }
       }, { status: 401 })
     }
 
-    const { client_id } = sessionResult
+    const { client_id } = pinResult
     const supabase = createServiceRoleClient('dashboard_analytics')
     
     // Get timeframe from query params
     const searchParams = request.nextUrl.searchParams
     const days = parseInt(searchParams.get('days') || '30')
     
-    // Calculate date range
-    const endDate = new Date()
-    const startDate = new Date()
-    startDate.setDate(endDate.getDate() - days)
-    
-    // Use enhanced database function to get dashboard analytics with cost calculation
+    // Use simplified database function to get dashboard analytics
     const { data: analytics, error: analyticsError } = await supabase
-      .rpc('get_dashboard_analytics_enhanced', { 
+      .rpc('get_dashboard_analytics_simple', { 
         client_id_input: client_id,
         days_back: days 
       })
@@ -53,7 +42,6 @@ export async function GET(request: NextRequest) {
             totalCalls: 0,
             successRate: 0,
             avgCallDuration: 0,
-            totalCost: 0,
             totalDurationHours: 0
           },
           recentCalls: []
@@ -70,7 +58,6 @@ export async function GET(request: NextRequest) {
           totalCalls: Number(result.total_calls) || 0,
           successRate: Number(result.success_rate) || 0,
           avgCallDuration: Number(result.avg_duration_minutes) || 0,
-          totalCost: Number(result.total_cost) || 0, // Now properly calculated in database
           totalDurationHours: Number(result.total_duration_hours) || 0
         },
         recentCalls: Array.isArray(result.recent_calls) ? result.recent_calls : []

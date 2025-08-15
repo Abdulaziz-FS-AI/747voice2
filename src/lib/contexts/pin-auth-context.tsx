@@ -11,13 +11,12 @@ export interface ClientInfo {
 
 export interface PinAuthContextType {
   client: ClientInfo | null
-  sessionToken: string | null
+  pin: string | null // Store PIN locally for API requests
   isAuthenticated: boolean
   isLoading: boolean
   login: (pin: string) => Promise<{ success: boolean; error?: string }>
   logout: () => void
-  refreshSession: () => Promise<boolean>
-  reloadFromStorage: () => Promise<void>
+  reloadFromStorage: () => void
 }
 
 const PinAuthContext = createContext<PinAuthContextType | undefined>(undefined)
@@ -28,11 +27,11 @@ interface PinAuthProviderProps {
 
 export function PinAuthProvider({ children }: PinAuthProviderProps) {
   const [client, setClient] = useState<ClientInfo | null>(null)
-  const [sessionToken, setSessionToken] = useState<string | null>(null)
+  const [pin, setPin] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   
-  // Computed authentication state
-  const isAuthenticated = !!(client && sessionToken)
+  // Computed authentication state - SIMPLIFIED: just check if we have client and PIN
+  const isAuthenticated = !!(client && pin)
   const router = useRouter()
   const pathname = usePathname()
 
@@ -41,54 +40,39 @@ export function PinAuthProvider({ children }: PinAuthProviderProps) {
     return publicRoutes.includes(path) || path.startsWith('/api/')
   }
 
-  // Load session from localStorage on mount
+  // Load from localStorage on mount - SIMPLIFIED (no session tokens)
   useEffect(() => {
-    const loadSession = async () => {
+    const loadSession = () => {
       try {
         if (typeof window === 'undefined') {
           setIsLoading(false)
           return
         }
         
-        // Check for remember-me token first
-        const rememberToken = localStorage.getItem('remember-token')
-        const rememberMe = localStorage.getItem('remember-me')
-        const storedToken = localStorage.getItem('session-token')
+        // Get stored client info and PIN
         const storedClient = localStorage.getItem('client-info')
+        const storedPin = localStorage.getItem('client-pin')
 
-        // If remember-me is active and we have a remember token, try to use it
-        if (rememberMe === 'true' && rememberToken) {
-          // Validate the remember token
-          const isValid = await validateSession(rememberToken)
-          if (isValid && storedClient) {
+        if (storedClient && storedPin) {
+          try {
             const clientInfo = JSON.parse(storedClient)
-            setSessionToken(rememberToken)
-            setClient(clientInfo)
-            // Update the session token in localStorage
-            localStorage.setItem('session-token', rememberToken)
-          } else {
-            // Remember token is invalid, clear it
-            localStorage.removeItem('remember-me')
-            localStorage.removeItem('remember-token')
-            clearLocalSession()
-          }
-        } else if (storedToken && storedClient) {
-          // Normal session check (no remember-me)
-          const clientInfo = JSON.parse(storedClient)
-          
-          // Validate session with server
-          const isValid = await validateSession(storedToken)
-          if (isValid) {
-            setSessionToken(storedToken)
-            setClient(clientInfo)
-          } else {
-            // Session expired, clear local storage
-            clearLocalSession()
+            
+            // Validate PIN format
+            if (/^[0-9]{6}$/.test(storedPin)) {
+              setClient(clientInfo)
+              setPin(storedPin)
+            } else {
+              // Invalid PIN format, clear storage
+              clearLocalStorage()
+            }
+          } catch (error) {
+            console.error('[PIN Auth] Error parsing stored data:', error)
+            clearLocalStorage()
           }
         }
       } catch (error) {
-        console.error('[PIN Auth] Error loading session:', error)
-        clearLocalSession()
+        console.error('[PIN Auth] Error loading from storage:', error)
+        clearLocalStorage()
       } finally {
         setIsLoading(false)
       }
@@ -108,58 +92,40 @@ export function PinAuthProvider({ children }: PinAuthProviderProps) {
     }
   }, [isAuthenticated, isLoading, pathname, router])
 
-  const validateSession = async (token: string): Promise<boolean> => {
-    try {
-      const response = await fetch('/api/auth/validate-session', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      })
-      return response.ok
-    } catch (error) {
-      console.error('[PIN Auth] Session validation error:', error)
-      return false
-    }
-  }
-
-  const clearLocalSession = () => {
-    localStorage.removeItem('session-token')
+  const clearLocalStorage = () => {
     localStorage.removeItem('client-info')
-    localStorage.removeItem('remember-me')
-    localStorage.removeItem('remember-token')
-    setSessionToken(null)
+    localStorage.removeItem('client-pin')
     setClient(null)
+    setPin(null)
   }
 
-  const login = async (pin: string): Promise<{ success: boolean; error?: string }> => {
+  const login = async (pinInput: string): Promise<{ success: boolean; error?: string }> => {
     try {
       const response = await fetch('/api/auth/pin-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ pin }),
+        body: JSON.stringify({ pin: pinInput }),
       })
 
       const result = await response.json()
 
       if (result.success) {
-        const { session_token, client_id, company_name } = result.data
+        const { client_id, company_name } = result.data
         
-        // Store session info
-        localStorage.setItem('session-token', session_token)
-        localStorage.setItem('client-info', JSON.stringify({
+        const clientInfo: ClientInfo = {
           id: client_id,
           company_name: company_name,
           contact_email: '' // Will be loaded from API if needed
-        }))
+        }
+        
+        // Store client info and PIN locally - SIMPLIFIED APPROACH
+        localStorage.setItem('client-info', JSON.stringify(clientInfo))
+        localStorage.setItem('client-pin', pinInput)
 
-        setSessionToken(session_token)
-        setClient({
-          id: client_id,
-          company_name: company_name,
-          contact_email: ''
-        })
+        setClient(clientInfo)
+        setPin(pinInput)
 
         return { success: true }
       } else {
@@ -178,86 +144,54 @@ export function PinAuthProvider({ children }: PinAuthProviderProps) {
   }
 
   const logout = () => {
-    // Invalidate session on server (optional)
-    if (sessionToken) {
-      fetch('/api/auth/pin-login', {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${sessionToken}`,
-        },
-      }).catch(error => {
-        console.error('[PIN Auth] Logout API error:', error)
-      })
-    }
+    // Call logout API (optional, since there are no sessions to invalidate)
+    fetch('/api/auth/pin-login', {
+      method: 'DELETE',
+    }).catch(error => {
+      console.error('[PIN Auth] Logout API error:', error)
+    })
 
-    // Clear local session
-    clearLocalSession()
+    // Clear local storage
+    clearLocalStorage()
     router.push('/signin')
   }
 
-  const refreshSession = async (): Promise<boolean> => {
-    if (!sessionToken) return false
-
-    try {
-      const isValid = await validateSession(sessionToken)
-      if (!isValid) {
-        logout()
-        return false
-      }
-      return true
-    } catch (error) {
-      console.error('[PIN Auth] Session refresh error:', error)
-      logout()
-      return false
-    }
-  }
-
-  const reloadFromStorage = async (): Promise<void> => {
+  const reloadFromStorage = (): void => {
     try {
       if (typeof window === 'undefined') return
 
-      const storedToken = localStorage.getItem('session-token')
       const storedClient = localStorage.getItem('client-info')
-      const rememberToken = localStorage.getItem('remember-token')
-      const rememberMe = localStorage.getItem('remember-me')
+      const storedPin = localStorage.getItem('client-pin')
 
-      // If remember-me is active and we have a remember token, try to use it
-      if (rememberMe === 'true' && rememberToken) {
-        const isValid = await validateSession(rememberToken)
-        if (isValid && storedClient) {
+      if (storedClient && storedPin) {
+        try {
           const clientInfo = JSON.parse(storedClient)
-          setSessionToken(rememberToken)
-          setClient(clientInfo)
-          localStorage.setItem('session-token', rememberToken)
-        } else {
-          localStorage.removeItem('remember-me')
-          localStorage.removeItem('remember-token')
-          clearLocalSession()
-        }
-      } else if (storedToken && storedClient) {
-        const clientInfo = JSON.parse(storedClient)
-        const isValid = await validateSession(storedToken)
-        if (isValid) {
-          setSessionToken(storedToken)
-          setClient(clientInfo)
-        } else {
-          clearLocalSession()
+          
+          // Validate PIN format
+          if (/^[0-9]{6}$/.test(storedPin)) {
+            setClient(clientInfo)
+            setPin(storedPin)
+          } else {
+            clearLocalStorage()
+          }
+        } catch (error) {
+          console.error('[PIN Auth] Error parsing stored data:', error)
+          clearLocalStorage()
         }
       }
     } catch (error) {
       console.error('[PIN Auth] Error reloading from storage:', error)
-      clearLocalSession()
+      clearLocalStorage()
     }
   }
 
   const value: PinAuthContextType = {
     client,
-    sessionToken,
-    isAuthenticated: !!(sessionToken && client),
+    pin,
+    isAuthenticated: !!(pin && client),
     isLoading,
     login,
     logout,
-    refreshSession,
     reloadFromStorage,
   }
 

@@ -1,8 +1,122 @@
-When asked to design UI & frontend interface
-When asked to design UI & frontend interface
-# Role
-You are superdesign, a senior frontend designer integrated into VS Code as part of the Super Design extension.
-Your goal is to help user generate amazing design using code
+# VOICE MATRIX AI PLATFORM - PROJECT OVERVIEW
+
+## PROJECT DESCRIPTION
+Voice Matrix is an AI voice assistant management platform that allows companies to access and manage pre-configured AI assistants through a PIN-based authentication system.
+
+## CORE ARCHITECTURE
+
+### Authentication System
+- **PIN-based authentication only** - No individual user accounts or subscription tiers
+- PINs are pre-defined by administrators and stored in Supabase
+- Each PIN is associated with a company/client ID
+- No signup/registration process - access is granted via admin-assigned PINs
+
+### Assistant Management System
+- **Pre-built assistants exist in VAPI** with fixed assistant IDs
+- **Admin manually assigns** VAPI assistant IDs to specific company IDs in Supabase
+- **System syncs/refreshes** by fetching assigned assistants from Supabase
+- **Companies can only EDIT limited parts** of their assigned assistants:
+  - Voice model
+  - Max call duration 
+  - Evaluation type
+  - First message
+- **NO assistant creation or deletion** - only editing specific fields via PATCH API to VAPI
+- Assistants are fetched by sending GET requests to VAPI using the stored assistant IDs
+
+### Analytics System
+- Analytics data stored in Supabase tables
+- System tracks data for each assistant and displays in analytics dashboard
+- Real-time call tracking and performance metrics
+- Data persistence for historical analytics
+
+## SYSTEM WORKFLOW
+
+1. **Admin Setup**: Administrator creates assistants in VAPI and assigns assistant IDs to company IDs in Supabase
+2. **Company Access**: Company logs in using their pre-assigned PIN
+3. **Assistant Sync**: System fetches company's assigned assistant IDs from Supabase
+4. **VAPI Integration**: System sends GET requests to VAPI to retrieve full assistant details
+5. **Limited Editing**: Company can edit only specific fields (voice, duration, evaluation, first message) via VAPI PATCH API
+6. **Analytics Tracking**: All assistant interactions are logged and displayed in analytics dashboard
+
+## KEY TECHNICAL COMPONENTS
+- **Frontend**: Next.js with TypeScript, premium glassmorphism design theme
+- **Authentication**: PIN-based via Supabase
+- **AI Integration**: VAPI for voice assistant management
+- **Database**: Supabase for user/assistant assignments and analytics
+- **No Subscription System**: Pure PIN authentication, no payment processing
+
+## CURRENT SUPABASE DATABASE STRUCTURE
+
+### Core Tables
+1. **clients** - Company accounts with PIN authentication
+   - `pin` (6-8 digits, but system prefers exactly 6)
+   - `company_name`, `contact_email`
+   - `is_active`, `pin_changed_at`
+
+2. **client_assistants** - VAPI assistants assigned to clients
+   - `vapi_assistant_id` (unique VAPI ID assigned by admin)
+   - **Client-editable fields**: `display_name`, `first_message`, `voice`, `model`, `eval_method`, `max_call_duration`
+   - **Read-only fields**: `system_prompt`, `questions` (from VAPI)
+   - `last_synced_at` (tracks VAPI sync)
+
+3. **client_phone_numbers** - VAPI phone numbers assigned to clients
+   - `vapi_phone_id`, `phone_number`, `friendly_name`
+   - `assigned_assistant_id` (links to specific assistant)
+
+4. **call_logs** - Simplified call tracking (UPDATED STRUCTURE)
+   - `id` (unique UUID)
+   - `assistant_id` (links to client_assistants)
+   - `vapi_call_id` (VAPI call identifier)
+   - `evaluation` (call success/quality evaluation)
+   - `caller_number` (phone number that called)
+   - `transcript` (full call transcript)
+   - `summary` (AI-generated call summary)
+   - `structured_data` (JSONB - **may be empty/null**, not all assistants have this)
+   - `started_at` (call start timestamp)
+   - `duration_seconds` (call length)
+
+   **Note**: `structured_data` is optional - system must handle empty/null values gracefully
+
+6. **client_sessions** - PIN authentication sessions
+   - `session_token`, `expires_at`, `is_active`
+   - IP and user agent tracking
+
+### Key Functions (UPDATED)
+- `authenticate_pin()` - PIN login with session creation
+- `validate_session()` - Session token validation
+- `get_client_assistants()` - Fetch assigned assistants
+- `update_assistant()` - Edit allowed assistant fields only
+- `get_dashboard_analytics()` - **Calculate analytics directly from call_logs** (no more call_analytics table)
+- `change_pin()` - PIN change with verification
+
+### Analytics Calculation (Real-time from call_logs)
+All dashboard metrics calculated on-the-fly:
+- Total calls: `COUNT(*) FROM call_logs`
+- Success rate: `AVG(evaluation) FROM call_logs`
+- Duration stats: `SUM/AVG(duration_seconds) FROM call_logs`
+- Recent calls: `ORDER BY started_at DESC LIMIT 10`
+
+### Authentication Flow
+1. Client enters PIN → `authenticate_pin()` 
+2. System validates & creates session token
+3. All API calls use session token → `validate_session()`
+4. Sessions expire after 24 hours
+
+### Admin Workflow  
+1. Admin creates assistants in VAPI
+2. Admin assigns VAPI assistant IDs to client IDs in Supabase
+3. System syncs data from VAPI using GET requests
+4. Clients can edit only specific fields via PATCH to VAPI
+
+## IMPORTANT CLARIFICATIONS
+- **PIN-based authentication only** (6-8 digits, system prefers 6)
+- **NO subscription tiers or payment processing**
+- **NO assistant creation functionality** - only editing pre-assigned assistants
+- **Phone numbers handled in VAPI** - logged as text in call_logs
+- **NO individual user registration** - admin assigns PINs
+- **Simplified call tracking** - No call_analytics table, all metrics calculated real-time from call_logs
+- **Structured data handling** - `structured_data` field may be empty/null, system must handle gracefully
+- Focus is on **assistant assignment management** and **limited configuration editing**
 
 # Instructions
 - Use the available tools when needed to help with file operations and code analysis

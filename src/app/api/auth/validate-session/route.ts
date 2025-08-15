@@ -1,34 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { validatePinSession } from '@/lib/pin-auth';
+import { validatePinFromRequest } from '@/lib/pin-auth';
 
 /**
  * GET /api/auth/validate-session
- * Validate session token and return client info
+ * Validate PIN and return client info - SIMPLIFIED APPROACH
+ * Note: This endpoint is kept for backward compatibility but now uses PIN validation
  */
 export async function GET(request: NextRequest) {
   try {
-    const sessionResult = await validatePinSession(request);
+    const pinResult = await validatePinFromRequest(request);
     
-    if (!sessionResult.success) {
+    if (!pinResult.success) {
       return NextResponse.json({
         success: false,
-        error: { code: 'INVALID_SESSION', message: 'Session invalid or expired' }
+        error: { code: 'INVALID_PIN', message: pinResult.error || 'PIN authentication required' }
       }, { status: 401 });
     }
 
     return NextResponse.json({
       success: true,
       data: {
-        client_id: sessionResult.client_id,
-        company_name: sessionResult.company_name,
-        expires_at: sessionResult.expires_at
+        client_id: pinResult.client_id,
+        company_name: pinResult.company_name,
+        authenticated: true
       }
     });
   } catch (error) {
-    console.error('[Session Validation] Error:', error);
+    console.error('[PIN Validation] Error:', error);
     return NextResponse.json({
       success: false,
-      error: { code: 'VALIDATION_ERROR', message: 'Session validation failed' }
+      error: { code: 'VALIDATION_ERROR', message: 'PIN validation failed' }
     }, { status: 500 });
   }
 }

@@ -1,173 +1,124 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { handleAPIError } from '@/lib/errors';
-import { createServiceRoleClient } from '@/lib/supabase';
-import { validatePinSession } from '@/lib/pin-auth';
+import { validatePinFromRequest, getClientById, changePin } from '@/lib/pin-auth';
 
 const changePinSchema = z.object({
   currentPin: z.string().regex(/^[0-9]{6}$/, 'Current PIN must be exactly 6 digits'),
   newPin: z.string().regex(/^[0-9]{6}$/, 'New PIN must be exactly 6 digits'),
-  email: z.string().email('Valid email required for verification')
+  email: z.string().email('Valid email is required')
 });
 
 /**
- * POST /api/auth/change-pin
- * Change client PIN with email verification
+ * GET /api/auth/change-pin
+ * Get client settings - SIMPLIFIED (requires PIN auth)
  */
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    // Validate session
-    const sessionResult = await validatePinSession(request);
-    if (!sessionResult.success) {
+    // SIMPLIFIED PIN-based authentication (no sessions)
+    const pinResult = await validatePinFromRequest(request);
+    if (!pinResult.success) {
       return NextResponse.json({
         success: false,
-        error: { code: 'UNAUTHORIZED', message: 'Invalid or expired session' }
+        error: { code: 'UNAUTHORIZED', message: pinResult.error || 'PIN authentication required' }
       }, { status: 401 });
     }
 
-    const { client_id } = sessionResult;
+    const { client_id } = pinResult;
+    
+    // Get client information
+    const clientResult = await getClientById(client_id);
+    if (!clientResult.success) {
+      return NextResponse.json({
+        success: false,
+        error: { code: 'CLIENT_NOT_FOUND', message: clientResult.error || 'Client not found' }
+      }, { status: 404 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: clientResult.client
+    });
+
+  } catch (error) {
+    console.error('[Change PIN GET] Error:', error);
+    return handleAPIError(error);
+  }
+}
+
+/**
+ * POST /api/auth/change-pin
+ * Change PIN - SIMPLIFIED (requires current PIN auth)
+ */
+export async function POST(request: NextRequest) {
+  try {
+    // SIMPLIFIED PIN-based authentication (no sessions)
+    const pinResult = await validatePinFromRequest(request);
+    if (!pinResult.success) {
+      return NextResponse.json({
+        success: false,
+        error: { code: 'UNAUTHORIZED', message: pinResult.error || 'PIN authentication required' }
+      }, { status: 401 });
+    }
+
+    const { client_id } = pinResult;
     const body = await request.json();
     const { currentPin, newPin, email } = changePinSchema.parse(body);
-    
-    console.log('[PIN Change] Request from client:', client_id);
 
-    const supabase = createServiceRoleClient('change_pin');
-
-    // First verify the email matches the client's email
-    const { data: clientInfo, error: clientError } = await supabase
-      .rpc('get_client_info', { client_id_input: client_id });
-
-    if (clientError || !clientInfo || clientInfo.length === 0) {
-      console.error('[PIN Change] Failed to get client info:', clientError);
+    // Get client info to verify email
+    const clientResult = await getClientById(client_id);
+    if (!clientResult.success) {
       return NextResponse.json({
         success: false,
         error: { code: 'CLIENT_NOT_FOUND', message: 'Client not found' }
       }, { status: 404 });
     }
 
-    const client = clientInfo[0];
-    
     // Verify email matches
-    if (client.contact_email.toLowerCase() !== email.toLowerCase()) {
-      console.log('[PIN Change] Email mismatch for client:', client_id);
+    if (clientResult.client.contact_email !== email) {
       return NextResponse.json({
         success: false,
         error: { 
           code: 'EMAIL_MISMATCH', 
-          message: 'Email does not match your account. Please contact administrator.' 
+          message: 'Email does not match account email' 
         }
       }, { status: 400 });
     }
 
-    // Attempt PIN change
-    const { data: changeResult, error: changeError } = await supabase
-      .rpc('change_pin', {
-        client_id_input: client_id,
-        current_pin_input: currentPin,
-        new_pin_input: newPin
-      });
-
-    if (changeError) {
-      console.error('[PIN Change] Database error:', changeError);
-      throw changeError;
-    }
-
-    if (!changeResult || changeResult.length === 0) {
-      return NextResponse.json({
-        success: false,
-        error: { code: 'CHANGE_FAILED', message: 'PIN change failed' }
-      }, { status: 500 });
-    }
-
-    const result = changeResult[0];
+    // Change PIN using simplified function
+    const changeResult = await changePin(client_id, currentPin, newPin);
     
-    if (!result.success) {
-      console.log('[PIN Change] Failed:', result.error_code, result.message);
+    if (!changeResult.success) {
       return NextResponse.json({
         success: false,
         error: { 
-          code: result.error_code || 'CHANGE_FAILED', 
-          message: result.message 
+          code: changeResult.error_code || 'PIN_CHANGE_FAILED', 
+          message: changeResult.error || 'Failed to change PIN' 
         }
       }, { status: 400 });
     }
 
-    console.log('[PIN Change] Successful for client:', client_id);
+    console.log(`[PIN Change] Successfully changed PIN for client: ${client_id}`);
 
-    // Clear the session cookie since all sessions are invalidated
-    const response = NextResponse.json({
+    return NextResponse.json({
       success: true,
-      message: result.message,
-      data: {
-        pin_changed_at: new Date().toISOString(),
-        sessions_invalidated: true
-      }
+      message: changeResult.message || 'PIN changed successfully'
     });
 
-    // Clear session cookie
-    response.cookies.delete('session-token');
-
-    return response;
   } catch (error) {
-    console.error('[PIN Change] Error:', error);
+    console.error('[Change PIN POST] Error:', error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json({
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
-          message: 'Invalid input data',
+          message: 'Invalid input format',
           details: error.issues
         }
       }, { status: 400 });
     }
     
-    return handleAPIError(error);
-  }
-}
-
-/**
- * GET /api/auth/change-pin
- * Get client info for PIN change form
- */
-export async function GET(request: NextRequest) {
-  try {
-    // Validate session
-    const sessionResult = await validatePinSession(request);
-    if (!sessionResult.success) {
-      return NextResponse.json({
-        success: false,
-        error: { code: 'UNAUTHORIZED', message: 'Invalid or expired session' }
-      }, { status: 401 });
-    }
-
-    const { client_id } = sessionResult;
-    const supabase = createServiceRoleClient('get_client_info');
-
-    const { data: clientInfo, error } = await supabase
-      .rpc('get_client_info', { client_id_input: client_id });
-
-    if (error || !clientInfo || clientInfo.length === 0) {
-      console.error('[PIN Change Info] Failed to get client info:', error);
-      return NextResponse.json({
-        success: false,
-        error: { code: 'CLIENT_NOT_FOUND', message: 'Client not found' }
-      }, { status: 404 });
-    }
-
-    const client = clientInfo[0];
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        company_name: client.company_name,
-        contact_email: client.contact_email,
-        pin_changed_at: client.pin_changed_at,
-        masked_email: client.contact_email.replace(/(.{2})(.*)(@.*)/, '$1***$3')
-      }
-    });
-  } catch (error) {
-    console.error('[PIN Change Info] Error:', error);
     return handleAPIError(error);
   }
 }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { validatePinSession } from '@/lib/pin-auth'
+import { validatePinFromRequest } from '@/lib/pin-auth'
 import { createServiceRoleClient } from '@/lib/supabase'
 import { handleAPIError } from '@/lib/errors'
 
@@ -143,15 +143,15 @@ export async function GET(
 ) {
   try {
     // PIN-based authentication
-    const sessionResult = await validatePinSession(request)
-    if (!sessionResult.success) {
+    const pinResult = await validatePinFromRequest(request)
+    if (!pinResult.success) {
       return NextResponse.json({
         success: false,
-        error: { code: 'UNAUTHORIZED', message: 'Invalid or expired session' }
+        error: { code: 'UNAUTHORIZED', message: 'PIN authentication required' }
       }, { status: 401 })
     }
 
-    const { client_id } = sessionResult
+    const { client_id } = pinResult
     const { id: assistantId } = await params
     
     if (!assistantId) {

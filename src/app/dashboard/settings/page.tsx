@@ -25,7 +25,7 @@ interface ClientSettings {
 
 export default function SettingsPage() {
   const router = useRouter()
-  const { client, logout, isAuthenticated, isLoading } = usePinAuth()
+  const { client, logout, isAuthenticated, isLoading, pin } = usePinAuth()
   const [settings, setSettings] = useState<ClientSettings | null>(null)
   const [loadingSettings, setLoadingSettings] = useState(true)
 
@@ -46,12 +46,21 @@ export default function SettingsPage() {
   const fetchSettings = async () => {
     try {
       setLoadingSettings(true)
-      const response = await authenticatedFetch('/api/auth/change-pin')
-      const data = await handleAuthenticatedResponse<ClientSettings>(response)
       
-      if (data) {
+      // Use simplified auth with PIN
+      const response = await fetch('/api/auth/change-pin', {
+        headers: {
+          'Authorization': `Bearer ${pin}` // Include PIN for auth
+        }
+      })
+      
+      if (response.ok) {
+        const result = await response.json()
+        const data = result.data
         setSettings(data)
         setEmail(data.contact_email) // Pre-fill email
+      } else {
+        throw new Error('Failed to fetch settings')
       }
     } catch (error) {
       console.error('[Settings] Failed to fetch settings:', error)
@@ -108,8 +117,13 @@ export default function SettingsPage() {
     try {
       setChangingPin(true)
       
-      const response = await authenticatedFetch('/api/auth/change-pin', {
+      // For simplified auth, we need to include PIN in the request since it's validated per request
+      const response = await fetch('/api/auth/change-pin', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${pin}` // Include current PIN for auth
+        },
         body: JSON.stringify({
           currentPin,
           newPin,
@@ -117,9 +131,8 @@ export default function SettingsPage() {
         })
       })
 
-      const result = await handleAuthenticatedResponse<any>(response)
-      
-      if (result) {
+      if (response.ok) {
+        const result = await response.json()
         setPinChangeSuccess(true)
         toast({
           title: 'PIN Changed Successfully',
@@ -135,6 +148,9 @@ export default function SettingsPage() {
         setTimeout(() => {
           logout()
         }, 3000)
+      } else {
+        const errorData = await response.json()
+        throw new Error(errorData.error?.message || 'Failed to change PIN')
       }
     } catch (error: any) {
       console.error('[Settings] PIN change failed:', error)

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { handleAPIError } from '@/lib/errors'
 import { createServiceRoleClient } from '@/lib/supabase'
-import { validatePinSession } from '@/lib/pin-auth'
+import { validatePinFromRequest } from '@/lib/pin-auth'
 
 export async function GET(
   request: NextRequest,
@@ -10,16 +10,16 @@ export async function GET(
   try {
     const params = await context.params
     
-    // PIN-based authentication
-    const sessionResult = await validatePinSession(request);
-    if (!sessionResult.success) {
+    // SIMPLIFIED PIN-based authentication (no sessions)
+    const pinResult = await validatePinFromRequest(request);
+    if (!pinResult.success) {
       return NextResponse.json({
         success: false,
-        error: { code: 'UNAUTHORIZED', message: 'Invalid or expired session' }
+        error: { code: 'UNAUTHORIZED', message: pinResult.error || 'PIN authentication required' }
       }, { status: 401 });
     }
 
-    const { client_id } = sessionResult;
+    const { client_id } = pinResult;
     const supabase = createServiceRoleClient('get_client_assistant')
 
     const { data: assistant, error } = await supabase
@@ -53,16 +53,16 @@ export async function PATCH(
   try {
     const params = await context.params
     
-    // PIN-based authentication
-    const sessionResult = await validatePinSession(request);
-    if (!sessionResult.success) {
+    // SIMPLIFIED PIN-based authentication (no sessions)
+    const pinResult = await validatePinFromRequest(request);
+    if (!pinResult.success) {
       return NextResponse.json({
         success: false,
-        error: { code: 'UNAUTHORIZED', message: 'Invalid or expired session' }
+        error: { code: 'UNAUTHORIZED', message: pinResult.error || 'PIN authentication required' }
       }, { status: 401 });
     }
 
-    const { client_id } = sessionResult;
+    const { client_id } = pinResult;
     const body = await request.json()
     const supabase = createServiceRoleClient('update_client_assistant')
 

@@ -1,7 +1,7 @@
 // =============================================
-// DEMO SYSTEM DATABASE TYPES
+// VOICE MATRIX DATABASE TYPES - PIN-BASED SYSTEM
 // =============================================
-// Clean types for demo-only system with no subscriptions
+// Simplified types for PIN-only authentication system
 // =============================================
 
 export type Json =
@@ -15,447 +15,319 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
-      profiles: {
+      clients: {
         Row: {
           id: string
-          email: string
-          full_name: string | null
-          max_assistants: number
-          max_minutes_total: number
-          current_usage_minutes: number
+          pin: string
+          company_name: string
+          contact_email: string
+          is_active: boolean
+          pin_changed_at: string | null
           created_at: string
           updated_at: string
         }
         Insert: {
-          id: string
-          email: string
-          full_name?: string | null
-          max_assistants?: number
-          max_minutes_total?: number
-          current_usage_minutes?: number
+          id?: string
+          pin: string
+          company_name: string
+          contact_email: string
+          is_active?: boolean
+          pin_changed_at?: string | null
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
-          email?: string
-          full_name?: string | null
-          max_assistants?: number
-          max_minutes_total?: number
-          current_usage_minutes?: number
+          pin?: string
+          company_name?: string
+          contact_email?: string
+          is_active?: boolean
+          pin_changed_at?: string | null
           created_at?: string
           updated_at?: string
         }
       }
-      templates: {
+      client_assistants: {
         Row: {
           id: string
-          name: string
-          description: string | null
-          base_prompt: string
-          customizable_fields: Json
-          voice_settings: Json | null
-          is_active: boolean | null
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          name: string
-          description?: string | null
-          base_prompt: string
-          customizable_fields?: Json
-          voice_settings?: Json | null
-          is_active?: boolean | null
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          name?: string
-          description?: string | null
-          base_prompt?: string
-          customizable_fields?: Json
-          voice_settings?: Json | null
-          is_active?: boolean | null
-          created_at?: string
-        }
-      }
-      user_assistants: {
-        Row: {
-          id: string
-          user_id: string
-          template_id: string | null
-          vapi_assistant_id: string | null
-          name: string
-          personality: string
-          config: Json
-          usage_minutes: number
-          max_lifetime_days: number
-          expires_at: string
-          will_auto_delete: boolean
-          deletion_reason: string | null
-          assistant_state: 'active' | 'expired' | 'deleted'
+          client_id: string
+          vapi_assistant_id: string
+          display_name: string
+          first_message: string | null
+          voice: string | null
+          model: string | null
+          eval_method: string | null
+          max_call_duration: number | null
+          system_prompt: string | null
+          last_synced_at: string | null
           created_at: string
           updated_at: string
-          deleted_at: string | null
         }
         Insert: {
           id?: string
-          user_id: string
-          template_id?: string | null
-          vapi_assistant_id?: string | null
-          name: string
-          personality?: string
-          config?: Json
-          usage_minutes?: number
-          max_lifetime_days?: number
-          expires_at?: string
-          will_auto_delete?: boolean
-          deletion_reason?: string | null
-          assistant_state?: 'active' | 'expired' | 'deleted'
+          client_id: string
+          vapi_assistant_id: string
+          display_name: string
+          first_message?: string | null
+          voice?: string | null
+          model?: string | null
+          eval_method?: string | null
+          max_call_duration?: number | null
+          system_prompt?: string | null
+          last_synced_at?: string | null
           created_at?: string
           updated_at?: string
-          deleted_at?: string | null
         }
         Update: {
           id?: string
-          user_id?: string
-          template_id?: string | null
-          vapi_assistant_id?: string | null
-          name?: string
-          personality?: string
-          config?: Json
-          usage_minutes?: number
-          max_lifetime_days?: number
-          expires_at?: string
-          will_auto_delete?: boolean
-          deletion_reason?: string | null
-          assistant_state?: 'active' | 'expired' | 'deleted'
+          client_id?: string
+          vapi_assistant_id?: string
+          display_name?: string
+          first_message?: string | null
+          voice?: string | null
+          model?: string | null
+          eval_method?: string | null
+          max_call_duration?: number | null
+          system_prompt?: string | null
+          last_synced_at?: string | null
           created_at?: string
           updated_at?: string
-          deleted_at?: string | null
         }
       }
-      structured_questions: {
+      client_phone_numbers: {
         Row: {
           id: string
-          assistant_id: string
-          form_title: string
-          question_text: string
-          structured_name: string
-          data_type: 'string' | 'number' | 'boolean'
-          is_required: boolean | null
-          order_index: number
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          assistant_id: string
-          form_title?: string
-          question_text: string
-          structured_name: string
-          data_type?: 'string' | 'number' | 'boolean'
-          is_required?: boolean | null
-          order_index?: number
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          assistant_id?: string
-          form_title?: string
-          question_text?: string
-          structured_name?: string
-          data_type?: 'string' | 'number' | 'boolean'
-          is_required?: boolean | null
-          order_index?: number
-          created_at?: string
-        }
-      }
-      user_phone_numbers: {
-        Row: {
-          id: string
-          user_id: string
+          client_id: string
+          vapi_phone_id: string
           phone_number: string
           friendly_name: string
-          vapi_phone_id: string
-          vapi_credential_id: string | null
           assigned_assistant_id: string | null
-          webhook_url: string | null
-          is_active: boolean | null
           created_at: string
           updated_at: string
-          provider: string | null
-          twilio_account_sid: string | null
-          twilio_auth_token: string | null
-          assigned_at: string | null
-          notes: string | null
         }
         Insert: {
           id?: string
-          user_id: string
+          client_id: string
+          vapi_phone_id: string
           phone_number: string
           friendly_name: string
-          vapi_phone_id: string
-          vapi_credential_id?: string | null
           assigned_assistant_id?: string | null
-          webhook_url?: string | null
-          is_active?: boolean | null
           created_at?: string
           updated_at?: string
-          provider?: string | null
-          twilio_account_sid?: string | null
-          twilio_auth_token?: string | null
-          assigned_at?: string | null
-          notes?: string | null
         }
         Update: {
           id?: string
-          user_id?: string
+          client_id?: string
+          vapi_phone_id?: string
           phone_number?: string
           friendly_name?: string
-          vapi_phone_id?: string
-          vapi_credential_id?: string | null
           assigned_assistant_id?: string | null
-          webhook_url?: string | null
-          is_active?: boolean | null
           created_at?: string
           updated_at?: string
-          provider?: string | null
-          twilio_account_sid?: string | null
-          twilio_auth_token?: string | null
-          assigned_at?: string | null
-          notes?: string | null
         }
       }
-      call_info_log: {
+      call_logs: {
         Row: {
           id: string
           assistant_id: string
           vapi_call_id: string | null
-          duration_minutes: number
-          evaluation: string | number | boolean | null
+          evaluation: boolean | null
           caller_number: string | null
           transcript: string | null
           summary: string | null
           structured_data: Json | null
           started_at: string
-          ended_at: string | null
-          created_at: string
+          duration_seconds: number
         }
         Insert: {
           id?: string
           assistant_id: string
           vapi_call_id?: string | null
-          duration_minutes?: number
-          evaluation?: string | number | boolean | null
+          evaluation?: boolean | null
           caller_number?: string | null
           transcript?: string | null
           summary?: string | null
           structured_data?: Json | null
           started_at?: string
-          ended_at?: string | null
-          created_at?: string
+          duration_seconds?: number
         }
         Update: {
           id?: string
           assistant_id?: string
           vapi_call_id?: string | null
-          duration_minutes?: number
-          evaluation?: string | number | boolean | null
+          evaluation?: boolean | null
           caller_number?: string | null
           transcript?: string | null
           summary?: string | null
           structured_data?: Json | null
           started_at?: string
-          ended_at?: string | null
-          created_at?: string
-        }
-      }
-      call_analytics: {
-        Row: {
-          id: string
-          user_id: string
-          assistant_id: string | null
-          date: string
-          total_calls: number | null
-          successful_calls: number | null
-          failed_calls: number | null
-          total_duration_minutes: number | null
-          average_call_duration: number | null
-          success_rate: number | null
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          assistant_id?: string | null
-          date: string
-          total_calls?: number | null
-          successful_calls?: number | null
-          failed_calls?: number | null
-          total_duration_minutes?: number | null
-          average_call_duration?: number | null
-          success_rate?: number | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          assistant_id?: string | null
-          date?: string
-          total_calls?: number | null
-          successful_calls?: number | null
-          failed_calls?: number | null
-          total_duration_minutes?: number | null
-          average_call_duration?: number | null
-          success_rate?: number | null
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      cleanup_jobs: {
-        Row: {
-          id: string
-          job_type: string
-          assistants_deleted: number
-          users_affected: number
-          execution_time_ms: number | null
-          details: Json
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          job_type?: string
-          assistants_deleted?: number
-          users_affected?: number
-          execution_time_ms?: number | null
-          details?: Json
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          job_type?: string
-          assistants_deleted?: number
-          users_affected?: number
-          execution_time_ms?: number | null
-          details?: Json
-          created_at?: string
+          duration_seconds?: number
         }
       }
     }
     Views: {
-      active_assistants_view: {
-        Row: {
-          id: string
-          user_id: string
-          template_id: string | null
-          vapi_assistant_id: string | null
-          name: string
-          personality: string
-          config: Json
-          usage_minutes: number
-          max_lifetime_days: number
-          expires_at: string
-          will_auto_delete: boolean
-          deletion_reason: string | null
-          assistant_state: 'active' | 'expired' | 'deleted'
-          created_at: string
-          updated_at: string
-          deleted_at: string | null
-          user_email: string
-          user_total_usage: number
-          user_max_minutes: number
-          user_remaining_minutes: number
-          days_until_expiry: number
-          is_expired_by_time: boolean
-          is_expired_by_usage: boolean
-        }
-        Insert: never
-        Update: never
-      }
-      user_demo_status: {
-        Row: {
-          user_id: string
-          email: string
-          full_name: string | null
-          current_usage_minutes: number
-          max_minutes_total: number
-          remaining_minutes: number
-          active_assistants: number
-          max_assistants: number
-          remaining_assistant_slots: number
-          usage_limit_reached: boolean
-          assistant_limit_reached: boolean
-        }
-        Insert: never
-        Update: never
-      }
+      [_ in never]: never
     }
     Functions: {
-      cleanup_expired_assistants: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
+      validate_pin_simple: {
+        Args: {
+          pin_input: string
+        }
+        Returns: {
+          valid: boolean
+          client_id: string | null
+          company_name: string | null
+          error_message: string | null
+        }[]
       }
-      handle_new_user: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
+      get_client_assistants: {
+        Args: {
+          client_id_input: string
+        }
+        Returns: {
+          id: string
+          vapi_assistant_id: string
+          display_name: string
+          first_message: string | null
+          voice: string | null
+          model: string | null
+          eval_method: string | null
+          max_call_duration: number | null
+          system_prompt: string | null
+          created_at: string
+          updated_at: string
+          last_synced_at: string | null
+        }[]
       }
-      update_usage_on_call_end: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
+      get_dashboard_analytics_simple: {
+        Args: {
+          client_id_input: string
+          days_back?: number
+        }
+        Returns: {
+          total_calls: number
+          success_rate: number
+          avg_duration_minutes: number
+          total_duration_hours: number
+          recent_calls: Json
+        }[]
       }
-      check_assistant_expiration: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
+      change_pin_simple: {
+        Args: {
+          client_id_input: string
+          current_pin_input: string
+          new_pin_input: string
+        }
+        Returns: {
+          success: boolean
+          message: string
+          error_code: string | null
+        }[]
+      }
+      log_call_from_vapi: {
+        Args: {
+          vapi_call_id_input: string
+          vapi_assistant_id_input: string
+          caller_number_input?: string | null
+          evaluation_input?: boolean | null
+          transcript_input?: string | null
+          summary_input?: string | null
+          structured_data_input?: Json | null
+          started_at_input?: string | null
+          duration_seconds_input?: number
+        }
+        Returns: {
+          success: boolean
+          call_log_id: string | null
+          message: string
+        }[]
+      }
+      update_assistant: {
+        Args: {
+          assistant_id_input: string
+          client_id_input: string
+          display_name_input?: string
+          first_message_input?: string
+          voice_input?: string
+          model_input?: string
+          eval_method_input?: string
+          max_call_duration_input?: number
+        }
+        Returns: {
+          success: boolean
+          message: string
+          error_code: string | null
+        }[]
       }
     }
     Enums: {
-      assistant_state: 'active' | 'expired' | 'deleted'
-      data_type: 'string' | 'number' | 'boolean'
+      [_ in never]: never
     }
-    CompositeTypes: Record<string, never>
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
 }
 
-// Helper types for demo system
-export type Profile = Database['public']['Tables']['profiles']['Row']
-export type Assistant = Database['public']['Tables']['user_assistants']['Row']
-export type CallLog = Database['public']['Tables']['call_info_log']['Row']
-export type StructuredQuestion = Database['public']['Tables']['structured_questions']['Row']
-export type Template = Database['public']['Tables']['templates']['Row']
-export type PhoneNumber = Database['public']['Tables']['user_phone_numbers']['Row']
-export type CleanupJob = Database['public']['Tables']['cleanup_jobs']['Row']
-export type CallAnalytics = Database['public']['Tables']['call_analytics']['Row']
+// Helper types for Voice Matrix system
+export type Client = Database['public']['Tables']['clients']['Row']
+export type ClientInsert = Database['public']['Tables']['clients']['Insert']
+export type ClientUpdate = Database['public']['Tables']['clients']['Update']
 
-// Demo-specific types
-export interface DemoUserStatus {
-  userId: string
-  email: string
-  fullName: string | null
-  currentUsageMinutes: number
-  maxMinutesTotal: number
-  remainingMinutes: number
-  activeAssistants: number
-  maxAssistants: number
-  remainingAssistantSlots: number
-  usageLimitReached: boolean
-  assistantLimitReached: boolean
+export type ClientAssistant = Database['public']['Tables']['client_assistants']['Row']
+export type ClientAssistantInsert = Database['public']['Tables']['client_assistants']['Insert']
+export type ClientAssistantUpdate = Database['public']['Tables']['client_assistants']['Update']
+
+export type ClientPhoneNumber = Database['public']['Tables']['client_phone_numbers']['Row']
+export type ClientPhoneNumberInsert = Database['public']['Tables']['client_phone_numbers']['Insert']
+export type ClientPhoneNumberUpdate = Database['public']['Tables']['client_phone_numbers']['Update']
+
+export type CallLog = Database['public']['Tables']['call_logs']['Row']
+export type CallLogInsert = Database['public']['Tables']['call_logs']['Insert']
+export type CallLogUpdate = Database['public']['Tables']['call_logs']['Update']
+
+// PIN validation result
+export interface PinValidationResult {
+  valid: boolean
+  client_id: string | null
+  company_name: string | null
+  error_message: string | null
 }
 
-export interface AssistantWithStatus extends Assistant {
-  userEmail: string
-  userTotalUsage: number
-  userMaxMinutes: number
-  userRemainingMinutes: number
-  daysUntilExpiry: number
-  isExpiredByTime: boolean
-  isExpiredByUsage: boolean
+// Dashboard analytics result
+export interface DashboardAnalytics {
+  total_calls: number
+  success_rate: number
+  avg_duration_minutes: number
+  total_duration_hours: number
+  recent_calls: any[]
 }
 
-// Demo limits constants
-export const DEMO_LIMITS = {
-  MAX_ASSISTANTS: 3,
-  MAX_MINUTES_TOTAL: 10,
-  MAX_LIFETIME_DAYS: 7
+// Assistant update result
+export interface AssistantUpdateResult {
+  success: boolean
+  message: string
+  error_code: string | null
+}
+
+// PIN change result
+export interface PinChangeResult {
+  success: boolean
+  message: string
+  error_code: string | null
+}
+
+// Call logging result
+export interface CallLogResult {
+  success: boolean
+  call_log_id: string | null
+  message: string
+}
+
+// Voice Matrix constants
+export const VOICE_MATRIX = {
+  PIN_LENGTH: 6,
+  MAX_PIN_LENGTH: 8,
+  MIN_PIN_LENGTH: 6,
+  DEFAULT_ANALYTICS_DAYS: 30
 } as const

@@ -1,21 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { handleAPIError } from '@/lib/errors';
 import { createServiceRoleClient } from '@/lib/supabase';
-import { validatePinSession } from '@/lib/pin-auth';
+import { validatePinFromRequest } from '@/lib/pin-auth';
 
 // GET /api/assistants - Get assigned assistants for PIN-authenticated client
 export async function GET(request: NextRequest) {
   try {
-    // PIN-based authentication
-    const sessionResult = await validatePinSession(request);
-    if (!sessionResult.success) {
+    // SIMPLIFIED PIN-based authentication (no sessions)
+    const pinResult = await validatePinFromRequest(request);
+    if (!pinResult.success) {
       return NextResponse.json({
         success: false,
-        error: { code: 'UNAUTHORIZED', message: 'Invalid or expired session' }
+        error: { code: 'UNAUTHORIZED', message: pinResult.error || 'PIN authentication required' }
       }, { status: 401 });
     }
 
-    const { client_id } = sessionResult;
+    const { client_id } = pinResult;
     const { searchParams } = new URL(request.url);
     
     const page = parseInt(searchParams.get('page') || '1');
@@ -79,16 +79,16 @@ export async function POST(request: NextRequest) {
 // PATCH /api/assistants?action=refresh - Refresh all assistants from VAPI
 export async function PATCH(request: NextRequest) {
   try {
-    // PIN-based authentication
-    const sessionResult = await validatePinSession(request);
-    if (!sessionResult.success) {
+    // SIMPLIFIED PIN-based authentication (no sessions)
+    const pinResult = await validatePinFromRequest(request);
+    if (!pinResult.success) {
       return NextResponse.json({
         success: false,
-        error: { code: 'UNAUTHORIZED', message: 'Invalid or expired session' }
+        error: { code: 'UNAUTHORIZED', message: pinResult.error || 'PIN authentication required' }
       }, { status: 401 });
     }
 
-    const { client_id } = sessionResult;
+    const { client_id } = pinResult;
     const { searchParams } = new URL(request.url);
     const action = searchParams.get('action');
 
