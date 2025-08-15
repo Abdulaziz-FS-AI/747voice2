@@ -53,12 +53,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: '#0f0f0f' }}>
+    <div className="min-h-screen" style={{ background: 'var(--vm-color-background)' }}>
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 
           className="fixed inset-0 z-40 lg:hidden"
-          style={{ background: 'rgba(0, 0, 0, 0.8)' }}
+          style={{ background: 'var(--vm-color-background) / 0.8' }}
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -68,13 +68,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         "fixed inset-y-0 z-50 flex w-80 flex-col transition-transform lg:translate-x-0",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )} style={{ 
-        background: 'rgba(17, 24, 39, 0.95)',
-        borderRight: '1px solid rgba(75, 85, 99, 0.3)',
-        backdropFilter: 'blur(10px)'
+        background: 'var(--vm-color-glass)',
+        borderRight: '1px solid var(--vm-color-glass-border)',
+        backdropFilter: 'blur(var(--vm-blur-xl))'
       }}>
         
         {/* Premium Logo Section */}
-        <div className="flex h-20 items-center justify-between px-6" style={{ borderBottom: '1px solid rgba(75, 85, 99, 0.3)' }}>
+        <div className="flex h-20 items-center justify-between px-6" style={{ borderBottom: '1px solid var(--vm-color-glass-border)' }}>
           <div className="flex items-center gap-3">
             {/* Voice Matrix Logo */}
             <div className="relative">
@@ -100,7 +100,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             className="lg:hidden hover:bg-white/10"
             onClick={() => setSidebarOpen(false)}
           >
-            <X className="h-5 w-5" style={{ color: 'var(--vm-primary-light)' }} />
+            <X className="h-5 w-5" style={{ color: 'var(--vm-color-foreground)' }} />
           </Button>
         </div>
 
@@ -161,7 +161,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </nav>
 
         {/* Premium User Section */}
-        <div className="p-4" style={{ borderTop: '1px solid var(--vm-border-default)' }}>
+        <div className="p-4" style={{ borderTop: '1px solid var(--vm-color-glass-border)' }}>
           <div className="vm-card p-4 mb-3">
             <div className="flex items-center gap-3 mb-3">
               <div 
@@ -172,23 +172,23 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   {client?.company_name?.[0]?.toUpperCase() || 'C'}
                 </span>
                 <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full"
-                     style={{ background: 'var(--vm-success-green)' }}>
+                     style={{ background: 'var(--vm-color-success)' }}>
                   <div className="w-2 h-2 rounded-full bg-white m-1" />
                 </div>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm truncate" style={{ color: 'var(--vm-primary-light)' }}>
+                <p className="font-semibold text-sm truncate" style={{ color: 'var(--vm-color-foreground)' }}>
                   {client?.company_name}
                 </p>
                 <div className="flex items-center gap-2">
                   <div className="px-2 py-0.5 rounded-full text-xs font-medium"
                        style={{ 
-                         background: 'rgba(139, 92, 246, 0.1)',
-                         color: 'var(--vm-secondary-purple)'
+                         background: 'var(--vm-color-accent) / 0.1',
+                         color: 'var(--vm-color-accent)'
                        }}>
                     Voice Matrix User
                   </div>
-                  <Activity className="h-3 w-3" style={{ color: 'var(--vm-success-green)' }} />
+                  <Activity className="h-3 w-3" style={{ color: 'var(--vm-color-success)' }} />
                 </div>
               </div>
             </div>
@@ -221,8 +221,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <header 
           className="sticky top-0 z-30 flex h-16 items-center gap-4 px-6 backdrop-blur-xl"
           style={{ 
-            background: 'rgba(26, 21, 38, 0.95)',
-            borderBottom: '1px solid var(--vm-border-default)'
+            background: 'var(--vm-color-glass)',
+            borderBottom: '1px solid var(--vm-color-glass-border)'
           }}
         >
           <Button
@@ -231,13 +231,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             className="lg:hidden hover:bg-white/10"
             onClick={() => setSidebarOpen(true)}
           >
-            <Menu className="h-5 w-5" style={{ color: 'var(--vm-primary-light)' }} />
+            <Menu className="h-5 w-5" style={{ color: 'var(--vm-color-foreground)' }} />
           </Button>
           
           {/* System Status */}
           <div className="flex items-center gap-2 ml-auto">
-            <div className="h-2 w-2 rounded-full" style={{ background: 'var(--vm-success-green)' }} />
-            <span className="text-sm font-medium" style={{ color: 'var(--vm-neutral-400)' }}>System Online</span>
+            <div className="h-2 w-2 rounded-full" style={{ background: 'var(--vm-color-success)' }} />
+            <span className="text-sm font-medium" style={{ color: 'var(--vm-color-muted)' }}>System Online</span>
           </div>
         </header>
 
@@ -245,7 +245,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <UsageWarningBanner />
 
         {/* Enhanced Page Content */}
-        <main className="p-6" style={{ background: 'var(--vm-primary-dark)' }}>
+        <main className="p-6" style={{ background: 'var(--vm-color-background)' }}>
           <div className="max-w-7xl mx-auto">
             {children}
           </div>
