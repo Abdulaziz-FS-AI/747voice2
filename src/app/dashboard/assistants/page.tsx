@@ -192,15 +192,15 @@ export default function AssistantsPage() {
           // Loading State
           <div className="grid gap-6 md:grid-cols-2">
             {[1, 2, 3, 4].map((i) => (
-              <Card key={i} className="border border-gray-700 bg-gray-900/50">
+              <Card key={i} className="vm-card">
                 <CardHeader>
-                  <div className="h-6 bg-gray-600 rounded animate-pulse" />
-                  <div className="h-4 bg-gray-700 rounded animate-pulse" />
+                  <div className="h-6 vm-loading-skeleton rounded" />
+                  <div className="h-4 vm-loading-skeleton rounded" />
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    <div className="h-4 bg-gray-700 rounded animate-pulse" />
-                    <div className="h-4 bg-gray-700 rounded animate-pulse w-3/4" />
+                    <div className="h-4 vm-loading-skeleton rounded" />
+                    <div className="h-4 vm-loading-skeleton rounded w-3/4" />
                   </div>
                 </CardContent>
               </Card>
@@ -229,16 +229,16 @@ export default function AssistantsPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="border border-gray-700 bg-gray-900/50 backdrop-blur">
+                <Card className="vm-card backdrop-blur-lg border border-vm-glass-border bg-vm-gradient-glass">
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center gap-2 text-white">
-                        <Bot className="h-5 w-5 text-purple-400" />
+                      <CardTitle className="flex items-center gap-2 vm-text-bright">
+                        <Bot className="h-5 w-5 text-vm-primary" />
                         {editingId === assistant.id ? (
                           <Input
                             value={editData?.display_name || ''}
                             onChange={(e) => setEditData(prev => prev ? {...prev, display_name: e.target.value} : null)}
-                            className="text-white bg-gray-800 border-gray-600"
+                            className="vm-text-bright bg-vm-surface-elevated border-vm-border"
                           />
                         ) : (
                           assistant.display_name
@@ -250,7 +250,7 @@ export default function AssistantsPage() {
                             size="sm"
                             onClick={saveEdit}
                             disabled={saving}
-                            className="bg-green-600 hover:bg-green-700"
+                            className="bg-vm-success hover:bg-vm-success/80 text-vm-success-foreground"
                           >
                             <Save className="h-4 w-4" />
                           </Button>
@@ -279,22 +279,22 @@ export default function AssistantsPage() {
                       // Edit Mode
                       <div className="space-y-4">
                         <div>
-                          <Label className="text-gray-300">First Message</Label>
+                          <Label className="vm-text-muted">First Message</Label>
                           <Input
                             value={editData?.first_message || ''}
                             onChange={(e) => setEditData(prev => prev ? {...prev, first_message: e.target.value} : null)}
-                            className="mt-1 bg-gray-800 border-gray-600 text-white"
+                            className="mt-1 bg-vm-surface-elevated border-vm-border vm-text-bright"
                             placeholder="Hello! How can I help you today?"
                           />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <Label className="text-gray-300">Voice</Label>
+                            <Label className="vm-text-muted">Voice</Label>
                             <Select
                               value={editData?.voice || 'jennifer'}
                               onValueChange={(value) => setEditData(prev => prev ? {...prev, voice: value} : null)}
                             >
-                              <SelectTrigger className="mt-1 bg-gray-800 border-gray-600">
+                              <SelectTrigger className="mt-1 bg-vm-surface-elevated border-vm-border">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -308,12 +308,12 @@ export default function AssistantsPage() {
                             </Select>
                           </div>
                           <div>
-                            <Label className="text-gray-300">Model</Label>
+                            <Label className="vm-text-muted">Model</Label>
                             <Select
                               value={editData?.model || 'gpt-4'}
                               onValueChange={(value) => setEditData(prev => prev ? {...prev, model: value} : null)}
                             >
-                              <SelectTrigger className="mt-1 bg-gray-800 border-gray-600">
+                              <SelectTrigger className="mt-1 bg-vm-surface-elevated border-vm-border">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -327,12 +327,12 @@ export default function AssistantsPage() {
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <Label className="text-gray-300">Evaluation Method</Label>
+                            <Label className="vm-text-muted">Evaluation Method</Label>
                             <Select
                               value={editData?.eval_method || 'conversation_score'}
                               onValueChange={(value) => setEditData(prev => prev ? {...prev, eval_method: value} : null)}
                             >
-                              <SelectTrigger className="mt-1 bg-gray-800 border-gray-600">
+                              <SelectTrigger className="mt-1 bg-vm-surface-elevated border-vm-border">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -344,12 +344,12 @@ export default function AssistantsPage() {
                             </Select>
                           </div>
                           <div>
-                            <Label className="text-gray-300">Max Duration (seconds)</Label>
+                            <Label className="vm-text-muted">Max Duration (seconds)</Label>
                             <Input
                               type="number"
                               value={editData?.max_call_duration || 300}
                               onChange={(e) => setEditData(prev => prev ? {...prev, max_call_duration: parseInt(e.target.value) || 300} : null)}
-                              className="mt-1 bg-gray-800 border-gray-600 text-white"
+                              className="mt-1 bg-vm-surface-elevated border-vm-border vm-text-bright"
                               min="60"
                               max="1800"
                             />
@@ -360,31 +360,31 @@ export default function AssistantsPage() {
                       // View Mode
                       <div className="space-y-3">
                         <div className="flex flex-wrap gap-2">
-                          <Badge variant="outline" className="text-blue-400 border-blue-400">
+                          <Badge variant="outline" className="text-vm-accent border-vm-accent">
                             {assistant.voice || 'Default Voice'}
                           </Badge>
-                          <Badge variant="outline" className="text-green-400 border-green-400">
+                          <Badge variant="outline" className="text-vm-success border-vm-success">
                             {assistant.model || 'GPT-4'}
                           </Badge>
-                          <Badge variant="outline" className="text-yellow-400 border-yellow-400">
+                          <Badge variant="outline" className="text-vm-warning border-vm-warning">
                             {assistant.max_call_duration || 300}s
                           </Badge>
                         </div>
                         <div>
-                          <p className="text-sm text-gray-400">First Message:</p>
-                          <p className="text-gray-300 text-sm">
+                          <p className="text-sm vm-text-muted">First Message:</p>
+                          <p className="vm-text-bright text-sm">
                             {assistant.first_message || 'No custom first message set'}
                           </p>
                         </div>
                         <div>
-                          <p className="text-sm text-gray-400">VAPI Assistant ID:</p>
-                          <code className="text-xs text-purple-300 bg-gray-800 px-2 py-1 rounded">
+                          <p className="text-sm vm-text-muted">VAPI Assistant ID:</p>
+                          <code className="text-xs text-vm-primary bg-vm-surface-elevated px-2 py-1 rounded">
                             {assistant.vapi_assistant_id}
                           </code>
                         </div>
                         {assistant.last_synced_at && (
                           <div>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs vm-text-muted">
                               Last synced: {new Date(assistant.last_synced_at).toLocaleString()}
                             </p>
                           </div>
@@ -404,15 +404,15 @@ export default function AssistantsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <Card className="border border-blue-700 bg-blue-900/20 backdrop-blur">
+          <Card className="vm-card border border-vm-accent/30 bg-vm-gradient-glass backdrop-blur-lg">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-blue-300">
+              <CardTitle className="flex items-center gap-2 text-vm-accent">
                 <Settings className="h-5 w-5" />
                 Limited Edit Access
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-blue-200 text-sm">
+              <p className="vm-text-bright text-sm">
                 You can customize your assistant's voice, first message, model, evaluation method, and call duration. 
                 Core functionality like system prompts and functions are managed by your administrator.
               </p>
