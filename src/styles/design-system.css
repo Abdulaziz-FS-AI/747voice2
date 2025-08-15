@@ -4,7 +4,7 @@
  * Consolidated from multiple theme systems into one powerful approach
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@100;200;300;400;500;600;700;800;900&family=SF+Pro+Text:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 /* ==============================================
    CSS CASCADE LAYERS - Modern Architecture
@@ -163,6 +163,413 @@
     padding: 0.25rem 0.5rem;
     border-radius: var(--vm-radius-sm);
     border: 1px solid var(--vm-color-border);
+  }
+
+  /* Executive Typography Scale */
+  .vm-display-hero {
+    font-family: var(--vm-font-display);
+    font-size: clamp(2.5rem, 8vw, 6rem);
+    font-weight: 800;
+    line-height: 0.85;
+    letter-spacing: -0.04em;
+    background: var(--vm-gradient-primary);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 20px oklch(0.3000 0.1000 240 / 0.3));
+  }
+
+  .vm-display-large {
+    font-family: var(--vm-font-display);
+    font-size: clamp(2rem, 6vw, 4rem);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+    color: var(--vm-color-foreground);
+  }
+
+  .vm-display-medium {
+    font-family: var(--vm-font-display);
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--vm-color-foreground);
+  }
+
+  .vm-display-small {
+    font-family: var(--vm-font-display);
+    font-size: clamp(1.25rem, 3vw, 2rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: var(--vm-color-foreground);
+  }
+
+  /* Body Text Hierarchy */
+  .vm-text-lead {
+    font-family: var(--vm-font-body);
+    font-size: 1.25rem;
+    font-weight: 400;
+    line-height: 1.7;
+    color: var(--vm-color-muted);
+    letter-spacing: 0.01em;
+  }
+
+  .vm-text-body {
+    font-family: var(--vm-font-body);
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--vm-color-muted);
+  }
+
+  .vm-text-small {
+    font-family: var(--vm-font-body);
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--vm-color-muted);
+    letter-spacing: 0.02em;
+  }
+
+  .vm-text-micro {
+    font-family: var(--vm-font-body);
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--vm-color-muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* Special Typography Effects */
+  .vm-text-gradient {
+    background: var(--vm-gradient-primary);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .vm-text-glow {
+    color: var(--vm-color-primary);
+    text-shadow: 0 0 20px oklch(0.6000 0.1800 45 / 0.4);
+  }
+
+  .vm-text-premium {
+    background: var(--vm-gradient-accent);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 600;
+  }
+}
+
+/* ==============================================
+   MICRO-INTERACTIONS & TRANSITIONS
+   ============================================== */
+
+@layer components {
+  /* Premium Animation Classes */
+  .vm-animate-fade-in {
+    animation: vm-fade-in var(--vm-duration-normal) var(--vm-ease-luxury) forwards;
+  }
+
+  .vm-animate-slide-up {
+    animation: vm-slide-up var(--vm-duration-normal) var(--vm-ease-luxury) forwards;
+  }
+
+  .vm-animate-scale-in {
+    animation: vm-scale-in var(--vm-duration-fast) var(--vm-ease-luxury) forwards;
+  }
+
+  .vm-animate-glow {
+    animation: vm-glow 2s ease-in-out infinite alternate;
+  }
+
+  .vm-animate-float {
+    animation: vm-float 3s ease-in-out infinite;
+  }
+
+  .vm-animate-pulse-slow {
+    animation: vm-pulse-slow 4s ease-in-out infinite;
+  }
+
+  /* Hover Micro-interactions */
+  .vm-hover-lift {
+    transition: transform var(--vm-duration-fast) var(--vm-ease-luxury);
+  }
+
+  .vm-hover-lift:hover {
+    transform: translateY(-2px);
+  }
+
+  .vm-hover-scale {
+    transition: transform var(--vm-duration-fast) var(--vm-ease-luxury);
+  }
+
+  .vm-hover-scale:hover {
+    transform: scale(1.02);
+  }
+
+  .vm-hover-glow {
+    transition: box-shadow var(--vm-duration-normal) var(--vm-ease-luxury);
+  }
+
+  .vm-hover-glow:hover {
+    box-shadow: var(--vm-glow-primary);
+  }
+
+  .vm-hover-border-glow {
+    transition: border-color var(--vm-duration-normal) var(--vm-ease-luxury);
+  }
+
+  .vm-hover-border-glow:hover {
+    border-color: var(--vm-color-ring);
+  }
+
+  /* Interactive States */
+  .vm-interactive {
+    cursor: pointer;
+    transition: all var(--vm-duration-fast) var(--vm-ease-luxury);
+  }
+
+  .vm-interactive:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--vm-shadow-lg);
+  }
+
+  .vm-interactive:active {
+    transform: translateY(0);
+    box-shadow: var(--vm-shadow-sm);
+  }
+
+  /* Focus States */
+  .vm-focus-luxury {
+    outline: none;
+    transition: all var(--vm-duration-fast) var(--vm-ease-luxury);
+  }
+
+  .vm-focus-luxury:focus-visible {
+    outline: 2px solid var(--vm-color-ring);
+    outline-offset: 2px;
+    box-shadow: var(--vm-glow-primary);
+  }
+
+  /* Loading States */
+  .vm-loading-shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--vm-color-surface) 25%,
+      var(--vm-color-surface-elevated) 50%,
+      var(--vm-color-surface) 75%
+    );
+    background-size: 200% 100%;
+    animation: vm-shimmer 1.5s infinite;
+  }
+
+  .vm-loading-skeleton {
+    background: var(--vm-color-surface-elevated);
+    border-radius: var(--vm-radius-md);
+    animation: vm-pulse-slow 2s ease-in-out infinite;
+  }
+
+  /* Stagger Animations for Lists */
+  .vm-stagger-container > * {
+    animation: vm-fade-slide-up var(--vm-duration-normal) var(--vm-ease-luxury) forwards;
+  }
+
+  .vm-stagger-container > *:nth-child(1) { animation-delay: 0ms; }
+  .vm-stagger-container > *:nth-child(2) { animation-delay: 100ms; }
+  .vm-stagger-container > *:nth-child(3) { animation-delay: 200ms; }
+  .vm-stagger-container > *:nth-child(4) { animation-delay: 300ms; }
+  .vm-stagger-container > *:nth-child(5) { animation-delay: 400ms; }
+  .vm-stagger-container > *:nth-child(6) { animation-delay: 500ms; }
+
+  /* Ripple Effect */
+  .vm-ripple {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .vm-ripple::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: var(--vm-color-primary);
+    opacity: 0;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s, height 0.3s, opacity 0.3s;
+  }
+
+  .vm-ripple:active::before {
+    width: 300px;
+    height: 300px;
+    opacity: 0.2;
+  }
+}
+
+/* ==============================================
+   KEYFRAME ANIMATIONS
+   ============================================== */
+
+@layer base {
+  @keyframes vm-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes vm-slide-up {
+    from { 
+      opacity: 0; 
+      transform: translateY(20px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+  }
+
+  @keyframes vm-fade-slide-up {
+    from { 
+      opacity: 0; 
+      transform: translateY(15px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+  }
+
+  @keyframes vm-scale-in {
+    from { 
+      opacity: 0; 
+      transform: scale(0.95); 
+    }
+    to { 
+      opacity: 1; 
+      transform: scale(1); 
+    }
+  }
+
+  @keyframes vm-glow {
+    from { 
+      box-shadow: var(--vm-glow-primary); 
+    }
+    to { 
+      box-shadow: var(--vm-glow-accent); 
+    }
+  }
+
+  @keyframes vm-float {
+    0%, 100% { 
+      transform: translateY(0px); 
+    }
+    50% { 
+      transform: translateY(-6px); 
+    }
+  }
+
+  @keyframes vm-pulse-slow {
+    0%, 100% { 
+      opacity: 0.6; 
+      transform: scale(1); 
+    }
+    50% { 
+      opacity: 1; 
+      transform: scale(1.02); 
+    }
+  }
+
+  @keyframes vm-shimmer {
+    0% { 
+      background-position: -200% 0; 
+    }
+    100% { 
+      background-position: 200% 0; 
+    }
+  }
+
+  @keyframes vm-rotate {
+    from { 
+      transform: rotate(0deg); 
+    }
+    to { 
+      transform: rotate(360deg); 
+    }
+  }
+
+  @keyframes vm-bounce-in {
+    0% { 
+      opacity: 0; 
+      transform: scale(0.3); 
+    }
+    50% { 
+      opacity: 1; 
+      transform: scale(1.05); 
+    }
+    70% { 
+      transform: scale(0.9); 
+    }
+    100% { 
+      opacity: 1; 
+      transform: scale(1); 
+    }
+  }
+
+  @keyframes vm-slide-in-right {
+    from { 
+      opacity: 0; 
+      transform: translateX(30px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateX(0); 
+    }
+  }
+
+  @keyframes vm-slide-in-left {
+    from { 
+      opacity: 0; 
+      transform: translateX(-30px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateX(0); 
+    }
+  }
+}
+
+/* ==============================================
+   REDUCED MOTION PREFERENCES
+   ============================================== */
+
+@layer base {
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+
+    .vm-animate-float,
+    .vm-animate-glow,
+    .vm-animate-pulse-slow {
+      animation: none !important;
+    }
+
+    .vm-hover-lift:hover,
+    .vm-hover-scale:hover,
+    .vm-interactive:hover {
+      transform: none !important;
+    }
   }
 }
 

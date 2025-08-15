@@ -43,48 +43,170 @@
     background: var(--vm-color-background);
     color: var(--vm-color-foreground);
     font-family: var(--vm-font-body);
+    position: relative;
+    overflow-x: hidden;
   }
 
   /* Header styles */
   .app-header {
-    height: var(--vm-header-height);
-    background: var(--vm-color-surface);
-    border-bottom: 1px solid var(--vm-color-border);
-    backdrop-filter: blur(var(--vm-blur-lg));
+    height: clamp(60px, 8vh, 80px);
+    background: var(--vm-gradient-glass);
+    border-bottom: 1px solid var(--vm-color-glass-border);
+    backdrop-filter: blur(var(--vm-blur-xl));
     position: sticky;
     top: 0;
-    z-index: var(--vm-z-sticky);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 clamp(1rem, 4vw, 2rem);
   }
 
   /* Main content area */
   .app-main {
     flex: 1;
-    padding: var(--vm-content-padding);
-    max-width: var(--vm-content-max-width);
+    padding: clamp(1rem, 4vw, 2rem);
+    max-width: 1600px;
     margin: 0 auto;
     width: 100%;
+    min-height: calc(100vh - clamp(60px, 8vh, 80px));
   }
 
-  /* Sidebar styles */
-  .app-sidebar {
-    width: var(--vm-sidebar-width);
-    background: var(--vm-color-surface);
-    border-right: 1px solid var(--vm-color-border);
-    height: 100vh;
-    position: sticky;
-    top: 0;
-    z-index: var(--vm-z-docked);
-  }
-
-  .app-sidebar-collapsed {
-    width: var(--vm-sidebar-width-collapsed);
-  }
-
-  /* Dashboard layout */
+  /* Responsive Grid System */
   .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--vm-space-fluid-md);
+    gap: clamp(1rem, 3vw, 2rem);
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+    margin-bottom: 2rem;
+  }
+
+  @media (min-width: 640px) {
+    .dashboard-grid {
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .dashboard-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  @media (min-width: 1440px) {
+    .dashboard-grid {
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+  }
+
+  /* Responsive Layout Components */
+  .app-layout {
+    display: flex;
+    min-height: 100vh;
+    background: var(--vm-color-background);
+  }
+
+  .app-layout-with-sidebar {
+    padding-left: 0;
+  }
+
+  @media (min-width: 1024px) {
+    .app-layout-with-sidebar {
+      padding-left: 288px;
+    }
+  }
+
+  /* Mobile Navigation */
+  .mobile-nav {
+    display: block;
+  }
+
+  @media (min-width: 1024px) {
+    .mobile-nav {
+      display: none;
+    }
+  }
+
+  /* Desktop Sidebar */
+  .desktop-sidebar {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 288px;
+    z-index: 50;
+  }
+
+  @media (min-width: 1024px) {
+    .desktop-sidebar {
+      display: flex;
+    }
+  }
+
+  /* Responsive Cards */
+  .metrics-grid {
+    display: grid;
+    gap: clamp(1rem, 2.5vw, 1.5rem);
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 640px) {
+    .metrics-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .metrics-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  /* Responsive Typography */
+  .responsive-title {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    line-height: 1.1;
+  }
+
+  .responsive-subtitle {
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    line-height: 1.4;
+  }
+
+  .responsive-body {
+    font-size: clamp(0.875rem, 2vw, 1rem);
+    line-height: 1.6;
+  }
+
+  /* Container Queries for Cards */
+  .metrics-card {
+    container-type: inline-size;
+  }
+
+  @container (min-width: 200px) {
+    .metrics-card .card-content {
+      padding: 1rem;
+    }
+  }
+
+  @container (min-width: 300px) {
+    .metrics-card .card-content {
+      padding: 1.5rem;
+    }
+    
+    .metrics-card .card-value {
+      font-size: 2rem;
+    }
+  }
+
+  @container (min-width: 400px) {
+    .metrics-card .card-content {
+      padding: 2rem;
+    }
+    
+    .metrics-card .card-value {
+      font-size: 2.5rem;
+    }
   }
 
   /* Voice assistant specific styles */

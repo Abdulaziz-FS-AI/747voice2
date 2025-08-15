@@ -12,6 +12,17 @@ import { usePinAuth } from '@/lib/contexts/pin-auth-context'
 import { authenticatedFetch, handleAuthenticatedResponse } from '@/lib/utils/client-session'
 import type { ClientAssistant, DashboardAnalytics } from '@/types/client'
 
+// Import our new premium components
+import { 
+  MetricsCard, 
+  ActiveAssistantsCard, 
+  TotalCallsCard, 
+  CallDurationCard, 
+  SuccessRateCard 
+} from '@/components/ui/metrics-card'
+import { NoAssistantsEmptyState } from '@/components/ui/empty-state'
+import { Button } from '@/components/ui/button'
+
 interface DashboardStats {
   totalAssistants: number
   totalCalls: number
@@ -81,17 +92,68 @@ export default function DashboardPage() {
   if (isLoading || dashboardLoading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <div className="flex flex-col items-center gap-4">
-            <div className="relative">
-              <div className="w-12 h-12 rounded-full border-4 border-gray-200"></div>
-              <div className="absolute top-0 left-0 w-12 h-12 rounded-full border-4 border-blue-600 border-t-transparent animate-spin"></div>
+        <div className="app-main">
+          {/* Premium Loading State */}
+          <motion.div 
+            className="flex items-center justify-center min-h-[60vh]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="flex flex-col items-center gap-6">
+              {/* Elegant Loading Spinner */}
+              <div className="relative">
+                <motion.div 
+                  className="w-16 h-16 rounded-full border-2 border-vm-glass-border bg-vm-gradient-glass backdrop-blur-lg"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                />
+                <motion.div 
+                  className="absolute top-1 left-1 w-14 h-14 rounded-full border-2 border-vm-primary border-t-transparent"
+                  animate={{ rotate: -360 }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Brain className="w-6 h-6 text-vm-primary vm-animate-pulse-slow" />
+                </div>
+              </div>
+              
+              {/* Loading Text */}
+              <div className="text-center space-y-2">
+                <motion.h3 
+                  className="vm-text-lg font-semibold text-vm-foreground"
+                  animate={{ opacity: [0.6, 1, 0.6] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  Loading Dashboard
+                </motion.h3>
+                <p className="vm-text-small text-vm-muted">
+                  Fetching your latest performance data...
+                </p>
+              </div>
+              
+              {/* Loading Skeletons */}
+              <div className="w-full max-w-4xl space-y-6 mt-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {[...Array(4)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="h-32 vm-loading-skeleton rounded-xl"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                    />
+                  ))}
+                </div>
+                <motion.div
+                  className="h-64 vm-loading-skeleton rounded-2xl"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                />
+              </div>
             </div>
-            <div className="text-center">
-              <p className="text-sm font-medium text-gray-900">Loading Dashboard</p>
-              <p className="text-xs text-gray-500">Fetching your latest data...</p>
-            </div>
-          </div>
+          </motion.div>
         </div>
       </DashboardLayout>
     )
@@ -99,186 +161,213 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
-        {/* Modern Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex items-center justify-between"
-        >
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-              Welcome back, {client?.company_name}
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Monitor your AI assistants and track performance metrics in real-time
-            </p>
-          </div>
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => router.push('/dashboard/settings')}
-            className="inline-flex items-center px-6 py-3 bg-white border border-gray-200 rounded-xl shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          >
-            <Settings className="h-4 w-4 mr-2" />
-            Settings
-          </motion.button>
-        </motion.div>
-
-        {/* Modern Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
+      <div className="app-main">
+        <div className="space-y-8">
+          {/* Executive Header */}
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            whileHover={{ y: -4, scale: 1.02 }}
-            className="group relative bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-6 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300"
+            transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+            className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-600 mb-1">AI Assistants</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.totalAssistants}</p>
-                <p className="text-xs text-gray-500 mt-1">Active and ready</p>
-              </div>
-              <div className="p-3 bg-blue-100 rounded-xl group-hover:bg-blue-200 transition-colors duration-300">
-                <Brain className="h-6 w-6 text-blue-600" />
-              </div>
+            <div className="space-y-2">
+              <motion.h1 
+                className="vm-display-large vm-text-gradient"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2, duration: 0.6 }}
+              >
+                Welcome back, {client?.company_name}
+              </motion.h1>
+              <motion.p 
+                className="vm-text-lead text-vm-muted max-w-2xl"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3, duration: 0.6 }}
+              >
+                Monitor your AI assistants and track performance metrics in real-time
+              </motion.p>
             </div>
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+            >
+              <Button
+                variant="secondary"
+                size="lg"
+                onClick={() => router.push('/dashboard/settings')}
+                leftIcon={<Settings className="h-5 w-5" />}
+                asMotion
+                motionProps={{
+                  whileHover: { scale: 1.02, y: -2 },
+                  whileTap: { scale: 0.98 },
+                }}
+                className="vm-hover-glow"
+              >
+                Settings
+              </Button>
+            </motion.div>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            whileHover={{ y: -4, scale: 1.02 }}
-            className="group relative bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-100 rounded-2xl p-6 hover:shadow-lg hover:shadow-emerald-500/10 transition-all duration-300"
+          {/* Premium Metrics Grid */}
+          <motion.div 
+            className="metrics-grid vm-stagger-container"
+            initial="hidden"
+            animate="visible"
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-emerald-600 mb-1">Total Calls</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.totalCalls}</p>
-                <p className="text-xs text-gray-500 mt-1">Last 30 days</p>
-              </div>
-              <div className="p-3 bg-emerald-100 rounded-xl group-hover:bg-emerald-200 transition-colors duration-300">
-                <Phone className="h-6 w-6 text-emerald-600" />
-              </div>
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.6 }}
+            >
+              <ActiveAssistantsCard 
+                count={stats.totalAssistants}
+                change="+2"
+                changeType="positive"
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.6 }}
+            >
+              <TotalCallsCard 
+                count={stats.totalCalls}
+                change="+12%"
+                changeType="positive"
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7, duration: 0.6 }}
+            >
+              <CallDurationCard 
+                duration={`${stats.totalMinutes}m`}
+                change="+8%"
+                changeType="positive"
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8, duration: 0.6 }}
+            >
+              <SuccessRateCard 
+                rate={`${stats.successRate}%`}
+                change="+5%"
+                changeType="positive"
+              />
+            </motion.div>
           </motion.div>
 
-          <motion.div
+          {/* Premium Assistants Section */}
+          <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            whileHover={{ y: -4, scale: 1.02 }}
-            className="group relative bg-gradient-to-br from-purple-50 to-violet-50 border border-purple-100 rounded-2xl p-6 hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300"
+            transition={{ delay: 0.9, duration: 0.6 }}
+            className="vm-card relative overflow-hidden"
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-purple-600 mb-1">Call Duration</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.totalMinutes}m</p>
-                <p className="text-xs text-gray-500 mt-1">Total minutes</p>
-              </div>
-              <div className="p-3 bg-purple-100 rounded-xl group-hover:bg-purple-200 transition-colors duration-300">
-                <Clock className="h-6 w-6 text-purple-600" />
+            {/* Header */}
+            <div className="p-8 border-b border-vm-glass-border/50">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div className="space-y-2">
+                  <motion.h2 
+                    className="vm-display-small"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 1.0, duration: 0.6 }}
+                  >
+                    Your AI Assistants
+                  </motion.h2>
+                  <motion.p 
+                    className="vm-text-body text-vm-muted"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 1.1, duration: 0.6 }}
+                  >
+                    Manage and monitor your assigned AI assistants
+                  </motion.p>
+                </div>
+                
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 1.2, duration: 0.6 }}
+                >
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    onClick={() => router.push('/dashboard/assistants')}
+                    leftIcon={<BarChart3 className="h-5 w-5" />}
+                    asMotion
+                    motionProps={{
+                      whileHover: { scale: 1.02, y: -2 },
+                      whileTap: { scale: 0.98 },
+                    }}
+                    className="vm-hover-glow"
+                  >
+                    View All Assistants
+                  </Button>
+                </motion.div>
               </div>
             </div>
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-purple-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            whileHover={{ y: -4, scale: 1.02 }}
-            className="group relative bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100 rounded-2xl p-6 hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-amber-600 mb-1">Success Rate</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.successRate}%</p>
-                <p className="text-xs text-gray-500 mt-1">Avg performance</p>
-              </div>
-              <div className="p-3 bg-amber-100 rounded-xl group-hover:bg-amber-200 transition-colors duration-300">
-                <TrendingUp className="h-6 w-6 text-amber-600" />
-              </div>
+            {/* Content */}
+            <div className="p-8">
+              {assistants.length === 0 ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 1.3, duration: 0.6 }}
+                >
+                  <NoAssistantsEmptyState
+                    onCreateAssistant={() => router.push('/dashboard/assistants')}
+                    onLearnMore={() => router.push('/dashboard/help')}
+                  />
+                </motion.div>
+              ) : (
+                <motion.div 
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                  initial="hidden"
+                  animate="visible"
+                  variants={{
+                    hidden: { opacity: 0 },
+                    visible: {
+                      opacity: 1,
+                      transition: {
+                        staggerChildren: 0.1,
+                        delayChildren: 1.3,
+                      },
+                    },
+                  }}
+                >
+                  {(Array.isArray(assistants) ? assistants.slice(0, 6) : []).map((assistant, index) => (
+                    <motion.div
+                      key={assistant.id}
+                      variants={{
+                        hidden: { opacity: 0, y: 20 },
+                        visible: { 
+                          opacity: 1, 
+                          y: 0,
+                          transition: { duration: 0.6 }
+                        },
+                      }}
+                      className="vm-hover-lift"
+                    >
+                      <AssistantCard assistant={assistant} />
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
             </div>
-            <div className="absolute inset-0 bg-gradient-to-r from-amber-500/0 via-amber-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </motion.div>
         </div>
-
-        {/* Modern Assistants Section */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden"
-        >
-          <div className="p-8 border-b border-gray-100">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900 tracking-tight">Your AI Assistants</h2>
-                <p className="text-sm text-gray-600 mt-1">
-                  Manage and monitor your assigned AI assistants
-                </p>
-              </div>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => router.push('/dashboard/assistants')}
-                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-sm hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200"
-              >
-                <BarChart3 className="h-4 w-4 mr-2" />
-                View All Assistants
-              </motion.button>
-            </div>
-          </div>
-
-          <div className="p-8">
-            {assistants.length === 0 ? (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.6 }}
-                className="text-center py-16"
-              >
-                <div className="relative inline-block">
-                  <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center">
-                    <Brain className="h-10 w-10 text-gray-400" />
-                  </div>
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                    <Zap className="h-3 w-3 text-blue-600" />
-                  </div>
-                </div>
-                <h3 className="mt-6 text-lg font-medium text-gray-900">No assistants assigned yet</h3>
-                <p className="mt-2 text-sm text-gray-600 max-w-sm mx-auto">
-                  Your administrator will assign AI assistants to your account. 
-                  Once assigned, you'll see them here.
-                </p>
-                <div className="mt-6 flex items-center justify-center gap-2 text-xs text-gray-400">
-                  <Users className="h-4 w-4" />
-                  <span>Contact your administrator for assistance</span>
-                </div>
-              </motion.div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {(Array.isArray(assistants) ? assistants.slice(0, 6) : []).map((assistant, index) => (
-                  <motion.div
-                    key={assistant.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 + index * 0.1 }}
-                    whileHover={{ y: -4 }}
-                  >
-                    <AssistantCard assistant={assistant} />
-                  </motion.div>
-                ))}
-              </div>
-            )}
-          </div>
-        </motion.div>
       </div>
     </DashboardLayout>
   )
