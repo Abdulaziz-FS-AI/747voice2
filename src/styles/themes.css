@@ -111,20 +111,20 @@
     --vm-color-primary: oklch(var(--vm-primary-l) var(--vm-primary-c) var(--vm-primary-h));
     --vm-color-primary-foreground: oklch(0.9800 0.0050 220);
 
-    /* Deep Bluish Black Backgrounds */
-    --vm-color-background: oklch(0.0200 0.0150 240);
-    --vm-color-surface: oklch(0.0400 0.0200 245);
-    --vm-color-surface-elevated: oklch(0.0700 0.0250 250);
-    --vm-color-surface-overlay: oklch(0.1000 0.0300 255);
+    /* Enhanced Bluish-Dark Backgrounds - Lighter & More Blue */
+    --vm-color-background: oklch(0.0800 0.0250 235);
+    --vm-color-surface: oklch(0.1200 0.0300 240);
+    --vm-color-surface-elevated: oklch(0.1600 0.0350 245);
+    --vm-color-surface-overlay: oklch(0.2000 0.0400 250);
 
-    /* Premium Glassmorphism */
-    --vm-color-glass: oklch(0.0600 0.0200 245 / 0.8);
-    --vm-color-glass-border: oklch(0.2500 0.0400 250 / 0.4);
+    /* Enhanced Glassmorphism - More Visible & Bluish */
+    --vm-color-glass: oklch(0.1000 0.0300 240 / 0.85);
+    --vm-color-glass-border: oklch(0.3000 0.0500 245 / 0.6);
 
     /* Enhanced Typography Colors - Stronger Contrast */
     --vm-color-foreground: oklch(0.9800 0.0200 230);
     --vm-color-muted: oklch(0.7500 0.0300 235);
-    --vm-color-muted-surface: oklch(0.1800 0.0250 235);
+    --vm-color-muted-surface: oklch(0.2200 0.0350 240);
 
     /* Premium Accent System */
     --vm-color-accent: oklch(0.6000 0.1800 45); /* Electric Blue */
@@ -146,9 +146,9 @@
     --vm-color-silver: oklch(0.8000 0.0100 245);
     --vm-color-copper: oklch(0.6500 0.1300 35);
 
-    /* Sophisticated Borders - Enhanced Visibility */
-    --vm-color-border: oklch(0.2500 0.0300 245);
-    --vm-color-border-subtle: oklch(0.1800 0.0250 245);
+    /* Enhanced Borders - More Visible & Bluish */
+    --vm-color-border: oklch(0.3000 0.0400 245);
+    --vm-color-border-subtle: oklch(0.2400 0.0350 245);
     --vm-color-ring: oklch(0.6000 0.1800 45);
 
     /* Executive Design Language */
@@ -159,12 +159,12 @@
     --vm-radius-2xl: 24px;
     --vm-radius-3xl: 32px;
 
-    /* Sophisticated Shadows with Blue Tint */
-    --vm-shadow-sm: 0 2px 8px 0 oklch(0.2000 0.1000 230 / 0.15);
-    --vm-shadow-md: 0 8px 25px 0 oklch(0.1500 0.0800 230 / 0.20);
-    --vm-shadow-lg: 0 16px 50px 0 oklch(0.1000 0.0600 230 / 0.25);
-    --vm-shadow-xl: 0 25px 75px 0 oklch(0.0800 0.0400 230 / 0.30);
-    --vm-shadow-2xl: 0 40px 100px 0 oklch(0.0600 0.0300 230 / 0.35);
+    /* Enhanced Shadows with Stronger Blue Tint */
+    --vm-shadow-sm: 0 2px 8px 0 oklch(0.1500 0.0800 235 / 0.20);
+    --vm-shadow-md: 0 8px 25px 0 oklch(0.1200 0.0600 235 / 0.25);
+    --vm-shadow-lg: 0 16px 50px 0 oklch(0.0900 0.0500 235 / 0.30);
+    --vm-shadow-xl: 0 25px 75px 0 oklch(0.0700 0.0400 235 / 0.35);
+    --vm-shadow-2xl: 0 40px 100px 0 oklch(0.0500 0.0300 235 / 0.40);
 
     /* Premium Glow Effects */
     --vm-glow-primary: 0 0 20px oklch(0.6000 0.1800 45 / 0.3);
@@ -187,12 +187,12 @@
       oklch(0.8200 0.0150 240) 100%);
     
     --vm-gradient-surface: linear-gradient(145deg, 
-      oklch(0.0600 0.0120 235) 0%, 
-      oklch(0.0900 0.0160 240) 100%);
+      oklch(0.1000 0.0250 235) 0%, 
+      oklch(0.1400 0.0300 242) 100%);
 
     --vm-gradient-glass: linear-gradient(145deg, 
-      oklch(0.0800 0.0150 240 / 0.8) 0%, 
-      oklch(0.1200 0.0200 245 / 0.6) 100%);
+      oklch(0.1200 0.0300 240 / 0.85) 0%, 
+      oklch(0.1600 0.0350 245 / 0.75) 100%);
 
     /* Blur Effects */
     --vm-blur-sm: 8px;
