@@ -10,12 +10,11 @@ import { usePinAuth } from '@/lib/contexts/pin-auth-context'
 
 function PinLoginContent() {
   const [pin, setPin] = useState('')
-  const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { isAuthenticated, reloadFromStorage } = usePinAuth()
+  const { isAuthenticated, login } = usePinAuth()
 
   useEffect(() => {
     // Check for error messages in URL params
@@ -43,45 +42,20 @@ function PinLoginContent() {
         return
       }
 
-      // Use the PinAuthProvider's login method, but handle rememberMe separately
-      const response = await fetch('/api/auth/pin-login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ pin, rememberMe }),
-      })
+      // Use the simplified PinAuthProvider's login method
+      const loginResult = await login(pin)
 
-      const result = await response.json()
-
-      if (!result.success) {
-        setError(result.error?.message || 'Invalid PIN')
+      if (!loginResult.success) {
+        setError(loginResult.error || 'Invalid PIN')
         return
-      }
-
-      // Store session info in localStorage for the frontend
-      localStorage.setItem('session-token', result.data.session_token)
-      localStorage.setItem('client-info', JSON.stringify({
-        client_id: result.data.client_id,
-        company_name: result.data.company_name
-      }))
-      
-      // Store remember me preference if checked
-      if (rememberMe) {
-        localStorage.setItem('remember-me', 'true')
-        localStorage.setItem('remember-token', result.data.session_token)
-      } else {
-        localStorage.removeItem('remember-me')
-        localStorage.removeItem('remember-token')
       }
 
       toast({
         title: 'Welcome!',
-        description: result.message,
+        description: `Successfully logged in!`,
       })
 
-      // Reload the auth provider from localStorage and let the redirect useEffect handle navigation
-      await reloadFromStorage()
+      // The PinAuthProvider will handle the redirect automatically via useEffect
       
     } catch (error: any) {
       console.error('[PIN Login] Error:', error)
@@ -149,18 +123,11 @@ function PinLoginContent() {
                 </p>
               </div>
 
-              {/* Remember Me Checkbox */}
-              <div className="flex items-center justify-center gap-2">
-                <input
-                  type="checkbox"
-                  id="remember-me"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-                />
-                <Label htmlFor="remember-me" className="text-sm vm-text-muted cursor-pointer">
-                  Remember me on this device
-                </Label>
+              {/* PIN stays in local storage until manual logout */}
+              <div className="text-center">
+                <p className="text-xs vm-text-muted">
+                  Your login will persist until you manually log out
+                </p>
               </div>
 
               {error && (
