@@ -138,11 +138,11 @@ const MetricsCard = React.forwardRef<HTMLDivElement, MetricsCardProps>(
               </div>
             )}
             <div>
-              <h3 className="vm-text-small font-medium text-vm-muted">
+              <h3 className="vm-text-small font-medium vm-subheading-contrast">
                 {label}
               </h3>
               {description && (
-                <p className="vm-text-micro text-vm-muted/70 mt-1">
+                <p className="vm-text-micro vm-text-emphasis mt-1">
                   {description}
                 </p>
               )}

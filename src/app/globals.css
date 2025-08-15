@@ -166,16 +166,21 @@
   .responsive-title {
     font-size: clamp(1.75rem, 4vw, 2.5rem);
     line-height: 1.1;
+    color: var(--vm-color-foreground);
+    font-weight: 700;
   }
 
   .responsive-subtitle {
     font-size: clamp(1rem, 2.5vw, 1.25rem);
     line-height: 1.4;
+    color: oklch(0.8500 0.0200 235);
+    font-weight: 600;
   }
 
   .responsive-body {
     font-size: clamp(0.875rem, 2vw, 1rem);
     line-height: 1.6;
+    color: oklch(0.7500 0.0300 235);
   }
 
   /* Container Queries for Cards */

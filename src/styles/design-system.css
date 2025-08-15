@@ -263,6 +263,39 @@
     -webkit-text-fill-color: transparent;
     font-weight: 600;
   }
+
+  /* Enhanced Typography Variants for Better Contrast */
+  .vm-text-strong {
+    color: var(--vm-color-foreground);
+    font-weight: 600;
+  }
+
+  .vm-text-emphasis {
+    color: var(--vm-color-foreground);
+    font-weight: 500;
+  }
+
+  .vm-text-bright {
+    color: oklch(0.9900 0.0100 230);
+    font-weight: 500;
+  }
+
+  .vm-text-sharp {
+    color: oklch(0.9900 0.0150 235);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  /* Heading variants with stronger contrast */
+  .vm-heading-contrast {
+    color: oklch(0.9900 0.0100 230);
+    font-weight: 700;
+  }
+
+  .vm-subheading-contrast {
+    color: oklch(0.8500 0.0200 235);
+    font-weight: 600;
+  }
 }
 
 /* ==============================================

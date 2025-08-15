@@ -121,13 +121,13 @@ export default function DashboardPage() {
               {/* Loading Text */}
               <div className="text-center space-y-2">
                 <motion.h3 
-                  className="vm-text-lg font-semibold text-vm-foreground"
+                  className="vm-text-lg font-semibold vm-text-bright"
                   animate={{ opacity: [0.6, 1, 0.6] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
                   Loading Dashboard
                 </motion.h3>
-                <p className="vm-text-small text-vm-muted">
+                <p className="vm-text-small vm-subheading-contrast">
                   Fetching your latest performance data...
                 </p>
               </div>
@@ -172,7 +172,7 @@ export default function DashboardPage() {
           >
             <div className="space-y-2">
               <motion.h1 
-                className="vm-display-large vm-text-gradient"
+                className="vm-display-large vm-text-gradient vm-heading-contrast"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2, duration: 0.6 }}
@@ -180,7 +180,7 @@ export default function DashboardPage() {
                 Welcome back, {client?.company_name}
               </motion.h1>
               <motion.p 
-                className="vm-text-lead text-vm-muted max-w-2xl"
+                className="vm-text-lead vm-text-bright max-w-2xl"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3, duration: 0.6 }}
@@ -278,7 +278,7 @@ export default function DashboardPage() {
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div className="space-y-2">
                   <motion.h2 
-                    className="vm-display-small"
+                    className="vm-display-small vm-heading-contrast"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 1.0, duration: 0.6 }}
@@ -286,7 +286,7 @@ export default function DashboardPage() {
                     Your AI Assistants
                   </motion.h2>
                   <motion.p 
-                    className="vm-text-body text-vm-muted"
+                    className="vm-text-body vm-subheading-contrast"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 1.1, duration: 0.6 }}
