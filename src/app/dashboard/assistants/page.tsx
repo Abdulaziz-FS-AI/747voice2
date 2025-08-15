@@ -47,13 +47,18 @@ export default function AssistantsPage() {
       setLoading(true)
       
       const response = await authenticatedFetch('/api/assistants')
-      const data = await handleAuthenticatedResponse<ClientAssistant[]>(response)
+      const result = await handleAuthenticatedResponse<{data: ClientAssistant[]}>(response)
       
-      if (data) {
-        setAssistants(data)
+      if (result && result.data) {
+        // Ensure data is always an array
+        const assistantsData = Array.isArray(result.data) ? result.data : []
+        setAssistants(assistantsData)
+      } else {
+        setAssistants([])
       }
     } catch (error) {
       console.error('[Assistants] Failed to fetch assistants:', error)
+      setAssistants([]) // Set empty array on error
       toast({
         title: 'Error',
         description: 'Failed to load your assistants. Please try again.',
@@ -71,10 +76,12 @@ export default function AssistantsPage() {
       const response = await authenticatedFetch('/api/assistants?action=refresh', {
         method: 'PATCH'
       })
-      const result = await handleAuthenticatedResponse(response)
+      const result = await handleAuthenticatedResponse<{data: ClientAssistant[], message?: string}>(response)
       
-      if (result) {
-        setAssistants(result.data)
+      if (result && result.data) {
+        // Ensure data is always an array
+        const assistantsData = Array.isArray(result.data) ? result.data : []
+        setAssistants(assistantsData)
         toast({
           title: 'Refreshed',
           description: result.message || 'Assistant data updated from VAPI'
