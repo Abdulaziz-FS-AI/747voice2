@@ -1,0 +1,166 @@
+{
+  "project": {
+    "name": "Voice Matrix",
+    "description": "AI-powered voice assistant platform for real estate lead capture",
+    "version": "0.1.0",
+    "type": "SaaS Platform",
+    "industry": "Real Estate Technology",
+    "stage": "Production"
+  },
+  "architecture": {
+    "framework": "Next.js 15.4.4",
+    "language": "TypeScript",
+    "runtime": "Node.js",
+    "deployment": "Vercel",
+    "database": "Supabase (PostgreSQL)",
+    "authentication": "PIN-based (6-digit)",
+    "api_integrations": ["VAPI", "PayPal", "Twilio"]
+  },
+  "ui_framework": {
+    "core": "React 18",
+    "styling": "Tailwind CSS",
+    "animations": "Framer Motion",
+    "components": "Custom + shadcn/ui",
+    "icons": "Lucide React",
+    "charts": "Recharts"
+  },
+  "design_system": {
+    "theme": "Dark/Professional",
+    "primary_colors": {
+      "purple": "#8B5CF6",
+      "purple_dark": "#7C3AED",
+      "blue": "#3B82F6",
+      "blue_dark": "#2563EB"
+    },
+    "accent_colors": {
+      "teal": "#14B8A6",
+      "green": "#10B981",
+      "orange": "#F97316",
+      "red": "#EF4444"
+    },
+    "gradients": {
+      "primary": "from-purple-600 to-blue-600",
+      "secondary": "from-purple-500 to-pink-500",
+      "accent": "from-blue-500 to-teal-500"
+    },
+    "typography": {
+      "font_family": "Inter, system-ui",
+      "headings": "font-bold tracking-tight",
+      "body": "text-gray-300"
+    },
+    "spacing": {
+      "card_padding": "p-6",
+      "section_spacing": "space-y-6",
+      "container": "max-w-7xl mx-auto"
+    },
+    "effects": {
+      "shadows": "shadow-xl shadow-purple-500/10",
+      "blur": "backdrop-blur-xl",
+      "borders": "border border-purple-500/20",
+      "hover": "hover:scale-105 transition-transform"
+    }
+  },
+  "user_experience": {
+    "target_users": "Business clients managing AI voice assistants",
+    "key_workflows": [
+      "PIN authentication login",
+      "Dashboard overview",
+      "Assistant management",
+      "Analytics viewing",
+      "Settings configuration"
+    ],
+    "accessibility": "WCAG 2.1 AA compliant",
+    "responsive": "Mobile-first design",
+    "performance": "Core Web Vitals optimized"
+  },
+  "key_pages": {
+    "public": [
+      "/",
+      "/signin",
+      "/signup"
+    ],
+    "authenticated": [
+      "/dashboard",
+      "/dashboard/assistants",
+      "/dashboard/assistants/[id]",
+      "/dashboard/analytics",
+      "/dashboard/analytics/assistant",
+      "/dashboard/phone-numbers",
+      "/dashboard/settings"
+    ]
+  },
+  "component_patterns": {
+    "cards": {
+      "style": "rounded-xl shadow-xl bg-white/5 backdrop-blur",
+      "hover": "hover:shadow-2xl hover:scale-105",
+      "animation": "motion.div with framer-motion"
+    },
+    "buttons": {
+      "primary": "bg-gradient-to-r from-purple-600 to-blue-600",
+      "secondary": "border border-purple-500/50",
+      "hover": "hover:shadow-lg transform hover:scale-105"
+    },
+    "forms": {
+      "inputs": "bg-gray-900/50 border-purple-500/30",
+      "labels": "text-gray-300 font-medium",
+      "validation": "text-red-400 text-sm"
+    },
+    "navigation": {
+      "sidebar": "fixed left-0 bg-gray-900/95",
+      "topbar": "sticky top-0 backdrop-blur-xl",
+      "breadcrumbs": "text-gray-400 hover:text-white"
+    }
+  },
+  "animation_patterns": {
+    "page_transitions": "fadeIn with 0.3s ease",
+    "card_entrance": "slideUp with stagger delay",
+    "hover_effects": "scale and shadow transitions",
+    "loading_states": "pulse and skeleton screens",
+    "voice_waves": "continuous sine wave animations"
+  },
+  "data_visualization": {
+    "charts": "Recharts with purple/blue gradients",
+    "metrics": "Large number displays with icons",
+    "tables": "Striped rows with hover highlights",
+    "progress": "Circular and linear progress bars"
+  },
+  "business_logic": {
+    "subscription_tiers": ["Free", "Pro"],
+    "pricing": {
+      "free": "$0/month - 1 assistant, 10 min",
+      "pro": "$25/month - 10 assistants, 100 min"
+    },
+    "features": {
+      "assistant_management": "CRUD operations",
+      "analytics": "Call logs, duration, success rates",
+      "phone_numbers": "Removed - handled in VAPI",
+      "settings": "PIN change, profile update"
+    }
+  },
+  "api_structure": {
+    "auth": "/api/auth/*",
+    "assistants": "/api/assistants/*",
+    "analytics": "/api/analytics/*",
+    "admin": "/api/admin/*"
+  },
+  "database_schema": {
+    "tables": [
+      "clients",
+      "client_assistants",
+      "call_logs",
+      "call_analytics",
+      "client_sessions"
+    ],
+    "relationships": "Client -> Assistants -> Call Logs"
+  },
+  "improvement_areas": [
+    "Dashboard visualization enhancements",
+    "Real-time call status updates",
+    "Voice waveform animations",
+    "Analytics chart interactivity",
+    "Mobile responsive improvements",
+    "Loading state optimizations",
+    "Error handling UI",
+    "Onboarding flow"
+  ]
+}

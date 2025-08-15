@@ -1,0 +1,89 @@
+{
+  "version": "1.0.0",
+  "servers": {
+    "voice-matrix": {
+      "name": "Voice Matrix MCP Server",
+      "description": "Context server for Voice Matrix AI assistant platform",
+      "type": "codebase",
+      "settings": {
+        "projectRoot": "./",
+        "includePatterns": [
+          "src/**/*.{ts,tsx,js,jsx}",
+          "app/**/*.{ts,tsx,js,jsx}",
+          "components/**/*.{ts,tsx,js,jsx}",
+          "lib/**/*.{ts,tsx,js,jsx}",
+          "styles/**/*.{css,scss}",
+          "public/**/*",
+          "supabase/migrations/*.sql"
+        ],
+        "excludePatterns": [
+          "node_modules/**",
+          ".next/**",
+          "dist/**",
+          ".git/**",
+          "*.log"
+        ],
+        "contextFiles": [
+          ".mcp/context.json",
+          ".mcp/codebase-index.json",
+          ".mcp/design-system.md",
+          ".mcp/ui-improvements.md"
+        ]
+      }
+    }
+  },
+  "tools": {
+    "ui-analyzer": {
+      "enabled": true,
+      "config": {
+        "theme": "dark",
+        "primaryColor": "#8B5CF6",
+        "framework": "next.js",
+        "uiLibrary": "tailwind"
+      }
+    },
+    "code-search": {
+      "enabled": true,
+      "config": {
+        "indexOnStartup": true,
+        "updateInterval": 300
+      }
+    },
+    "design-assistant": {
+      "enabled": true,
+      "config": {
+        "designSystem": ".mcp/design-system.md",
+        "improvements": ".mcp/ui-improvements.md"
+      }
+    }
+  },
+  "prompts": {
+    "ui-improvement": {
+      "template": "Based on the Voice Matrix design system (purple/blue gradients, dark theme, voice-centric), improve the following component: {component}. Consider animations, glassmorphism, and voice visualization elements."
+    },
+    "component-creation": {
+      "template": "Create a new {type} component for Voice Matrix following the design system. Use Framer Motion for animations, Tailwind for styling, and include voice/audio themed elements where appropriate."
+    },
+    "bug-fix": {
+      "template": "Fix the following issue in Voice Matrix: {issue}. Consider the PIN-based auth system, VAPI integration, and Supabase backend."
+    }
+  },
+  "resources": {
+    "design": {
+      "figma": "https://figma.com/voice-matrix-design",
+      "storybook": "http://localhost:6006",
+      "docs": ".mcp/design-system.md"
+    },
+    "api": {
+      "vapi": "https://api.vapi.ai/docs",
+      "supabase": "https://supabase.com/docs",
+      "nextjs": "https://nextjs.org/docs"
+    }
+  },
+  "metadata": {
+    "lastUpdated": "2025-08-14",
+    "maintainer": "Abdulaziz FS",
+    "repository": "https://github.com/Abdulaziz-FS-AI/747voice2.git",
+    "deployment": "https://747voice2.vercel.app"
+  }
+}

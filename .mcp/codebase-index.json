@@ -1,0 +1,232 @@
+{
+  "components": {
+    "layout": [
+      {
+        "name": "DashboardLayout",
+        "path": "src/components/dashboard/layout.tsx",
+        "description": "Main dashboard wrapper with sidebar navigation",
+        "props": ["children"],
+        "dependencies": ["Sidebar", "TopBar"],
+        "improvements": "Add voice activity indicator, real-time status"
+      },
+      {
+        "name": "Sidebar",
+        "path": "src/components/dashboard/sidebar.tsx",
+        "description": "Left navigation sidebar with menu items",
+        "features": ["Collapsible", "Active state", "Icons"],
+        "improvements": "Add mini mode, keyboard shortcuts"
+      }
+    ],
+    "assistants": [
+      {
+        "name": "AssistantCard",
+        "path": "src/components/dashboard/assistant-card.tsx",
+        "description": "Display card for individual assistant",
+        "props": ["assistant", "onEdit", "onDelete"],
+        "improvements": "Add voice waveform, live status indicator"
+      },
+      {
+        "name": "AssistantForm",
+        "path": "src/components/assistants/assistant-form.tsx",
+        "description": "Form for creating/editing assistants",
+        "fields": ["name", "voice", "model", "first_message"],
+        "improvements": "Add voice preview, model comparison"
+      },
+      {
+        "name": "VoiceSelector",
+        "path": "src/components/assistants/voice-selector.tsx",
+        "description": "Voice selection with preview",
+        "features": ["Categories", "Preview", "Search"],
+        "improvements": "Add voice samples, emotion settings"
+      }
+    ],
+    "analytics": [
+      {
+        "name": "CallChart",
+        "path": "src/components/analytics/call-chart.tsx",
+        "description": "Recharts-based call volume visualization",
+        "type": "Line/Bar chart",
+        "improvements": "Add zoom, export, real-time updates"
+      },
+      {
+        "name": "MetricCard",
+        "path": "src/components/analytics/metric-card.tsx",
+        "description": "KPI display card with icon",
+        "props": ["title", "value", "icon", "trend"],
+        "improvements": "Add sparkline, comparison period"
+      }
+    ],
+    "ui": [
+      {
+        "name": "Button",
+        "path": "src/components/ui/button.tsx",
+        "variants": ["primary", "secondary", "ghost", "danger"],
+        "improvements": "Add loading state, ripple effect"
+      },
+      {
+        "name": "Card",
+        "path": "src/components/ui/card.tsx",
+        "description": "Base card component",
+        "improvements": "Add glow effect, 3D hover"
+      },
+      {
+        "name": "Input",
+        "path": "src/components/ui/input.tsx",
+        "types": ["text", "password", "number"],
+        "improvements": "Add floating labels, voice input"
+      }
+    ],
+    "animations": [
+      {
+        "name": "VoiceWave",
+        "description": "Animated voice waveform",
+        "technology": "SVG + Framer Motion",
+        "improvements": "Add frequency response, color mapping"
+      },
+      {
+        "name": "LoadingSpinner",
+        "description": "Loading indicator",
+        "improvements": "Add progress percentage, context message"
+      }
+    ]
+  },
+  "pages": {
+    "dashboard": {
+      "main": {
+        "path": "src/app/dashboard/page.tsx",
+        "components": ["StatsGrid", "AssistantsList", "RecentActivity"],
+        "data": ["assistants", "analytics", "calls"],
+        "improvements": [
+          "Add real-time call status",
+          "Live assistant activity feed",
+          "Quick actions panel",
+          "Voice command integration"
+        ]
+      },
+      "assistants": {
+        "list": {
+          "path": "src/app/dashboard/assistants/page.tsx",
+          "features": ["Grid view", "Search", "Filter", "Sort"],
+          "improvements": ["Add list view toggle", "Bulk actions", "Tags"]
+        },
+        "detail": {
+          "path": "src/app/dashboard/assistants/[id]/page.tsx",
+          "sections": ["Configuration", "Analytics", "Call History"],
+          "improvements": ["Add test call", "Voice playground", "A/B testing"]
+        }
+      },
+      "analytics": {
+        "overview": {
+          "path": "src/app/dashboard/analytics/page.tsx",
+          "charts": ["CallVolume", "SuccessRate", "Duration", "Cost"],
+          "improvements": ["Add date picker", "Export CSV", "Comparisons"]
+        },
+        "assistant": {
+          "path": "src/app/dashboard/analytics/assistant/page.tsx",
+          "metrics": ["Performance", "Usage", "Feedback"],
+          "improvements": ["Add sentiment analysis", "Call recordings"]
+        }
+      }
+    },
+    "auth": {
+      "signin": {
+        "path": "src/app/signin/page.tsx",
+        "features": ["PIN input", "Remember me", "Error handling"],
+        "improvements": ["Add biometric auth", "Magic link option"]
+      },
+      "signup": {
+        "path": "src/app/signup/page.tsx",
+        "steps": ["Plan selection", "Account info", "Payment"],
+        "improvements": ["Add progress save", "Social proof"]
+      }
+    }
+  },
+  "api_endpoints": {
+    "auth": {
+      "pin-login": {
+        "path": "src/app/api/auth/pin-login/route.ts",
+        "methods": ["POST", "DELETE"],
+        "features": ["Rate limiting", "Session management"]
+      },
+      "validate-session": {
+        "path": "src/app/api/auth/validate-session/route.ts",
+        "method": "GET",
+        "returns": "Session validation status"
+      }
+    },
+    "assistants": {
+      "list": {
+        "path": "src/app/api/assistants/route.ts",
+        "methods": ["GET", "POST", "PATCH"],
+        "features": ["Pagination", "Filtering", "VAPI sync"]
+      },
+      "detail": {
+        "path": "src/app/api/assistants/[id]/route.ts",
+        "methods": ["GET", "PATCH", "DELETE"],
+        "features": ["VAPI integration", "Validation"]
+      }
+    },
+    "analytics": {
+      "dashboard": {
+        "path": "src/app/api/analytics/dashboard/route.ts",
+        "method": "GET",
+        "returns": "Overview metrics and recent calls"
+      },
+      "assistant": {
+        "path": "src/app/api/analytics/assistant/[id]/route.ts",
+        "method": "GET",
+        "returns": "Assistant-specific analytics"
+      }
+    }
+  },
+  "styles": {
+    "global": {
+      "path": "src/app/globals.css",
+      "features": ["CSS variables", "Tailwind config", "Animations"],
+      "custom_classes": [
+        "vm-gradient-primary",
+        "vm-card",
+        "vm-button-primary",
+        "vm-glow",
+        "voice-wave"
+      ]
+    },
+    "tailwind": {
+      "path": "tailwind.config.ts",
+      "customizations": ["Colors", "Animations", "Fonts"],
+      "plugins": ["forms", "typography"]
+    }
+  },
+  "database": {
+    "migrations": {
+      "path": "supabase/migrations/",
+      "latest": "013_fix_analytics_function.sql",
+      "functions": [
+        "authenticate_pin",
+        "validate_session",
+        "get_client_assistants",
+        "get_dashboard_analytics_enhanced"
+      ]
+    },
+    "types": {
+      "path": "src/types/",
+      "files": ["database.ts", "client.ts", "api.ts"]
+    }
+  },
+  "dependencies": {
+    "core": ["next", "react", "typescript"],
+    "ui": ["tailwindcss", "framer-motion", "lucide-react"],
+    "data": ["@supabase/supabase-js", "swr", "zod"],
+    "charts": ["recharts"],
+    "forms": ["react-hook-form"],
+    "utils": ["date-fns", "clsx"]
+  },
+  "file_structure": {
+    "src/app": "Next.js 14 app directory",
+    "src/components": "React components",
+    "src/lib": "Utilities and helpers",
+    "src/types": "TypeScript definitions",
+    "supabase": "Database migrations and functions",
+    "public": "Static assets"
+  }
+}

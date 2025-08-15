@@ -1,0 +1,267 @@
+/**
+ * Neo Brutalist Theme - Superior Design
+ * Bold, vibrant theme with brutalist design principles
+ */
+
+:root {
+  /* === COLOR SYSTEM === */
+  --background: oklch(0.9800 0.0200 15);
+  --foreground: oklch(0.1000 0.0000 0);
+  --card: oklch(0.9800 0.0200 15);
+  --card-foreground: oklch(0.1000 0.0000 0);
+  --popover: oklch(0.9800 0.0200 15);
+  --popover-foreground: oklch(0.1000 0.0000 0);
+  --primary: oklch(0.5500 0.2500 15);
+  --primary-foreground: oklch(0.9800 0.0200 15);
+  --secondary: oklch(0.3500 0.2200 135);
+  --secondary-foreground: oklch(0.9800 0.0200 15);
+  --muted: oklch(0.4500 0.1500 15);
+  --muted-foreground: oklch(0.9800 0.0200 15);
+  --accent: oklch(0.7500 0.2800 255);
+  --accent-foreground: oklch(0.1000 0.0000 0);
+  --destructive: oklch(0.5830 0.2387 28.4765);
+  --destructive-foreground: oklch(0.9800 0.0200 15);
+  --border: oklch(0.1000 0.0000 0);
+  --input: oklch(0.9500 0.0300 30);
+  --ring: oklch(0.5500 0.2500 15);
+  --surface: oklch(0.9500 0.0300 30);
+  
+  /* === TYPOGRAPHY SYSTEM === */
+  --font-sans: 'Space Grotesk', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-serif: 'Merriweather', ui-serif, Georgia, Cambria, serif;
+  --font-display: 'Architects Daughter', cursive;
+  
+  /* Typography Scale (Brutalist Proportions) */
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 18px;
+  --text-lg: 22px;
+  --text-xl: 28px;
+  --text-2xl: 36px;
+  --text-3xl: 48px;
+  --text-4xl: 72px;
+  
+  /* === SPACING SYSTEM (Bold Increments) === */
+  --spacing-0: 0px;
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 24px;
+  --spacing-6: 32px;
+  --spacing-7: 48px;
+  --spacing-8: 64px;
+  --spacing-9: 96px;
+  --spacing-10: 128px;
+  --spacing-11: 192px;
+  --spacing-12: 256px;
+  
+  /* === RADIUS SYSTEM === */
+  --radius: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  
+  /* === SHADOW SYSTEM (Brutalist) === */
+  --shadow-sm: 4px 4px 0px 0px rgb(0 0 0);
+  --shadow-md: 8px 8px 0px 0px rgb(0 0 0);
+  --shadow-lg: 12px 12px 0px 0px rgb(0 0 0);
+  --shadow-xl: 16px 16px 0px 0px rgb(0 0 0);
+  --shadow-brutal: 20px 20px 0px 0px rgb(0 0 0);
+  
+  /* === ANIMATION SYSTEM === */
+  --duration-fast: 100ms;
+  --duration-normal: 200ms;
+  --duration-slow: 400ms;
+  --duration-slower: 600ms;
+  
+  --easing-default: linear;
+  --easing-in: ease-in;
+  --easing-out: ease-out;
+  --easing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  /* === BORDER SYSTEM === */
+  --border-width: 3px;
+  --border-style: solid;
+  --border-color: var(--border);
+}
+
+/* === BRUTALIST PATTERNS === */
+.brutalist-pattern-dots {
+  background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.brutalist-pattern-grid {
+  background-image: 
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.brutalist-pattern-diagonal {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--border),
+    var(--border) 2px,
+    transparent 2px,
+    transparent 20px
+  );
+}
+
+/* === UTILITY CLASSES === */
+.brutal-gradient {
+  background: linear-gradient(
+    45deg,
+    var(--primary) 0%,
+    var(--secondary) 33%,
+    var(--accent) 66%,
+    var(--primary) 100%
+  );
+}
+
+.brutal-transform {
+  transform: rotate(-2deg) skew(-1deg);
+}
+
+.brutal-transform:hover {
+  transform: rotate(1deg) skew(1deg) scale(1.05);
+}
+
+.brutal-transition {
+  transition: all var(--duration-normal) var(--easing-default);
+}
+
+.brutal-wiggle {
+  animation: wiggle 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes wiggle {
+  0% { transform: rotate(-1deg); }
+  100% { transform: rotate(1deg); }
+}
+
+/* === COMPONENT PRESETS === */
+.brutal-button {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: var(--spacing-4) var(--spacing-6);
+  border-radius: var(--radius);
+  border: var(--border-width) var(--border-style) var(--border-color);
+  box-shadow: var(--shadow-md);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  transition: all var(--duration-fast) var(--easing-default);
+  cursor: pointer;
+  position: relative;
+}
+
+.brutal-button:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.brutal-button:active {
+  transform: translate(0px, 0px);
+  box-shadow: var(--shadow-sm);
+}
+
+.brutal-card {
+  background: var(--card);
+  color: var(--card-foreground);
+  border: var(--border-width) var(--border-style) var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-6);
+  position: relative;
+  overflow: hidden;
+}
+
+.brutal-card::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: var(--brutal-gradient);
+  z-index: -1;
+  border-radius: var(--radius);
+}
+
+.brutal-input {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  background: var(--input);
+  border: var(--border-width) var(--border-style) var(--border);
+  border-radius: var(--radius);
+  padding: var(--spacing-4);
+  font-size: var(--text-base);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--duration-fast) var(--easing-default);
+}
+
+.brutal-input:focus {
+  outline: none;
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-md);
+}
+
+.brutal-heading {
+  font-family: var(--font-display);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-shadow: 3px 3px 0px var(--border);
+  color: var(--primary);
+}
+
+/* === SPECIAL EFFECTS === */
+.brutal-neon {
+  text-shadow: 
+    0 0 5px var(--accent),
+    0 0 10px var(--accent),
+    0 0 15px var(--accent),
+    0 0 20px var(--accent);
+}
+
+.brutal-glitch {
+  position: relative;
+}
+
+.brutal-glitch::before,
+.brutal-glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.brutal-glitch::before {
+  animation: glitch-1 0.5s infinite;
+  color: var(--accent);
+  z-index: -1;
+}
+
+.brutal-glitch::after {
+  animation: glitch-2 0.5s infinite;
+  color: var(--secondary);
+  z-index: -2;
+}
+
+@keyframes glitch-1 {
+  0%, 14%, 15%, 49%, 50%, 99%, 100% { transform: translate(0); }
+  15%, 49% { transform: translate(-2px, 2px); }
+}
+
+@keyframes glitch-2 {
+  0%, 20%, 21%, 62%, 63%, 99%, 100% { transform: translate(0); }
+  21%, 62% { transform: translate(2px, -2px); }
+}
