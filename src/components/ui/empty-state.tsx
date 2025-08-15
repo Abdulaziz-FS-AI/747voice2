@@ -25,11 +25,11 @@ const emptyStateVariants = cva(
       variant: {
         default: [],
         card: [
-          "bg-vm-surface border border-vm-glass-border rounded-2xl",
+          "bg-vm-gradient-glass border border-vm-glass-border rounded-2xl",
           "shadow-vm-md backdrop-blur-lg",
         ],
         hero: [
-          "min-h-[60vh] bg-gradient-to-br from-vm-surface via-vm-surface-elevated to-vm-surface-overlay",
+          "min-h-[60vh] bg-vm-gradient-glass",
           "border border-vm-glass-border rounded-3xl shadow-vm-xl backdrop-blur-2xl",
         ],
       }
@@ -236,7 +236,7 @@ const AssistantsIllustration = () => (
     
     {/* Main Circle */}
     <motion.div
-      className="relative w-full h-full rounded-full bg-gradient-to-br from-vm-primary/10 via-vm-surface-elevated to-vm-surface-overlay border border-vm-glass-border backdrop-blur-lg flex items-center justify-center"
+      className="relative w-full h-full rounded-full bg-vm-gradient-glass border border-vm-glass-border backdrop-blur-lg flex items-center justify-center"
       animate={{ 
         rotate: [0, 360],
       }}
@@ -307,7 +307,7 @@ const CallsIllustration = () => (
     <div className="absolute inset-0 bg-gradient-to-br from-vm-success/20 via-vm-accent/10 to-transparent rounded-full blur-2xl" />
     
     {/* Phone Icon Container */}
-    <div className="relative w-full h-full rounded-full bg-gradient-to-br from-vm-success/10 via-vm-surface-elevated to-vm-surface-overlay border border-vm-glass-border backdrop-blur-lg flex items-center justify-center">
+    <div className="relative w-full h-full rounded-full bg-vm-gradient-glass border border-vm-glass-border backdrop-blur-lg flex items-center justify-center">
       <motion.svg
         width="48"
         height="48"
@@ -366,7 +366,7 @@ const AnalyticsIllustration = () => (
     <div className="absolute inset-0 bg-gradient-to-br from-vm-warning/20 via-vm-accent/10 to-transparent rounded-full blur-2xl" />
     
     {/* Chart Container */}
-    <div className="relative w-full h-full rounded-full bg-gradient-to-br from-vm-warning/10 via-vm-surface-elevated to-vm-surface-overlay border border-vm-glass-border backdrop-blur-lg flex items-center justify-center">
+    <div className="relative w-full h-full rounded-full bg-vm-gradient-glass border border-vm-glass-border backdrop-blur-lg flex items-center justify-center">
       <motion.svg
         width="48"
         height="48"
@@ -426,7 +426,7 @@ const SettingsIllustration = () => (
     <div className="absolute inset-0 bg-gradient-to-br from-vm-muted/20 via-vm-accent/10 to-transparent rounded-full blur-2xl" />
     
     {/* Gear Container */}
-    <div className="relative w-full h-full rounded-full bg-gradient-to-br from-vm-muted/10 via-vm-surface-elevated to-vm-surface-overlay border border-vm-glass-border backdrop-blur-lg flex items-center justify-center">
+    <div className="relative w-full h-full rounded-full bg-vm-gradient-glass border border-vm-glass-border backdrop-blur-lg flex items-center justify-center">
       <motion.svg
         width="48"
         height="48"
@@ -467,7 +467,7 @@ interface NoAssistantsEmptyStateProps {
 
 const NoAssistantsEmptyState = ({ onCreateAssistant, onLearnMore }: NoAssistantsEmptyStateProps) => (
   <EmptyState
-    variant="hero"
+    variant="card"
     size="xl"
     illustration="assistants"
     title="No assistants assigned yet"
@@ -482,6 +482,7 @@ const NoAssistantsEmptyState = ({ onCreateAssistant, onLearnMore }: NoAssistants
       onClick: onLearnMore,
       variant: "ghost",
     } : undefined}
+    className="relative overflow-hidden"
   />
 )
 
