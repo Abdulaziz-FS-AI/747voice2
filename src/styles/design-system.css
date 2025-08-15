@@ -1,0 +1,570 @@
+/**
+ * Voice Matrix Unified Design System v6.0
+ * World-Class Design System with OKLCH, CSS Layers, and Modern Architecture
+ * Consolidated from multiple theme systems into one powerful approach
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+/* ==============================================
+   CSS CASCADE LAYERS - Modern Architecture
+   ============================================== */
+
+@layer reset, base, theme, tokens, components, patterns, utilities, overrides;
+
+/* ==============================================
+   RESET LAYER - Consistent Foundation
+   ============================================== */
+
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+    line-height: 1.5;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-family: var(--vm-font-body);
+    font-weight: var(--vm-font-weight-normal);
+    background: var(--vm-color-background);
+    color: var(--vm-color-foreground);
+  }
+
+  img,
+  picture,
+  video,
+  canvas,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    overflow-wrap: break-word;
+  }
+
+  #root,
+  #__next {
+    isolation: isolate;
+  }
+}
+
+/* ==============================================
+   BASE LAYER - Typography & Layout Fundamentals
+   ============================================== */
+
+@layer base {
+  /* Enhanced Typography Scale using Golden Ratio */
+  .vm-text-xs { font-size: var(--vm-text-xs); line-height: 1.4; }
+  .vm-text-sm { font-size: var(--vm-text-sm); line-height: 1.4; }
+  .vm-text-base { font-size: var(--vm-text-base); line-height: 1.6; }
+  .vm-text-lg { font-size: var(--vm-text-lg); line-height: 1.5; }
+  .vm-text-xl { font-size: var(--vm-text-xl); line-height: 1.4; }
+  .vm-text-2xl { font-size: var(--vm-text-2xl); line-height: 1.2; }
+  .vm-text-3xl { font-size: var(--vm-text-3xl); line-height: 1.1; }
+  .vm-text-4xl { font-size: var(--vm-text-4xl); line-height: 1.0; }
+
+  /* Typography Variants */
+  .vm-heading-hero {
+    font-family: var(--vm-font-display);
+    font-size: var(--vm-text-4xl);
+    font-weight: var(--vm-font-weight-black);
+    line-height: 0.9;
+    letter-spacing: var(--vm-letter-spacing-tight);
+    background: var(--vm-gradient-text-primary);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .vm-heading-1 {
+    font-family: var(--vm-font-display);
+    font-size: var(--vm-text-3xl);
+    font-weight: var(--vm-font-weight-bold);
+    line-height: 1.1;
+    letter-spacing: var(--vm-letter-spacing-tight);
+    color: var(--vm-color-foreground);
+  }
+
+  .vm-heading-2 {
+    font-family: var(--vm-font-display);
+    font-size: var(--vm-text-2xl);
+    font-weight: var(--vm-font-weight-semibold);
+    line-height: 1.2;
+    letter-spacing: var(--vm-letter-spacing-normal);
+    color: var(--vm-color-foreground);
+  }
+
+  .vm-heading-3 {
+    font-family: var(--vm-font-display);
+    font-size: var(--vm-text-xl);
+    font-weight: var(--vm-font-weight-semibold);
+    line-height: 1.3;
+    color: var(--vm-color-foreground);
+  }
+
+  .vm-body-large {
+    font-family: var(--vm-font-body);
+    font-size: var(--vm-text-lg);
+    font-weight: var(--vm-font-weight-normal);
+    line-height: 1.7;
+    color: var(--vm-color-muted);
+  }
+
+  .vm-body {
+    font-family: var(--vm-font-body);
+    font-size: var(--vm-text-base);
+    font-weight: var(--vm-font-weight-normal);
+    line-height: 1.6;
+    color: var(--vm-color-muted);
+  }
+
+  .vm-body-small {
+    font-family: var(--vm-font-body);
+    font-size: var(--vm-text-sm);
+    font-weight: var(--vm-font-weight-normal);
+    line-height: 1.5;
+    color: var(--vm-color-muted);
+    letter-spacing: var(--vm-letter-spacing-wide);
+  }
+
+  .vm-code {
+    font-family: var(--vm-font-mono);
+    font-size: var(--vm-text-sm);
+    font-weight: var(--vm-font-weight-medium);
+    background: var(--vm-color-muted-surface);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--vm-radius-sm);
+    border: 1px solid var(--vm-color-border);
+  }
+}
+
+/* ==============================================
+   THEME LAYER - Advanced OKLCH Color System
+   ============================================== */
+
+@layer theme {
+  :root {
+    /* ==============================================
+       VOICE MATRIX UNIFIED COLOR SYSTEM
+       Using OKLCH for Perceptual Uniformity
+       ============================================== */
+
+    /* Core Brand Colors - OKLCH Format */
+    --vm-primary-l: 0.6489;
+    --vm-primary-c: 0.2370;
+    --vm-primary-h: 26.9728;
+    --vm-color-primary: oklch(var(--vm-primary-l) var(--vm-primary-c) var(--vm-primary-h));
+
+    /* Surface Colors */
+    --vm-color-background: oklch(0.0400 0.0100 240);
+    --vm-color-surface: oklch(0.0800 0.0150 245);
+    --vm-color-surface-elevated: oklch(0.1200 0.0200 250);
+    --vm-color-surface-overlay: oklch(0.1600 0.0250 255);
+
+    /* Foreground Colors */
+    --vm-color-foreground: oklch(0.9851 0.0050 240);
+    --vm-color-muted: oklch(0.7000 0.0200 240);
+    --vm-color-muted-surface: oklch(0.2000 0.0200 240);
+
+    /* Accent Colors */
+    --vm-color-accent: oklch(0.6500 0.1800 320);
+    --vm-color-accent-foreground: oklch(0.0400 0.0100 240);
+    --vm-color-secondary: oklch(0.8500 0.0800 290);
+    --vm-color-secondary-foreground: oklch(0.0400 0.0100 240);
+
+    /* Status Colors */
+    --vm-color-success: oklch(0.6200 0.1900 142);
+    --vm-color-success-foreground: oklch(0.0400 0.0100 240);
+    --vm-color-warning: oklch(0.7500 0.1500 85);
+    --vm-color-warning-foreground: oklch(0.0400 0.0100 240);
+    --vm-color-destructive: oklch(0.5830 0.2387 28.4765);
+    --vm-color-destructive-foreground: oklch(0.9851 0.0050 240);
+
+    /* Border Colors */
+    --vm-color-border: oklch(0.2000 0.0200 240);
+    --vm-color-border-subtle: oklch(0.1500 0.0150 240);
+    --vm-color-ring: var(--vm-color-accent);
+
+    /* ==============================================
+       TYPOGRAPHY SYSTEM
+       ============================================== */
+
+    /* Font Families */
+    --vm-font-display: 'Playfair Display', 'Didot', serif;
+    --vm-font-body: 'Inter', 'Helvetica Neue', sans-serif;
+    --vm-font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+
+    /* Font Weights */
+    --vm-font-weight-light: 300;
+    --vm-font-weight-normal: 400;
+    --vm-font-weight-medium: 500;
+    --vm-font-weight-semibold: 600;
+    --vm-font-weight-bold: 700;
+    --vm-font-weight-black: 900;
+
+    /* Typography Scale - Golden Ratio Based */
+    --vm-text-xs: 0.618rem;      /* ~10px */
+    --vm-text-sm: 0.764rem;      /* ~12px */
+    --vm-text-base: 1rem;        /* 16px */
+    --vm-text-lg: 1.618rem;      /* ~26px */
+    --vm-text-xl: 2.618rem;      /* ~42px */
+    --vm-text-2xl: 4.236rem;     /* ~68px */
+    --vm-text-3xl: 6.854rem;     /* ~110px */
+    --vm-text-4xl: 11.090rem;    /* ~178px */
+
+    /* Letter Spacing */
+    --vm-letter-spacing-tight: -0.025em;
+    --vm-letter-spacing-normal: 0em;
+    --vm-letter-spacing-wide: 0.025em;
+
+    /* ==============================================
+       SPACING SYSTEM - Fluid & Responsive
+       ============================================== */
+
+    --vm-space-0: 0;
+    --vm-space-px: 1px;
+    --vm-space-0_5: 0.125rem;    /* 2px */
+    --vm-space-1: 0.25rem;       /* 4px */
+    --vm-space-1_5: 0.375rem;    /* 6px */
+    --vm-space-2: 0.5rem;        /* 8px */
+    --vm-space-2_5: 0.625rem;    /* 10px */
+    --vm-space-3: 0.75rem;       /* 12px */
+    --vm-space-3_5: 0.875rem;    /* 14px */
+    --vm-space-4: 1rem;          /* 16px */
+    --vm-space-5: 1.25rem;       /* 20px */
+    --vm-space-6: 1.5rem;        /* 24px */
+    --vm-space-7: 1.75rem;       /* 28px */
+    --vm-space-8: 2rem;          /* 32px */
+    --vm-space-10: 2.5rem;       /* 40px */
+    --vm-space-12: 3rem;         /* 48px */
+    --vm-space-16: 4rem;         /* 64px */
+    --vm-space-20: 5rem;         /* 80px */
+    --vm-space-24: 6rem;         /* 96px */
+    --vm-space-32: 8rem;         /* 128px */
+
+    /* Fluid Spacing */
+    --vm-space-fluid-xs: clamp(0.5rem, 1vw, 1rem);
+    --vm-space-fluid-sm: clamp(1rem, 2vw, 1.5rem);
+    --vm-space-fluid-md: clamp(1.5rem, 3vw, 2.5rem);
+    --vm-space-fluid-lg: clamp(2rem, 4vw, 4rem);
+    --vm-space-fluid-xl: clamp(3rem, 6vw, 6rem);
+
+    /* ==============================================
+       BORDER RADIUS SYSTEM
+       ============================================== */
+
+    --vm-radius-none: 0;
+    --vm-radius-sm: 0.25rem;     /* 4px */
+    --vm-radius-md: 0.375rem;    /* 6px */
+    --vm-radius-lg: 0.5rem;      /* 8px */
+    --vm-radius-xl: 0.75rem;     /* 12px */
+    --vm-radius-2xl: 1rem;       /* 16px */
+    --vm-radius-3xl: 1.5rem;     /* 24px */
+    --vm-radius-full: 9999px;
+
+    /* ==============================================
+       SHADOW SYSTEM - Layered & Realistic
+       ============================================== */
+
+    --vm-shadow-xs: 
+      0 1px 2px 0 oklch(0 0 0 / 0.05);
+    --vm-shadow-sm: 
+      0 1px 3px 0 oklch(0 0 0 / 0.1),
+      0 1px 2px -1px oklch(0 0 0 / 0.1);
+    --vm-shadow-md: 
+      0 4px 6px -1px oklch(0 0 0 / 0.1),
+      0 2px 4px -2px oklch(0 0 0 / 0.1);
+    --vm-shadow-lg: 
+      0 10px 15px -3px oklch(0 0 0 / 0.1),
+      0 4px 6px -4px oklch(0 0 0 / 0.1);
+    --vm-shadow-xl: 
+      0 20px 25px -5px oklch(0 0 0 / 0.1),
+      0 8px 10px -6px oklch(0 0 0 / 0.1);
+    --vm-shadow-2xl: 
+      0 25px 50px -12px oklch(0 0 0 / 0.25);
+    --vm-shadow-inner: 
+      inset 0 2px 4px 0 oklch(0 0 0 / 0.05);
+
+    /* Colored Shadows */
+    --vm-shadow-primary: 
+      0 10px 30px oklch(var(--vm-primary-l) var(--vm-primary-c) var(--vm-primary-h) / 0.3);
+    --vm-shadow-accent: 
+      0 10px 30px var(--vm-color-accent / 0.3);
+
+    /* ==============================================
+       GRADIENT SYSTEM
+       ============================================== */
+
+    --vm-gradient-primary: 
+      linear-gradient(135deg, 
+        var(--vm-color-primary) 0%, 
+        oklch(var(--vm-primary-l) var(--vm-primary-c) calc(var(--vm-primary-h) + 30)) 100%);
+    
+    --vm-gradient-accent: 
+      linear-gradient(135deg, 
+        var(--vm-color-accent) 0%, 
+        var(--vm-color-secondary) 100%);
+    
+    --vm-gradient-surface: 
+      linear-gradient(145deg, 
+        var(--vm-color-surface) 0%, 
+        var(--vm-color-surface-elevated) 100%);
+
+    --vm-gradient-text-primary:
+      linear-gradient(135deg,
+        var(--vm-color-primary) 0%,
+        var(--vm-color-accent) 50%,
+        var(--vm-color-secondary) 100%);
+
+    /* ==============================================
+       ANIMATION SYSTEM
+       ============================================== */
+
+    /* Duration */
+    --vm-duration-instant: 0ms;
+    --vm-duration-fast: 150ms;
+    --vm-duration-normal: 300ms;
+    --vm-duration-slow: 500ms;
+    --vm-duration-slower: 800ms;
+
+    /* Easing Functions */
+    --vm-ease-linear: linear;
+    --vm-ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --vm-ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --vm-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --vm-ease-luxury: cubic-bezier(0.16, 1, 0.3, 1);
+    --vm-ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    /* ==============================================
+       BACKDROP & BLUR SYSTEM
+       ============================================== */
+
+    --vm-blur-sm: 4px;
+    --vm-blur-md: 8px;
+    --vm-blur-lg: 16px;
+    --vm-blur-xl: 24px;
+    --vm-blur-2xl: 40px;
+
+    /* ==============================================
+       Z-INDEX SYSTEM
+       ============================================== */
+
+    --vm-z-hide: -1;
+    --vm-z-auto: auto;
+    --vm-z-base: 0;
+    --vm-z-docked: 10;
+    --vm-z-dropdown: 1000;
+    --vm-z-sticky: 1100;
+    --vm-z-banner: 1200;
+    --vm-z-overlay: 1300;
+    --vm-z-modal: 1400;
+    --vm-z-popover: 1500;
+    --vm-z-skipLink: 1600;
+    --vm-z-toast: 1700;
+    --vm-z-tooltip: 1800;
+  }
+
+  /* ==============================================
+     LIGHT THEME VARIANT
+     ============================================== */
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --vm-color-background: oklch(0.9851 0.0050 240);
+      --vm-color-surface: oklch(0.9700 0.0100 240);
+      --vm-color-surface-elevated: oklch(0.9500 0.0150 240);
+      --vm-color-surface-overlay: oklch(0.9300 0.0200 240);
+      --vm-color-foreground: oklch(0.1448 0.0200 240);
+      --vm-color-muted: oklch(0.4000 0.0200 240);
+      --vm-color-muted-surface: oklch(0.9200 0.0150 240);
+      --vm-color-border: oklch(0.8500 0.0150 240);
+      --vm-color-border-subtle: oklch(0.9000 0.0100 240);
+    }
+  }
+
+  /* Manual theme overrides */
+  [data-theme="light"] {
+    --vm-color-background: oklch(0.9851 0.0050 240);
+    --vm-color-surface: oklch(0.9700 0.0100 240);
+    --vm-color-surface-elevated: oklch(0.9500 0.0150 240);
+    --vm-color-surface-overlay: oklch(0.9300 0.0200 240);
+    --vm-color-foreground: oklch(0.1448 0.0200 240);
+    --vm-color-muted: oklch(0.4000 0.0200 240);
+    --vm-color-muted-surface: oklch(0.9200 0.0150 240);
+    --vm-color-border: oklch(0.8500 0.0150 240);
+    --vm-color-border-subtle: oklch(0.9000 0.0100 240);
+  }
+
+  [data-theme="dark"] {
+    --vm-color-background: oklch(0.0400 0.0100 240);
+    --vm-color-surface: oklch(0.0800 0.0150 245);
+    --vm-color-surface-elevated: oklch(0.1200 0.0200 250);
+    --vm-color-surface-overlay: oklch(0.1600 0.0250 255);
+    --vm-color-foreground: oklch(0.9851 0.0050 240);
+    --vm-color-muted: oklch(0.7000 0.0200 240);
+    --vm-color-muted-surface: oklch(0.2000 0.0200 240);
+    --vm-color-border: oklch(0.2000 0.0200 240);
+    --vm-color-border-subtle: oklch(0.1500 0.0150 240);
+  }
+}
+
+/* ==============================================
+   TOKENS LAYER - Semantic Design Tokens
+   ============================================== */
+
+@layer tokens {
+  :root {
+    /* Component-specific tokens */
+    --vm-button-height-sm: 2rem;
+    --vm-button-height-md: 2.5rem;
+    --vm-button-height-lg: 3rem;
+    --vm-button-padding-x-sm: var(--vm-space-3);
+    --vm-button-padding-x-md: var(--vm-space-4);
+    --vm-button-padding-x-lg: var(--vm-space-6);
+
+    --vm-input-height-sm: 2rem;
+    --vm-input-height-md: 2.5rem;
+    --vm-input-height-lg: 3rem;
+
+    --vm-card-padding: var(--vm-space-6);
+    --vm-card-radius: var(--vm-radius-xl);
+
+    --vm-dialog-max-width: 32rem;
+    --vm-dialog-padding: var(--vm-space-6);
+
+    /* Layout tokens */
+    --vm-header-height: 4rem;
+    --vm-sidebar-width: 16rem;
+    --vm-sidebar-width-collapsed: 4rem;
+
+    /* Content width constraints */
+    --vm-content-max-width: 80rem;
+    --vm-content-padding: var(--vm-space-fluid-md);
+  }
+}
+
+/* ==============================================
+   SCROLL BEHAVIOR & ACCESSIBILITY
+   ============================================== */
+
+@layer base {
+  /* Smooth scrolling for users who don't prefer reduced motion */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  /* Respect user's motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    :root {
+      --vm-color-border: var(--vm-color-foreground);
+      --vm-shadow-md: none;
+      --vm-shadow-lg: none;
+    }
+  }
+
+  /* Focus management */
+  .vm-focus-ring:focus {
+    outline: 2px solid var(--vm-color-ring);
+    outline-offset: 2px;
+  }
+
+  .vm-focus-ring:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Screen reader only content */
+  .vm-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
+/* ==============================================
+   SELECTION & SCROLLBAR STYLING
+   ============================================== */
+
+@layer base {
+  ::selection {
+    background: var(--vm-color-accent);
+    color: var(--vm-color-accent-foreground);
+  }
+
+  ::-moz-selection {
+    background: var(--vm-color-accent);
+    color: var(--vm-color-accent-foreground);
+  }
+
+  /* Custom scrollbars */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--vm-color-surface);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--vm-color-border);
+    border-radius: var(--vm-radius-full);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--vm-color-muted);
+  }
+
+  /* Firefox scrollbars */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--vm-color-border) var(--vm-color-surface);
+  }
+}

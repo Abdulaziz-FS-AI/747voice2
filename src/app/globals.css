@@ -1,657 +1,243 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+/**
+ * Voice Matrix Application Global Styles
+ * Imports the unified design system and themes
+ */
+
+/* Import our unified design system */
+@import "../styles/design-system.css";
+@import "../styles/themes.css";
 @import "tailwindcss";
 
-:root {
-  /* ==============================================
-     VOICE MATRIX LUXURY DESIGN SYSTEM v5.0
-     Executive AI Communication Suite
-     ============================================== */
-  
-  /* ===== LUXURY PRIMARY COLORS ===== */
-  --luxury-obsidian: #0A0A0F;        /* Deep base background */
-  --luxury-charcoal: #16161F;        /* Elevated surface */
-  --luxury-graphite: #1E1E2A;        /* High elevation surface */
-  --luxury-slate: #2A2A35;           /* Interactive surface */
-  
-  /* ===== LUXURY METALS - ACCENT COLORS ===== */
-  --luxury-gold: #D4AF37;            /* Primary luxury accent */
-  --luxury-platinum: #E5E4E2;        /* Secondary luxury accent */
-  --luxury-rose-gold: #E8B4B8;       /* Tertiary luxury accent */
-  --luxury-silver: #C0C0C4;          /* Quaternary luxury accent */
-  --luxury-bronze: #CD7F32;          /* Additional warmth */
-  
-  /* ===== LUXURY GRADIENTS ===== */
-  --luxury-gradient-gold: linear-gradient(135deg, #D4AF37 0%, #F4E4BC 50%, #D4AF37 100%);
-  --luxury-gradient-platinum: linear-gradient(135deg, #E5E4E2 0%, #FFFFFF 50%, #E5E4E2 100%);
-  --luxury-gradient-rose-gold: linear-gradient(135deg, #E8B4B8 0%, #F5D5D0 50%, #E8B4B8 100%);
-  --luxury-gradient-dark: linear-gradient(180deg, #0A0A0F 0%, #16161F 100%);
-  --luxury-gradient-surface: linear-gradient(145deg, #16161F 0%, #1E1E2A 100%);
-  
-  /* ===== LUXURY STATUS COLORS ===== */
-  --luxury-success: #2ECC71;         /* Emerald green */
-  --luxury-warning: #F39C12;         /* Amber gold */
-  --luxury-error: #C0392B;           /* Ruby red */
-  --luxury-info: #5DADE2;            /* Sapphire blue */
-  
-  /* ===== LUXURY TYPOGRAPHY ===== */
-  --luxury-font-primary: 'Playfair Display', 'Didot', serif;      /* Headlines */
-  --luxury-font-secondary: 'Inter', 'Helvetica Neue', sans-serif;  /* Body */
-  --luxury-font-mono: 'JetBrains Mono', 'SF Mono', monospace;     /* Code */
-  
-  /* ===== LUXURY TYPE SCALE - GOLDEN RATIO ===== */
-  --luxury-text-xs: 0.618rem;     /* 10px */
-  --luxury-text-sm: 0.764rem;     /* 12px */
-  --luxury-text-base: 1rem;       /* 16px */
-  --luxury-text-lg: 1.618rem;     /* 26px */
-  --luxury-text-xl: 2.618rem;     /* 42px */
-  --luxury-text-2xl: 4.236rem;    /* 68px */
-  --luxury-text-3xl: 6.854rem;    /* 110px */
-  
-  /* ===== LUXURY FONT WEIGHTS ===== */
-  --luxury-font-light: 300;
-  --luxury-font-normal: 400;
-  --luxury-font-medium: 500;
-  --luxury-font-semibold: 600;
-  --luxury-font-bold: 700;
-  --luxury-font-black: 900;
-  
-  /* ===== LUXURY SPACING - GENEROUS ===== */
-  --luxury-space-xs: 0.5rem;      /* 8px */
-  --luxury-space-sm: 1rem;        /* 16px */
-  --luxury-space-md: 2rem;        /* 32px */
-  --luxury-space-lg: 4rem;        /* 64px */
-  --luxury-space-xl: 8rem;        /* 128px */
-  --luxury-space-2xl: 16rem;      /* 256px */
-  
-  /* ===== LUXURY SHADOWS ===== */
-  --luxury-shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.1);
-  --luxury-shadow-md: 0 10px 30px rgba(0, 0, 0, 0.15);
-  --luxury-shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.2);
-  --luxury-shadow-xl: 0 40px 100px rgba(0, 0, 0, 0.25);
-  --luxury-shadow-gold: 0 20px 60px rgba(212, 175, 55, 0.15);
-  --luxury-shadow-platinum: 0 20px 60px rgba(229, 228, 226, 0.1);
-  
-  /* ===== LUXURY TRANSITIONS ===== */
-  --luxury-transition-fast: 200ms cubic-bezier(0.4, 0, 0.2, 1);
-  --luxury-transition-base: 400ms cubic-bezier(0.4, 0, 0.2, 1);
-  --luxury-transition-slow: 800ms cubic-bezier(0.4, 0, 0.2, 1);
-  --luxury-transition-luxury: 1200ms cubic-bezier(0.16, 1, 0.3, 1);
-  
-  /* ===== LUXURY EFFECTS ===== */
-  --luxury-blur: 20px;
-  --luxury-blur-heavy: 40px;
-  --luxury-border-radius: 16px;
-  --luxury-border-radius-lg: 24px;
-  --luxury-border-radius-xl: 32px;
-  
-  /* ===== COMPATIBILITY ALIASES ===== */
-  --vm-background: var(--luxury-obsidian);
-  --vm-surface: var(--luxury-charcoal);
-  --vm-text-primary: var(--luxury-platinum);
-  --vm-primary: var(--luxury-gold);
-  --vm-accent: var(--luxury-rose-gold);
-  --vm-border-default: rgba(212, 175, 55, 0.1);
-  --vm-gradient-primary: var(--luxury-gradient-gold);
-}
+/**
+ * Application-specific overrides and customizations
+ * Only add styles here that are specific to the app layout
+ */
 
-/* ==============================================
-   LUXURY BASE STYLES
-   ============================================== */
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-  font-size: 16px;
-  line-height: 1.5;
-}
-
-body {
-  background: var(--luxury-obsidian);
-  color: var(--luxury-platinum);
-  font-family: var(--luxury-font-secondary);
-  font-weight: var(--luxury-font-normal);
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-}
-
-/* ==============================================
-   LUXURY TYPOGRAPHY SYSTEM
-   ============================================== */
-
-.luxury-heading-hero {
-  font-family: var(--luxury-font-primary);
-  font-size: var(--luxury-text-3xl);
-  font-weight: var(--luxury-font-black);
-  line-height: 0.9;
-  letter-spacing: -0.04em;
-  color: var(--luxury-platinum);
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-
-.luxury-heading-1 {
-  font-family: var(--luxury-font-primary);
-  font-size: var(--luxury-text-2xl);
-  font-weight: var(--luxury-font-bold);
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  color: var(--luxury-platinum);
-}
-
-.luxury-heading-2 {
-  font-family: var(--luxury-font-primary);
-  font-size: var(--luxury-text-xl);
-  font-weight: var(--luxury-font-semibold);
-  line-height: 1.2;
-  letter-spacing: -0.015em;
-  color: var(--luxury-platinum);
-}
-
-.luxury-heading-3 {
-  font-family: var(--luxury-font-primary);
-  font-size: var(--luxury-text-lg);
-  font-weight: var(--luxury-font-semibold);
-  line-height: 1.3;
-  letter-spacing: -0.01em;
-  color: var(--luxury-platinum);
-}
-
-.luxury-body-large {
-  font-family: var(--luxury-font-secondary);
-  font-size: 1.125rem;
-  font-weight: var(--luxury-font-normal);
-  line-height: 1.7;
-  color: var(--luxury-silver);
-}
-
-.luxury-body {
-  font-family: var(--luxury-font-secondary);
-  font-size: var(--luxury-text-base);
-  font-weight: var(--luxury-font-normal);
-  line-height: 1.6;
-  color: var(--luxury-silver);
-}
-
-.luxury-body-small {
-  font-family: var(--luxury-font-secondary);
-  font-size: var(--luxury-text-sm);
-  font-weight: var(--luxury-font-normal);
-  line-height: 1.5;
-  color: var(--luxury-silver);
-  letter-spacing: 0.025em;
-}
-
-.luxury-text-gold {
-  background: var(--luxury-gradient-gold);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.luxury-text-platinum {
-  color: var(--luxury-platinum);
-}
-
-.luxury-text-muted {
-  color: var(--luxury-silver);
-  opacity: 0.7;
-}
-
-/* ==============================================
-   LUXURY COMPONENT STYLES
-   ============================================== */
-
-/* ===== LUXURY CARDS ===== */
-.luxury-card {
-  position: relative;
-  background: var(--luxury-charcoal);
-  border: 1px solid rgba(212, 175, 55, 0.1);
-  border-radius: var(--luxury-border-radius-lg);
-  padding: var(--luxury-space-lg);
-  box-shadow: var(--luxury-shadow-lg);
-  backdrop-filter: blur(var(--luxury-blur));
-  transition: all var(--luxury-transition-base);
-  overflow: hidden;
-}
-
-.luxury-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: var(--luxury-gradient-gold);
-  opacity: 0;
-  transition: opacity var(--luxury-transition-base);
-}
-
-.luxury-card:hover {
-  transform: translateY(-8px);
-  border-color: rgba(212, 175, 55, 0.3);
-  box-shadow: var(--luxury-shadow-xl), var(--luxury-shadow-gold);
-}
-
-.luxury-card:hover::before {
-  opacity: 1;
-}
-
-.luxury-card-glass {
-  background: rgba(22, 22, 31, 0.8);
-  backdrop-filter: blur(var(--luxury-blur-heavy));
-  border: 1px solid rgba(229, 228, 226, 0.1);
-  border-radius: var(--luxury-border-radius-xl);
-  position: relative;
-  overflow: hidden;
-}
-
-.luxury-card-glass::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(212, 175, 55, 0.1) 0%,
-    transparent 50%,
-    rgba(229, 228, 226, 0.05) 100%
-  );
-  pointer-events: none;
-}
-
-/* ===== LUXURY BUTTONS ===== */
-.luxury-button-primary {
-  position: relative;
-  background: var(--luxury-gradient-gold);
-  color: var(--luxury-obsidian);
-  font-family: var(--luxury-font-secondary);
-  font-weight: var(--luxury-font-semibold);
-  font-size: var(--luxury-text-base);
-  border: none;
-  border-radius: var(--luxury-border-radius);
-  padding: 1rem 2rem;
-  cursor: pointer;
-  transition: all var(--luxury-transition-base);
-  box-shadow: var(--luxury-shadow-gold);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  overflow: hidden;
-  letter-spacing: 0.025em;
-  text-transform: uppercase;
-  font-size: 0.875rem;
-}
-
-.luxury-button-primary::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  transition: left var(--luxury-transition-slow);
-}
-
-.luxury-button-primary:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: var(--luxury-shadow-xl), 0 0 40px rgba(212, 175, 55, 0.4);
-  filter: brightness(110%);
-}
-
-.luxury-button-primary:hover::before {
-  left: 100%;
-}
-
-.luxury-button-primary:active {
-  transform: translateY(0) scale(0.98);
-}
-
-.luxury-button-secondary {
-  position: relative;
-  background: transparent;
-  color: var(--luxury-platinum);
-  font-family: var(--luxury-font-secondary);
-  font-weight: var(--luxury-font-medium);
-  font-size: var(--luxury-text-base);
-  border: 2px solid rgba(212, 175, 55, 0.3);
-  border-radius: var(--luxury-border-radius);
-  padding: 1rem 2rem;
-  cursor: pointer;
-  transition: all var(--luxury-transition-base);
-  backdrop-filter: blur(var(--luxury-blur));
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  letter-spacing: 0.025em;
-  text-transform: uppercase;
-  font-size: 0.875rem;
-}
-
-.luxury-button-secondary:hover {
-  background: rgba(212, 175, 55, 0.1);
-  border-color: var(--luxury-gold);
-  color: var(--luxury-gold);
-  transform: translateY(-2px);
-  box-shadow: var(--luxury-shadow-md), 0 0 20px rgba(212, 175, 55, 0.2);
-}
-
-.luxury-button-ghost {
-  background: transparent;
-  border: none;
-  color: var(--luxury-silver);
-  font-family: var(--luxury-font-secondary);
-  font-weight: var(--luxury-font-normal);
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  transition: all var(--luxury-transition-fast);
-  border-bottom: 2px solid transparent;
-}
-
-.luxury-button-ghost:hover {
-  color: var(--luxury-gold);
-  border-bottom-color: rgba(212, 175, 55, 0.5);
-}
-
-/* ===== LUXURY INPUTS ===== */
-.luxury-input {
-  position: relative;
-  background: rgba(22, 22, 31, 0.8);
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  border-radius: var(--luxury-border-radius);
-  color: var(--luxury-platinum);
-  padding: 1rem 1.5rem;
-  font-family: var(--luxury-font-secondary);
-  font-size: var(--luxury-text-base);
-  font-weight: var(--luxury-font-normal);
-  width: 100%;
-  transition: all var(--luxury-transition-base);
-  backdrop-filter: blur(var(--luxury-blur));
-}
-
-.luxury-input:focus {
-  outline: none;
-  border-color: var(--luxury-gold);
-  background: rgba(22, 22, 31, 0.9);
-  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1), var(--luxury-shadow-md);
-}
-
-.luxury-input::placeholder {
-  color: var(--luxury-silver);
-  opacity: 0.6;
-}
-
-/* ===== LUXURY ANIMATIONS ===== */
-@keyframes luxury-shimmer {
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
-}
-
-@keyframes luxury-glow-pulse {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+/* Ensure Tailwind classes work with our design system */
+@layer base {
+  /* Application root styles */
+  #__next,
+  #root {
+    isolation: isolate;
+    min-height: 100vh;
   }
-  50% {
-    box-shadow: 0 0 40px rgba(212, 175, 55, 0.3);
+
+  /* Ensure proper stacking context for modals and overlays */
+  [data-overlay-container] {
+    position: relative;
+    z-index: var(--vm-z-base);
+  }
+
+  /* Application-specific focus styles */
+  .app-focus-visible:focus-visible {
+    outline: 2px solid var(--vm-color-ring);
+    outline-offset: 2px;
   }
 }
 
-@keyframes luxury-float {
-  0%, 100% {
-    transform: translateY(0px);
+/* Layout-specific styles for the Voice Matrix app */
+@layer components {
+  /* Main application container */
+  .app-container {
+    min-height: 100vh;
+    background: var(--vm-color-background);
+    color: var(--vm-color-foreground);
+    font-family: var(--vm-font-body);
   }
-  50% {
-    transform: translateY(-10px);
+
+  /* Header styles */
+  .app-header {
+    height: var(--vm-header-height);
+    background: var(--vm-color-surface);
+    border-bottom: 1px solid var(--vm-color-border);
+    backdrop-filter: blur(var(--vm-blur-lg));
+    position: sticky;
+    top: 0;
+    z-index: var(--vm-z-sticky);
   }
-}
 
-@keyframes luxury-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(30px) scale(0.95);
-    filter: blur(10px);
+  /* Main content area */
+  .app-main {
+    flex: 1;
+    padding: var(--vm-content-padding);
+    max-width: var(--vm-content-max-width);
+    margin: 0 auto;
+    width: 100%;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0px);
+
+  /* Sidebar styles */
+  .app-sidebar {
+    width: var(--vm-sidebar-width);
+    background: var(--vm-color-surface);
+    border-right: 1px solid var(--vm-color-border);
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    z-index: var(--vm-z-docked);
   }
-}
 
-@keyframes luxury-scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
+  .app-sidebar-collapsed {
+    width: var(--vm-sidebar-width-collapsed);
   }
-  to {
-    opacity: 1;
-    transform: scale(1);
+
+  /* Dashboard layout */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--vm-space-fluid-md);
   }
-}
 
-/* ===== LUXURY ANIMATION CLASSES ===== */
-.luxury-shimmer {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(212, 175, 55, 0.3) 50%,
-    transparent 100%
-  );
-  background-size: 200% 100%;
-  animation: luxury-shimmer 3s infinite;
-}
-
-.luxury-glow {
-  animation: luxury-glow-pulse 3s ease-in-out infinite;
-}
-
-.luxury-float {
-  animation: luxury-float 6s ease-in-out infinite;
-}
-
-.luxury-fade-in {
-  animation: luxury-fade-in 0.8s ease-out;
-}
-
-.luxury-scale-in {
-  animation: luxury-scale-in 0.6s ease-out;
-}
-
-/* ===== LUXURY GLASSMORPHISM ===== */
-.luxury-glass {
-  background: rgba(10, 10, 15, 0.3);
-  backdrop-filter: blur(var(--luxury-blur-heavy));
-  border: 1px solid rgba(229, 228, 226, 0.1);
-  border-radius: var(--luxury-border-radius-xl);
-  box-shadow: var(--luxury-shadow-xl);
-}
-
-.luxury-glass::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.3), transparent, rgba(229, 228, 226, 0.2));
-  border-radius: inherit;
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: xor;
-  -webkit-mask-composite: xor;
-}
-
-/* ===== LUXURY VOICE EFFECTS ===== */
-.luxury-voice-indicator {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-}
-
-.luxury-voice-bar {
-  width: 3px;
-  background: var(--luxury-gradient-gold);
-  border-radius: 2px;
-  animation: luxury-voice-pulse 1.5s ease-in-out infinite;
-}
-
-.luxury-voice-bar:nth-child(2) { animation-delay: 0.1s; }
-.luxury-voice-bar:nth-child(3) { animation-delay: 0.2s; }
-.luxury-voice-bar:nth-child(4) { animation-delay: 0.3s; }
-.luxury-voice-bar:nth-child(5) { animation-delay: 0.4s; }
-
-@keyframes luxury-voice-pulse {
-  0%, 100% { height: 12px; opacity: 0.3; }
-  50% { height: 28px; opacity: 1; }
-}
-
-/* ===== LUXURY STATUS BADGES ===== */
-.luxury-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 50px;
-  font-size: var(--luxury-text-sm);
-  font-weight: var(--luxury-font-medium);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  backdrop-filter: blur(var(--luxury-blur));
-}
-
-.luxury-status-active {
-  background: rgba(46, 204, 113, 0.1);
-  color: var(--luxury-success);
-  border: 1px solid rgba(46, 204, 113, 0.2);
-}
-
-.luxury-status-pending {
-  background: rgba(243, 156, 18, 0.1);
-  color: var(--luxury-warning);
-  border: 1px solid rgba(243, 156, 18, 0.2);
-}
-
-.luxury-status-error {
-  background: rgba(192, 57, 43, 0.1);
-  color: var(--luxury-error);
-  border: 1px solid rgba(192, 57, 43, 0.2);
-}
-
-/* ===== LUXURY SCROLLBARS ===== */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--luxury-obsidian);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--luxury-gradient-gold);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--luxury-gold);
-  box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
-}
-
-/* ===== LUXURY SELECTION ===== */
-::selection {
-  background: rgba(212, 175, 55, 0.3);
-  color: var(--luxury-obsidian);
-}
-
-::-moz-selection {
-  background: rgba(212, 175, 55, 0.3);
-  color: var(--luxury-obsidian);
-}
-
-/* ==============================================
-   LUXURY RESPONSIVE DESIGN
-   ============================================== */
-
-@media (max-width: 768px) {
-  :root {
-    --luxury-space-lg: 2rem;
-    --luxury-space-xl: 4rem;
+  /* Voice assistant specific styles */
+  .voice-interface {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    border-radius: var(--vm-radius-2xl);
+    background: var(--vm-gradient-surface);
+    border: 1px solid var(--vm-color-border-subtle);
   }
-  
-  .luxury-card {
-    padding: var(--luxury-space-md);
-    border-radius: var(--luxury-border-radius);
+
+  /* Authentication pages */
+  .auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--vm-color-background);
+    position: relative;
   }
-  
-  .luxury-button-primary,
-  .luxury-button-secondary {
-    padding: 0.875rem 1.5rem;
+
+  .auth-card {
+    width: 100%;
+    max-width: 400px;
+    background: var(--vm-color-surface);
+    border: 1px solid var(--vm-color-border);
+    border-radius: var(--vm-radius-xl);
+    padding: var(--vm-space-8);
+    box-shadow: var(--vm-shadow-xl);
   }
-  
-  .luxury-heading-hero {
-    font-size: var(--luxury-text-2xl);
+
+  /* Loading states */
+  .loading-skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--vm-color-surface) 25%,
+      var(--vm-color-surface-elevated) 50%,
+      var(--vm-color-surface) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: var(--vm-radius-md);
   }
-  
-  .luxury-heading-1 {
-    font-size: var(--luxury-text-xl);
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /* Error states */
+  .error-boundary {
+    padding: var(--vm-space-8);
+    text-align: center;
+    background: var(--vm-color-surface);
+    border: 1px solid var(--vm-color-destructive);
+    border-radius: var(--vm-radius-lg);
+    color: var(--vm-color-destructive);
+  }
+
+  /* Success states */
+  .success-message {
+    padding: var(--vm-space-4);
+    background: var(--vm-color-success);
+    color: var(--vm-color-success-foreground);
+    border-radius: var(--vm-radius-md);
+    font-weight: var(--vm-font-weight-medium);
   }
 }
 
-@media (min-width: 1440px) {
-  .luxury-heading-hero {
-    font-size: 8rem;
-    line-height: 0.85;
+/* Utility classes specific to the app */
+@layer utilities {
+  /* Voice Matrix branding */
+  .vm-logo-text {
+    font-family: var(--vm-font-display);
+    font-weight: var(--vm-font-weight-bold);
+    background: var(--vm-gradient-text-primary);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Layout utilities */
+  .flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .absolute-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Responsive visibility */
+  .mobile-only {
+    @media (min-width: 768px) {
+      display: none !important;
+    }
+  }
+
+  .desktop-only {
+    @media (max-width: 767px) {
+      display: none !important;
+    }
+  }
+
+  /* Debug utilities (remove in production) */
+  .debug-grid {
+    background-image: 
+      linear-gradient(rgba(255, 0, 0, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 0, 0, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
   }
 }
 
-/* ==============================================
-   LUXURY ACCESSIBILITY
-   ============================================== */
+/* Print styles */
+@media print {
+  .app-sidebar,
+  .app-header,
+  .no-print {
+    display: none !important;
+  }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  .app-main {
+    padding: 0;
+    max-width: none;
+  }
+
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
   }
 }
 
-.luxury-focus-ring:focus {
-  outline: none;
-  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.3);
-}
-
+/* High contrast mode enhancements */
 @media (prefers-contrast: high) {
-  :root {
-    --luxury-gold: #FFD700;
-    --luxury-platinum: #FFFFFF;
+  .vm-logo-text {
+    background: none;
+    -webkit-text-fill-color: var(--vm-color-foreground);
+    color: var(--vm-color-foreground);
   }
 }
 
-/* ==============================================
-   COMPATIBILITY CLASSES
-   ============================================== */
-
-/* Keep existing VM classes for backward compatibility */
-.vm-card { @apply luxury-card; }
-.vm-button-primary { @apply luxury-button-primary; }
-.vm-button-secondary { @apply luxury-button-secondary; }
-.vm-input { @apply luxury-input; }
-.vm-heading { @apply luxury-heading-2; }
-.vm-text-primary { @apply luxury-text-platinum; }
-.vm-text-muted { @apply luxury-text-muted; }
-.vm-glow { @apply luxury-glow; }
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .loading-skeleton {
+    animation: none;
+    background: var(--vm-color-surface-elevated);
+  }
+}
