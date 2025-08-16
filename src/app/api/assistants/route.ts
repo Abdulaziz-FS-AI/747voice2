@@ -140,15 +140,50 @@ export async function PATCH(request: NextRequest) {
           if (vapiResponse.ok) {
             const vapiData = await vapiResponse.json();
             
-            // Update local record with VAPI data
+            // Extract display info from VAPI data
+            const assistantName = vapiData.name || assistant.display_name;
+            const systemPrompt = vapiData.model?.systemPrompt || assistant.system_prompt;
+            
+            // Preserve existing role and description, or extract from VAPI data
+            let extractedRole = assistant.assistant_role;
+            let extractedDescription = assistant.assistant_description;
+            
+            // Only extract role from name if we don't already have one
+            if (!extractedRole && assistantName && assistantName.includes(' - ')) {
+              const nameParts = assistantName.split(' - ');
+              if (nameParts.length >= 2) {
+                extractedRole = nameParts[1]; // "Scheduling Bot" -> role
+              }
+            }
+            
+            // Only extract description from system prompt if we don't already have one
+            if (!extractedDescription && systemPrompt) {
+              // Try to extract a meaningful description from system prompt
+              const promptLines = systemPrompt.split('\n').filter(line => line.trim());
+              const firstMeaningfulLine = promptLines.find(line => 
+                line.length > 20 && 
+                !line.toLowerCase().includes('you are') && 
+                !line.toLowerCase().includes('your name is') &&
+                !line.toLowerCase().includes('assistant')
+              );
+              
+              if (firstMeaningfulLine && firstMeaningfulLine.length <= 150) {
+                extractedDescription = firstMeaningfulLine.trim();
+              }
+            }
+            
+            // Update local record with VAPI data including display fields
             const { data: updatedAssistant, error: updateError } = await supabase
               .from('client_assistants')
               .update({
+                display_name: assistantName,
                 first_message: vapiData.firstMessage || assistant.first_message,
                 voice: vapiData.voice?.voiceId || assistant.voice,
                 model: vapiData.model?.model || assistant.model,
                 max_call_duration: vapiData.endCallConfig?.endCallMaxDuration || assistant.max_call_duration,
-                system_prompt: vapiData.model?.systemPrompt || assistant.system_prompt,
+                system_prompt: systemPrompt,
+                assistant_role: extractedRole || 'AI Assistant', // Default role if none found
+                assistant_description: extractedDescription || 'AI assistant ready to help with your needs', // Default description
                 last_synced_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
               })
