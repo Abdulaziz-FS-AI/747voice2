@@ -13,7 +13,14 @@ import {
   Brain,
   TrendingUp,
   Activity,
-  Mic
+  Mic,
+  ChevronDown,
+  ChevronUp,
+  Settings,
+  Volume2,
+  Timer,
+  BarChart3,
+  VolumeX
 } from 'lucide-react'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -24,13 +31,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { motion } from 'framer-motion'
-import type { Database } from '@/types/database'
-
-type Assistant = Database['public']['Tables']['user_assistants']['Row']
+import { motion, AnimatePresence } from 'framer-motion'
+import type { ClientAssistant } from '@/types/client'
 
 interface AssistantCardProps {
-  assistant: Assistant
+  assistant: ClientAssistant
   onEdit?: () => void
   onDelete?: () => void
   onViewDetails?: () => void
@@ -43,6 +48,7 @@ export function AssistantCard({
   onViewDetails
 }: AssistantCardProps) {
   const [isHovered, setIsHovered] = useState(false)
+  const [showDetails, setShowDetails] = useState(false)
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('en-US', {
@@ -69,150 +75,219 @@ export function AssistantCard({
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className="group relative"
     >
-      <div className="relative bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-gray-300 transition-all duration-300 overflow-hidden">
+      <div className="relative vm-card overflow-hidden">
         {/* Background Gradient Effect */}
         <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br ${
           statusColor === 'emerald' 
-            ? 'from-emerald-500/5 to-blue-500/5' 
-            : 'from-gray-500/5 to-slate-500/5'
+            ? 'from-vm-primary/5 to-vm-accent/5' 
+            : 'from-vm-muted/5 to-vm-surface/5'
         }`} />
         
         {/* Status Indicator */}
         <div className="absolute top-4 right-4">
           <div className={`w-3 h-3 rounded-full ${
             statusColor === 'emerald' 
-              ? 'bg-emerald-400 shadow-lg shadow-emerald-400/50' 
-              : 'bg-gray-400'
+              ? 'bg-vm-success shadow-lg shadow-vm-success/50' 
+              : 'bg-vm-muted'
           } ${isHovered ? 'animate-pulse' : ''}`} />
         </div>
 
-        <div className="relative z-10">
-          {/* Header */}
+        <div className="relative z-10 p-6">
+          {/* Header - Name, Role, Description */}
           <div className="flex items-start justify-between mb-4">
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-4 flex-1">
               <div className={`p-3 rounded-xl ${
                 statusColor === 'emerald' 
-                  ? 'bg-emerald-100 group-hover:bg-emerald-200' 
-                  : 'bg-gray-100 group-hover:bg-gray-200'
+                  ? 'bg-vm-primary/10 group-hover:bg-vm-primary/20' 
+                  : 'bg-vm-muted/10 group-hover:bg-vm-muted/20'
               } transition-colors duration-300`}>
-                <Brain className={`h-5 w-5 ${
-                  statusColor === 'emerald' ? 'text-emerald-600' : 'text-gray-600'
+                <Brain className={`h-6 w-6 ${
+                  statusColor === 'emerald' ? 'text-vm-primary' : 'text-vm-muted'
                 }`} />
               </div>
-              <div>
-                <h3 className="font-semibold text-lg text-gray-900 mb-1">
-                  {assistant.name}
+              <div className="flex-1">
+                <h3 className="vm-text-lg font-semibold vm-text-bright mb-1">
+                  {assistant.display_name}
                 </h3>
-                <div className="flex items-center gap-2 text-xs text-gray-500">
-                  {assistant.vapi_assistant_id && (
-                    <span className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-md">
-                      <Zap className="h-3 w-3" />
-                      ID: {assistant.vapi_assistant_id.slice(0, 8)}
-                    </span>
-                  )}
+                
+                {/* Role Badge */}
+                {assistant.assistant_role && (
+                  <div className="mb-2">
+                    <Badge variant="secondary" className="vm-text-small">
+                      {assistant.assistant_role}
+                    </Badge>
+                  </div>
+                )}
+                
+                {/* Description */}
+                {assistant.assistant_description && (
+                  <p className="vm-text-small vm-text-contrast leading-relaxed mb-2">
+                    {assistant.assistant_description}
+                  </p>
+                )}
+                
+                {/* VAPI ID */}
+                <div className="flex items-center gap-2 vm-text-small vm-text-muted">
+                  <Zap className="h-3 w-3" />
+                  <span>ID: {assistant.vapi_assistant_id.slice(0, 8)}...</span>
                 </div>
               </div>
             </div>
 
-            {(onEdit || onDelete || onViewDetails) && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  {onViewDetails && (
-                    <DropdownMenuItem onClick={onViewDetails}>
-                      <Eye className="mr-2 h-4 w-4" />
-                      View Details
-                    </DropdownMenuItem>
-                  )}
-                  {onEdit && (
-                    <DropdownMenuItem onClick={onEdit}>
-                      <Edit className="mr-2 h-4 w-4" />
-                      Edit Settings
-                    </DropdownMenuItem>
-                  )}
-                  {onDelete && (
-                    <DropdownMenuItem 
-                      onClick={onDelete}
-                      className="text-red-600 focus:text-red-600"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Remove
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+            {/* Actions Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                {onViewDetails && (
+                  <DropdownMenuItem onClick={onViewDetails}>
+                    <BarChart3 className="mr-2 h-4 w-4" />
+                    View Analytics
+                  </DropdownMenuItem>
+                )}
+                {onEdit && (
+                  <DropdownMenuItem onClick={onEdit}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit Settings
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Status Badge */}
+          <div className="flex items-center gap-2 mb-4">
+            <Badge 
+              variant={statusColor === 'emerald' ? 'default' : 'secondary'}
+              className="vm-text-small"
+            >
+              <Activity className="h-3 w-3 mr-1" />
+              {assistant.vapi_assistant_id ? 'Active' : 'Inactive'}
+            </Badge>
+            
+            {/* Last Synced */}
+            {assistant.last_synced_at && (
+              <span className="vm-text-small vm-text-muted">
+                Synced {formatDate(assistant.last_synced_at)}
+              </span>
             )}
           </div>
 
-          {/* Status and Usage */}
-          <div className="flex items-center gap-2 mb-4">
-            <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${
-              statusColor === 'emerald' 
-                ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' 
-                : 'bg-gray-100 text-gray-700 border border-gray-200'
-            }`}>
-              <Activity className="h-3 w-3" />
-              {assistant.vapi_assistant_id ? 'Active' : 'Inactive'}
-            </span>
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200">
-              <Clock className="h-3 w-3" />
-              {assistant.usage_minutes || 0} min used
-            </span>
-          </div>
-
-          {/* Voice Visualization */}
-          <div className="mb-4 p-3 bg-gray-50 rounded-xl">
-            <div className="flex items-center gap-2 mb-2">
-              <Mic className="h-4 w-4 text-gray-600" />
-              <span className="text-sm font-medium text-gray-700">Voice Profile</span>
-            </div>
-            <div className="flex items-center gap-1">
-              {[...Array(12)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className={`w-1 rounded-full ${
-                    statusColor === 'emerald' ? 'bg-emerald-400' : 'bg-gray-400'
-                  }`}
-                  animate={{
-                    height: isHovered ? [8, 16 + Math.random() * 8, 8] : 8,
-                  }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: isHovered ? Infinity : 0,
-                    delay: i * 0.1,
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Stats */}
+          {/* Quick Info Row */}
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <p className="text-xs text-gray-500 mb-1">Language</p>
-              <p className="text-sm font-medium text-gray-900">English</p>
+              <p className="vm-text-small vm-text-muted mb-1">Voice</p>
+              <p className="vm-text-small vm-text-bright font-medium">
+                {assistant.voice || 'Default'}
+              </p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-1">Max Duration</p>
-              <p className="text-sm font-medium text-gray-900">300s</p>
+              <p className="vm-text-small vm-text-muted mb-1">Model</p>
+              <p className="vm-text-small vm-text-bright font-medium">
+                {assistant.model || 'GPT-4'}
+              </p>
             </div>
           </div>
 
-          {/* Footer */}
-          <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-            <div className="flex items-center gap-1 text-xs text-gray-500">
-              <Clock className="h-3 w-3" />
-              Created {formatDate(assistant.created_at)}
-            </div>
-            <div className="flex items-center gap-1">
-              <TrendingUp className="h-3 w-3 text-gray-400" />
-              <span className="text-xs text-gray-500">Ready</span>
-            </div>
-          </div>
+          {/* Details Toggle Button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowDetails(!showDetails)}
+            className="w-full justify-between vm-hover-lift"
+          >
+            <span className="vm-text-small">Technical Details</span>
+            {showDetails ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </Button>
+
+          {/* Expandable Details Section */}
+          <AnimatePresence>
+            {showDetails && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="overflow-hidden"
+              >
+                <div className="pt-4 border-t border-vm-border mt-4">
+                  <div className="space-y-4">
+                    {/* Voice Settings */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Volume2 className="h-4 w-4 vm-text-muted" />
+                        <span className="vm-text-small vm-text-contrast">Voice Model</span>
+                      </div>
+                      <span className="vm-text-small vm-text-bright font-medium">
+                        {assistant.voice || 'Elliot'}
+                      </span>
+                    </div>
+
+                    {/* First Message */}
+                    {assistant.first_message && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <Mic className="h-4 w-4 vm-text-muted" />
+                          <span className="vm-text-small vm-text-contrast">First Message</span>
+                        </div>
+                        <p className="vm-text-small vm-text-muted leading-relaxed pl-6 bg-vm-surface/50 p-2 rounded-lg">
+                          "{assistant.first_message}"
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Technical Specs */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Timer className="h-4 w-4 vm-text-muted" />
+                          <span className="vm-text-small vm-text-contrast">Max Duration</span>
+                        </div>
+                        <span className="vm-text-small vm-text-bright font-medium">
+                          {assistant.max_call_duration || 300}s
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <BarChart3 className="h-4 w-4 vm-text-muted" />
+                          <span className="vm-text-small vm-text-contrast">Evaluation</span>
+                        </div>
+                        <span className="vm-text-small vm-text-bright font-medium">
+                          {assistant.evaluation_type || 'Standard'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Background Noise */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {assistant.background_noise_enabled ? (
+                          <Volume2 className="h-4 w-4 vm-text-muted" />
+                        ) : (
+                          <VolumeX className="h-4 w-4 vm-text-muted" />
+                        )}
+                        <span className="vm-text-small vm-text-contrast">Background Noise</span>
+                      </div>
+                      <Badge 
+                        variant={assistant.background_noise_enabled ? "default" : "secondary"}
+                        className="vm-text-small"
+                      >
+                        {assistant.background_noise_enabled ? 'Enabled' : 'Disabled'}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </motion.div>

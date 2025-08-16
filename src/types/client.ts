@@ -25,6 +25,12 @@ export interface ClientAssistant {
   eval_method?: string
   max_call_duration?: number
   
+  // Admin-configurable display fields
+  assistant_role?: string  // e.g., "Scheduling Assistant", "Customer Support"
+  assistant_description?: string  // Description of what this assistant does
+  background_noise_enabled?: boolean  // Whether background noise processing is enabled
+  evaluation_type?: string  // Type of evaluation method used
+  
   // Read-only fields (from VAPI)
   system_prompt?: string
   
@@ -123,6 +129,10 @@ export interface AssistantUpdatePayload {
   model?: string
   eval_method?: string
   max_call_duration?: number
+  assistant_role?: string
+  assistant_description?: string
+  background_noise_enabled?: boolean
+  evaluation_type?: string
 }
 
 // PIN Change payload
