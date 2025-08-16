@@ -118,6 +118,57 @@ All dashboard metrics calculated on-the-fly:
 - **Structured data handling** - `structured_data` field may be empty/null, system must handle gracefully
 - Focus is on **assistant assignment management** and **limited configuration editing**
 
+## ANALYTICS SYSTEM - RECENTLY IMPLEMENTED
+
+### Individual Assistant Analytics
+- **Page**: `/dashboard/analytics/assistant`
+- **Features**: Assistant selector, detailed metrics, recent calls table, CSV export
+- **API**: `GET /api/analytics/assistant/[id]` - Returns individual assistant performance
+- **Metrics**: Total calls, success rate, average duration, cost tracking
+
+### Performance Comparison Dashboard
+- **Location**: Main analytics page (`/dashboard/analytics`)
+- **Features**: Side-by-side comparison cards for multiple assistants
+- **Click-through**: Cards link to detailed assistant analytics
+- **Auto-loads**: Only shows when client has multiple assistants
+
+### Key Analytics APIs
+- `GET /api/assistants` - Get all client assistants (with pagination/search)
+- `PATCH /api/assistants?action=refresh` - Refresh from VAPI
+- `GET /api/analytics/dashboard` - Overall dashboard analytics
+- `GET /api/analytics/assistant/[id]` - Individual assistant analytics
+
+## SUPABASE MCP INTEGRATION - CONFIGURED
+
+### Purpose
+- Allows Claude Code to directly manage Supabase database without writing SQL
+- Development tool only - NOT part of application deployment
+
+### Configuration Files
+- **Local MCP Config**: `~/.config/claude-code/mcp_servers.json`
+- **Standard MCP**: `~/.config/mcp/servers.json`
+- **Project Config**: `mcp-config.json` (reference only)
+- **Environment**: `SUPABASE_ACCESS_TOKEN=sbp_1e94bbb26f28578fa87d5f9e0713929995fc9955`
+
+### Supabase Project Details
+- **Project Ref**: `yhjhowdwqukyfryeccwj`
+- **URL**: `https://yhjhowdwqukyfryeccwj.supabase.co`
+- **Personal Access Token**: Configured for Claude Code MCP integration
+
+### Capabilities Once MCP Active
+- Direct database schema management
+- Create/modify tables and functions
+- Execute queries and migrations
+- Real-time database analysis
+- No SQL writing required for database changes
+
+## DEPLOYMENT STATUS
+- **Production URL**: https://747voice2.vercel.app/
+- **Environment**: Vercel deployment with Supabase backend
+- **Authentication**: PIN-based system operational
+- **Analytics**: Full assistant analytics implemented
+- **MCP Integration**: Local development tool (not deployed)
+
 # Instructions
 - Use the available tools when needed to help with file operations and code analysis
 - When creating design file:

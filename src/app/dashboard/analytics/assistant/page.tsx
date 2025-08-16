@@ -23,22 +23,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Progress } from '@/components/ui/progress'
 import { useToast } from '@/hooks/use-toast'
+import { authenticatedFetch, handleAuthenticatedResponse } from '@/lib/utils/client-session'
 
 interface Assistant {
   id: string
-  name: string
+  display_name: string
+  vapi_assistant_id: string
   callCount?: number
 }
 
-interface StructuredQuestion {
-  question: string
-  structuredName: string
-  dataType: string
-  isRequired: boolean
-  answerRate: number
-  totalAnswered: number
-  totalCalls: number
-}
 
 interface CallLog {
   id: string
@@ -65,53 +58,23 @@ interface AssistantAnalytics {
     avgDuration: number
     successRate: number
   }
-  structuredQuestions: StructuredQuestion[]
   recentCalls: CallLog[]
-  successAnalysis: {
-    rubricType: string
-    breakdown: Record<string, number>
-    totalEvaluated: number
-  }
 }
 
-// Success Evaluation Display Component
-const SuccessEvaluationDisplay = ({ evaluation, rubricType }: { evaluation: any, rubricType: string }) => {
-  if (!evaluation) return <Badge variant="secondary">Not Evaluated</Badge>
-
-  switch (rubricType) {
-    case 'DescriptiveScale':
-      const descriptiveVariant = evaluation === 'Excellent' ? 'default' : 
-                                evaluation === 'Good' ? 'secondary' : 
-                                evaluation === 'Fair' ? 'outline' : 'destructive'
-      return <Badge variant={descriptiveVariant}>{evaluation}</Badge>
-
-    case 'PercentageScale':
-      let percent = 0
-      if (typeof evaluation === 'string' || typeof evaluation === 'number') {
-        percent = parseFloat(String(evaluation))
-        if (isNaN(percent)) percent = 0
-      }
-      return (
-        <div className="flex items-center gap-2">
-          <Progress value={percent} className="w-16" />
-          <span className="text-sm">{percent}%</span>
-        </div>
-      )
-
-    case 'PassFail':
-      const passed = evaluation === true || evaluation === 'true' || evaluation === 'Pass'
-      return <Badge variant={passed ? 'default' : 'destructive'}>
-        {passed ? 'Pass' : 'Fail'}
-      </Badge>
-
-    case 'LikertScale':
-      const likertVariant = evaluation.includes('Strongly Agree') || evaluation.includes('Agree') ? 'default' : 
-                           evaluation.includes('Neutral') ? 'secondary' : 'destructive'
-      return <Badge variant={likertVariant}>{evaluation}</Badge>
-
-    default:
-      return <Badge variant="outline">{String(evaluation)}</Badge>
+// Success Evaluation Display Component (simplified for PIN system)
+const SuccessEvaluationDisplay = ({ evaluation }: { evaluation: any }) => {
+  if (evaluation === null || evaluation === undefined) {
+    return <Badge variant="secondary">Not Evaluated</Badge>
   }
+
+  // PIN system uses boolean evaluation
+  const isSuccess = evaluation === true || evaluation === 'true' || evaluation === 1 || evaluation === '1'
+  
+  return (
+    <Badge variant={isSuccess ? 'default' : 'destructive'}>
+      {isSuccess ? 'Success' : 'Failed'}
+    </Badge>
+  )
 }
 
 export default function AssistantAnalyticsPage() {
@@ -128,14 +91,15 @@ export default function AssistantAnalyticsPage() {
   // Fetch user's assistants
   const fetchAssistants = async () => {
     try {
-      const response = await fetch('/api/assistants')
-      const data = await response.json()
+      const response = await authenticatedFetch('/api/assistants')
+      const result = await handleAuthenticatedResponse<{data: Assistant[]}>(response)
       
-      if (data.success) {
-        setAssistants(data.data || [])
+      if (result && result.data) {
+        const assistantsData = Array.isArray(result.data) ? result.data : []
+        setAssistants(assistantsData)
         // Auto-select first assistant if none selected
-        if (!selectedAssistantId && data.data.length > 0) {
-          setSelectedAssistantId(data.data[0].id)
+        if (!selectedAssistantId && assistantsData.length > 0) {
+          setSelectedAssistantId(assistantsData[0].id)
         }
       }
     } catch (error) {
@@ -149,13 +113,11 @@ export default function AssistantAnalyticsPage() {
     
     try {
       setLoading(true)
-      const response = await fetch(`/api/analytics/assistant/${assistantId}`)
-      const data = await response.json()
+      const response = await authenticatedFetch(`/api/analytics/assistant/${assistantId}`)
+      const result = await handleAuthenticatedResponse<AssistantAnalytics>(response)
       
-      if (data.success) {
-        setAnalytics(data.data)
-      } else {
-        throw new Error(data.error?.message || 'Failed to fetch analytics')
+      if (result) {
+        setAnalytics(result)
       }
     } catch (error) {
       console.error('Failed to fetch analytics:', error)
@@ -250,7 +212,7 @@ export default function AssistantAnalyticsPage() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `calls_${analytics.assistant.name}_${new Date().toISOString().split('T')[0]}.csv`
+    a.download = `calls_${analytics.assistant.name.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`
     a.click()
     URL.revokeObjectURL(url)
 
@@ -355,7 +317,7 @@ export default function AssistantAnalyticsPage() {
                   {assistants.map(assistant => (
                     <SelectItem key={assistant.id} value={assistant.id}>
                       <div className="flex items-center justify-between w-full">
-                        <span>{assistant.name}</span>
+                        <span>{assistant.display_name}</span>
                         {assistant.callCount && (
                           <Badge variant="outline" className="ml-2">
                             {assistant.callCount} calls
@@ -437,87 +399,36 @@ export default function AssistantAnalyticsPage() {
               </Card>
             </motion.div>
 
-            {/* Structured Questions Table */}
-            {analytics.structuredQuestions.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                <Card className="border border-gray-700 bg-gray-900/50 backdrop-blur">
-                  <CardHeader>
-                    <CardTitle className="text-white">Structured Questions Performance</CardTitle>
-                    <CardDescription className="text-gray-400">
-                      How well your assistant collects structured data from callers
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Question</TableHead>
-                          <TableHead>Required</TableHead>
-                          <TableHead>Answer Rate</TableHead>
-                          <TableHead>Answered/Total</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {analytics.structuredQuestions.map((question, index) => (
-                          <TableRow key={index}>
-                            <TableCell className="font-medium">{question.question}</TableCell>
-                            <TableCell>
-                              <Badge variant={question.isRequired ? "default" : "secondary"}>
-                                {question.isRequired ? "Yes" : "No"}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                <Progress value={question.answerRate} className="w-20" />
-                                <span className="text-sm font-medium">{question.answerRate}%</span>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <span className="text-sm vm-text-secondary">
-                                {question.totalAnswered}/{question.totalCalls}
-                              </span>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-
-            {/* Success Analysis */}
-            {Object.keys(analytics.successAnalysis.breakdown).length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-              >
-                <Card className="border border-gray-700 bg-gray-900/50 backdrop-blur">
-                  <CardHeader>
-                    <CardTitle className="text-white">Success Evaluation Breakdown</CardTitle>
-                    <CardDescription className="text-gray-400">
-                      Analysis based on {analytics.successAnalysis.rubricType} evaluation criteria
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                      {Object.entries(analytics.successAnalysis.breakdown).map(([key, value]) => (
-                        <div key={key} className="flex items-center justify-between p-3 border rounded-lg hover:border-purple-500/50 transition-colors"
-                             style={{ borderColor: 'rgba(75, 85, 99, 0.5)', background: 'rgba(17, 24, 39, 0.3)' }}>
-                          <span className="font-medium text-white">{key}</span>
-                          <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/50">{value} calls</Badge>
-                        </div>
-                      ))}
+            {/* Performance Summary */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <Card className="vm-card backdrop-blur-lg border border-vm-glass-border bg-vm-gradient-glass">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 vm-text-bright">
+                    <BarChart3 className="h-5 w-5 text-vm-primary" />
+                    Performance Summary
+                  </CardTitle>
+                  <CardDescription className="vm-text-secondary">
+                    Overall assistant performance metrics for {analytics.assistant.name}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="flex items-center justify-between p-4 border rounded-lg border-vm-border bg-vm-surface-elevated/50">
+                      <span className="font-medium vm-text-bright">Total Cost</span>
+                      <Badge variant="outline" className="text-vm-accent border-vm-accent">${analytics.metrics.totalCost}</Badge>
                     </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
+                    <div className="flex items-center justify-between p-4 border rounded-lg border-vm-border bg-vm-surface-elevated/50">
+                      <span className="font-medium vm-text-bright">Success Rate</span>
+                      <Badge variant="outline" className="text-vm-success border-vm-success">{analytics.metrics.successRate}%</Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
 
             {/* Recent Calls Table with Structured Data */}
             <motion.div
@@ -565,10 +476,7 @@ export default function AssistantAnalyticsPage() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <SuccessEvaluationDisplay 
-                              evaluation={call.successEvaluation}
-                              rubricType={analytics.assistant.evaluationRubric}
-                            />
+                            <SuccessEvaluationDisplay evaluation={call.successEvaluation} />
                           </TableCell>
                           <TableCell className="max-w-xs">
                             <div className="text-sm">

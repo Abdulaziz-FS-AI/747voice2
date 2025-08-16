@@ -69,48 +69,6 @@ export interface CallLog {
   updated_at: string
 }
 
-export interface CallAnalytics {
-  id: string
-  client_id: string
-  assistant_id?: string
-  call_log_id?: string
-  
-  // Analytics data
-  date: string
-  duration_seconds?: number
-  cost?: number
-  success_evaluation?: boolean
-  
-  // Aggregated fields for daily stats
-  total_calls: number
-  successful_calls: number
-  failed_calls: number
-  total_duration_seconds: number
-  total_cost_cents: number
-  average_call_duration: number
-  success_rate: number
-  
-  // Call metadata
-  has_recording?: boolean
-  has_transcript?: boolean
-  transcript_length?: number
-  
-  // Timestamps
-  created_at: string
-  updated_at: string
-}
-
-export interface ClientSession {
-  id: string
-  client_id: string
-  session_token: string
-  ip_address?: string
-  user_agent?: string
-  created_at: string
-  expires_at: string
-  is_active: boolean
-  last_accessed?: string
-}
 
 // API Response types
 export interface ApiResponse<T = any> {
@@ -181,16 +139,9 @@ export interface ClientInfo {
   contact_email: string
 }
 
-// Auth responses
+// Auth responses  
 export interface LoginResponse {
   client_id: string
   company_name: string
-  session_token: string
   authenticated: boolean
-}
-
-export interface SessionValidationResponse {
-  client_id: string
-  company_name: string
-  expires_at: string
 }
