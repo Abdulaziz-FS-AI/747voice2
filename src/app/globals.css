@@ -6,6 +6,7 @@
 /* Import our unified design system */
 @import "../styles/design-system.css";
 @import "../styles/themes.css";
+@import "../styles/voice-matrix-theme.css";
 @import "tailwindcss";
 
 /**

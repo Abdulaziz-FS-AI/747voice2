@@ -19,6 +19,8 @@
     "setup:paypal": "tsx src/scripts/setup-paypal.ts"
   },
   "dependencies": {
+    "@heroui/react": "^2.8.2",
+    "@heroui/theme": "^2.4.20",
     "@hookform/resolvers": "^5.2.1",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-dropdown-menu": "^2.1.15",
@@ -48,6 +50,7 @@
     "react-hook-form": "^7.61.1",
     "resend": "^4.7.0",
     "tailwind-merge": "^3.3.1",
+    "tailwind-variants": "^2.1.0",
     "zod": "^4.0.10"
   },
   "devDependencies": {
@@ -63,6 +66,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.4.4",
+    "figma-context-mcp": "^1.1.1",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "tailwindcss": "^4",
