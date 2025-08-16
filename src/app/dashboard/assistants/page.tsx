@@ -15,15 +15,14 @@ import { DashboardLayout } from '@/components/dashboard/layout'
 import { toast } from '@/hooks/use-toast'
 import { motion } from 'framer-motion'
 import { authenticatedFetch, handleAuthenticatedResponse } from '@/lib/utils/client-session'
-import type { ClientAssistant } from '@/types/client'
+import type { ClientAssistant, VapiVoiceId, VapiEvaluationRubric } from '@/types/client'
+import { VAPI_VOICES, VAPI_EVALUATION_RUBRICS, getVoiceById, getEvaluationRubricById } from '@/lib/voices'
 
 interface EditingAssistant {
   id: string
-  display_name: string
   first_message: string
-  voice: string
-  model: string
-  eval_method: string
+  voice: VapiVoiceId
+  eval_method: VapiEvaluationRubric
   max_call_duration: number
 }
 
@@ -103,11 +102,9 @@ export default function AssistantsPage() {
     setEditingId(assistant.id)
     setEditData({
       id: assistant.id,
-      display_name: assistant.display_name,
       first_message: assistant.first_message || '',
-      voice: assistant.voice || 'jennifer',
-      model: assistant.model || 'gpt-4',
-      eval_method: assistant.eval_method || 'conversation_score',
+      voice: (assistant.voice as VapiVoiceId) || 'Elliot',
+      eval_method: (assistant.eval_method as VapiEvaluationRubric) || 'PassFail',
       max_call_duration: assistant.max_call_duration || 300
     })
   }
@@ -129,10 +126,8 @@ export default function AssistantsPage() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          display_name: editData.display_name,
           first_message: editData.first_message,
           voice: editData.voice,
-          model: editData.model,
           eval_method: editData.eval_method,
           max_call_duration: editData.max_call_duration
         })
@@ -241,15 +236,7 @@ export default function AssistantsPage() {
                     <div className="flex items-center justify-between">
                       <CardTitle className="flex items-center gap-2 vm-text-bright">
                         <Bot className="h-5 w-5 text-vm-primary" />
-                        {editingId === assistant.id ? (
-                          <Input
-                            value={editData?.display_name || ''}
-                            onChange={(e) => setEditData(prev => prev ? {...prev, display_name: e.target.value} : null)}
-                            className="vm-text-bright bg-vm-surface-elevated border-vm-border"
-                          />
-                        ) : (
-                          assistant.display_name
-                        )}
+                        {assistant.display_name}
                       </CardTitle>
                       {editingId === assistant.id ? (
                         <div className="flex gap-2">
@@ -294,59 +281,51 @@ export default function AssistantsPage() {
                             placeholder="Hello! How can I help you today?"
                           />
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-4">
                           <div>
                             <Label className="vm-text-muted">Voice</Label>
                             <Select
-                              value={editData?.voice || 'jennifer'}
-                              onValueChange={(value) => setEditData(prev => prev ? {...prev, voice: value} : null)}
+                              value={editData?.voice || 'Elliot'}
+                              onValueChange={(value) => setEditData(prev => prev ? {...prev, voice: value as VapiVoiceId} : null)}
                             >
                               <SelectTrigger className="mt-1 bg-vm-surface-elevated border-vm-border">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="jennifer">Jennifer</SelectItem>
-                                <SelectItem value="ryan">Ryan</SelectItem>
-                                <SelectItem value="mark">Mark</SelectItem>
-                                <SelectItem value="sarah">Sarah</SelectItem>
-                                <SelectItem value="paige">Paige</SelectItem>
-                                <SelectItem value="michael">Michael</SelectItem>
+                                {VAPI_VOICES.map((voice) => (
+                                  <SelectItem key={voice.id} value={voice.id}>
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-medium">{voice.name}</span>
+                                      <span className="text-xs text-muted-foreground">
+                                        {voice.gender}, {voice.accent}
+                                      </span>
+                                    </div>
+                                  </SelectItem>
+                                ))}
                               </SelectContent>
                             </Select>
                           </div>
-                          <div>
-                            <Label className="vm-text-muted">Model</Label>
-                            <Select
-                              value={editData?.model || 'gpt-4'}
-                              onValueChange={(value) => setEditData(prev => prev ? {...prev, model: value} : null)}
-                            >
-                              <SelectTrigger className="mt-1 bg-vm-surface-elevated border-vm-border">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="gpt-4">GPT-4</SelectItem>
-                                <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
-                                <SelectItem value="claude-3-sonnet">Claude 3 Sonnet</SelectItem>
-                                <SelectItem value="claude-3-haiku">Claude 3 Haiku</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
                           <div>
                             <Label className="vm-text-muted">Evaluation Method</Label>
                             <Select
-                              value={editData?.eval_method || 'conversation_score'}
-                              onValueChange={(value) => setEditData(prev => prev ? {...prev, eval_method: value} : null)}
+                              value={editData?.eval_method || 'PassFail'}
+                              onValueChange={(value) => setEditData(prev => prev ? {...prev, eval_method: value as VapiEvaluationRubric} : null)}
                             >
                               <SelectTrigger className="mt-1 bg-vm-surface-elevated border-vm-border">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="conversation_score">Conversation Score</SelectItem>
-                                <SelectItem value="lead_quality_score">Lead Quality</SelectItem>
-                                <SelectItem value="problem_solved">Problem Solved</SelectItem>
-                                <SelectItem value="customer_satisfaction">Customer Satisfaction</SelectItem>
+                                {VAPI_EVALUATION_RUBRICS.map((rubric) => (
+                                  <SelectItem key={rubric.id} value={rubric.id}>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-sm">{rubric.icon}</span>
+                                      <div>
+                                        <div className="font-medium">{rubric.name}</div>
+                                        <div className="text-xs text-muted-foreground">{rubric.description}</div>
+                                      </div>
+                                    </div>
+                                  </SelectItem>
+                                ))}
                               </SelectContent>
                             </Select>
                           </div>
@@ -368,13 +347,13 @@ export default function AssistantsPage() {
                       <div className="space-y-3">
                         <div className="flex flex-wrap gap-2">
                           <Badge variant="outline" className="text-vm-accent border-vm-accent">
-                            {assistant.voice || 'Default Voice'}
+                            Voice: {getVoiceById(assistant.voice as VapiVoiceId)?.name || assistant.voice || 'Default'}
                           </Badge>
                           <Badge variant="outline" className="text-vm-success border-vm-success">
-                            {assistant.model || 'GPT-4'}
+                            Eval: {getEvaluationRubricById(assistant.eval_method as VapiEvaluationRubric)?.name || assistant.eval_method || 'Pass/Fail'}
                           </Badge>
                           <Badge variant="outline" className="text-vm-warning border-vm-warning">
-                            {assistant.max_call_duration || 300}s
+                            {assistant.max_call_duration || 300}s max
                           </Badge>
                         </div>
                         <div>
@@ -420,8 +399,8 @@ export default function AssistantsPage() {
             </CardHeader>
             <CardContent>
               <p className="vm-text-bright text-sm">
-                You can customize your assistant's voice, first message, model, evaluation method, and call duration. 
-                Core functionality like system prompts and functions are managed by your administrator.
+                You can customize your assistant's voice, first message, evaluation method, and call duration. 
+                Assistant names, models, and core functionality are managed by your administrator.
               </p>
             </CardContent>
           </Card>

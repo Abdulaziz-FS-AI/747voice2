@@ -1,8 +1,10 @@
 // VAPI Voice Configuration for Voice Matrix
-// Revolutionary voice selection with comprehensive metadata
+// Updated for VAPI voice IDs and evaluation rubrics
+
+import type { VapiVoiceId, VapiEvaluationRubric } from '@/types/client'
 
 export interface VoiceOption {
-  id: string                // VAPI voice ID
+  id: VapiVoiceId          // VAPI voice ID
   name: string             // Voice name
   age: number             // Age in years
   gender: 'Male' | 'Female'
@@ -246,4 +248,81 @@ export function searchVoices(query: string): VoiceOption[] {
     voice.accent.toLowerCase().includes(lowercaseQuery) ||
     voice.characteristics.some(char => char.toLowerCase().includes(lowercaseQuery))
   );
+}
+
+// VAPI Evaluation Rubric Configuration
+export interface EvaluationRubricOption {
+  id: VapiEvaluationRubric
+  name: string
+  description: string
+  icon?: string
+  category: 'scale' | 'assessment' | 'automatic' | 'binary'
+}
+
+export const VAPI_EVALUATION_RUBRICS: EvaluationRubricOption[] = [
+  {
+    id: 'PassFail',
+    name: 'Pass/Fail',
+    description: 'Simple pass or fail evaluation',
+    icon: '✓',
+    category: 'binary'
+  },
+  {
+    id: 'NumericScale',
+    name: 'Numeric Scale',
+    description: 'Scale of 1 to 10',
+    icon: '🔢',
+    category: 'scale'
+  },
+  {
+    id: 'DescriptiveScale',
+    name: 'Descriptive Scale',
+    description: 'Excellent, Good, Fair, Poor',
+    icon: '📊',
+    category: 'scale'
+  },
+  {
+    id: 'PercentageScale',
+    name: 'Percentage Scale',
+    description: 'Scale of 0% to 100%',
+    icon: '%',
+    category: 'scale'
+  },
+  {
+    id: 'LikertScale',
+    name: 'Likert Scale',
+    description: 'Strongly Agree to Strongly Disagree',
+    icon: '📋',
+    category: 'scale'
+  },
+  {
+    id: 'Checklist',
+    name: 'Checklist',
+    description: 'Checklist of criteria and status',
+    icon: '☑️',
+    category: 'assessment'
+  },
+  {
+    id: 'Matrix',
+    name: 'Matrix',
+    description: 'Grid evaluating multiple criteria across performance levels',
+    icon: '🎯',
+    category: 'assessment'
+  },
+  {
+    id: 'AutomaticRubric',
+    name: 'Automatic Rubric',
+    description: 'Automatically break down into several criteria with scores',
+    icon: '🤖',
+    category: 'automatic'
+  }
+]
+
+// Helper functions for evaluation rubrics
+export function getEvaluationRubricById(rubricId: VapiEvaluationRubric): EvaluationRubricOption | undefined {
+  return VAPI_EVALUATION_RUBRICS.find(rubric => rubric.id === rubricId)
+}
+
+export function getEvaluationRubricsByCategory(category: 'scale' | 'assessment' | 'automatic' | 'binary'): EvaluationRubricOption[] {
+  return VAPI_EVALUATION_RUBRICS.filter(rubric => rubric.category === category)
 }

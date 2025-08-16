@@ -121,14 +121,38 @@ export interface DashboardAnalytics {
   }>
 }
 
-// Assistant Update payload (only allowed fields)
+// VAPI Evaluation Rubric Types
+export type VapiEvaluationRubric = 
+  | 'NumericScale'
+  | 'DescriptiveScale' 
+  | 'Checklist'
+  | 'Matrix'
+  | 'PercentageScale'
+  | 'LikertScale'
+  | 'AutomaticRubric'
+  | 'PassFail'
+
+// VAPI Voice IDs (from the provided voice list)
+export type VapiVoiceId = 
+  | 'Elliot'
+  | 'Kylie'
+  | 'Rohan'
+  | 'Lily'
+  | 'Savannah'
+  | 'Hana'
+  | 'Neha'
+  | 'Cole'
+  | 'Harry'
+  | 'Paige'
+  | 'Spencer'
+
+// Assistant Update payload (only allowed fields - removed display_name and model)
 export interface AssistantUpdatePayload {
-  display_name?: string
   first_message?: string
-  voice?: string
-  model?: string
-  eval_method?: string
+  voice?: VapiVoiceId
+  eval_method?: VapiEvaluationRubric
   max_call_duration?: number
+  // Admin-only fields (not editable by clients)
   assistant_role?: string
   assistant_description?: string
   background_noise_enabled?: boolean

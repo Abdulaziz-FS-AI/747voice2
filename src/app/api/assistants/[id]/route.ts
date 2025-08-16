@@ -66,12 +66,10 @@ export async function PATCH(
     const body = await request.json()
     const supabase = createServiceRoleClient('update_client_assistant')
 
-    // Extract only allowed fields for update
+    // Extract only allowed fields for update (removed display_name and model)
     const allowedFields = {
-      display_name: body.display_name,
       first_message: body.first_message,
       voice: body.voice,
-      model: body.model,
       eval_method: body.eval_method,
       max_call_duration: body.max_call_duration
     };
@@ -103,28 +101,42 @@ export async function PATCH(
       }, { status: 404 })
     }
 
-    // Update VAPI assistant if we have fields that map to VAPI
+    // Build VAPI update payload using correct VAPI API structure
     const vapiUpdateData: any = {}
     
     if (updateData.first_message !== undefined) {
       vapiUpdateData.firstMessage = updateData.first_message
     }
+    
     if (updateData.voice !== undefined) {
-      vapiUpdateData.voice = { provider: 'playht', voiceId: updateData.voice }
-    }
-    if (updateData.model !== undefined) {
-      vapiUpdateData.model = { 
-        provider: updateData.model.includes('gpt') ? 'openai' : 'anthropic',
-        model: updateData.model 
+      vapiUpdateData.voice = {
+        provider: 'vapi',
+        voiceId: updateData.voice
       }
     }
+    
     if (updateData.max_call_duration !== undefined) {
-      vapiUpdateData.endCallConfig = { endCallMaxDuration: updateData.max_call_duration }
+      vapiUpdateData.maxDurationSeconds = updateData.max_call_duration
+    }
+    
+    if (updateData.eval_method !== undefined) {
+      vapiUpdateData.analysisPlan = {
+        successEvaluationPlan: {
+          rubric: updateData.eval_method,
+          enabled: true,
+          timeoutSeconds: 30
+        }
+      }
     }
 
     // Update VAPI assistant if we have mappable fields
     if (Object.keys(vapiUpdateData).length > 0 && process.env.VAPI_API_KEY) {
       try {
+        console.log('[VAPI] Sending update to VAPI:', {
+          assistantId: assistant.vapi_assistant_id,
+          payload: vapiUpdateData
+        })
+        
         const vapiResponse = await fetch(`https://api.vapi.ai/assistant/${assistant.vapi_assistant_id}`, {
           method: 'PATCH',
           headers: {
@@ -136,8 +148,17 @@ export async function PATCH(
 
         if (!vapiResponse.ok) {
           const errorData = await vapiResponse.text()
-          console.error('[VAPI] Update failed:', errorData)
+          console.error('[VAPI] Update failed:', {
+            status: vapiResponse.status,
+            statusText: vapiResponse.statusText,
+            error: errorData
+          })
           // Continue with local update even if VAPI fails
+        } else {
+          console.log('[VAPI] Update successful:', {
+            assistantId: assistant.vapi_assistant_id,
+            status: vapiResponse.status
+          })
         }
       } catch (vapiError) {
         console.error('[VAPI] Update error:', vapiError)
