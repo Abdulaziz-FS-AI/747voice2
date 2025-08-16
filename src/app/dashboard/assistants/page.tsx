@@ -380,9 +380,9 @@ export default function AssistantsPage() {
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    {editingId === assistant.id ? (
-                      // Edit Mode
+                  {editingId === assistant.id && (
+                    <CardContent className="space-y-4">
+                      {/* Edit Mode */}
                       <div className="space-y-4">
                         <div>
                           <Label className="vm-text-muted">First Message</Label>
@@ -454,42 +454,8 @@ export default function AssistantsPage() {
                           </div>
                         </div>
                       </div>
-                    ) : (
-                      // View Mode
-                      <div className="space-y-3">
-                        <div className="flex flex-wrap gap-2">
-                          <Badge variant="outline" className="text-vm-accent border-vm-accent">
-                            Voice: {getVoiceById(assistant.voice as VapiVoiceId)?.name || assistant.voice || 'Default'}
-                          </Badge>
-                          <Badge variant="outline" className="text-vm-success border-vm-success">
-                            Eval: {getEvaluationRubricById(assistant.eval_method as VapiEvaluationRubric)?.name || assistant.eval_method || 'Pass/Fail'}
-                          </Badge>
-                          <Badge variant="outline" className="text-vm-warning border-vm-warning">
-                            {assistant.max_call_duration || 300}s max
-                          </Badge>
-                        </div>
-                        <div>
-                          <p className="text-sm vm-text-muted">First Message:</p>
-                          <p className="vm-text-bright text-sm">
-                            {assistant.first_message || 'No custom first message set'}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm vm-text-muted">VAPI Assistant ID:</p>
-                          <code className="text-xs text-vm-primary bg-vm-surface-elevated px-2 py-1 rounded">
-                            {assistant.vapi_assistant_id}
-                          </code>
-                        </div>
-                        {assistant.last_synced_at && (
-                          <div>
-                            <p className="text-xs vm-text-muted">
-                              Last synced: {new Date(assistant.last_synced_at).toLocaleString()}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </CardContent>
+                    </CardContent>
+                  )}
                 </Card>
               </motion.div>
             ))}
