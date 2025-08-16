@@ -236,6 +236,7 @@ export default function AssistantsPage() {
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
+                        {/* Always show name, role, and description - even during edit */}
                         <CardTitle className="flex items-center gap-2 vm-text-bright mb-2">
                           <Bot className="h-5 w-5 text-vm-primary" />
                           {assistant.display_name}
