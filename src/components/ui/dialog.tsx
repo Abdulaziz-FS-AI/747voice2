@@ -47,69 +47,88 @@ const DialogOverlay = React.forwardRef<
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
 /**
- * Dialog content variants using CVA
- * Integrated with Voice Matrix unified design system
+ * Executive Dialog content variants using CVA
+ * Voice Matrix Professional Design System v7.0
  */
 const dialogContentVariants = cva(
   [
-    // Base styles using design system tokens
-    "vm-focus-ring theme-transition",
+    // Executive base styles
+    "vm-focus-executive theme-transition",
     "fixed left-[50%] top-[50%] z-modal",
     "grid w-full translate-x-[-50%] translate-y-[-50%]",
-    "gap-fluid-sm border border-border",
-    "bg-surface shadow-xl",
-    "transition-all duration-normal ease-luxury",
-    // Default animations
+    "gap-6 border border-[oklch(0.4000_0.0500_245)]",
+    "bg-[oklch(0.1600_0.0450_240_/_0.95)] backdrop-blur-[20px]",
+    "shadow-[0_16px_48px_rgba(0,0,0,0.5)]",
+    "transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1)",
+    // Executive animations
     "data-[state=open]:animate-scale-in",
     "data-[state=closed]:animate-scale-out",
+    "font-family: var(--vm-font-primary)",
   ],
   {
     variants: {
       size: {
         xs: [
           "max-w-xs p-4 gap-3",
-          "rounded-lg",
+          "rounded-[10px]",
         ],
         sm: [
           "max-w-sm p-5 gap-4",
-          "rounded-lg",
+          "rounded-[14px]",
         ],
         md: [
           "max-w-md p-6 gap-4",
-          "rounded-xl",
+          "rounded-[18px]",
         ],
         lg: [
           "max-w-lg p-6 gap-6",
-          "rounded-xl",
+          "rounded-[20px]",
         ],
         xl: [
           "max-w-xl p-8 gap-6",
-          "rounded-2xl",
+          "rounded-[24px]",
         ],
         "2xl": [
           "max-w-2xl p-8 gap-8",
-          "rounded-2xl",
+          "rounded-[28px]",
         ],
         full: [
           "max-w-[95vw] max-h-[95vh] p-6 gap-6",
-          "rounded-xl",
+          "rounded-[20px]",
         ],
       },
       variant: {
         default: [
-          "bg-surface border-border",
+          // Executive Default Dialog
+          "bg-[oklch(0.1600_0.0450_240_/_0.95)] border-[oklch(0.4000_0.0500_245)]",
+          "text-[oklch(0.9800_0.0200_230)]",
         ],
         elevated: [
-          "bg-surface-elevated border-border-subtle",
-          "shadow-2xl",
+          // Executive Elevated Dialog
+          "bg-[oklch(0.2200_0.0500_245)] border-[oklch(0.3200_0.0450_245)]",
+          "shadow-[0_20px_60px_rgba(0,0,0,0.6)]",
+          "text-[oklch(0.9800_0.0200_230)]",
         ],
         glass: [
-          "vm-glass border-border-subtle",
-          "backdrop-blur-xl",
+          // Executive Premium Glass Dialog
+          "bg-[oklch(0.1600_0.0450_240_/_0.90)] backdrop-blur-[24px]",
+          "border-[oklch(0.4000_0.0600_245_/_0.8)]",
+          "shadow-[0_20px_60px_rgba(0,0,0,0.7)]",
+          "text-[oklch(0.9800_0.0200_230)]",
+          "before:absolute before:top-0 before:left-0 before:right-0 before:h-px",
+          "before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent",
         ],
         destructive: [
-          "bg-surface border-destructive/20",
-          "shadow-destructive/10",
+          // Executive Destructive Dialog
+          "bg-[oklch(0.1600_0.0450_240_/_0.95)] border-[oklch(0.5500_0.2000_25_/_0.3)]",
+          "shadow-[0_16px_48px_oklch(0.5500_0.2000_25_/_0.2)]",
+          "text-[oklch(0.9800_0.0200_230)]",
+        ],
+        premium: [
+          // Executive Premium Dialog - Gold Accent
+          "bg-[oklch(0.1800_0.0450_240)] border-[oklch(0.6489_0.2370_26.9728_/_0.3)]",
+          "shadow-[0_20px_60px_oklch(0.6489_0.2370_26.9728_/_0.3)]",
+          "text-[oklch(0.9800_0.0200_230)]",
         ],
       },
     },

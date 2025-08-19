@@ -4,56 +4,80 @@ import { cn } from "@/lib/utils"
 import { motion, type HTMLMotionProps } from "framer-motion"
 
 /**
- * Badge component variants using CVA
- * Integrated with Voice Matrix unified design system
+ * Executive Badge component variants using CVA
+ * Voice Matrix Professional Design System v7.0
  */
 const badgeVariants = cva(
   [
-    // Base styles using design system tokens
-    "vm-focus-ring theme-transition",
+    // Executive base styles
+    "vm-focus-executive theme-transition",
     "inline-flex items-center justify-center gap-1",
     "font-medium whitespace-nowrap",
-    "transition-all duration-fast ease-out",
+    "transition-all duration-200 cubic-bezier(0.4, 0, 0.2, 1)",
     "border select-none",
+    "font-family: var(--vm-font-primary)",
   ],
   {
     variants: {
       variant: {
         default: [
-          "bg-primary text-foreground border-transparent",
-          "hover:bg-primary/90",
+          // Executive Default - Professional Gold
+          "bg-gradient-to-br from-[oklch(0.6489_0.2370_26.9728)] to-[oklch(0.5489_0.2370_26.9728)]",
+          "text-white border-transparent",
+          "shadow-[0_1px_4px_oklch(0.6489_0.2370_26.9728_/_0.2)]",
+          "hover:shadow-[0_2px_8px_oklch(0.6489_0.2370_26.9728_/_0.3)]",
         ],
         secondary: [
-          "bg-surface text-foreground border-border",
-          "hover:bg-surface-elevated",
+          // Executive Secondary - Glass Morphism
+          "bg-[oklch(0.1800_0.0450_240_/_0.9)] backdrop-blur-[12px]",
+          "text-[oklch(0.9800_0.0200_230)] border-[oklch(0.4000_0.0500_245_/_0.8)]",
+          "hover:bg-[oklch(0.2200_0.0500_245)]",
         ],
         accent: [
-          "bg-accent text-accent-foreground border-transparent",
-          "hover:bg-accent/90",
+          // Executive Accent - Electric Blue
+          "bg-[oklch(0.6000_0.1800_45)]",
+          "text-black border-transparent",
+          "shadow-[0_1px_4px_oklch(0.6000_0.1800_45_/_0.2)]",
+          "hover:bg-[oklch(0.5000_0.1800_45)]",
         ],
         success: [
-          "bg-success text-success-foreground border-transparent",
-          "hover:bg-success/90",
+          // Executive Success - Professional Green
+          "bg-[oklch(0.6800_0.1500_142)]",
+          "text-black border-transparent",
+          "shadow-[0_1px_4px_oklch(0.6800_0.1500_142_/_0.2)]",
+          "hover:bg-[oklch(0.5800_0.1500_142)]",
         ],
         warning: [
-          "bg-warning text-warning-foreground border-transparent",
-          "hover:bg-warning/90",
+          // Executive Warning - Professional Orange
+          "bg-[oklch(0.7800_0.1400_85)]",
+          "text-black border-transparent",
+          "shadow-[0_1px_4px_oklch(0.7800_0.1400_85_/_0.2)]",
+          "hover:bg-[oklch(0.6800_0.1400_85)]",
         ],
         destructive: [
-          "bg-destructive text-destructive-foreground border-transparent",
-          "hover:bg-destructive/90",
+          // Executive Destructive - Professional Red
+          "bg-[oklch(0.5500_0.2000_25)]",
+          "text-white border-transparent",
+          "shadow-[0_1px_4px_oklch(0.5500_0.2000_25_/_0.2)]",
+          "hover:bg-[oklch(0.4500_0.2000_25)]",
         ],
         outline: [
-          "bg-transparent text-foreground border-border",
-          "hover:bg-surface",
+          // Executive Outline - Professional Border
+          "bg-transparent text-[oklch(0.9800_0.0200_230)] border-[oklch(0.4000_0.0500_245)]",
+          "hover:bg-[oklch(0.1800_0.0450_240)]",
+          "hover:border-[oklch(0.6489_0.2370_26.9728)]",
         ],
         ghost: [
-          "bg-transparent text-muted border-transparent",
-          "hover:bg-surface hover:text-foreground",
+          // Executive Ghost - Minimal Professional
+          "bg-transparent text-[oklch(0.7500_0.0300_235)] border-transparent",
+          "hover:bg-[oklch(0.1800_0.0450_240)] hover:text-[oklch(0.9800_0.0200_230)]",
         ],
-        gradient: [
-          "bg-gradient-primary text-foreground border-transparent",
-          "hover:opacity-90",
+        premium: [
+          // Executive Premium - Gold Accent
+          "bg-[oklch(0.1800_0.0450_240)]",
+          "text-[oklch(0.9800_0.0200_230)] border-[oklch(0.6489_0.2370_26.9728_/_0.3)]",
+          "shadow-[0_1px_4px_oklch(0.6489_0.2370_26.9728_/_0.2)]",
+          "hover:border-[oklch(0.6489_0.2370_26.9728_/_0.5)]",
         ],
       },
       size: {

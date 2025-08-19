@@ -1,0 +1,548 @@
+/**
+ * Voice Matrix Executive Suite - Professional Design System
+ * Industry-veteran SaaS design with sophisticated glassmorphism
+ */
+
+:root {
+  /* === EXECUTIVE COLOR PALETTE === */
+  
+  /* Primary Executive Gold */
+  --vm-primary: oklch(0.6489 0.2370 26.9728); /* #F5A623 */
+  --vm-primary-dark: oklch(0.5489 0.2370 26.9728);
+  --vm-primary-light: oklch(0.7489 0.2370 26.9728);
+  --vm-primary-foreground: oklch(1.0000 0 0);
+  
+  /* Executive Surfaces */
+  --vm-background: oklch(0.0500 0 0); /* Executive Obsidian */
+  --vm-surface: oklch(0.0750 0 0); /* Sophisticated Charcoal */
+  --vm-surface-elevated: oklch(0.1000 0 0);
+  --vm-surface-glass: rgba(17, 17, 19, 0.85);
+  
+  /* Executive Text Hierarchy */
+  --vm-text-primary: oklch(0.9800 0 0); /* Executive Platinum */
+  --vm-text-secondary: oklch(0.7500 0 0);
+  --vm-text-muted: oklch(0.5500 0 0);
+  --vm-text-bright: oklch(0.9900 0 0);
+  
+  /* Professional Accent Colors */
+  --vm-accent: oklch(0.5635 0.2408 260.8178); /* Executive Purple */
+  --vm-accent-foreground: oklch(1.0000 0 0);
+  --vm-success: oklch(0.7323 0.2492 142.4953); /* Success Green */
+  --vm-warning: oklch(0.7000 0.2400 85.0000); /* Warning Amber */
+  --vm-error: oklch(0.5831 0.2387 28.4765); /* Error Crimson */
+  
+  /* Sophisticated Glassmorphism */
+  --vm-glass-bg: rgba(17, 17, 19, 0.85);
+  --vm-glass-border: rgba(255, 255, 255, 0.08);
+  --vm-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+  --vm-glass-blur: blur(12px);
+  
+  /* Professional Borders */
+  --vm-border: oklch(0.2000 0 0);
+  --vm-border-light: oklch(0.2500 0 0);
+  --vm-border-accent: rgba(245, 166, 35, 0.3);
+  
+  /* Executive Shadow System */
+  --vm-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --vm-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
+  --vm-shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15), 0 4px 6px rgba(0, 0, 0, 0.1);
+  --vm-shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.2), 0 6px 12px rgba(0, 0, 0, 0.15);
+  --vm-shadow-executive: 0 2px 8px rgba(245, 166, 35, 0.2);
+  
+  /* Executive Typography */
+  --vm-font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --vm-font-display: 'Geist', 'Inter', sans-serif;
+  --vm-font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  
+  /* Executive Spacing Scale */
+  --vm-space-xs: 0.375rem; /* 6px */
+  --vm-space-sm: 0.625rem; /* 10px */
+  --vm-space-md: 1rem; /* 16px */
+  --vm-space-lg: 1.625rem; /* 26px */
+  --vm-space-xl: 2.375rem; /* 38px */
+  --vm-space-2xl: 3.875rem; /* 62px */
+  
+  /* Professional Radius */
+  --vm-radius-sm: 0.375rem;
+  --vm-radius-md: 0.5rem;
+  --vm-radius-lg: 0.75rem;
+  --vm-radius-xl: 1rem;
+  
+  /* Executive Animation Timings */
+  --vm-duration-fast: 0.15s;
+  --vm-duration-normal: 0.25s;
+  --vm-duration-slow: 0.4s;
+  --vm-easing-executive: cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Executive Layout */
+  --vm-container-max: 75rem; /* 1200px */
+  --vm-content-max: 50rem; /* 800px */
+  --vm-sidebar-width: 17.5rem; /* 280px */
+  --vm-sidebar-collapsed: 4rem; /* 64px */
+  --vm-header-height: 4.5rem; /* 72px */
+}
+
+/* === EXECUTIVE TYPOGRAPHY SYSTEM === */
+
+/* Executive Display Hierarchy */
+.vm-display-hero {
+  font-size: 3.5rem;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-family: var(--vm-font-display);
+}
+
+.vm-display-large {
+  font-size: 2.5rem;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  font-family: var(--vm-font-display);
+}
+
+.vm-display-small {
+  font-size: 2rem;
+  line-height: 1.3;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-family: var(--vm-font-display);
+}
+
+/* Executive Body Text */
+.vm-text-lead {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  font-weight: 400;
+  font-family: var(--vm-font-primary);
+}
+
+.vm-text-body {
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: 400;
+  font-family: var(--vm-font-primary);
+}
+
+.vm-text-small {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  font-family: var(--vm-font-primary);
+}
+
+.vm-text-caption {
+  font-size: 0.75rem;
+  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+  font-family: var(--vm-font-primary);
+}
+
+/* Executive Text Colors */
+.vm-text-primary { color: var(--vm-text-primary); }
+.vm-text-secondary { color: var(--vm-text-secondary); }
+.vm-text-muted { color: var(--vm-text-muted); }
+.vm-text-bright { color: var(--vm-text-bright); }
+
+/* Executive Text Effects */
+.vm-text-gradient {
+  background: linear-gradient(135deg, var(--vm-text-bright) 0%, var(--vm-primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* === EXECUTIVE COMPONENT SYSTEM === */
+
+/* Executive Glass Morphism Card */
+.vm-card-executive {
+  background: var(--vm-glass-bg);
+  border: 1px solid var(--vm-glass-border);
+  backdrop-filter: var(--vm-glass-blur);
+  box-shadow: var(--vm-glass-shadow);
+  border-radius: var(--vm-radius-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.vm-card-executive::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  pointer-events: none;
+}
+
+.vm-card-elevated {
+  background: var(--vm-surface-elevated);
+  border: 1px solid var(--vm-border-light);
+  border-radius: var(--vm-radius-lg);
+  box-shadow: var(--vm-shadow-lg);
+  transition: all var(--vm-duration-normal) var(--vm-easing-executive);
+}
+
+.vm-card-elevated:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--vm-shadow-xl);
+}
+
+/* Executive Button System */
+.vm-btn-executive-primary {
+  background: linear-gradient(135deg, var(--vm-primary) 0%, var(--vm-primary-dark) 100%);
+  color: var(--vm-primary-foreground);
+  border: none;
+  border-radius: var(--vm-radius-md);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  font-family: var(--vm-font-primary);
+  transition: all var(--vm-duration-fast) var(--vm-easing-executive);
+  box-shadow: var(--vm-shadow-executive);
+  position: relative;
+  overflow: hidden;
+}
+
+.vm-btn-executive-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 166, 35, 0.3);
+}
+
+.vm-btn-executive-secondary {
+  background: var(--vm-glass-bg);
+  border: 1px solid var(--vm-glass-border);
+  color: var(--vm-text-primary);
+  border-radius: var(--vm-radius-md);
+  font-weight: 500;
+  backdrop-filter: var(--vm-glass-blur);
+  transition: all var(--vm-duration-normal) var(--vm-easing-executive);
+}
+
+.vm-btn-executive-secondary:hover {
+  background: var(--vm-surface-elevated);
+  border-color: var(--vm-border-accent);
+}
+
+.vm-btn-ghost {
+  background: transparent;
+  border: none;
+  color: var(--vm-text-muted);
+  transition: all var(--vm-duration-normal) var(--vm-easing-executive);
+}
+
+.vm-btn-ghost:hover {
+  color: var(--vm-text-bright);
+  background: var(--vm-surface);
+}
+
+/* Button Sizes */
+.vm-btn-sm {
+  height: 2.25rem; /* 36px */
+  padding: 0 0.75rem;
+  font-size: 0.75rem;
+  border-radius: var(--vm-radius-sm);
+}
+
+.vm-btn-md {
+  height: 2.75rem; /* 44px */
+  padding: 0 1rem;
+  font-size: 0.875rem;
+  border-radius: var(--vm-radius-md);
+}
+
+.vm-btn-lg {
+  height: 3.25rem; /* 52px */
+  padding: 0 1.5rem;
+  font-size: 1rem;
+  border-radius: var(--vm-radius-lg);
+}
+
+/* Executive Input System */
+.vm-input-executive {
+  background: var(--vm-surface-elevated);
+  border: 1px solid var(--vm-border);
+  border-radius: var(--vm-radius-md);
+  color: var(--vm-text-primary);
+  font-family: var(--vm-font-primary);
+  height: 2.75rem; /* 44px */
+  padding: 0 0.75rem;
+  transition: all var(--vm-duration-normal) var(--vm-easing-executive);
+}
+
+.vm-input-executive:focus {
+  outline: none;
+  border-color: var(--vm-primary);
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.1);
+}
+
+.vm-input-executive::placeholder {
+  color: var(--vm-text-muted);
+}
+
+.vm-input-glass {
+  background: var(--vm-glass-bg);
+  border: 1px solid var(--vm-glass-border);
+  backdrop-filter: var(--vm-glass-blur);
+  border-radius: var(--vm-radius-md);
+  color: var(--vm-text-primary);
+  font-family: var(--vm-font-primary);
+}
+
+/* Executive Loading States */
+.vm-loading-executive {
+  background: linear-gradient(
+    90deg,
+    var(--vm-surface) 0%,
+    var(--vm-surface-elevated) 50%,
+    var(--vm-surface) 100%
+  );
+  background-size: 200% 100%;
+  animation: vm-shimmer-executive 1.5s ease-in-out infinite;
+}
+
+@keyframes vm-shimmer-executive {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Executive Status Indicators */
+.vm-status-online {
+  background: var(--vm-success);
+  box-shadow: 0 0 8px rgba(115, 184, 83, 0.4);
+  border-radius: 50%;
+}
+
+.vm-status-offline {
+  background: var(--vm-text-muted);
+  border-radius: 50%;
+}
+
+.vm-status-warning {
+  background: var(--vm-warning);
+  box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
+  border-radius: 50%;
+}
+
+/* Executive Badges */
+.vm-badge-executive {
+  background: rgba(245, 166, 35, 0.1);
+  color: var(--vm-primary);
+  border: 1px solid rgba(245, 166, 35, 0.2);
+  border-radius: var(--vm-radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+  padding: 0.25rem 0.5rem;
+  text-transform: uppercase;
+}
+
+.vm-badge-premium {
+  background: rgba(139, 92, 246, 0.1);
+  color: var(--vm-accent);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.vm-badge-success {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--vm-success);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+/* === EXECUTIVE INTERACTION EFFECTS === */
+
+/* Professional Hover Effects */
+.vm-hover-lift {
+  transition: transform var(--vm-duration-normal) var(--vm-easing-executive);
+}
+
+.vm-hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+.vm-hover-glow {
+  transition: all var(--vm-duration-normal) var(--vm-easing-executive);
+}
+
+.vm-hover-glow:hover {
+  box-shadow: 0 0 20px rgba(245, 166, 35, 0.2);
+}
+
+.vm-hover-scale {
+  transition: transform var(--vm-duration-fast) var(--vm-easing-executive);
+}
+
+.vm-hover-scale:hover {
+  transform: scale(1.02);
+}
+
+/* Executive Focus States */
+.vm-focus-executive:focus-visible {
+  outline: 2px solid var(--vm-primary);
+  outline-offset: 2px;
+  border-radius: var(--vm-radius-sm);
+}
+
+/* === EXECUTIVE LAYOUT SYSTEM === */
+
+/* Professional Containers */
+.vm-container-executive {
+  max-width: var(--vm-container-max);
+  margin: 0 auto;
+  padding: 0 var(--vm-space-md);
+}
+
+.vm-content-executive {
+  max-width: var(--vm-content-max);
+  margin: 0 auto;
+}
+
+/* Executive Grid System */
+.vm-grid-executive {
+  display: grid;
+  gap: var(--vm-space-lg);
+}
+
+.vm-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.vm-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.vm-grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* Executive Spacing Utilities */
+.vm-space-xs { margin: var(--vm-space-xs); }
+.vm-space-sm { margin: var(--vm-space-sm); }
+.vm-space-md { margin: var(--vm-space-md); }
+.vm-space-lg { margin: var(--vm-space-lg); }
+.vm-space-xl { margin: var(--vm-space-xl); }
+.vm-space-2xl { margin: var(--vm-space-2xl); }
+
+/* Professional Padding */
+.vm-p-xs { padding: var(--vm-space-xs); }
+.vm-p-sm { padding: var(--vm-space-sm); }
+.vm-p-md { padding: var(--vm-space-md); }
+.vm-p-lg { padding: var(--vm-space-lg); }
+.vm-p-xl { padding: var(--vm-space-xl); }
+
+/* === RESPONSIVE EXECUTIVE DESIGN === */
+
+@media (max-width: 1024px) {
+  .vm-grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .vm-grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --vm-space-xs: 0.25rem;
+    --vm-space-sm: 0.5rem;
+    --vm-space-md: 0.75rem;
+    --vm-space-lg: 1.25rem;
+    --vm-space-xl: 2rem;
+  }
+  
+  .vm-grid-4,
+  .vm-grid-3,
+  .vm-grid-2 { 
+    grid-template-columns: 1fr; 
+  }
+  
+  .vm-display-hero { font-size: 2.5rem; }
+  .vm-display-large { font-size: 2rem; }
+  .vm-display-small { font-size: 1.5rem; }
+}
+
+/* === EXECUTIVE ANIMATION SYSTEM === */
+
+/* Professional Fade Animations */
+@keyframes vm-fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes vm-fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes vm-scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Executive Animation Classes */
+.vm-animate-fade-in {
+  animation: vm-fade-in var(--vm-duration-normal) var(--vm-easing-executive);
+}
+
+.vm-animate-fade-in-up {
+  animation: vm-fade-in-up var(--vm-duration-slow) var(--vm-easing-executive);
+}
+
+.vm-animate-scale-in {
+  animation: vm-scale-in var(--vm-duration-normal) var(--vm-easing-executive);
+}
+
+/* Professional Pulse for Status */
+@keyframes vm-pulse-executive {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+.vm-animate-pulse {
+  animation: vm-pulse-executive 2s ease-in-out infinite;
+}
+
+/* === EXECUTIVE UTILITY CLASSES === */
+
+/* Professional Backgrounds */
+.vm-bg-executive { background: var(--vm-background); }
+.vm-bg-surface { background: var(--vm-surface); }
+.vm-bg-elevated { background: var(--vm-surface-elevated); }
+.vm-bg-glass { background: var(--vm-glass-bg); }
+
+/* Executive Borders */
+.vm-border-executive { border: 1px solid var(--vm-border); }
+.vm-border-light { border: 1px solid var(--vm-border-light); }
+.vm-border-glass { border: 1px solid var(--vm-glass-border); }
+.vm-border-accent { border: 1px solid var(--vm-border-accent); }
+
+/* Professional Shadows */
+.vm-shadow-sm { box-shadow: var(--vm-shadow-sm); }
+.vm-shadow-md { box-shadow: var(--vm-shadow-md); }
+.vm-shadow-lg { box-shadow: var(--vm-shadow-lg); }
+.vm-shadow-xl { box-shadow: var(--vm-shadow-xl); }
+.vm-shadow-executive { box-shadow: var(--vm-shadow-executive); }
+
+/* Executive Border Radius */
+.vm-rounded-sm { border-radius: var(--vm-radius-sm); }
+.vm-rounded-md { border-radius: var(--vm-radius-md); }
+.vm-rounded-lg { border-radius: var(--vm-radius-lg); }
+.vm-rounded-xl { border-radius: var(--vm-radius-xl); }
+
+/* Professional Backdrop Filters */
+.vm-backdrop-blur { backdrop-filter: var(--vm-glass-blur); }
+
+/* Additional Skeleton Animations */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes animate-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes wave {
+  0%, 100% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+}
+
+/* Animation Utility Classes */
+.animate-shimmer {
+  animation: shimmer 1.5s infinite linear;
+}
+
+.animate-wave {
+  animation: wave 2s infinite linear;
+}

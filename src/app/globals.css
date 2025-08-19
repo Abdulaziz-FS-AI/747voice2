@@ -1,17 +1,236 @@
 /**
- * Voice Matrix Application Global Styles
- * Imports the unified design system and themes
+ * Voice Matrix Executive Suite - Global Styles
+ * Professional Design System v7.0
  */
 
-/* Import our unified design system */
+/* Import Unified Voice Matrix Theme System */
+@import "../styles/unified-voice-matrix-theme.css";
+@import "../styles/executive-design-system.css";
 @import "../styles/design-system.css";
 @import "../styles/themes.css";
 @import "../styles/voice-matrix-theme.css";
 @import "tailwindcss";
 
 /**
- * Application-specific overrides and customizations
- * Only add styles here that are specific to the app layout
+ * Executive Global Overrides
+ * Professional application-wide styling
+ */
+
+/* Executive Typography Base */
+html {
+  font-family: var(--vm-font-primary), -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: oklch(0.1400 0.0400 235); /* Executive Dark Background */
+  color: oklch(0.9800 0.0200 230); /* Executive Platinum Text */
+  scroll-behavior: smooth;
+}
+
+body {
+  background: oklch(0.1400 0.0400 235);
+  color: oklch(0.9800 0.0200 230);
+  font-feature-settings: 'liga' 1, 'kern' 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Executive Selection Styling */
+::selection {
+  background: oklch(0.6489 0.2370 26.9728 / 0.3);
+  color: oklch(0.9800 0.0200 230);
+}
+
+::-moz-selection {
+  background: oklch(0.6489 0.2370 26.9728 / 0.3);
+  color: oklch(0.9800 0.0200 230);
+}
+
+/* Executive Focus Management */
+.vm-focus-executive:focus-visible {
+  outline: 2px solid oklch(0.6000 0.1800 45);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Executive Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: oklch(0.1800 0.0450 240);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: oklch(0.4000 0.0500 245);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.6000 0.1800 45);
+}
+
+/* Executive Animation Performance */
+* {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Executive App Layout */
+.app-container {
+  min-height: 100vh;
+  background: oklch(0.1400 0.0400 235);
+  position: relative;
+}
+
+.app-main {
+  padding: var(--vm-space-lg);
+  max-width: var(--vm-container-max);
+  margin: 0 auto;
+}
+
+/* Executive Grid Systems */
+.metrics-grid {
+  display: grid;
+  gap: var(--vm-space-lg);
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+}
+
+@media (min-width: 640px) {
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .metrics-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Executive Professional Utilities */
+.vm-text-gradient {
+  background: linear-gradient(135deg, oklch(0.9800 0.0200 230) 0%, oklch(0.6489 0.2370 26.9728) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.vm-hover-lift {
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.vm-hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+.vm-hover-glow {
+  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.vm-hover-glow:hover {
+  box-shadow: 0 0 20px oklch(0.6489 0.2370 26.9728 / 0.2);
+}
+
+/* Executive Backdrop Effects */
+.vm-backdrop-blur {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Executive Status Indicators */
+.vm-status-indicator {
+  position: relative;
+  display: inline-block;
+}
+
+.vm-status-indicator::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 2px solid oklch(0.1400 0.0400 235);
+}
+
+.vm-status-indicator.online::after {
+  background: oklch(0.6800 0.1500 142);
+  box-shadow: 0 0 6px oklch(0.6800 0.1500 142 / 0.5);
+}
+
+.vm-status-indicator.offline::after {
+  background: oklch(0.7500 0.0300 235);
+}
+
+.vm-status-indicator.error::after {
+  background: oklch(0.5500 0.2000 25);
+  box-shadow: 0 0 6px oklch(0.5500 0.2000 25 / 0.5);
+}
+
+/* Executive Professional Loading States */
+.vm-skeleton {
+  background: linear-gradient(
+    90deg,
+    oklch(0.1800 0.0450 240) 25%,
+    oklch(0.2200 0.0500 245) 50%,
+    oklch(0.1800 0.0450 240) 75%
+  );
+  background-size: 200% 100%;
+  animation: vm-shimmer 1.5s infinite linear;
+}
+
+@keyframes vm-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Executive Responsive Typography */
+@media (max-width: 768px) {
+  .vm-display-hero { font-size: 2.5rem; }
+  .vm-display-large { font-size: 2rem; }
+  .vm-display-small { font-size: 1.5rem; }
+  
+  .app-main {
+    padding: var(--vm-space-md);
+  }
+  
+  .metrics-grid {
+    grid-template-columns: 1fr;
+    gap: var(--vm-space-md);
+  }
+}
+
+/* Executive Print Styles */
+@media print {
+  .vm-card-executive,
+  .vm-card-elevated {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+  
+  .vm-hover-lift,
+  .vm-hover-glow {
+    transform: none !important;
+    transition: none !important;
+  }
+}
  */
 
 /* Ensure Tailwind classes work with our design system */

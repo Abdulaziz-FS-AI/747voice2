@@ -5,101 +5,139 @@ import { cn } from "@/lib/utils"
 import { motion, type HTMLMotionProps } from "framer-motion"
 
 /**
- * Button component variants using CVA
- * Integrated with Voice Matrix unified design system
+ * Executive Button component variants using CVA
+ * Voice Matrix Professional Design System v7.0
  */
 const buttonVariants = cva(
   [
-    // Base styles using design system tokens
-    "vm-button vm-focus-ring theme-transition",
+    // Executive base styles
+    "vm-focus-executive theme-transition",
     "inline-flex items-center justify-center gap-2",
-    "whitespace-nowrap text-sm font-medium",
-    "transition-all duration-fast ease-out",
+    "whitespace-nowrap font-medium",
+    "transition-all duration-200 cubic-bezier(0.4, 0, 0.2, 1)",
     "cursor-pointer select-none",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
     "disabled:pointer-events-none disabled:opacity-50",
     "relative overflow-hidden",
+    "font-family: var(--vm-font-primary)",
   ],
   {
     variants: {
       variant: {
         primary: [
-          "vm-button-primary",
-          "bg-primary text-foreground",
-          "shadow-sm hover:shadow-md",
-          "hover:-translate-y-0.5 active:translate-y-0",
-          "hover:scale-[1.02] active:scale-[0.98]",
+          // Voice Matrix Primary Button - Executive Blue
+          "vm-button-primary vm-button-base",
+          "bg-[var(--vm-color-primary)]",
+          "text-[var(--vm-color-primary-foreground)]",
+          "border-none",
         ],
         secondary: [
-          "vm-button-secondary", 
-          "bg-surface text-foreground",
-          "border border-border hover:bg-surface-elevated",
-          "hover:border-border-subtle",
+          // Voice Matrix Secondary - Glass Morphism
+          "vm-button-secondary vm-button-base",
+          "bg-[var(--vm-color-glass)]",
+          "border border-[var(--vm-color-glass-border)]",
+          "text-[var(--vm-color-foreground)]",
+          "vm-backdrop-blur",
         ],
         ghost: [
-          "vm-button-ghost",
-          "bg-transparent text-muted",
-          "hover:bg-surface hover:text-foreground",
+          // Voice Matrix Ghost - Minimal Professional
+          "vm-button-ghost vm-button-base",
+          "bg-transparent border-none",
+          "text-[var(--vm-color-muted)]",
         ],
         destructive: [
-          "bg-destructive text-destructive-foreground",
-          "shadow-sm hover:shadow-md",
-          "hover:bg-destructive/90",
+          // Voice Matrix Destructive - Professional Red
+          "vm-button-base",
+          "bg-[var(--vm-color-destructive)]",
+          "text-[var(--vm-color-destructive-foreground)]",
+          "border-none vm-shadow-primary",
         ],
         outline: [
-          "border-2 border-border bg-transparent",
-          "text-foreground hover:bg-surface",
-          "hover:border-foreground",
+          // Voice Matrix Outline - Professional Border
+          "vm-button-base",
+          "bg-transparent",
+          "border-2 border-[var(--vm-color-border)]",
+          "text-[var(--vm-color-foreground)]",
         ],
         link: [
-          "text-primary underline-offset-4",
-          "hover:underline bg-transparent",
-          "p-0 h-auto font-normal",
+          // Voice Matrix Link - Professional Typography
+          "bg-transparent border-none p-0 h-auto",
+          "text-[var(--vm-color-primary)] font-normal",
+          "underline-offset-4 hover:underline",
+          "vm-focus-ring",
         ],
         accent: [
-          "bg-accent text-accent-foreground",
-          "shadow-sm hover:shadow-accent",
-          "hover:bg-accent/90 hover:scale-[1.02]",
+          // Voice Matrix Accent - Electric Blue
+          "vm-button-base",
+          "bg-[var(--vm-color-accent)]",
+          "text-[var(--vm-color-accent-foreground)]",
+          "border-none vm-shadow-primary",
+        ],
+        gold: [
+          // Voice Matrix Gold - Premium Accent
+          "vm-button-gold vm-button-base",
+          "bg-[var(--vm-color-gold)]",
+          "text-[var(--vm-color-gold-foreground)]",
+          "border-none",
         ],
         success: [
-          "bg-success text-success-foreground",
-          "shadow-sm hover:shadow-md",
-          "hover:bg-success/90",
+          // Voice Matrix Success - Professional Green
+          "vm-button-base",
+          "bg-[var(--vm-color-success)]",
+          "text-[var(--vm-color-success-foreground)]",
+          "border-none vm-shadow-primary",
         ],
         warning: [
-          "bg-warning text-warning-foreground", 
-          "shadow-sm hover:shadow-md",
-          "hover:bg-warning/90",
+          // Voice Matrix Warning - Professional Orange
+          "vm-button-base",
+          "bg-[var(--vm-color-warning)]",
+          "text-[var(--vm-color-warning-foreground)]",
+          "border-none vm-shadow-primary",
         ],
       },
       size: {
         sm: [
-          "h-button-sm px-3 text-xs",
-          "rounded-md gap-1",
+          // Voice Matrix Small Button
+          "vm-button-sm",
+          "h-8 px-3 text-[var(--vm-text-xs)]",
+          "rounded-[var(--vm-radius-sm)] gap-1",
+          "font-medium",
         ],
         md: [
-          "h-button-md px-4 py-2",
-          "rounded-lg gap-2",
+          // Voice Matrix Medium Button (Default)
+          "vm-button-md",
+          "h-11 px-6 text-[var(--vm-text-sm)]",
+          "rounded-[var(--vm-radius-lg)] gap-2",
+          "font-medium",
         ],
         lg: [
-          "h-button-lg px-6 py-3 text-base",
-          "rounded-xl gap-2",
+          // Voice Matrix Large Button
+          "vm-button-lg",
+          "h-13 px-8 text-[var(--vm-text-base)]",
+          "rounded-[var(--vm-radius-lg)] gap-2",
+          "font-medium",
         ],
         xl: [
-          "h-14 px-8 py-4 text-lg",
-          "rounded-2xl gap-3",
+          // Voice Matrix Extra Large Button
+          "vm-button-xl",
+          "h-15 px-10 text-[var(--vm-text-lg)]",
+          "rounded-[var(--vm-radius-xl)] gap-3",
+          "font-semibold",
         ],
         icon: [
-          "h-10 w-10 p-0",
-          "rounded-lg",
+          // Voice Matrix Icon Button Standard
+          "h-11 w-11 p-0",
+          "rounded-[var(--vm-radius-lg)]",
         ],
         "icon-sm": [
-          "h-8 w-8 p-0", 
-          "rounded-md",
+          // Voice Matrix Small Icon Button
+          "h-8 w-8 p-0",
+          "rounded-[var(--vm-radius-sm)]",
         ],
         "icon-lg": [
-          "h-12 w-12 p-0",
-          "rounded-xl",
+          // Voice Matrix Large Icon Button
+          "h-13 w-13 p-0",
+          "rounded-[var(--vm-radius-xl)]",
         ],
       },
       loading: {
@@ -107,34 +145,24 @@ const buttonVariants = cva(
       },
     },
     compoundVariants: [
-      // Theme-specific compound variants
+      // Executive compound variants for enhanced interactions
       {
         variant: "primary",
-        className: [
-          "data-[theme=brutalist]:transform data-[theme=brutalist]:rotate-[-1deg]",
-          "data-[theme=brutalist]:hover:rotate-[1deg] data-[theme=brutalist]:hover:scale-105",
-          "data-[theme=brutalist]:text-background data-[theme=brutalist]:font-black",
-          "data-[theme=brutalist]:uppercase data-[theme=brutalist]:tracking-wider",
-        ],
+        size: "sm",
+        className: "shadow-[0_1px_4px_oklch(0.6489_0.2370_26.9728_/_0.15)]",
       },
       {
         variant: "primary", 
-        className: [
-          "data-[theme=premium-dark]:bg-gradient-primary",
-          "data-[theme=premium-dark]:before:absolute data-[theme=premium-dark]:before:inset-0",
-          "data-[theme=premium-dark]:before:bg-gradient-to-r data-[theme=premium-dark]:before:from-transparent",
-          "data-[theme=premium-dark]:before:via-white/20 data-[theme=premium-dark]:before:to-transparent",
-          "data-[theme=premium-dark]:before:translate-x-[-100%] data-[theme=premium-dark]:before:transition-transform",
-          "data-[theme=premium-dark]:hover:before:translate-x-[100%]",
-        ],
+        size: ["md", "lg", "xl"],
+        className: "shadow-[0_2px_8px_oklch(0.6489_0.2370_26.9728_/_0.2)]",
       },
       {
-        variant: "outline",
+        variant: ["secondary", "outline"],
         size: "sm",
         className: "border",
       },
       {
-        variant: "outline", 
+        variant: ["secondary", "outline"],
         size: ["md", "lg", "xl"],
         className: "border-2",
       },

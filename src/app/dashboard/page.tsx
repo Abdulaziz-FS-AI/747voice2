@@ -101,30 +101,30 @@ export default function DashboardPage() {
               {/* Elegant Loading Spinner */}
               <div className="relative">
                 <motion.div 
-                  className="w-16 h-16 rounded-full border-2 border-vm-glass-border bg-vm-gradient-glass backdrop-blur-lg"
+                  className="w-16 h-16 rounded-full border-2 border-[var(--vm-color-glass-border)] bg-[var(--vm-gradient-glass)] vm-backdrop-blur"
                   animate={{ rotate: 360 }}
                   transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                 />
                 <motion.div 
-                  className="absolute top-1 left-1 w-14 h-14 rounded-full border-2 border-vm-primary border-t-transparent"
+                  className="absolute top-1 left-1 w-14 h-14 rounded-full border-2 border-[var(--vm-color-primary)] border-t-transparent"
                   animate={{ rotate: -360 }}
                   transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <Brain className="w-6 h-6 text-vm-primary vm-animate-pulse-slow" />
+                  <Brain className="w-6 h-6 text-[var(--vm-color-primary)] vm-animate-pulse" />
                 </div>
               </div>
               
               {/* Loading Text */}
               <div className="text-center space-y-2">
                 <motion.h3 
-                  className="vm-text-lg font-semibold vm-text-bright"
+                  className="vm-text-subsection font-semibold vm-text-primary"
                   animate={{ opacity: [0.6, 1, 0.6] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
                   Loading Dashboard
                 </motion.h3>
-                <p className="vm-text-small vm-subheading-contrast">
+                <p className="vm-text-small text-[var(--vm-color-muted)]">
                   Fetching your latest performance data...
                 </p>
               </div>
@@ -169,7 +169,7 @@ export default function DashboardPage() {
           >
             <div className="space-y-2">
               <motion.h1 
-                className="vm-display-large vm-text-gradient vm-heading-contrast"
+                className="vm-text-page-title vm-text-gradient-primary"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2, duration: 0.6 }}
@@ -177,7 +177,7 @@ export default function DashboardPage() {
                 Welcome back, {client?.company_name}
               </motion.h1>
               <motion.p 
-                className="vm-text-lead vm-text-bright max-w-2xl"
+                className="vm-text-lead vm-text-primary max-w-2xl"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3, duration: 0.6 }}
@@ -271,11 +271,11 @@ export default function DashboardPage() {
             className="vm-card relative overflow-hidden"
           >
             {/* Header */}
-            <div className="p-8 border-b border-vm-glass-border/50">
+            <div className="p-8 border-b border-[var(--vm-color-glass-border)]/50">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div className="space-y-2">
                   <motion.h2 
-                    className="vm-display-small vm-heading-contrast"
+                    className="vm-text-section vm-text-primary"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 1.0, duration: 0.6 }}
@@ -283,7 +283,7 @@ export default function DashboardPage() {
                     Your AI Assistants
                   </motion.h2>
                   <motion.p 
-                    className="vm-text-body vm-subheading-contrast"
+                    className="vm-text-body text-[var(--vm-color-muted)]"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 1.1, duration: 0.6 }}

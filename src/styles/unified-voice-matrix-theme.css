@@ -1,0 +1,722 @@
+/**
+ * Voice Matrix Unified Theme System v7.0
+ * Merges Executive Design + Style Guide specifications
+ * Professional AI Voice Assistant Platform Design
+ */
+
+:root {
+  /* === PRIMARY BRAND COLORS === */
+  
+  /* Executive Blue Primary (from Style Guide) */
+  --vm-color-primary: oklch(0.4800 0.2100 220); /* #3B82F6 */
+  --vm-color-primary-dark: oklch(0.4300 0.2100 220); /* #2563EB */
+  --vm-color-primary-light: oklch(0.5300 0.2100 220); /* #60A5FA */
+  --vm-color-primary-foreground: oklch(0.9800 0.0050 220); /* #FFFFFF */
+  
+  /* Professional Gold Accent (preserved from executive theme) */
+  --vm-color-gold: oklch(0.6489 0.2370 26.9728); /* #F5A623 */
+  --vm-color-gold-dark: oklch(0.5489 0.2370 26.9728); /* #D19000 */
+  --vm-color-gold-light: oklch(0.7489 0.2370 26.9728); /* #FFB946 */
+  --vm-color-gold-foreground: oklch(0.0300 0.0080 230); /* #000000 */
+  
+  /* === SECONDARY COLORS === */
+  
+  /* Executive Silver */
+  --vm-color-silver: oklch(0.8000 0.0100 245); /* #CBD5E1 */
+  --vm-color-silver-dark: oklch(0.7000 0.0100 245); /* #94A3B8 */
+  --vm-color-silver-light: oklch(0.9000 0.0100 245); /* #E2E8F0 */
+  
+  /* Professional Platinum */
+  --vm-color-platinum: oklch(0.8200 0.0150 240); /* #D1D5DB */
+  --vm-color-platinum-dark: oklch(0.7200 0.0150 240); /* #9CA3AF */
+  --vm-color-platinum-light: oklch(0.9200 0.0150 240); /* #F3F4F6 */
+  
+  /* === ACCENT COLORS === */
+  
+  /* Electric Blue */
+  --vm-color-accent: oklch(0.6000 0.1800 45); /* #06B6D4 */
+  --vm-color-accent-foreground: oklch(0.0300 0.0080 230); /* #000000 */
+  
+  /* Warm Coral */
+  --vm-color-coral: oklch(0.7200 0.1200 60); /* #F97316 */
+  --vm-color-coral-foreground: oklch(0.0300 0.0080 230); /* #000000 */
+  
+  /* Deep Purple */
+  --vm-color-purple: oklch(0.5635 0.2408 260.8178); /* #8B5CF6 */
+  --vm-color-purple-foreground: oklch(0.9800 0.0050 260); /* #FFFFFF */
+  
+  /* === FUNCTIONAL COLORS === */
+  
+  /* Success States */
+  --vm-color-success: oklch(0.6800 0.1500 142); /* #10B981 */
+  --vm-color-success-light: oklch(0.7800 0.1500 142); /* #34D399 */
+  --vm-color-success-dark: oklch(0.5800 0.1500 142); /* #059669 */
+  --vm-color-success-foreground: oklch(0.0300 0.0080 230); /* #000000 */
+  
+  /* Warning States */
+  --vm-color-warning: oklch(0.7800 0.1400 85); /* #F59E0B */
+  --vm-color-warning-light: oklch(0.8800 0.1400 85); /* #FCD34D */
+  --vm-color-warning-dark: oklch(0.6800 0.1400 85); /* #D97706 */
+  --vm-color-warning-foreground: oklch(0.0300 0.0080 230); /* #000000 */
+  
+  /* Error/Destructive States */
+  --vm-color-destructive: oklch(0.5500 0.2000 25); /* #EF4444 */
+  --vm-color-destructive-light: oklch(0.6500 0.2000 25); /* #F87171 */
+  --vm-color-destructive-dark: oklch(0.4500 0.2000 25); /* #DC2626 */
+  --vm-color-destructive-foreground: oklch(0.9500 0.0100 230); /* #FFFFFF */
+  
+  /* === BACKGROUND COLORS === */
+  
+  /* Executive Dark Theme */
+  --vm-color-background: oklch(0.1400 0.0400 235); /* #0F172A */
+  --vm-color-surface: oklch(0.1800 0.0450 240); /* #1E293B */
+  --vm-color-surface-elevated: oklch(0.2200 0.0500 245); /* #334155 */
+  --vm-color-surface-overlay: oklch(0.2600 0.0550 250); /* #475569 */
+  
+  /* Glassmorphism Effects */
+  --vm-color-glass: oklch(0.1600 0.0450 240 / 0.90); /* rgba(30, 41, 59, 0.9) */
+  --vm-color-glass-border: oklch(0.4000 0.0600 245 / 0.8); /* rgba(100, 116, 139, 0.8) */
+  --vm-blur-glass: blur(16px);
+  --vm-blur-xl: blur(24px);
+  
+  /* === TEXT COLORS === */
+  
+  --vm-color-foreground: oklch(0.9800 0.0200 230); /* #F8FAFC */
+  --vm-color-muted: oklch(0.7500 0.0300 235); /* #94A3B8 */
+  --vm-color-muted-surface: oklch(0.2800 0.0450 240); /* #475569 */
+  
+  /* === BORDER COLORS === */
+  
+  --vm-color-border: oklch(0.4000 0.0500 245); /* #64748B */
+  --vm-color-border-subtle: oklch(0.3200 0.0450 245); /* #475569 */
+  --vm-color-ring: oklch(0.6000 0.1800 45); /* #06B6D4 */
+  
+  /* === TYPOGRAPHY SYSTEM === */
+  
+  /* Font Families */
+  --vm-font-display: 'SF Pro Display', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --vm-font-body: 'SF Pro Text', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --vm-font-mono: 'SF Mono', 'JetBrains Mono', ui-monospace, monospace;
+  
+  /* Font Weights */
+  --vm-font-weight-light: 300;
+  --vm-font-weight-normal: 400;
+  --vm-font-weight-medium: 500;
+  --vm-font-weight-semibold: 600;
+  --vm-font-weight-bold: 700;
+  --vm-font-weight-black: 900;
+  
+  /* Typography Scale (Golden Ratio Based) */
+  --vm-text-xs: 0.618rem;      /* ~10px */
+  --vm-text-sm: 0.764rem;      /* ~12px */
+  --vm-text-base: 1rem;        /* 16px */
+  --vm-text-lg: 1.618rem;      /* ~26px */
+  --vm-text-xl: 2.618rem;      /* ~42px */
+  --vm-text-2xl: 4.236rem;     /* ~68px */
+  --vm-text-3xl: 6.854rem;     /* ~110px */
+  --vm-text-4xl: 11.090rem;    /* ~178px */
+  
+  /* Letter Spacing */
+  --vm-letter-spacing-tight: -0.025em;
+  --vm-letter-spacing-normal: 0em;
+  --vm-letter-spacing-wide: 0.025em;
+  --vm-letter-spacing-wider: 0.05em;
+  
+  /* === SPACING SYSTEM === */
+  
+  /* Base Spacing Units */
+  --vm-space-0: 0;
+  --vm-space-px: 1px;
+  --vm-space-0_5: 0.125rem;    /* 2px */
+  --vm-space-1: 0.25rem;       /* 4px */
+  --vm-space-1_5: 0.375rem;    /* 6px */
+  --vm-space-2: 0.5rem;        /* 8px */
+  --vm-space-2_5: 0.625rem;    /* 10px */
+  --vm-space-3: 0.75rem;       /* 12px */
+  --vm-space-3_5: 0.875rem;    /* 14px */
+  --vm-space-4: 1rem;          /* 16px */
+  --vm-space-5: 1.25rem;       /* 20px */
+  --vm-space-6: 1.5rem;        /* 24px */
+  --vm-space-7: 1.75rem;       /* 28px */
+  --vm-space-8: 2rem;          /* 32px */
+  --vm-space-10: 2.5rem;       /* 40px */
+  --vm-space-12: 3rem;         /* 48px */
+  --vm-space-16: 4rem;         /* 64px */
+  --vm-space-20: 5rem;         /* 80px */
+  --vm-space-24: 6rem;         /* 96px */
+  --vm-space-32: 8rem;         /* 128px */
+  
+  /* Asymmetric Professional Spacing */
+  --vm-space-xs: 0.375rem;     /* 6px */
+  --vm-space-sm: 0.625rem;     /* 10px */
+  --vm-space-md: 1rem;         /* 16px */
+  --vm-space-lg: 1.625rem;     /* 26px */
+  --vm-space-xl: 2.375rem;     /* 38px */
+  --vm-space-2xl: 3.875rem;    /* 62px */
+  
+  /* Fluid Spacing (Responsive) */
+  --vm-space-fluid-xs: clamp(0.5rem, 1vw, 1rem);
+  --vm-space-fluid-sm: clamp(1rem, 2vw, 1.5rem);
+  --vm-space-fluid-md: clamp(1.5rem, 3vw, 2.5rem);
+  --vm-space-fluid-lg: clamp(2rem, 4vw, 4rem);
+  --vm-space-fluid-xl: clamp(3rem, 6vw, 6rem);
+  
+  /* === BORDER RADIUS SYSTEM === */
+  
+  --vm-radius-none: 0;
+  --vm-radius-sm: 6px;
+  --vm-radius-md: 10px;
+  --vm-radius-lg: 14px;
+  --vm-radius-xl: 18px;
+  --vm-radius-2xl: 24px;
+  --vm-radius-3xl: 32px;
+  --vm-radius-full: 9999px;
+  
+  /* === SHADOW SYSTEM === */
+  
+  --vm-shadow-sm: 0 2px 4px oklch(0.0000 0.0000 0 / 0.1);
+  --vm-shadow-md: 0 4px 8px oklch(0.0000 0.0000 0 / 0.12), 0 2px 4px oklch(0.0000 0.0000 0 / 0.08);
+  --vm-shadow-lg: 0 8px 16px oklch(0.0000 0.0000 0 / 0.15), 0 4px 6px oklch(0.0000 0.0000 0 / 0.1);
+  --vm-shadow-xl: 0 12px 24px oklch(0.0000 0.0000 0 / 0.2), 0 6px 12px oklch(0.0000 0.0000 0 / 0.15);
+  --vm-shadow-2xl: 0 24px 48px oklch(0.0000 0.0000 0 / 0.25);
+  
+  /* Branded Shadows */
+  --vm-shadow-primary: 0 2px 8px oklch(0.4800 0.2100 220 / 0.2);
+  --vm-shadow-gold: 0 2px 8px oklch(0.6489 0.2370 26.9728 / 0.2);
+  --vm-glow-primary: 0 0 20px oklch(0.4800 0.2100 220 / 0.2);
+  --vm-glow-gold: 0 0 20px oklch(0.6489 0.2370 26.9728 / 0.2);
+  
+  /* === ANIMATION SYSTEM === */
+  
+  /* Durations */
+  --vm-duration-instant: 0ms;
+  --vm-duration-fast: 150ms;
+  --vm-duration-normal: 300ms;
+  --vm-duration-slow: 500ms;
+  --vm-duration-slower: 800ms;
+  
+  /* Easing Functions */
+  --vm-ease-linear: linear;
+  --vm-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --vm-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --vm-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --vm-ease-luxury: cubic-bezier(0.16, 1, 0.3, 1);
+  --vm-ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  /* === LAYOUT SYSTEM === */
+  
+  --vm-content-max-width: 80rem;           /* 1280px */
+  --vm-content-padding: var(--vm-space-fluid-md);
+  --vm-sidebar-width: 20rem;               /* 320px */
+  --vm-sidebar-width-collapsed: 4rem;      /* 64px */
+  --vm-header-height: 4rem;                /* 64px */
+  
+  /* Z-Index System */
+  --vm-z-base: 0;
+  --vm-z-dropdown: 1000;
+  --vm-z-sticky: 1020;
+  --vm-z-fixed: 1030;
+  --vm-z-modal-backdrop: 1040;
+  --vm-z-modal: 1050;
+  --vm-z-popover: 1060;
+  --vm-z-tooltip: 1070;
+  --vm-z-toast: 1080;
+  --vm-z-system: 1090;
+  
+  /* === GRADIENT SYSTEM === */
+  
+  --vm-gradient-primary: linear-gradient(135deg, var(--vm-color-primary) 0%, var(--vm-color-primary-dark) 100%);
+  --vm-gradient-gold: linear-gradient(135deg, var(--vm-color-gold) 0%, var(--vm-color-gold-dark) 100%);
+  --vm-gradient-surface: linear-gradient(135deg, var(--vm-color-surface) 0%, var(--vm-color-surface-elevated) 100%);
+  --vm-gradient-glass: linear-gradient(135deg, var(--vm-color-glass) 0%, oklch(0.1600 0.0450 240 / 0.8) 100%);
+  --vm-gradient-text-primary: linear-gradient(135deg, var(--vm-color-foreground) 0%, var(--vm-color-primary) 100%);
+  --vm-gradient-text-gold: linear-gradient(135deg, var(--vm-color-foreground) 0%, var(--vm-color-gold) 100%);
+}
+
+/* === COMPONENT BASE STYLES === */
+
+/* Typography Styles */
+.vm-text-hero {
+  font-size: var(--vm-text-4xl);
+  font-weight: var(--vm-font-weight-black);
+  line-height: 0.85;
+  letter-spacing: var(--vm-letter-spacing-tight);
+  font-family: var(--vm-font-display);
+}
+
+.vm-text-page-title {
+  font-size: var(--vm-text-3xl);
+  font-weight: var(--vm-font-weight-bold);
+  line-height: 0.9;
+  letter-spacing: var(--vm-letter-spacing-tight);
+  font-family: var(--vm-font-display);
+}
+
+.vm-text-section {
+  font-size: var(--vm-text-2xl);
+  font-weight: var(--vm-font-weight-semibold);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-family: var(--vm-font-display);
+}
+
+.vm-text-subsection {
+  font-size: var(--vm-text-xl);
+  font-weight: var(--vm-font-weight-semibold);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  font-family: var(--vm-font-display);
+}
+
+.vm-text-lead {
+  font-size: var(--vm-text-lg);
+  font-weight: var(--vm-font-weight-normal);
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+  font-family: var(--vm-font-body);
+}
+
+.vm-text-body {
+  font-size: var(--vm-text-base);
+  font-weight: var(--vm-font-weight-normal);
+  line-height: 1.6;
+  letter-spacing: var(--vm-letter-spacing-normal);
+  font-family: var(--vm-font-body);
+}
+
+.vm-text-small {
+  font-size: var(--vm-text-sm);
+  font-weight: var(--vm-font-weight-normal);
+  line-height: 1.5;
+  letter-spacing: var(--vm-letter-spacing-wide);
+  font-family: var(--vm-font-body);
+}
+
+.vm-text-caption {
+  font-size: var(--vm-text-xs);
+  font-weight: var(--vm-font-weight-medium);
+  line-height: 1.4;
+  letter-spacing: var(--vm-letter-spacing-wider);
+  font-family: var(--vm-font-body);
+}
+
+/* Text Colors */
+.vm-text-primary { color: var(--vm-color-foreground); }
+.vm-text-secondary { color: var(--vm-color-muted); }
+.vm-text-accent { color: var(--vm-color-accent); }
+.vm-text-success { color: var(--vm-color-success); }
+.vm-text-warning { color: var(--vm-color-warning); }
+.vm-text-destructive { color: var(--vm-color-destructive); }
+
+/* Text Effects */
+.vm-text-gradient-primary {
+  background: var(--vm-gradient-text-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.vm-text-gradient-gold {
+  background: var(--vm-gradient-text-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* === BUTTON COMPONENTS === */
+
+.vm-button-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--vm-radius-lg);
+  font-weight: var(--vm-font-weight-medium);
+  font-size: var(--vm-text-sm);
+  letter-spacing: 0.01em;
+  transition: all var(--vm-duration-fast) var(--vm-ease-luxury);
+  cursor: pointer;
+  outline: none;
+  border: none;
+  text-decoration: none;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.vm-button-primary {
+  background: var(--vm-gradient-primary);
+  color: var(--vm-color-primary-foreground);
+  box-shadow: var(--vm-shadow-primary);
+  padding: 12px 24px;
+  height: 44px;
+}
+
+.vm-button-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px oklch(0.4800 0.2100 220 / 0.3);
+  scale: 1.02;
+}
+
+.vm-button-primary:active {
+  transform: translateY(0);
+  scale: 0.98;
+}
+
+.vm-button-secondary {
+  background: var(--vm-color-surface);
+  color: var(--vm-color-foreground);
+  border: 1px solid var(--vm-color-border);
+  padding: 12px 24px;
+  height: 44px;
+}
+
+.vm-button-secondary:hover {
+  background: var(--vm-color-surface-elevated);
+  border-color: var(--vm-color-ring);
+  transform: translateY(-1px);
+}
+
+.vm-button-ghost {
+  background: transparent;
+  color: var(--vm-color-muted);
+  padding: 12px 24px;
+  height: 44px;
+}
+
+.vm-button-ghost:hover {
+  background: var(--vm-color-surface);
+  color: var(--vm-color-foreground);
+}
+
+.vm-button-gold {
+  background: var(--vm-gradient-gold);
+  color: var(--vm-color-gold-foreground);
+  box-shadow: var(--vm-shadow-gold);
+  padding: 12px 24px;
+  height: 44px;
+}
+
+.vm-button-gold:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px oklch(0.6489 0.2370 26.9728 / 0.3);
+  scale: 1.02;
+}
+
+/* Button Sizes */
+.vm-button-sm {
+  height: 32px;
+  padding: 8px 16px;
+  font-size: var(--vm-text-xs);
+  border-radius: var(--vm-radius-md);
+}
+
+.vm-button-md {
+  height: 44px;
+  padding: 12px 24px;
+  font-size: var(--vm-text-sm);
+  border-radius: var(--vm-radius-lg);
+}
+
+.vm-button-lg {
+  height: 52px;
+  padding: 16px 32px;
+  font-size: var(--vm-text-base);
+  border-radius: var(--vm-radius-lg);
+}
+
+.vm-button-xl {
+  height: 60px;
+  padding: 20px 40px;
+  font-size: var(--vm-text-lg);
+  border-radius: var(--vm-radius-xl);
+}
+
+/* === CARD COMPONENTS === */
+
+.vm-card {
+  background: var(--vm-color-glass);
+  border: 1px solid var(--vm-color-glass-border);
+  backdrop-filter: var(--vm-blur-glass);
+  border-radius: var(--vm-radius-xl);
+  box-shadow: var(--vm-shadow-md);
+  position: relative;
+  overflow: hidden;
+  transition: all var(--vm-duration-normal) var(--vm-ease-luxury);
+}
+
+.vm-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  pointer-events: none;
+}
+
+.vm-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--vm-shadow-xl);
+  border-color: var(--vm-color-ring);
+}
+
+.vm-card-elevated {
+  background: var(--vm-color-surface-elevated);
+  border: 1px solid var(--vm-color-border);
+  box-shadow: var(--vm-shadow-lg);
+}
+
+.vm-card-ghost {
+  background: transparent;
+  border: 1px solid transparent;
+  box-shadow: none;
+}
+
+.vm-card-ghost:hover {
+  border-color: var(--vm-color-border);
+  background: var(--vm-color-surface);
+}
+
+/* Card Sizes */
+.vm-card-sm {
+  border-radius: var(--vm-radius-md);
+  padding: var(--vm-space-4);
+}
+
+.vm-card-md {
+  border-radius: var(--vm-radius-lg);
+  padding: var(--vm-space-6);
+}
+
+.vm-card-lg {
+  border-radius: var(--vm-radius-xl);
+  padding: var(--vm-space-8);
+}
+
+.vm-card-xl {
+  border-radius: var(--vm-radius-2xl);
+  padding: var(--vm-space-12);
+}
+
+/* === INPUT COMPONENTS === */
+
+.vm-input {
+  background: var(--vm-color-surface-elevated);
+  border: 1px solid var(--vm-color-border);
+  border-radius: var(--vm-radius-lg);
+  color: var(--vm-color-foreground);
+  font-family: var(--vm-font-body);
+  font-size: var(--vm-text-sm);
+  padding: 12px 16px;
+  height: 44px;
+  width: 100%;
+  transition: all var(--vm-duration-fast) var(--vm-ease-luxury);
+  outline: none;
+}
+
+.vm-input:focus {
+  border-color: var(--vm-color-ring);
+  box-shadow: 0 0 0 3px oklch(0.4800 0.2100 220 / 0.1);
+  background: var(--vm-color-surface);
+}
+
+.vm-input::placeholder {
+  color: var(--vm-color-muted);
+}
+
+.vm-input-error {
+  border-color: var(--vm-color-destructive);
+}
+
+.vm-input-error:focus {
+  box-shadow: 0 0 0 3px oklch(0.5500 0.2000 25 / 0.1);
+}
+
+.vm-input-success {
+  border-color: var(--vm-color-success);
+}
+
+.vm-input-success:focus {
+  box-shadow: 0 0 0 3px oklch(0.6800 0.1500 142 / 0.1);
+}
+
+/* Input Sizes */
+.vm-input-sm {
+  height: 36px;
+  padding: 8px 12px;
+  font-size: var(--vm-text-xs);
+  border-radius: var(--vm-radius-md);
+}
+
+.vm-input-lg {
+  height: 52px;
+  padding: 16px 20px;
+  font-size: var(--vm-text-base);
+  border-radius: var(--vm-radius-lg);
+}
+
+/* === UTILITY CLASSES === */
+
+/* Hover Effects */
+.vm-hover-lift {
+  transition: transform var(--vm-duration-fast) var(--vm-ease-luxury);
+}
+
+.vm-hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+.vm-hover-scale {
+  transition: transform var(--vm-duration-fast) var(--vm-ease-luxury);
+}
+
+.vm-hover-scale:hover {
+  transform: scale(1.02);
+}
+
+.vm-hover-glow {
+  transition: box-shadow var(--vm-duration-normal) var(--vm-ease-luxury);
+}
+
+.vm-hover-glow:hover {
+  box-shadow: var(--vm-glow-primary);
+}
+
+.vm-hover-glow-gold:hover {
+  box-shadow: var(--vm-glow-gold);
+}
+
+/* Loading States */
+.vm-loading-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--vm-color-surface) 25%,
+    var(--vm-color-surface-elevated) 50%,
+    var(--vm-color-surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: vm-shimmer 1.5s infinite;
+}
+
+@keyframes vm-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Animation Classes */
+.vm-animate-fade-in {
+  animation: vm-fade-in var(--vm-duration-normal) var(--vm-ease-luxury) forwards;
+}
+
+.vm-animate-slide-up {
+  animation: vm-slide-up var(--vm-duration-normal) var(--vm-ease-luxury) forwards;
+}
+
+.vm-animate-scale-in {
+  animation: vm-scale-in var(--vm-duration-fast) var(--vm-ease-luxury) forwards;
+}
+
+@keyframes vm-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes vm-slide-up {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes vm-scale-in {
+  from { 
+    opacity: 0; 
+    transform: scale(0.95); 
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+}
+
+/* Focus States */
+.vm-focus-ring:focus-visible {
+  outline: 2px solid var(--vm-color-ring);
+  outline-offset: 2px;
+  border-radius: var(--vm-radius-sm);
+}
+
+/* Background Utilities */
+.vm-bg-background { background: var(--vm-color-background); }
+.vm-bg-surface { background: var(--vm-color-surface); }
+.vm-bg-surface-elevated { background: var(--vm-color-surface-elevated); }
+.vm-bg-glass { background: var(--vm-color-glass); }
+
+/* Border Utilities */
+.vm-border { border: 1px solid var(--vm-color-border); }
+.vm-border-subtle { border: 1px solid var(--vm-color-border-subtle); }
+.vm-border-glass { border: 1px solid var(--vm-color-glass-border); }
+
+/* Shadow Utilities */
+.vm-shadow-sm { box-shadow: var(--vm-shadow-sm); }
+.vm-shadow-md { box-shadow: var(--vm-shadow-md); }
+.vm-shadow-lg { box-shadow: var(--vm-shadow-lg); }
+.vm-shadow-xl { box-shadow: var(--vm-shadow-xl); }
+.vm-shadow-primary { box-shadow: var(--vm-shadow-primary); }
+.vm-shadow-gold { box-shadow: var(--vm-shadow-gold); }
+
+/* Backdrop Utilities */
+.vm-backdrop-blur { backdrop-filter: var(--vm-blur-glass); }
+.vm-backdrop-blur-xl { backdrop-filter: var(--vm-blur-xl); }
+
+/* Responsive Typography */
+@media (max-width: 768px) {
+  .vm-text-hero { font-size: clamp(2.5rem, 8vw, 4rem); }
+  .vm-text-page-title { font-size: clamp(2rem, 6vw, 3rem); }
+  .vm-text-section { font-size: clamp(1.5rem, 4vw, 2rem); }
+  .vm-text-subsection { font-size: clamp(1.25rem, 3vw, 1.5rem); }
+}
+
+/* Accessibility Enhancements */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  :root {
+    --vm-color-border: oklch(1.0000 0.0000 0);
+    --vm-shadow-sm: none;
+    --vm-shadow-md: none;
+    --vm-shadow-lg: none;
+    --vm-shadow-xl: none;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .vm-card,
+  .vm-card-elevated {
+    break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #333 !important;
+  }
+  
+  .vm-hover-lift,
+  .vm-hover-scale,
+  .vm-hover-glow {
+    transform: none !important;
+    transition: none !important;
+  }
+}

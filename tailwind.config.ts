@@ -26,15 +26,19 @@ const config: Config = {
         },
         primary: {
           DEFAULT: 'var(--vm-color-primary)',
-          foreground: 'var(--vm-color-foreground)',
+          foreground: 'var(--vm-color-primary-foreground)',
+          dark: 'var(--vm-color-primary-dark)',
+          light: 'var(--vm-color-primary-light)',
         },
         accent: {
           DEFAULT: 'var(--vm-color-accent)',
           foreground: 'var(--vm-color-accent-foreground)',
         },
-        secondary: {
-          DEFAULT: 'var(--vm-color-secondary)',
-          foreground: 'var(--vm-color-secondary-foreground)',
+        gold: {
+          DEFAULT: 'var(--vm-color-gold)',
+          foreground: 'var(--vm-color-gold-foreground)',
+          dark: 'var(--vm-color-gold-dark)',
+          light: 'var(--vm-color-gold-light)',
         },
         muted: {
           DEFAULT: 'var(--vm-color-muted)',

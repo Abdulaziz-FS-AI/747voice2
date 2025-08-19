@@ -1,0 +1,242 @@
+/**
+ * BACKUP: Voice Matrix Professional Theme v6.0
+ * ORIGINAL FILE: src/styles/voice-matrix-theme.css
+ * BACKUP DATE: January 16, 2025
+ * PURPOSE: Complete backup of professional glassmorphism theme
+ */
+
+/* Voice Matrix Professional Design System - Non-AI Looking Theme */
+
+:root {
+  /* === PROFESSIONAL GLASSMORPHISM PALETTE === */
+  
+  /* Primary Brand Colors - Sophisticated Gold */
+  --vm-primary: oklch(0.6489 0.2370 26.9728); /* #F5A623 */
+  --vm-primary-dark: oklch(0.5489 0.2370 26.9728);
+  --vm-primary-light: oklch(0.7489 0.2370 26.9728);
+  --vm-primary-foreground: oklch(1.0000 0 0);
+
+  /* Neutral Sophisticated Grays */
+  --vm-background: oklch(0.0500 0 0); /* Near black */
+  --vm-surface: oklch(0.0750 0 0); /* Slightly lighter */
+  --vm-surface-elevated: oklch(0.1000 0 0);
+  --vm-surface-glass: oklch(0.0750 0 0 / 0.85);
+  
+  /* Text Colors - High Contrast */
+  --vm-text-primary: oklch(0.9800 0 0); /* Near white */
+  --vm-text-secondary: oklch(0.7500 0 0); /* Medium gray */
+  --vm-text-muted: oklch(0.5500 0 0); /* Darker gray */
+  --vm-text-bright: oklch(0.9900 0 0); /* Pure white */
+
+  /* Accent Colors - Professional Palette */
+  --vm-accent: oklch(0.5635 0.2408 260.8178); /* Purple accent */
+  --vm-accent-foreground: oklch(1.0000 0 0);
+  --vm-success: oklch(0.7323 0.2492 142.4953); /* Green */
+  --vm-warning: oklch(0.7000 0.2400 85.0000); /* Orange */
+  --vm-error: oklch(0.5831 0.2387 28.4765); /* Red */
+
+  /* Glass Morphism Effects */
+  --vm-glass-bg: rgba(17, 17, 19, 0.85);
+  --vm-glass-border: rgba(255, 255, 255, 0.08);
+  --vm-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+  --vm-glass-blur: blur(12px);
+
+  /* Professional Borders */
+  --vm-border: oklch(0.2000 0 0);
+  --vm-border-light: oklch(0.2500 0 0);
+  --vm-border-accent: rgba(245, 166, 35, 0.3);
+
+  /* Professional Shadows - Subtle Depth */
+  --vm-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --vm-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
+  --vm-shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15), 0 4px 6px rgba(0, 0, 0, 0.1);
+  --vm-shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.2), 0 6px 12px rgba(0, 0, 0, 0.15);
+
+  /* Typography - Professional Fonts */
+  --vm-font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --vm-font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  --vm-font-display: 'Geist', 'Inter', sans-serif;
+
+  /* Spacing Scale - Asymmetric for Human Feel */
+  --vm-space-xs: 0.375rem; /* 6px */
+  --vm-space-sm: 0.625rem; /* 10px */
+  --vm-space-md: 1rem; /* 16px */
+  --vm-space-lg: 1.625rem; /* 26px */
+  --vm-space-xl: 2.375rem; /* 38px */
+  --vm-space-2xl: 3.875rem; /* 62px */
+
+  /* Radius - Subtle Curves */
+  --vm-radius-sm: 0.375rem;
+  --vm-radius-md: 0.5rem;
+  --vm-radius-lg: 0.75rem;
+  --vm-radius-xl: 1rem;
+
+  /* Animation Timings - Professional Feel */
+  --vm-duration-fast: 0.15s;
+  --vm-duration-normal: 0.25s;
+  --vm-duration-slow: 0.4s;
+  --vm-easing: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* === PROFESSIONAL COMPONENT CLASSES === */
+
+/* Glass Morphism Card */
+.vm-card {
+  background: var(--vm-glass-bg);
+  border: 1px solid var(--vm-glass-border);
+  backdrop-filter: var(--vm-glass-blur);
+  box-shadow: var(--vm-shadow-md);
+  border-radius: var(--vm-radius-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.vm-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  pointer-events: none;
+}
+
+/* Professional Button Styles */
+.vm-button-primary {
+  background: linear-gradient(135deg, var(--vm-primary) 0%, var(--vm-primary-dark) 100%);
+  color: var(--vm-primary-foreground);
+  border: none;
+  border-radius: var(--vm-radius-md);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition: all var(--vm-duration-normal) var(--vm-easing);
+  box-shadow: 0 2px 8px rgba(245, 166, 35, 0.2);
+}
+
+.vm-button-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 166, 35, 0.3);
+}
+
+/* Text Gradients */
+.vm-text-gradient {
+  background: linear-gradient(135deg, var(--vm-text-bright) 0%, var(--vm-primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Loading Animation - Subtle Shimmer */
+.vm-loading-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--vm-surface) 0%,
+    var(--vm-surface-elevated) 50%,
+    var(--vm-surface) 100%
+  );
+  background-size: 200% 100%;
+  animation: vm-shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes vm-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Professional Input Styles */
+.vm-input {
+  background: var(--vm-surface-elevated);
+  border: 1px solid var(--vm-border);
+  border-radius: var(--vm-radius-md);
+  color: var(--vm-text-primary);
+  font-family: var(--vm-font-primary);
+  transition: border-color var(--vm-duration-normal) var(--vm-easing);
+}
+
+.vm-input:focus {
+  outline: none;
+  border-color: var(--vm-primary);
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.1);
+}
+
+/* Professional Sidebar */
+.vm-sidebar {
+  background: var(--vm-surface);
+  border-right: 1px solid var(--vm-border);
+  backdrop-filter: var(--vm-glass-blur);
+}
+
+/* Status Indicators */
+.vm-status-online {
+  background: var(--vm-success);
+  box-shadow: 0 0 8px rgba(115, 184, 83, 0.4);
+}
+
+.vm-status-offline {
+  background: var(--vm-text-muted);
+}
+
+/* Micro Animations - Subtle Professional Movement */
+.vm-hover-lift {
+  transition: transform var(--vm-duration-normal) var(--vm-easing);
+}
+
+.vm-hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* Professional Badge */
+.vm-badge {
+  background: rgba(245, 166, 35, 0.1);
+  color: var(--vm-primary);
+  border: 1px solid rgba(245, 166, 35, 0.2);
+  border-radius: var(--vm-radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+}
+
+/* === RESPONSIVE BREAKPOINTS === */
+@media (max-width: 768px) {
+  :root {
+    --vm-space-xs: 0.25rem;
+    --vm-space-sm: 0.5rem;
+    --vm-space-md: 0.75rem;
+    --vm-space-lg: 1.25rem;
+    --vm-space-xl: 2rem;
+  }
+}
+
+/* === UTILITY CLASSES === */
+.vm-gradient-bg {
+  background: linear-gradient(135deg, var(--vm-background) 0%, var(--vm-surface) 100%);
+}
+
+.vm-glass-border {
+  border: 1px solid var(--vm-glass-border);
+}
+
+.vm-professional-shadow {
+  box-shadow: var(--vm-shadow-lg);
+}
+
+/* Human-like imperfections for non-AI feel */
+.vm-organic-spacing {
+  margin-top: calc(var(--vm-space-md) + 1px);
+  margin-bottom: calc(var(--vm-space-md) - 1px);
+}
+
+.vm-subtle-skew {
+  transform: skew(-0.5deg);
+}
+
+/* Professional focus states */
+.vm-focus-ring:focus-visible {
+  outline: 2px solid var(--vm-primary);
+  outline-offset: 2px;
+  border-radius: var(--vm-radius-sm);
+}
+
+/* === BACKUP COMPLETE === */
+/* This file contains the complete professional theme with glassmorphism effects */

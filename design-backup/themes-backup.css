@@ -1,0 +1,382 @@
+/**
+ * BACKUP: Voice Matrix Theme Variants v6.0
+ * ORIGINAL FILE: src/styles/themes.css
+ * BACKUP DATE: January 16, 2025
+ * PURPOSE: Complete backup of all theme variants
+ */
+
+/**
+ * Voice Matrix Superior Theme Variants
+ * Integration of .superdesign themes with unified system
+ */
+
+@layer theme {
+  /* ==============================================
+     MODERN MINIMAL THEME VARIANT
+     ============================================== */
+
+  [data-theme="minimal"] {
+    /* OKLCH Color System - Modern Minimal */
+    --vm-primary-l: 0.2046;
+    --vm-primary-c: 0.0200;
+    --vm-primary-h: 240;
+    --vm-color-primary: oklch(var(--vm-primary-l) var(--vm-primary-c) var(--vm-primary-h));
+
+    /* Surface Colors */
+    --vm-color-background: oklch(0.9851 0.0050 240);
+    --vm-color-surface: oklch(0.9600 0.0100 250);
+    --vm-color-surface-elevated: oklch(0.9400 0.0150 255);
+    --vm-color-surface-overlay: oklch(0.9200 0.0200 260);
+
+    /* Foreground Colors */
+    --vm-color-foreground: oklch(0.1448 0.0200 240);
+    --vm-color-muted: oklch(0.5486 0.0200 240);
+    --vm-color-muted-surface: oklch(0.9200 0.0150 240);
+
+    /* Accent Colors */
+    --vm-color-accent: oklch(0.6500 0.1800 60);
+    --vm-color-accent-foreground: oklch(0.9851 0.0050 240);
+    --vm-color-secondary: oklch(0.9702 0.0150 260);
+    --vm-color-secondary-foreground: oklch(0.2046 0.0200 240);
+
+    /* Border Colors */
+    --vm-color-border: oklch(0.9219 0.0100 240);
+    --vm-color-border-subtle: oklch(0.9500 0.0050 240);
+
+    /* Minimal Design Adjustments */
+    --vm-radius-lg: 0rem;
+    --vm-radius-xl: 0rem;
+    --vm-radius-2xl: 0rem;
+    --vm-shadow-sm: 0px 1px 0px 0px rgb(0 0 0 / 0.00);
+    --vm-shadow-md: 0px 1px 0px 0px rgb(0 0 0 / 0.00);
+    --vm-shadow-lg: 0px 1px 0px 0px rgb(0 0 0 / 0.00);
+  }
+
+  /* ==============================================
+     NEO BRUTALIST THEME VARIANT
+     ============================================== */
+
+  [data-theme="brutalist"] {
+    /* OKLCH Color System - Neo Brutalist */
+    --vm-primary-l: 0.5500;
+    --vm-primary-c: 0.2500;
+    --vm-primary-h: 15;
+    --vm-color-primary: oklch(var(--vm-primary-l) var(--vm-primary-c) var(--vm-primary-h));
+
+    /* Surface Colors */
+    --vm-color-background: oklch(0.9800 0.0200 15);
+    --vm-color-surface: oklch(0.9500 0.0300 30);
+    --vm-color-surface-elevated: oklch(0.9200 0.0400 45);
+    --vm-color-surface-overlay: oklch(0.9000 0.0500 60);
+
+    /* Foreground Colors */
+    --vm-color-foreground: oklch(0.1000 0.0000 0);
+    --vm-color-muted: oklch(0.4500 0.1500 15);
+    --vm-color-muted-surface: oklch(0.9200 0.0300 15);
+
+    /* Accent Colors */
+    --vm-color-accent: oklch(0.7500 0.2800 255);
+    --vm-color-accent-foreground: oklch(0.1000 0.0000 0);
+    --vm-color-secondary: oklch(0.3500 0.2200 135);
+    --vm-color-secondary-foreground: oklch(0.9800 0.0200 15);
+
+    /* Border Colors */
+    --vm-color-border: oklch(0.1000 0.0000 0);
+    --vm-color-border-subtle: oklch(0.2000 0.0000 0);
+
+    /* Brutalist Design Adjustments */
+    --vm-radius-sm: 0px;
+    --vm-radius-md: 0px;
+    --vm-radius-lg: 0px;
+    --vm-radius-xl: 0px;
+    --vm-radius-2xl: 0px;
+    --vm-radius-3xl: 0px;
+
+    /* Brutalist Shadows */
+    --vm-shadow-sm: 4px 4px 0px 0px rgb(0 0 0);
+    --vm-shadow-md: 8px 8px 0px 0px rgb(0 0 0);
+    --vm-shadow-lg: 12px 12px 0px 0px rgb(0 0 0);
+    --vm-shadow-xl: 16px 16px 0px 0px rgb(0 0 0);
+    --vm-shadow-2xl: 20px 20px 0px 0px rgb(0 0 0);
+
+    /* Brutalist Typography */
+    --vm-font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+    --vm-font-body: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+    --vm-font-mono: 'Space Mono', ui-monospace, monospace;
+  }
+
+  /* ==============================================
+     EXECUTIVE DARK THEME VARIANT (FLAGSHIP)
+     ============================================== */
+
+  [data-theme="executive-dark"],
+  :root {
+    /* OKLCH Color System - Executive Dark */
+    --vm-primary-l: 0.4800;
+    --vm-primary-c: 0.2100;
+    --vm-primary-h: 220;
+    --vm-color-primary: oklch(var(--vm-primary-l) var(--vm-primary-c) var(--vm-primary-h));
+    --vm-color-primary-foreground: oklch(0.9800 0.0050 220);
+
+    /* Much Lighter Bluish Backgrounds - Significantly Brighter */
+    --vm-color-background: oklch(0.1400 0.0400 235);
+    --vm-color-surface: oklch(0.1800 0.0450 240);
+    --vm-color-surface-elevated: oklch(0.2200 0.0500 245);
+    --vm-color-surface-overlay: oklch(0.2600 0.0550 250);
+
+    /* Much Brighter Glassmorphism - Very Visible & Bluish */
+    --vm-color-glass: oklch(0.1600 0.0450 240 / 0.90);
+    --vm-color-glass-border: oklch(0.4000 0.0600 245 / 0.8);
+
+    /* Enhanced Typography Colors - Stronger Contrast */
+    --vm-color-foreground: oklch(0.9800 0.0200 230);
+    --vm-color-muted: oklch(0.7500 0.0300 235);
+    --vm-color-muted-surface: oklch(0.2800 0.0450 240);
+
+    /* Premium Accent System */
+    --vm-color-accent: oklch(0.6000 0.1800 45); /* Electric Blue */
+    --vm-color-accent-foreground: oklch(0.0300 0.0080 230);
+    --vm-color-secondary: oklch(0.7200 0.1200 60); /* Warm Gold */
+    --vm-color-secondary-foreground: oklch(0.0300 0.0080 230);
+
+    /* Success/Warning/Error in Premium Colors */
+    --vm-color-success: oklch(0.6800 0.1500 142); /* Emerald */
+    --vm-color-success-foreground: oklch(0.0300 0.0080 230);
+    --vm-color-warning: oklch(0.7800 0.1400 85); /* Gold */
+    --vm-color-warning-foreground: oklch(0.0300 0.0080 230);
+    --vm-color-destructive: oklch(0.5500 0.2000 25); /* Refined Red */
+    --vm-color-destructive-foreground: oklch(0.9500 0.0100 230);
+
+    /* Premium Metal Palette */
+    --vm-color-platinum: oklch(0.8200 0.0150 240);
+    --vm-color-gold: oklch(0.7500 0.1500 85);
+    --vm-color-silver: oklch(0.8000 0.0100 245);
+    --vm-color-copper: oklch(0.6500 0.1300 35);
+
+    /* Much Brighter Borders - Very Visible & Bluish */
+    --vm-color-border: oklch(0.4000 0.0500 245);
+    --vm-color-border-subtle: oklch(0.3200 0.0450 245);
+    --vm-color-ring: oklch(0.6000 0.1800 45);
+
+    /* Executive Design Language */
+    --vm-radius-sm: 6px;
+    --vm-radius-md: 10px;
+    --vm-radius-lg: 14px;
+    --vm-radius-xl: 18px;
+    --vm-radius-2xl: 24px;
+    --vm-radius-3xl: 32px;
+
+    /* Enhanced Shadows with Stronger Blue Tint */
+    --vm-shadow-sm: 0 2px 8px 0 oklch(0.1500 0.0800 235 / 0.20);
+    --vm-shadow-md: 0 8px 25px 0 oklch(0.1200 0.0600 235 / 0.25);
+    --vm-shadow-lg: 0 16px 50px 0 oklch(0.0900 0.0500 235 / 0.30);
+    --vm-shadow-xl: 0 25px 75px 0 oklch(0.0700 0.0400 235 / 0.35);
+    --vm-shadow-2xl: 0 40px 100px 0 oklch(0.0500 0.0300 235 / 0.40);
+
+    /* Premium Glow Effects */
+    --vm-glow-primary: 0 0 20px oklch(0.6000 0.1800 45 / 0.3);
+    --vm-glow-accent: 0 0 30px oklch(0.7200 0.1200 60 / 0.4);
+    --vm-glow-surface: inset 0 1px 0 oklch(0.3000 0.0500 240 / 0.5);
+
+    /* Executive Typography */
+    --vm-font-display: 'SF Pro Display', 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --vm-font-body: 'SF Pro Text', 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --vm-font-mono: 'SF Mono', 'JetBrains Mono', ui-monospace, monospace;
+
+    /* Premium Gradients */
+    --vm-gradient-primary: linear-gradient(135deg, 
+      oklch(0.6000 0.1800 45) 0%, 
+      oklch(0.5500 0.1900 220) 35%,
+      oklch(0.5000 0.2000 200) 100%);
+    
+    --vm-gradient-accent: linear-gradient(135deg, 
+      oklch(0.7200 0.1200 60) 0%, 
+      oklch(0.8200 0.0150 240) 100%);
+    
+    --vm-gradient-surface: linear-gradient(145deg, 
+      oklch(0.1600 0.0400 235) 0%, 
+      oklch(0.2000 0.0450 242) 100%);
+
+    --vm-gradient-glass: linear-gradient(145deg, 
+      oklch(0.1800 0.0450 240 / 0.90) 0%, 
+      oklch(0.2200 0.0500 245 / 0.85) 100%);
+
+    /* Blur Effects */
+    --vm-blur-sm: 8px;
+    --vm-blur-md: 12px;
+    --vm-blur-lg: 16px;
+    --vm-blur-xl: 24px;
+
+    /* Animation Durations */
+    --vm-duration-fast: 200ms;
+    --vm-duration-normal: 350ms;
+    --vm-duration-slow: 500ms;
+    --vm-ease-luxury: cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  /* ==============================================
+     HIGH CONTRAST THEME VARIANT
+     ============================================== */
+
+  [data-theme="high-contrast"] {
+    /* High Contrast Colors */
+    --vm-color-background: oklch(0.0000 0.0000 0);
+    --vm-color-surface: oklch(0.1000 0.0000 0);
+    --vm-color-surface-elevated: oklch(0.2000 0.0000 0);
+    --vm-color-surface-overlay: oklch(0.3000 0.0000 0);
+
+    --vm-color-foreground: oklch(1.0000 0.0000 0);
+    --vm-color-muted: oklch(0.7000 0.0000 0);
+    --vm-color-muted-surface: oklch(0.2000 0.0000 0);
+
+    --vm-color-primary: oklch(1.0000 0.0000 0);
+    --vm-color-accent: oklch(1.0000 0.0000 0);
+    --vm-color-secondary: oklch(0.8000 0.0000 0);
+
+    --vm-color-border: oklch(1.0000 0.0000 0);
+    --vm-color-border-subtle: oklch(0.5000 0.0000 0);
+
+    /* Remove shadows for high contrast */
+    --vm-shadow-sm: none;
+    --vm-shadow-md: none;
+    --vm-shadow-lg: none;
+    --vm-shadow-xl: none;
+    --vm-shadow-2xl: none;
+
+    /* High contrast borders */
+    --vm-border-width: 2px;
+  }
+}
+
+/* ==============================================
+   THEME-SPECIFIC COMPONENT OVERRIDES
+   ============================================== */
+
+@layer components {
+  /* Brutalist Theme Overrides */
+  [data-theme="brutalist"] .vm-button {
+    text-transform: uppercase;
+    font-weight: var(--vm-font-weight-black);
+    letter-spacing: 0.1em;
+    transform: rotate(-1deg);
+    transition: all var(--vm-duration-fast) linear;
+  }
+
+  [data-theme="brutalist"] .vm-button:hover {
+    transform: rotate(1deg) scale(1.05);
+  }
+
+  [data-theme="brutalist"] .vm-card {
+    transform: rotate(-0.5deg);
+    border-width: 3px;
+    border-color: var(--vm-color-border);
+  }
+
+  [data-theme="brutalist"] .vm-card:hover {
+    transform: rotate(0.5deg) scale(1.02);
+  }
+
+  /* Executive Dark Theme Overrides */
+  [data-theme="executive-dark"] .vm-button-primary,
+  .vm-button-primary {
+    background: var(--vm-gradient-primary);
+    border: 1px solid var(--vm-color-glass-border);
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--vm-glow-primary);
+  }
+
+  [data-theme="executive-dark"] .vm-button-primary::before,
+  .vm-button-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, oklch(0.9000 0.0200 240 / 0.3), transparent);
+    transition: left var(--vm-duration-normal) var(--vm-ease-luxury);
+  }
+
+  [data-theme="executive-dark"] .vm-button-primary:hover::before,
+  .vm-button-primary:hover::before {
+    left: 100%;
+  }
+
+  [data-theme="executive-dark"] .vm-card,
+  .vm-card {
+    background: var(--vm-gradient-glass);
+    backdrop-filter: blur(var(--vm-blur-lg));
+    border: 1px solid var(--vm-color-glass-border);
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--vm-shadow-md), var(--vm-glow-surface);
+  }
+
+  [data-theme="executive-dark"] .vm-card::before,
+  .vm-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--vm-gradient-accent);
+    opacity: 0.6;
+  }
+
+  [data-theme="executive-dark"] .vm-card:hover,
+  .vm-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--vm-shadow-xl), var(--vm-glow-surface);
+    border-color: var(--vm-color-ring);
+  }
+
+  /* Minimal Theme Overrides */
+  [data-theme="minimal"] .vm-button {
+    border: 2px solid var(--vm-color-border);
+    background: transparent;
+    color: var(--vm-color-foreground);
+  }
+
+  [data-theme="minimal"] .vm-button:hover {
+    background: var(--vm-color-surface);
+    transform: none;
+    box-shadow: none;
+  }
+
+  [data-theme="minimal"] .vm-card {
+    border: 1px solid var(--vm-color-border);
+    background: var(--vm-color-surface);
+  }
+
+  [data-theme="minimal"] .vm-card:hover {
+    box-shadow: none;
+    border-color: var(--vm-color-foreground);
+  }
+
+  /* High Contrast Theme Overrides */
+  [data-theme="high-contrast"] .vm-button {
+    border: 2px solid var(--vm-color-foreground);
+    background: var(--vm-color-background);
+    color: var(--vm-color-foreground);
+  }
+
+  [data-theme="high-contrast"] .vm-button:hover {
+    background: var(--vm-color-foreground);
+    color: var(--vm-color-background);
+  }
+
+  [data-theme="high-contrast"] .vm-card {
+    border: 2px solid var(--vm-color-foreground);
+    background: var(--vm-color-background);
+  }
+
+  [data-theme="high-contrast"] *:focus {
+    outline: 3px solid var(--vm-color-foreground);
+    outline-offset: 2px;
+  }
+}
+
+/* === BACKUP COMPLETE === */
+/* This file contains all theme variants from the original Voice Matrix design system */

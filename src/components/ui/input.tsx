@@ -9,14 +9,17 @@ import { motion, type HTMLMotionProps } from "framer-motion"
  */
 const inputVariants = cva(
   [
-    // Base styles using design system tokens
+    // Voice Matrix Base styles using unified design system
     "vm-input vm-focus-ring theme-transition",
-    "flex w-full rounded-lg border border-border",
-    "bg-surface px-4 py-2 text-sm text-foreground",
-    "transition-all duration-fast ease-out",
+    "flex w-full border",
+    "bg-[var(--vm-color-surface-elevated)] px-4 py-2 text-[var(--vm-text-sm)] text-[var(--vm-color-foreground)]",
+    "border-[var(--vm-color-border)]",
+    "font-family: var(--vm-font-body)",
+    "transition-all var(--vm-duration-fast) var(--vm-ease-out)",
     "file:border-0 file:bg-transparent file:text-sm file:font-medium",
-    "placeholder:text-muted",
-    "focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20",
+    "placeholder:text-[var(--vm-color-muted)]",
+    "focus:border-[var(--vm-color-ring)] focus:outline-none focus:ring-2 focus:ring-[var(--vm-color-ring)]/20",
+    "focus:bg-[var(--vm-color-surface)]",
     "disabled:cursor-not-allowed disabled:opacity-50",
     "autofill:shadow-[inset_0_0_0px_1000px_var(--vm-color-surface)]",
   ],
@@ -24,48 +27,53 @@ const inputVariants = cva(
     variants: {
       size: {
         sm: [
-          "h-input-sm px-3 py-1.5 text-xs",
-          "rounded-md",
+          "vm-input-sm",
+          "h-9 px-3 py-1.5 text-[var(--vm-text-xs)]",
+          "rounded-[var(--vm-radius-md)]",
         ],
         md: [
-          "h-input-md px-4 py-2 text-sm",
-          "rounded-lg",
+          "vm-input-md",
+          "h-11 px-4 py-2 text-[var(--vm-text-sm)]",
+          "rounded-[var(--vm-radius-lg)]",
         ],
         lg: [
-          "h-input-lg px-5 py-3 text-base",
-          "rounded-xl",
+          "vm-input-lg",
+          "h-13 px-5 py-3 text-[var(--vm-text-base)]",
+          "rounded-[var(--vm-radius-lg)]",
         ],
       },
       variant: {
         default: [
-          "border-border bg-surface",
-          "focus:border-ring",
+          "border-[var(--vm-color-border)] bg-[var(--vm-color-surface-elevated)]",
+          "focus:border-[var(--vm-color-ring)]",
         ],
         filled: [
-          "border-transparent bg-surface-elevated",
-          "focus:border-ring focus:bg-surface",
+          "border-transparent bg-[var(--vm-color-surface-elevated)]",
+          "focus:border-[var(--vm-color-ring)] focus:bg-[var(--vm-color-surface)]",
         ],
         outline: [
-          "border-2 border-border bg-transparent",
-          "focus:border-ring focus:bg-surface/50",
+          "border-2 border-[var(--vm-color-border)] bg-transparent",
+          "focus:border-[var(--vm-color-ring)] focus:bg-[var(--vm-color-surface)]/50",
         ],
         ghost: [
           "border-transparent bg-transparent",
-          "focus:border-ring focus:bg-surface",
+          "focus:border-[var(--vm-color-ring)] focus:bg-[var(--vm-color-surface)]",
         ],
       },
       state: {
         error: [
-          "border-destructive focus:border-destructive",
-          "focus:ring-destructive/20",
+          "vm-input-error",
+          "border-[var(--vm-color-destructive)] focus:border-[var(--vm-color-destructive)]",
+          "focus:ring-[var(--vm-color-destructive)]/20",
         ],
         success: [
-          "border-success focus:border-success",
-          "focus:ring-success/20", 
+          "vm-input-success",
+          "border-[var(--vm-color-success)] focus:border-[var(--vm-color-success)]",
+          "focus:ring-[var(--vm-color-success)]/20", 
         ],
         warning: [
-          "border-warning focus:border-warning",
-          "focus:ring-warning/20",
+          "border-[var(--vm-color-warning)] focus:border-[var(--vm-color-warning)]",
+          "focus:ring-[var(--vm-color-warning)]/20",
         ],
       },
     },

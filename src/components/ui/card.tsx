@@ -4,58 +4,95 @@ import { cn } from "@/lib/utils"
 import { motion, type HTMLMotionProps } from "framer-motion"
 
 /**
- * Card component variants using CVA
- * Integrated with Voice Matrix unified design system
+ * Executive Card component variants using CVA
+ * Voice Matrix Professional Design System v7.0
  */
 const cardVariants = cva(
   [
-    // Base styles using design system tokens
-    "vm-card vm-focus-ring theme-transition",
+    // Executive base styles
+    "vm-focus-executive theme-transition",
     "relative overflow-hidden",
-    "border border-border bg-surface",
-    "text-foreground shadow-sm",
-    "transition-all duration-normal ease-out",
+    "transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1)",
+    "font-family: var(--vm-font-primary)",
   ],
   {
     variants: {
       variant: {
         default: [
-          "bg-surface border-border",
-          "hover:shadow-md",
+          // Voice Matrix Default - Glass Morphism
+          "vm-card",
+          "bg-[var(--vm-color-glass)]",
+          "border border-[var(--vm-color-glass-border)]",
+          "text-[var(--vm-color-foreground)]",
+          "vm-backdrop-blur",
         ],
         elevated: [
-          "bg-surface-elevated border-border-subtle",
-          "shadow-md hover:shadow-lg",
+          // Voice Matrix Elevated - Enhanced Surface
+          "vm-card-elevated",
+          "bg-[var(--vm-color-surface-elevated)]",
+          "border border-[var(--vm-color-border)]",
+          "text-[var(--vm-color-foreground)]",
+          "vm-shadow-lg",
         ],
         outline: [
-          "bg-transparent border-2 border-border",
-          "hover:bg-surface",
+          // Voice Matrix Outline - Professional Border
+          "bg-transparent",
+          "border-2 border-[var(--vm-color-border)]",
+          "text-[var(--vm-color-foreground)]",
+          "hover:bg-[var(--vm-color-surface)]",
+          "hover:border-[var(--vm-color-ring)]",
         ],
         ghost: [
+          // Voice Matrix Ghost - Minimal Professional
+          "vm-card-ghost",
           "bg-transparent border-transparent",
-          "hover:bg-surface hover:border-border",
+          "text-[var(--vm-color-foreground)]",
         ],
         glass: [
-          "vm-glass backdrop-blur-lg",
-          "border-border-subtle",
+          // Voice Matrix Premium Glass - Maximum Sophistication
+          "vm-card",
+          "bg-[var(--vm-color-glass)]",
+          "border border-[var(--vm-color-glass-border)]",
+          "text-[var(--vm-color-foreground)]",
+          "vm-backdrop-blur",
+          "before:absolute before:top-0 before:left-0 before:right-0 before:h-px",
+          "before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent",
+          "before:pointer-events-none",
+        ],
+        premium: [
+          // Voice Matrix Premium - Gold Accent
+          "vm-card-elevated",
+          "bg-[var(--vm-color-surface)]",
+          "border border-[var(--vm-color-gold)]/30",
+          "text-[var(--vm-color-foreground)]",
+          "vm-shadow-gold",
+          "hover:border-[var(--vm-color-gold)]/50",
         ],
       },
       size: {
         sm: [
-          "rounded-md",
-          "text-sm",
+          // Voice Matrix Small Card
+          "vm-card-sm",
+          "rounded-[var(--vm-radius-sm)]",
+          "text-[var(--vm-text-sm)]",
         ],
         md: [
-          "rounded-lg",
-          "text-base",
+          // Voice Matrix Medium Card (Default)
+          "vm-card-md",
+          "rounded-[var(--vm-radius-lg)]",
+          "text-[var(--vm-text-base)]",
         ],
         lg: [
-          "rounded-xl",
-          "text-lg",
+          // Voice Matrix Large Card
+          "vm-card-lg",
+          "rounded-[var(--vm-radius-xl)]",
+          "text-[var(--vm-text-lg)]",
         ],
         xl: [
-          "rounded-2xl",
-          "text-xl",
+          // Voice Matrix Extra Large Card
+          "vm-card-xl",
+          "rounded-[var(--vm-radius-2xl)]",
+          "text-[var(--vm-text-xl)]",
         ],
       },
       padding: {
