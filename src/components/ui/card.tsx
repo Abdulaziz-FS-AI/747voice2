@@ -4,71 +4,58 @@ import { cn } from "@/lib/utils"
 import { motion, type HTMLMotionProps } from "framer-motion"
 
 /**
- * Enhanced Card component variants using CVA
- * Integrated with Voice Matrix modern design system
+ * Card component variants using CVA
+ * Integrated with Voice Matrix unified design system
  */
 const cardVariants = cva(
   [
-    // Base styles using modern design system tokens
-    "vm-focus-ring vm-transition",
+    // Base styles using design system tokens
+    "vm-card vm-focus-ring theme-transition",
     "relative overflow-hidden",
-    "text-[var(--vm-color-foreground)]",
-    "transition-all duration-300 ease-out",
-    "transform-gpu will-change-transform",
+    "border border-border bg-surface",
+    "text-foreground shadow-sm",
+    "transition-all duration-normal ease-out",
   ],
   {
     variants: {
       variant: {
         default: [
-          "border shadow-xs",
-          "bg-[var(--vm-color-surface)] border-[var(--vm-color-border)]",
-          "hover:shadow-sm hover:border-[var(--vm-color-border-strong)]",
+          "bg-surface border-border",
+          "hover:shadow-md",
         ],
         elevated: [
-          "border shadow-sm",
-          "bg-[var(--vm-color-surface-elevated)] border-[var(--vm-color-border-subtle)]",
-          "hover:shadow-md hover:-translate-y-0.5",
+          "bg-surface-elevated border-border-subtle",
+          "shadow-md hover:shadow-lg",
         ],
         outline: [
-          "bg-transparent border-2",
-          "border-[var(--vm-color-border)] hover:border-[var(--vm-color-primary)]",
-          "hover:bg-[var(--vm-color-surface-elevated)] hover:shadow-xs",
+          "bg-transparent border-2 border-border",
+          "hover:bg-surface",
         ],
         ghost: [
           "bg-transparent border-transparent",
-          "hover:bg-[var(--vm-color-surface-elevated)] hover:border-[var(--vm-color-border)]",
-          "hover:shadow-xs",
+          "hover:bg-surface hover:border-border",
         ],
         glass: [
           "vm-glass backdrop-blur-lg",
-          "border-[var(--vm-color-border-subtle)]",
-          "hover:bg-[var(--vm-glass-bg)] hover:shadow-md",
-        ],
-        premium: [
-          "border shadow-lg",
-          "bg-gradient-to-br from-[var(--vm-color-surface)] to-[var(--vm-color-surface-elevated)]",
-          "border-[var(--vm-color-border-subtle)]",
-          "hover:shadow-xl hover:-translate-y-1 hover:scale-[1.01]",
+          "border-border-subtle",
         ],
       },
       size: {
-        xs: [
-          "rounded-md text-xs",
-        ],
         sm: [
-          "rounded-md text-sm",
+          "rounded-md",
+          "text-sm",
         ],
         md: [
-          "rounded-lg text-base",
+          "rounded-lg",
+          "text-base",
         ],
         lg: [
-          "rounded-xl text-lg",
+          "rounded-xl",
+          "text-lg",
         ],
         xl: [
-          "rounded-2xl text-xl",
-        ],
-        "2xl": [
-          "rounded-3xl text-2xl",
+          "rounded-2xl",
+          "text-xl",
         ],
       },
       padding: {
