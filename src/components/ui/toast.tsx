@@ -25,13 +25,50 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName
 
 const toastVariants = cva(
-  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full",
+  [
+    "group pointer-events-auto relative flex w-full items-center justify-between space-x-4",
+    "overflow-hidden rounded-lg border p-4 pr-8 shadow-lg backdrop-blur-sm",
+    "transition-all duration-300 ease-out transform-gpu will-change-transform",
+    // Radix Toast states
+    "data-[swipe=cancel]:translate-x-0",
+    "data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)]",
+    "data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)]",
+    "data-[swipe=move]:transition-none",
+    // Enhanced animations
+    "data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out",
+    "data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=closed]:duration-300",
+    "data-[state=open]:slide-in-from-bottom-full data-[state=open]:fade-in-0 data-[state=open]:duration-400",
+    "data-[state=open]:sm:slide-in-from-top-full",
+    // Hover effects
+    "hover:shadow-xl hover:-translate-y-0.5",
+  ],
   {
     variants: {
       variant: {
-        default: "border bg-background text-foreground",
-        destructive:
-          "destructive border-destructive bg-destructive text-destructive-foreground",
+        default: [
+          "bg-[var(--vm-color-surface)]/95 text-[var(--vm-color-foreground)]",
+          "border-[var(--vm-color-border)]",
+        ],
+        success: [
+          "bg-[var(--vm-success-50)]/95 text-[var(--vm-success-700)]",
+          "border-[var(--vm-success-200)]",
+          "shadow-[var(--vm-shadow-success)]",
+        ],
+        destructive: [
+          "bg-[var(--vm-error-50)]/95 text-[var(--vm-error-700)]",
+          "border-[var(--vm-error-200)]",
+          "shadow-[var(--vm-shadow-error)]",
+        ],
+        warning: [
+          "bg-[var(--vm-warning-50)]/95 text-[var(--vm-warning-700)]",
+          "border-[var(--vm-warning-200)]",
+          "shadow-[var(--vm-shadow-warning)]",
+        ],
+        info: [
+          "bg-[var(--vm-info-50)]/95 text-[var(--vm-info-700)]",
+          "border-[var(--vm-info-200)]",
+          "shadow-[var(--vm-shadow-primary)]",
+        ],
       },
     },
     defaultVariants: {

@@ -5,101 +5,133 @@ import { cn } from "@/lib/utils"
 import { motion, type HTMLMotionProps } from "framer-motion"
 
 /**
- * Button component variants using CVA
- * Integrated with Voice Matrix unified design system
+ * Enhanced Button component variants using CVA
+ * Integrated with Voice Matrix modern design system
  */
 const buttonVariants = cva(
   [
-    // Base styles using design system tokens
-    "vm-button vm-focus-ring theme-transition",
+    // Base styles using modern design system tokens
+    "vm-focus-ring vm-transition",
     "inline-flex items-center justify-center gap-2",
-    "whitespace-nowrap text-sm font-medium",
-    "transition-all duration-fast ease-out",
-    "cursor-pointer select-none",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-    "disabled:pointer-events-none disabled:opacity-50",
-    "relative overflow-hidden",
+    "whitespace-nowrap font-medium",
+    "cursor-pointer select-none relative overflow-hidden",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+    "disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed",
+    "border-0 text-center no-underline",
+    // Enhanced hover and active states
+    "transform-gpu will-change-transform",
+    "transition-all duration-150 ease-out",
   ],
   {
     variants: {
       variant: {
         primary: [
-          "vm-button-primary",
-          "bg-primary text-foreground",
-          "shadow-sm hover:shadow-md",
+          "text-white font-semibold",
+          "shadow-sm hover:shadow-md active:shadow-sm",
           "hover:-translate-y-0.5 active:translate-y-0",
           "hover:scale-[1.02] active:scale-[0.98]",
+          // Using CSS custom properties for consistent theming
+          "bg-[var(--vm-color-primary)] hover:bg-[var(--vm-color-primary-hover)]",
+          "focus-visible:ring-[var(--vm-color-focus-ring)]",
         ],
         secondary: [
-          "vm-button-secondary", 
-          "bg-surface text-foreground",
-          "border border-border hover:bg-surface-elevated",
-          "hover:border-border-subtle",
+          "font-medium border",
+          "shadow-xs hover:shadow-sm active:shadow-xs",
+          "hover:-translate-y-0.5 active:translate-y-0",
+          "bg-[var(--vm-color-secondary)] hover:bg-[var(--vm-color-secondary-hover)]",
+          "text-[var(--vm-color-secondary-foreground)] border-[var(--vm-color-border)]",
+          "hover:border-[var(--vm-color-border-strong)]",
+          "focus-visible:ring-[var(--vm-color-focus-ring)]",
         ],
         ghost: [
-          "vm-button-ghost",
-          "bg-transparent text-muted",
-          "hover:bg-surface hover:text-foreground",
+          "font-medium bg-transparent",
+          "text-[var(--vm-color-muted)] hover:text-[var(--vm-color-foreground)]",
+          "hover:bg-[var(--vm-color-surface-elevated)]",
+          "focus-visible:ring-[var(--vm-color-focus-ring)]",
         ],
         destructive: [
-          "bg-destructive text-destructive-foreground",
-          "shadow-sm hover:shadow-md",
-          "hover:bg-destructive/90",
+          "text-white font-semibold",
+          "shadow-sm hover:shadow-md active:shadow-sm",
+          "hover:-translate-y-0.5 active:translate-y-0",
+          "hover:scale-[1.02] active:scale-[0.98]",
+          "bg-[var(--vm-color-error)] hover:bg-[var(--vm-color-error-hover)]",
+          "focus-visible:ring-red-200",
         ],
         outline: [
-          "border-2 border-border bg-transparent",
-          "text-foreground hover:bg-surface",
-          "hover:border-foreground",
+          "font-medium border-2 bg-transparent",
+          "shadow-xs hover:shadow-sm active:shadow-xs",
+          "hover:-translate-y-0.5 active:translate-y-0",
+          "border-[var(--vm-color-border)] hover:border-[var(--vm-color-primary)]",
+          "text-[var(--vm-color-foreground)] hover:bg-[var(--vm-color-surface-elevated)]",
+          "focus-visible:ring-[var(--vm-color-focus-ring)]",
         ],
         link: [
-          "text-primary underline-offset-4",
-          "hover:underline bg-transparent",
-          "p-0 h-auto font-normal",
+          "font-medium bg-transparent underline-offset-4",
+          "text-[var(--vm-color-primary)] hover:text-[var(--vm-color-primary-hover)]",
+          "hover:underline p-0 h-auto",
+          "focus-visible:ring-[var(--vm-color-focus-ring)]",
         ],
         accent: [
-          "bg-accent text-accent-foreground",
-          "shadow-sm hover:shadow-accent",
-          "hover:bg-accent/90 hover:scale-[1.02]",
+          "text-white font-semibold",
+          "shadow-sm hover:shadow-lg active:shadow-sm",
+          "hover:-translate-y-0.5 active:translate-y-0",
+          "hover:scale-[1.02] active:scale-[0.98]",
+          "bg-[var(--vm-color-accent)] hover:bg-[var(--vm-color-accent-hover)]",
+          "focus-visible:ring-purple-200",
         ],
         success: [
-          "bg-success text-success-foreground",
-          "shadow-sm hover:shadow-md",
-          "hover:bg-success/90",
+          "text-white font-semibold",
+          "shadow-sm hover:shadow-md active:shadow-sm",
+          "hover:-translate-y-0.5 active:translate-y-0",
+          "hover:scale-[1.02] active:scale-[0.98]",
+          "bg-[var(--vm-color-success)] hover:bg-[var(--vm-color-success-hover)]",
+          "focus-visible:ring-green-200",
         ],
         warning: [
-          "bg-warning text-warning-foreground", 
-          "shadow-sm hover:shadow-md",
-          "hover:bg-warning/90",
+          "text-white font-semibold",
+          "shadow-sm hover:shadow-md active:shadow-sm",
+          "hover:-translate-y-0.5 active:translate-y-0",
+          "hover:scale-[1.02] active:scale-[0.98]",
+          "bg-[var(--vm-color-warning)] hover:bg-[var(--vm-color-warning-hover)]",
+          "focus-visible:ring-yellow-200",
         ],
       },
       size: {
+        xs: [
+          "h-7 px-2 text-xs",
+          "rounded-md gap-1 min-w-[2rem]",
+        ],
         sm: [
-          "h-button-sm px-3 text-xs",
-          "rounded-md gap-1",
+          "h-8 px-3 text-xs",
+          "rounded-md gap-1.5 min-w-[2.5rem]",
         ],
         md: [
-          "h-button-md px-4 py-2",
-          "rounded-lg gap-2",
+          "h-10 px-4 text-sm",
+          "rounded-lg gap-2 min-w-[3rem]",
         ],
         lg: [
-          "h-button-lg px-6 py-3 text-base",
-          "rounded-xl gap-2",
+          "h-12 px-6 text-base",
+          "rounded-lg gap-2 min-w-[3.5rem]",
         ],
         xl: [
-          "h-14 px-8 py-4 text-lg",
-          "rounded-2xl gap-3",
+          "h-14 px-8 text-lg",
+          "rounded-xl gap-3 min-w-[4rem]",
         ],
         icon: [
           "h-10 w-10 p-0",
-          "rounded-lg",
+          "rounded-lg shrink-0",
         ],
         "icon-sm": [
           "h-8 w-8 p-0", 
-          "rounded-md",
+          "rounded-md shrink-0",
         ],
         "icon-lg": [
           "h-12 w-12 p-0",
-          "rounded-xl",
+          "rounded-lg shrink-0",
+        ],
+        "icon-xl": [
+          "h-14 w-14 p-0",
+          "rounded-xl shrink-0",
         ],
       },
       loading: {

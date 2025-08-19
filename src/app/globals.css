@@ -1,9 +1,10 @@
 /**
  * Voice Matrix Application Global Styles
- * Imports the unified design system and themes
+ * Modern SaaS Design System with Enhanced Components
  */
 
-/* Import our unified design system */
+/* Import our modern design system */
+@import "../styles/modern-design-system.css";
 @import "../styles/design-system.css";
 @import "../styles/themes.css";
 @import "../styles/voice-matrix-theme.css";

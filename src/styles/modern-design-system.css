@@ -1,0 +1,648 @@
+/**
+ * VOICE MATRIX - MODERN SAAS DESIGN SYSTEM
+ * A comprehensive design system inspired by Linear, Vercel, and Stripe
+ * Built for accessibility, performance, and premium user experience
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* ========================================
+   * COLOR SYSTEM - Modern SaaS Palette
+   * Designed for accessibility and premium feel
+   * ======================================== */
+  
+  /* Primary Brand Colors - Professional Blue Scale */
+  --vm-primary-50: #eff6ff;
+  --vm-primary-100: #dbeafe;
+  --vm-primary-200: #bfdbfe;
+  --vm-primary-300: #93c5fd;
+  --vm-primary-400: #60a5fa;
+  --vm-primary-500: #3b82f6; /* Main brand color */
+  --vm-primary-600: #2563eb;
+  --vm-primary-700: #1d4ed8;
+  --vm-primary-800: #1e40af;
+  --vm-primary-900: #1e3a8a;
+  --vm-primary-950: #172554;
+
+  /* Secondary Colors - Complementary Violet */
+  --vm-secondary-50: #faf5ff;
+  --vm-secondary-100: #f3e8ff;
+  --vm-secondary-200: #e9d5ff;
+  --vm-secondary-300: #d8b4fe;
+  --vm-secondary-400: #c084fc;
+  --vm-secondary-500: #a855f7;
+  --vm-secondary-600: #9333ea;
+  --vm-secondary-700: #7c3aed;
+  --vm-secondary-800: #6b21a8;
+  --vm-secondary-900: #581c87;
+
+  /* Neutral Scale - High Contrast for Readability */
+  --vm-neutral-0: #ffffff;
+  --vm-neutral-25: #fcfcfc;
+  --vm-neutral-50: #fafafa;
+  --vm-neutral-100: #f5f5f5;
+  --vm-neutral-150: #f0f0f0;
+  --vm-neutral-200: #e5e5e5;
+  --vm-neutral-250: #dedede;
+  --vm-neutral-300: #d4d4d4;
+  --vm-neutral-400: #a3a3a3;
+  --vm-neutral-500: #737373;
+  --vm-neutral-600: #525252;
+  --vm-neutral-700: #404040;
+  --vm-neutral-750: #323232;
+  --vm-neutral-800: #262626;
+  --vm-neutral-850: #1f1f1f;
+  --vm-neutral-900: #171717;
+  --vm-neutral-950: #0a0a0a;
+
+  /* Semantic Colors - Accessible and Clear */
+  --vm-success-50: #ecfdf5;
+  --vm-success-100: #d1fae5;
+  --vm-success-500: #10b981;
+  --vm-success-600: #059669;
+  --vm-success-700: #047857;
+
+  --vm-warning-50: #fffbeb;
+  --vm-warning-100: #fef3c7;
+  --vm-warning-500: #f59e0b;
+  --vm-warning-600: #d97706;
+  --vm-warning-700: #b45309;
+
+  --vm-error-50: #fef2f2;
+  --vm-error-100: #fee2e2;
+  --vm-error-500: #ef4444;
+  --vm-error-600: #dc2626;
+  --vm-error-700: #b91c1c;
+
+  --vm-info-50: #eff6ff;
+  --vm-info-100: #dbeafe;
+  --vm-info-500: #3b82f6;
+  --vm-info-600: #2563eb;
+  --vm-info-700: #1d4ed8;
+
+  /* ========================================
+   * SEMANTIC COLOR TOKENS
+   * Theme-aware color assignments
+   * ======================================== */
+  
+  /* Light Theme (Default) */
+  --vm-color-background: var(--vm-neutral-0);
+  --vm-color-foreground: var(--vm-neutral-900);
+  --vm-color-muted: var(--vm-neutral-500);
+  --vm-color-muted-foreground: var(--vm-neutral-600);
+  
+  --vm-color-surface: var(--vm-neutral-0);
+  --vm-color-surface-elevated: var(--vm-neutral-25);
+  --vm-color-surface-sunken: var(--vm-neutral-50);
+  
+  --vm-color-border: var(--vm-neutral-200);
+  --vm-color-border-subtle: var(--vm-neutral-150);
+  --vm-color-border-strong: var(--vm-neutral-300);
+  
+  --vm-color-primary: var(--vm-primary-500);
+  --vm-color-primary-foreground: var(--vm-neutral-0);
+  --vm-color-primary-hover: var(--vm-primary-600);
+  
+  --vm-color-secondary: var(--vm-neutral-100);
+  --vm-color-secondary-foreground: var(--vm-neutral-900);
+  --vm-color-secondary-hover: var(--vm-neutral-150);
+  
+  --vm-color-accent: var(--vm-secondary-500);
+  --vm-color-accent-foreground: var(--vm-neutral-0);
+  --vm-color-accent-hover: var(--vm-secondary-600);
+  
+  --vm-color-success: var(--vm-success-500);
+  --vm-color-success-foreground: var(--vm-neutral-0);
+  --vm-color-success-hover: var(--vm-success-600);
+  
+  --vm-color-warning: var(--vm-warning-500);
+  --vm-color-warning-foreground: var(--vm-neutral-0);
+  --vm-color-warning-hover: var(--vm-warning-600);
+  
+  --vm-color-error: var(--vm-error-500);
+  --vm-color-error-foreground: var(--vm-neutral-0);
+  --vm-color-error-hover: var(--vm-error-600);
+  
+  --vm-color-info: var(--vm-info-500);
+  --vm-color-info-foreground: var(--vm-neutral-0);
+  --vm-color-info-hover: var(--vm-info-600);
+
+  /* Focus and Selection */
+  --vm-color-focus: var(--vm-primary-500);
+  --vm-color-focus-ring: var(--vm-primary-200);
+  --vm-color-selection: var(--vm-primary-100);
+
+  /* ========================================
+   * TYPOGRAPHY SYSTEM
+   * Modern, readable, scalable
+   * ======================================== */
+  
+  /* Font Families */
+  --vm-font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', roboto, sans-serif;
+  --vm-font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', roboto, sans-serif;
+  --vm-font-mono: 'JetBrains Mono', 'SF Mono', monaco, 'Cascadia Code', menlo, monospace;
+
+  /* Font Weights */
+  --vm-font-weight-light: 300;
+  --vm-font-weight-normal: 400;
+  --vm-font-weight-medium: 500;
+  --vm-font-weight-semibold: 600;
+  --vm-font-weight-bold: 700;
+  --vm-font-weight-extrabold: 800;
+
+  /* Type Scale - Perfect Fourth (1.333) */
+  --vm-text-xs: 0.75rem;      /* 12px */
+  --vm-text-sm: 0.875rem;     /* 14px */
+  --vm-text-base: 1rem;       /* 16px */
+  --vm-text-lg: 1.125rem;     /* 18px */
+  --vm-text-xl: 1.25rem;      /* 20px */
+  --vm-text-2xl: 1.5rem;      /* 24px */
+  --vm-text-3xl: 1.875rem;    /* 30px */
+  --vm-text-4xl: 2.25rem;     /* 36px */
+  --vm-text-5xl: 3rem;        /* 48px */
+  --vm-text-6xl: 3.75rem;     /* 60px */
+  --vm-text-7xl: 4.5rem;      /* 72px */
+  --vm-text-8xl: 6rem;        /* 96px */
+  --vm-text-9xl: 8rem;        /* 128px */
+
+  /* Line Heights */
+  --vm-leading-tight: 1.25;
+  --vm-leading-snug: 1.375;
+  --vm-leading-normal: 1.5;
+  --vm-leading-relaxed: 1.625;
+  --vm-leading-loose: 2;
+
+  /* Letter Spacing */
+  --vm-tracking-tighter: -0.05em;
+  --vm-tracking-tight: -0.025em;
+  --vm-tracking-normal: 0em;
+  --vm-tracking-wide: 0.025em;
+  --vm-tracking-wider: 0.05em;
+  --vm-tracking-widest: 0.1em;
+
+  /* ========================================
+   * SPACING & SIZING SYSTEM
+   * Consistent spatial rhythm (4px base)
+   * ======================================== */
+  
+  /* Spacing Scale */
+  --vm-space-px: 1px;
+  --vm-space-0: 0px;
+  --vm-space-0_5: 0.125rem;   /* 2px */
+  --vm-space-1: 0.25rem;      /* 4px */
+  --vm-space-1_5: 0.375rem;   /* 6px */
+  --vm-space-2: 0.5rem;       /* 8px */
+  --vm-space-2_5: 0.625rem;   /* 10px */
+  --vm-space-3: 0.75rem;      /* 12px */
+  --vm-space-3_5: 0.875rem;   /* 14px */
+  --vm-space-4: 1rem;         /* 16px */
+  --vm-space-5: 1.25rem;      /* 20px */
+  --vm-space-6: 1.5rem;       /* 24px */
+  --vm-space-7: 1.75rem;      /* 28px */
+  --vm-space-8: 2rem;         /* 32px */
+  --vm-space-9: 2.25rem;      /* 36px */
+  --vm-space-10: 2.5rem;      /* 40px */
+  --vm-space-11: 2.75rem;     /* 44px */
+  --vm-space-12: 3rem;        /* 48px */
+  --vm-space-14: 3.5rem;      /* 56px */
+  --vm-space-16: 4rem;        /* 64px */
+  --vm-space-20: 5rem;        /* 80px */
+  --vm-space-24: 6rem;        /* 96px */
+  --vm-space-28: 7rem;        /* 112px */
+  --vm-space-32: 8rem;        /* 128px */
+  --vm-space-36: 9rem;        /* 144px */
+  --vm-space-40: 10rem;       /* 160px */
+  --vm-space-44: 11rem;       /* 176px */
+  --vm-space-48: 12rem;       /* 192px */
+  --vm-space-52: 13rem;       /* 208px */
+  --vm-space-56: 14rem;       /* 224px */
+  --vm-space-60: 15rem;       /* 240px */
+  --vm-space-64: 16rem;       /* 256px */
+  --vm-space-72: 18rem;       /* 288px */
+  --vm-space-80: 20rem;       /* 320px */
+  --vm-space-96: 24rem;       /* 384px */
+
+  /* Component Heights */
+  --vm-height-button-sm: 2rem;        /* 32px */
+  --vm-height-button-md: 2.5rem;      /* 40px */
+  --vm-height-button-lg: 3rem;        /* 48px */
+  --vm-height-button-xl: 3.5rem;      /* 56px */
+  
+  --vm-height-input-sm: 2rem;         /* 32px */
+  --vm-height-input-md: 2.5rem;       /* 40px */
+  --vm-height-input-lg: 3rem;         /* 48px */
+  
+  --vm-height-select: 2.5rem;         /* 40px */
+  --vm-height-navbar: 4rem;           /* 64px */
+  --vm-height-sidebar-item: 2.75rem;  /* 44px */
+
+  /* Border Radius */
+  --vm-radius-none: 0px;
+  --vm-radius-sm: 0.125rem;    /* 2px */
+  --vm-radius-md: 0.375rem;    /* 6px */
+  --vm-radius-lg: 0.5rem;      /* 8px */
+  --vm-radius-xl: 0.75rem;     /* 12px */
+  --vm-radius-2xl: 1rem;       /* 16px */
+  --vm-radius-3xl: 1.5rem;     /* 24px */
+  --vm-radius-full: 9999px;
+
+  /* ========================================
+   * SHADOW SYSTEM
+   * Subtle depth for modern interfaces
+   * ======================================== */
+  
+  --vm-shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --vm-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --vm-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --vm-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --vm-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --vm-shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --vm-shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+  --vm-shadow-none: 0 0 #0000;
+
+  /* Colored Shadows */
+  --vm-shadow-primary: 0 4px 6px -1px rgb(59 130 246 / 0.1), 0 2px 4px -2px rgb(59 130 246 / 0.1);
+  --vm-shadow-success: 0 4px 6px -1px rgb(16 185 129 / 0.1), 0 2px 4px -2px rgb(16 185 129 / 0.1);
+  --vm-shadow-warning: 0 4px 6px -1px rgb(245 158 11 / 0.1), 0 2px 4px -2px rgb(245 158 11 / 0.1);
+  --vm-shadow-error: 0 4px 6px -1px rgb(239 68 68 / 0.1), 0 2px 4px -2px rgb(239 68 68 / 0.1);
+
+  /* ========================================
+   * ANIMATION & TRANSITION
+   * Smooth, purposeful motion
+   * ======================================== */
+  
+  /* Duration */
+  --vm-duration-fastest: 50ms;
+  --vm-duration-fast: 150ms;
+  --vm-duration-normal: 300ms;
+  --vm-duration-slow: 500ms;
+  --vm-duration-slowest: 1000ms;
+
+  /* Easing Functions */
+  --vm-ease-linear: linear;
+  --vm-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --vm-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --vm-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --vm-ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* ========================================
+   * BREAKPOINTS
+   * Mobile-first responsive design
+   * ======================================== */
+  
+  --vm-bp-xs: 475px;
+  --vm-bp-sm: 640px;
+  --vm-bp-md: 768px;
+  --vm-bp-lg: 1024px;
+  --vm-bp-xl: 1280px;
+  --vm-bp-2xl: 1536px;
+
+  /* ========================================
+   * Z-INDEX SCALE
+   * Consistent layering
+   * ======================================== */
+  
+  --vm-z-hide: -1;
+  --vm-z-auto: auto;
+  --vm-z-base: 0;
+  --vm-z-docked: 10;
+  --vm-z-dropdown: 1000;
+  --vm-z-sticky: 1100;
+  --vm-z-banner: 1200;
+  --vm-z-overlay: 1300;
+  --vm-z-modal: 1400;
+  --vm-z-popover: 1500;
+  --vm-z-skiplink: 1600;
+  --vm-z-toast: 1700;
+  --vm-z-tooltip: 1800;
+
+  /* ========================================
+   * GRADIENTS
+   * Premium visual effects
+   * ======================================== */
+  
+  --vm-gradient-primary: linear-gradient(135deg, var(--vm-primary-500) 0%, var(--vm-primary-600) 100%);
+  --vm-gradient-secondary: linear-gradient(135deg, var(--vm-secondary-500) 0%, var(--vm-secondary-600) 100%);
+  --vm-gradient-surface: linear-gradient(135deg, var(--vm-neutral-50) 0%, var(--vm-neutral-100) 100%);
+  --vm-gradient-text-primary: linear-gradient(135deg, var(--vm-primary-500) 0%, var(--vm-secondary-500) 100%);
+  --vm-gradient-rainbow: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+
+  /* Glass Effects */
+  --vm-glass-bg: rgba(255, 255, 255, 0.8);
+  --vm-glass-border: rgba(255, 255, 255, 0.2);
+  --vm-blur-sm: 4px;
+  --vm-blur-md: 8px;
+  --vm-blur-lg: 16px;
+  --vm-blur-xl: 24px;
+}
+
+/* ========================================
+ * DARK THEME
+ * Professional dark mode with proper contrast
+ * ======================================== */
+
+[data-theme="dark"] {
+  /* Dark Theme Color Overrides */
+  --vm-color-background: var(--vm-neutral-900);
+  --vm-color-foreground: var(--vm-neutral-50);
+  --vm-color-muted: var(--vm-neutral-400);
+  --vm-color-muted-foreground: var(--vm-neutral-300);
+  
+  --vm-color-surface: var(--vm-neutral-850);
+  --vm-color-surface-elevated: var(--vm-neutral-800);
+  --vm-color-surface-sunken: var(--vm-neutral-900);
+  
+  --vm-color-border: var(--vm-neutral-750);
+  --vm-color-border-subtle: var(--vm-neutral-800);
+  --vm-color-border-strong: var(--vm-neutral-700);
+  
+  --vm-color-secondary: var(--vm-neutral-800);
+  --vm-color-secondary-foreground: var(--vm-neutral-100);
+  --vm-color-secondary-hover: var(--vm-neutral-750);
+
+  /* Focus and Selection for Dark Mode */
+  --vm-color-focus-ring: var(--vm-primary-300);
+  --vm-color-selection: var(--vm-primary-900);
+
+  /* Glass Effects for Dark Mode */
+  --vm-glass-bg: rgba(0, 0, 0, 0.8);
+  --vm-glass-border: rgba(255, 255, 255, 0.1);
+  
+  /* Enhanced Shadows for Dark Mode */
+  --vm-shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --vm-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+  --vm-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  --vm-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+  --vm-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
+  --vm-shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.7);
+}
+
+/* ========================================
+ * BASE ELEMENT STYLES
+ * Consistent foundation
+ * ======================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--vm-font-body);
+  font-size: 16px;
+  line-height: var(--vm-leading-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--vm-color-background);
+  color: var(--vm-color-foreground);
+  font-family: var(--vm-font-body);
+  font-size: var(--vm-text-base);
+  line-height: var(--vm-leading-normal);
+  transition: background-color var(--vm-duration-normal) var(--vm-ease-out),
+              color var(--vm-duration-normal) var(--vm-ease-out);
+}
+
+/* Selection Styles */
+::selection {
+  background-color: var(--vm-color-selection);
+  color: var(--vm-color-foreground);
+}
+
+::-moz-selection {
+  background-color: var(--vm-color-selection);
+  color: var(--vm-color-foreground);
+}
+
+/* Focus Styles */
+*:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--vm-color-focus);
+  outline-offset: 2px;
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--vm-color-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--vm-color-border-strong);
+  border-radius: var(--vm-radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--vm-color-muted);
+}
+
+/* ========================================
+ * ANIMATIONS
+ * Custom keyframes for enhanced UX
+ * ======================================== */
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes bounceIn {
+  0%, 20%, 40%, 60%, 80% {
+    transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  0% {
+    opacity: 0;
+    transform: scale3d(0.3, 0.3, 0.3);
+  }
+  20% {
+    transform: scale3d(1.1, 1.1, 1.1);
+  }
+  40% {
+    transform: scale3d(0.9, 0.9, 0.9);
+  }
+  60% {
+    opacity: 1;
+    transform: scale3d(1.03, 1.03, 1.03);
+  }
+  80% {
+    transform: scale3d(0.97, 0.97, 0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale3d(1, 1, 1);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--vm-duration-normal) var(--vm-ease-out) forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight var(--vm-duration-normal) var(--vm-ease-out) forwards;
+}
+
+.animate-bounce-in {
+  animation: bounceIn var(--vm-duration-slow) var(--vm-ease-out) forwards;
+}
+
+/* ========================================
+ * UTILITY CLASSES
+ * Commonly used patterns
+ * ======================================== */
+
+.vm-surface {
+  background-color: var(--vm-color-surface);
+  color: var(--vm-color-foreground);
+}
+
+.vm-surface-elevated {
+  background-color: var(--vm-color-surface-elevated);
+  color: var(--vm-color-foreground);
+}
+
+.vm-focus-ring {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.vm-focus-ring:focus-visible {
+  outline: 2px solid var(--vm-color-focus);
+  outline-offset: 2px;
+}
+
+.vm-transition {
+  transition: all var(--vm-duration-normal) var(--vm-ease-out);
+}
+
+.vm-glass {
+  background: var(--vm-glass-bg);
+  border: 1px solid var(--vm-glass-border);
+  backdrop-filter: blur(var(--vm-blur-lg));
+  -webkit-backdrop-filter: blur(var(--vm-blur-lg));
+}
+
+.vm-gradient-text {
+  background: var(--vm-gradient-text-primary);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Screen Reader Only */
+.vm-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ========================================
+ * RESPONSIVE UTILITIES
+ * Mobile-first breakpoint system
+ * ======================================== */
+
+@media (min-width: 640px) {
+  .vm-sm\:block { display: block; }
+  .vm-sm\:hidden { display: none; }
+  .vm-sm\:flex { display: flex; }
+}
+
+@media (min-width: 768px) {
+  .vm-md\:block { display: block; }
+  .vm-md\:hidden { display: none; }
+  .vm-md\:flex { display: flex; }
+}
+
+@media (min-width: 1024px) {
+  .vm-lg\:block { display: block; }
+  .vm-lg\:hidden { display: none; }
+  .vm-lg\:flex { display: flex; }
+}
+
+@media (min-width: 1280px) {
+  .vm-xl\:block { display: block; }
+  .vm-xl\:hidden { display: none; }
+  .vm-xl\:flex { display: flex; }
+}
+
+/* ========================================
+ * REDUCED MOTION
+ * Accessibility considerations
+ * ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ========================================
+ * HIGH CONTRAST MODE
+ * Enhanced accessibility
+ * ======================================== */
+
+@media (prefers-contrast: high) {
+  :root {
+    --vm-color-border: var(--vm-neutral-900);
+    --vm-color-border-subtle: var(--vm-neutral-700);
+  }
+  
+  [data-theme="dark"] {
+    --vm-color-border: var(--vm-neutral-100);
+    --vm-color-border-subtle: var(--vm-neutral-300);
+  }
+}
